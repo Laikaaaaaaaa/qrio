@@ -4336,8 +4336,13 @@
         case 'location':
           const lat = document.getElementById('loc-lat').value || '21.0285';
           const lng = document.getElementById('loc-lng').value || '105.8542';
-          const locName = document.getElementById('loc-name').value;
-          return locName ? `geo:${lat},${lng}?q=${encodeURIComponent(locName)}` : `geo:${lat},${lng}`;
+          const latNum = Number.parseFloat(lat);
+          const lngNum = Number.parseFloat(lng);
+          const safeLat = Number.isFinite(latNum) ? latNum : 21.0285;
+          const safeLng = Number.isFinite(lngNum) ? lngNum : 105.8542;
+          // Use an OSM URL with mlat/mlon so the destination shows a marker/pin.
+          // This is more reliable than geo: URIs across scanner apps.
+          return `https://www.openstreetmap.org/?mlat=${safeLat.toFixed(6)}&mlon=${safeLng.toFixed(6)}#map=18/${safeLat.toFixed(6)}/${safeLng.toFixed(6)}`;
         case 'vcard':
           return generateVCard();
         case 'event':
@@ -7615,20 +7620,33 @@
 
     const locationPickerTileSources = [
       {
+        id: 'esri_light_gray_canvas',
+        name: 'Street (labels)',
+        kind: 'composite',
+        maxZoom: 19,
+        attribution: '',
+        layers: [
+          {
+            // Base
+            kind: 'xyz',
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+            maxZoom: 19,
+          },
+          {
+            // Labels overlay
+            kind: 'xyz',
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+            maxZoom: 19,
+            pane: 'overlayPane',
+          },
+        ],
+      },
+      {
         id: 'esri_world_imagery',
         name: 'Imagery (no labels)',
         kind: 'xyz',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         maxZoom: 19,
-        attribution: '',
-      },
-      {
-        id: 'carto_positron',
-        name: 'CARTO Positron',
-        kind: 'xyz',
-        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        subdomains: 'abcd',
-        maxZoom: 20,
         attribution: '',
       },
       {
@@ -7738,6 +7756,24 @@
     function locationPickerBuildTileLayer(source) {
       if (!source) return null;
 
+      if (source.kind === 'composite') {
+        const layers = Array.isArray(source.layers) ? source.layers : [];
+        const built = layers.map(layerSpec => {
+          if (!layerSpec) return null;
+          const opts = {
+            maxZoom: layerSpec.maxZoom || source.maxZoom || 19,
+            attribution: layerSpec.attribution || source.attribution || '',
+            crossOrigin: false,
+          };
+          if (layerSpec.pane) opts.pane = layerSpec.pane;
+          if (Number.isFinite(layerSpec.maxNativeZoom)) opts.maxNativeZoom = layerSpec.maxNativeZoom;
+          if (layerSpec.subdomains) opts.subdomains = layerSpec.subdomains;
+          return L.tileLayer(layerSpec.url, opts);
+        }).filter(Boolean);
+
+        return L.layerGroup(built);
+      }
+
       if (source.kind === 'grid') {
         const layer = L.gridLayer({
           maxZoom: source.maxZoom || 20,
@@ -7810,13 +7846,21 @@
       locationPickerTileLayer.addTo(locationPickerMap);
 
       // Track errors and auto-switch when blocked (only meaningful for URL tile sources)
-      if (locationPickerTileLayer && typeof locationPickerTileLayer.on === 'function') {
-        locationPickerTileLayer.on('tileerror', () => {
-          locationPickerTileErrors += 1;
-          if (locationPickerTileErrors >= 3) {
-            locationPickerSwitchToNextTileSource('tileerror');
-          }
-        });
+      const onTileError = () => {
+        locationPickerTileErrors += 1;
+        if (locationPickerTileErrors >= 3) {
+          locationPickerSwitchToNextTileSource('tileerror');
+        }
+      };
+
+      if (locationPickerTileLayer) {
+        if (typeof locationPickerTileLayer.on === 'function') {
+          locationPickerTileLayer.on('tileerror', onTileError);
+        } else if (typeof locationPickerTileLayer.eachLayer === 'function') {
+          locationPickerTileLayer.eachLayer((l) => {
+            if (l && typeof l.on === 'function') l.on('tileerror', onTileError);
+          });
+        }
       }
 
       // Avoid noisy toast on init when using the neutral grid (single-source offline mode)
