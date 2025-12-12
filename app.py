@@ -949,7 +949,10 @@ def add_titles_to_qr(qr_img, title_top, title_bottom, title_color, top_size, bot
 
 
 if __name__ == '__main__':
-    print("✓ Qrio đang chạy tại http://localhost:5000")
-    print("✓ Mở trình duyệt và truy cập: http://localhost:5000")
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    host = '0.0.0.0' if not debug else 'localhost'
+    print(f"✓ Qrio đang chạy tại http://localhost:{port}")
+    print("✓ Mở trình duyệt và truy cập")
     print("✓ Bấn Ctrl+C để dừng server")
-    app.run(debug=True, host='localhost', port=5000)
+    app.run(debug=debug, host=host, port=port)
