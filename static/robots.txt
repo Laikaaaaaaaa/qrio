@@ -1,0 +1,6 @@
+# Qrio - robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://qrio.vn/sitemap.xml
