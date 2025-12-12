@@ -7620,6 +7620,15 @@
 
     const locationPickerTileSources = [
       {
+        id: 'osm_standard',
+        name: 'OpenStreetMap (labels)',
+        kind: 'xyz',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        subdomains: 'abc',
+        maxZoom: 19,
+        attribution: '',
+      },
+      {
         id: 'esri_light_gray_canvas',
         name: 'Street (labels)',
         kind: 'composite',
