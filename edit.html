@@ -7604,6 +7604,15 @@
 
     const locationPickerTileSources = [
       {
+        id: 'carto_positron',
+        name: 'CARTO Positron',
+        kind: 'xyz',
+        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        subdomains: 'abcd',
+        maxZoom: 20,
+        attribution: '',
+      },
+      {
         id: 'local_mbtiles',
         name: 'Local MBTiles',
         kind: 'xyz',
@@ -7653,8 +7662,8 @@
         // If we know the dataset's max native zoom, tell Leaflet to upscale beyond it.
         // This avoids 404s when the user zooms in but the MBTiles doesn't contain high zoom levels.
         if (locationPickerLocalTilesAvailable && Number.isFinite(locationPickerLocalTilesZoomMax)) {
-          const src = locationPickerTileSources && locationPickerTileSources[0];
-          if (src && src.id === 'local_mbtiles') {
+          const src = (locationPickerTileSources || []).find(s => s && s.id === 'local_mbtiles');
+          if (src) {
             src.maxNativeZoom = locationPickerLocalTilesZoomMax;
             // Keep maxZoom high so Leaflet can zoom further (it will scale tiles at maxNativeZoom).
             src.maxZoom = Math.max(src.maxZoom || 20, locationPickerLocalTilesZoomMax);
@@ -7893,7 +7902,9 @@
         }
 
         const hasLocalTiles = await locationPickerDetectLocalTiles();
-        const preferredIndex = hasLocalTiles ? 0 : 1;
+        // Prefer external tiles on production (user request). If they fail, Leaflet tileerror fallback will switch.
+        // If no local mbtiles, fallback chain is: CARTO -> Local MBTiles (if any) -> Neutral Grid.
+        const preferredIndex = 0;
         const initialZoom = (hasLocalTiles && Number.isFinite(locationPickerLocalTilesZoomMax))
           ? Math.min(13, locationPickerLocalTilesZoomMax)
           : 13;
@@ -7904,12 +7915,13 @@
           zoomControl: true,
         });
 
-        // Tiles: prefer local MBTiles, fall back to neutral grid.
+        // Tiles: prefer external basemap, fall back to local MBTiles, then neutral grid.
         locationPickerTileSourceIndex = preferredIndex;
         locationPickerApplyTileSource(locationPickerTileSourceIndex, 'init');
 
         if (!hasLocalTiles) {
-          locationPickerToast('Chưa có tile local (.mbtiles) → dùng lưới offline.');
+          // Keep message subtle; external tiles should work on production.
+          // If external tiles are blocked by network/CSP, fallback logic will switch.
         }
 
         locationPickerMarker = L.marker(center, { draggable: true }).addTo(locationPickerMap);
