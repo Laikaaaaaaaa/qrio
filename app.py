@@ -752,11 +752,31 @@ def api_file_upload():
         # Proxy-upload to a free public file host so the QR points to a direct
         # download link even if this app isn't running.
         #
-        # 0x0.st sometimes returns 403 (rate-limit / network restrictions).
-        # Prefer Catbox, and fall back to other services.
+        # UX requirement: scan QR -> open link -> download immediately for ANY
+        # file type (not a preview page). This generally requires the host to
+        # respond with Content-Disposition: attachment.
+        #
+        # bashupload.com matches this requirement in testing (PDF/PNG/ZIP/EXE),
+        # so we use it first.
 
         def _is_http_url(u: str) -> bool:
             return isinstance(u, str) and (u.startswith('http://') or u.startswith('https://'))
+
+        def _upload_bashupload() -> str:
+            # Returns plain text where the first non-empty line is the URL.
+            r = requests.post(
+                'https://bashupload.com/',
+                files={'file': (safe_name, data)},
+                headers={'User-Agent': 'qr-editor/1.0', 'Accept': 'text/plain'},
+                timeout=60,
+            )
+            r.raise_for_status()
+            text = (r.text or '').strip()
+            for line in text.splitlines():
+                line = (line or '').strip()
+                if _is_http_url(line):
+                    return line
+            return text
 
         def _upload_catbox() -> str:
             # Anonymous uploads supported: omit userhash.
@@ -793,6 +813,9 @@ def api_file_upload():
             return (r.text or '').strip()
 
         providers = [
+            ('bashupload.com (attachment)', _upload_bashupload),
+            # Fallbacks below may not force download for all file types, but
+            # help keep uploads working if bashupload is down.
             ('catbox.moe', _upload_catbox),
             ('0x0.st', _upload_0x0),
             ('litterbox.catbox.moe (72h)', _upload_litterbox),
