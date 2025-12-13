@@ -20,6 +20,7 @@ import sqlite3
 from typing import Any
 from typing import Optional
 import json
+import requests
 
 import re
 import html
@@ -1130,6 +1131,47 @@ def add_titles_to_qr(qr_img, title_top, title_bottom, title_color, top_size, bot
     except Exception as e:
         print(f"Lỗi thêm tiêu đề: {e}")
         return qr_img
+
+
+# Proxy vector tiles từ TileServer GL
+@app.route('/api/tiles/<path:tile_path>')
+def proxy_vector_tiles(tile_path):
+    """Proxy vector tiles từ TileServer GL server."""
+    try:
+        tileserver_url = f"http://localhost:8080/{tile_path}"
+        response = requests.get(tileserver_url, timeout=10)
+        
+        if response.status_code == 200:
+            return Response(
+                response.content,
+                content_type=response.headers.get('content-type', 'application/x-protobuf'),
+                headers={
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET',
+                    'Cache-Control': 'max-age=3600'
+                }
+            )
+        else:
+            return Response("Tile not found", status=404)
+    except requests.RequestException as e:
+        print(f"TileServer GL proxy error: {e}")
+        return Response("TileServer GL not available", status=503)
+
+
+@app.route('/api/tileserver/status')
+def tileserver_status():
+    """Check TileServer GL availability."""
+    try:
+        response = requests.get("http://localhost:8080/health", timeout=5)
+        return jsonify({
+            "status": "online" if response.status_code == 200 else "offline",
+            "tileserver_url": "http://localhost:8080"
+        })
+    except requests.RequestException:
+        return jsonify({
+            "status": "offline",
+            "message": "TileServer GL not running on port 8080"
+        })
 
 
 if __name__ == '__main__':

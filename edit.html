@@ -38,8 +38,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -7633,6 +7635,7 @@
 
     // ===== LOCATION PICKER (Leaflet) =====
     let locationPickerMap = null;
+    let locationPickerMapType = 'leaflet'; // 'leaflet' or 'maplibre'
     let locationPickerMarker = null;
     let locationPickerSelected = null; // {lat, lng}
 
@@ -7646,6 +7649,13 @@
     let locationPickerPoliticalLabels = null;
 
     const locationPickerTileSources = [
+      {
+        id: 'vector_tiles',
+        name: 'Vector Tiles Việt Nam (TileServer GL)',
+        kind: 'maplibre',
+        style: '/api/tiles/styles/vietnam.json',
+        attribution: 'OpenMapTiles',
+      },
       {
         id: 'local_mbtiles',
         name: 'Bản đồ Việt Nam (Local MBTiles)',
@@ -7928,7 +7938,11 @@
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (!locationPickerMap) return;
-          locationPickerMap.invalidateSize(true);
+          if (locationPickerMapType === 'leaflet') {
+            locationPickerMap.invalidateSize(true);
+          } else {
+            locationPickerMap.resize();
+          }
         });
       });
 
@@ -7940,7 +7954,11 @@
           if (!locationPickerMap) return;
           // Only respond to the modal's own transition end.
           if (ev && ev.target !== modal) return;
-          locationPickerMap.invalidateSize(true);
+          if (locationPickerMapType === 'leaflet') {
+            locationPickerMap.invalidateSize(true);
+          } else {
+            locationPickerMap.resize();
+          }
         };
         modal.addEventListener('transitionend', onEnd, { once: true });
       }
@@ -7948,7 +7966,11 @@
       // 3) Fallback timer for animations that don't fire transitionend (or are interrupted).
       locationPickerInvalidateTimer = setTimeout(() => {
         if (!locationPickerMap) return;
-        locationPickerMap.invalidateSize(true);
+        if (locationPickerMapType === 'leaflet') {
+          locationPickerMap.invalidateSize(true);
+        } else {
+          locationPickerMap.resize();
+        }
       }, 350);
     }
 
@@ -7974,6 +7996,89 @@
         await nextAnimationFrame();
       }
 
+      // Check if TileServer GL is available for vector tiles
+      const useVectorTiles = await checkTileServerAvailability();
+      
+      if (useVectorTiles) {
+        return await initMapLibreMap(center);
+      } else {
+        return await initLeafletMap(center);
+      }
+    }
+
+    async function checkTileServerAvailability() {
+      try {
+        const response = await fetch('/api/tileserver/status', { cache: 'no-store' });
+        if (response.ok) {
+          const status = await response.json();
+          return status.status === 'online';
+        }
+      } catch (error) {
+        console.log('TileServer GL not available, using fallback');
+      }
+      return false;
+    }
+
+    async function initMapLibreMap(center) {
+      if (!window.maplibregl) {
+        locationPickerToast('MapLibre GL JS chưa tải xong. Đang fallback sang Leaflet...');
+        return await initLeafletMap(center);
+      }
+
+      try {
+        const mapContainer = document.getElementById('location-map');
+        mapContainer.innerHTML = ''; // Clear any existing content
+
+        const map = new maplibregl.Map({
+          container: 'location-map',
+          style: '/api/tiles/styles/vietnam.json',
+          center: [center[1], center[0]], // MapLibre uses [lng, lat]
+          zoom: 12,
+          minZoom: 5,
+          maxZoom: 20,
+          maxBounds: [[102.0, 5.0], [118.8, 25.2]], // Vietnam bounds [lng, lat]
+        });
+
+        // Add marker
+        const marker = new maplibregl.Marker({
+          draggable: true,
+          color: '#7c3aed'
+        })
+          .setLngLat([center[1], center[0]])
+          .addTo(map);
+
+        // Store references
+        locationPickerMap = map;
+        locationPickerMarker = marker;
+        locationPickerMapType = 'maplibre';
+
+        // Update coordinates display
+        locationPickerSelected = { lat: center[0], lng: center[1] };
+        updateLocationPickerCoordsLabel(center[0], center[1]);
+
+        // Add click handler
+        map.on('click', (ev) => {
+          const { lng, lat } = ev.lngLat;
+          setLocationPickerSelection(lat, lng, true);
+        });
+
+        // Add marker drag handler
+        marker.on('dragend', () => {
+          const lngLat = marker.getLngLat();
+          setLocationPickerSelection(lngLat.lat, lngLat.lng, false);
+        });
+
+        locationPickerToast('Đang sử dụng Vector Tiles (TileServer GL)');
+        return true;
+
+      } catch (error) {
+        console.error('MapLibre init failed:', error);
+        locationPickerToast('Vector tiles không khả dụng. Đang fallback...');
+        return await initLeafletMap(center);
+      }
+    }
+
+    async function initLeafletMap(center) {
       if (!locationPickerMap) {
         // Use an inline SVG marker so it never breaks due to missing Leaflet default icon images.
         const locationPickerMarkerIcon = L.divIcon({
@@ -7990,12 +8095,15 @@
         });
 
         const hasLocalTiles = await locationPickerDetectLocalTiles();
-        const preferredIndex = 0; // local_mbtiles is first
+        const preferredIndex = hasLocalTiles ? 1 : 2; // local_mbtiles or grid
         const initialZoom = (hasLocalTiles && Number.isFinite(locationPickerLocalTilesZoomMax))
           ? Math.min(12, locationPickerLocalTilesZoomMax)
           : 12;
 
         const VIETNAM_BOUNDS = L.latLngBounds(L.latLng(5.0, 102.0), L.latLng(25.2, 118.8));
+
+        const mapContainer = document.getElementById('location-map');
+        mapContainer.innerHTML = ''; // Clear any existing content
 
         locationPickerMap = L.map('location-map', {
           center,
@@ -8006,6 +8114,9 @@
           maxBounds: VIETNAM_BOUNDS,
           maxBoundsViscosity: 1.0,
         });
+
+        // Store type
+        locationPickerMapType = 'leaflet';
 
         // Tiles: self-host only (MBTiles). If missing/unavailable, fall back to neutral grid.
         locationPickerTileSourceIndex = preferredIndex;
@@ -8034,10 +8145,18 @@
 
       // Recenter + marker each open
       if (locationPickerMap) {
-        locationPickerMap.setView(center, locationPickerMap.getZoom() || 13, { animate: false });
+        if (locationPickerMapType === 'leaflet') {
+          locationPickerMap.setView(center, locationPickerMap.getZoom() || 13, { animate: false });
+        } else {
+          locationPickerMap.setCenter([center[1], center[0]]);
+        }
       }
       if (locationPickerMarker) {
-        locationPickerMarker.setLatLng(center);
+        if (locationPickerMapType === 'leaflet') {
+          locationPickerMarker.setLatLng(center);
+        } else {
+          locationPickerMarker.setLngLat([center[1], center[0]]);
+        }
       }
       locationPickerSelected = { lat: center[0], lng: center[1] };
       updateLocationPickerCoordsLabel(locationPickerSelected.lat, locationPickerSelected.lng);
@@ -8087,8 +8206,23 @@
     function setLocationPickerSelection(lat, lng, pan = true) {
       if (!isFinite(lat) || !isFinite(lng)) return;
       locationPickerSelected = { lat, lng };
-      if (locationPickerMarker) locationPickerMarker.setLatLng([lat, lng]);
-      if (pan && locationPickerMap) locationPickerMap.panTo([lat, lng]);
+      
+      if (locationPickerMarker) {
+        if (locationPickerMapType === 'leaflet') {
+          locationPickerMarker.setLatLng([lat, lng]);
+        } else {
+          locationPickerMarker.setLngLat([lng, lat]);
+        }
+      }
+      
+      if (pan && locationPickerMap) {
+        if (locationPickerMapType === 'leaflet') {
+          locationPickerMap.panTo([lat, lng]);
+        } else {
+          locationPickerMap.panTo([lng, lat]);
+        }
+      }
+      
       updateLocationPickerCoordsLabel(lat, lng);
     }
 
