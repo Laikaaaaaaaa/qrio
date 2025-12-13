@@ -320,6 +320,9 @@
     .form-group input[type="email"],
     .form-group input[type="tel"],
     .form-group input[type="number"],
+    .form-group input[type="datetime-local"],
+    .form-group input[type="date"],
+    .form-group input[type="time"],
     .form-group textarea,
     .form-group select {
       width: 100%;
@@ -331,6 +334,19 @@
       background: #1e1e2e;
       color: #fff;
       transition: 0.2s;
+    }
+
+    /* Improve native datetime picker on dark backgrounds */
+    .form-group input[type="datetime-local"],
+    .form-group input[type="date"],
+    .form-group input[type="time"] {
+      color-scheme: dark;
+    }
+    .form-group input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator,
+    .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.8;
     }
 
     .form-group input:focus,
@@ -4298,11 +4314,19 @@
           const directUrl = document.getElementById('file-direct-url').value;
           if (directUrl) return directUrl;
           if (uploadedFileUrl) return uploadedFileUrl;
-          return 'https://qrio.vn';
+          return window.location.origin;
         default: return 'https://qrio.vn';
       }
     }
     
+    function escapeVCardValue(v) {
+      return String(v || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/\r\n|\r|\n/g, '\\n')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,');
+    }
+
     // Helper function for vCard
     function generateVCard() {
       const fn = document.getElementById('vcard-firstname').value || '';
@@ -4314,17 +4338,42 @@
       const url = document.getElementById('vcard-url').value || '';
       const addr = document.getElementById('vcard-address').value || '';
       
-      let vcard = 'BEGIN:VCARD\nVERSION:3.0\n';
-      if (fn || ln) vcard += `N:${ln};${fn};;;\n`;
-      if (fn || ln) vcard += `FN:${fn} ${ln}\n`;
-      if (org) vcard += `ORG:${org}\n`;
-      if (title) vcard += `TITLE:${title}\n`;
-      if (phone) vcard += `TEL;TYPE=WORK,VOICE:${phone}\n`;
-      if (email) vcard += `EMAIL;TYPE=PREF,INTERNET:${email}\n`;
-      if (url) vcard += `URL:${url}\n`;
-      if (addr) vcard += `ADR;TYPE=WORK:;;${addr.replace(/\n/g, ', ')};;;;\n`;
+      let vcard = 'BEGIN:VCARD\r\nVERSION:3.0\r\n';
+      if (fn || ln) vcard += `N:${escapeVCardValue(ln)};${escapeVCardValue(fn)};;;\r\n`;
+      if (fn || ln) vcard += `FN:${escapeVCardValue(`${fn} ${ln}`.trim())}\r\n`;
+      if (org) vcard += `ORG:${escapeVCardValue(org)}\r\n`;
+      if (title) vcard += `TITLE:${escapeVCardValue(title)}\r\n`;
+      if (phone) vcard += `TEL;TYPE=WORK,VOICE:${escapeVCardValue(phone)}\r\n`;
+      if (email) vcard += `EMAIL;TYPE=PREF,INTERNET:${escapeVCardValue(email)}\r\n`;
+      if (url) vcard += `URL:${escapeVCardValue(url)}\r\n`;
+      if (addr) vcard += `ADR;TYPE=WORK:;;${escapeVCardValue(addr).replace(/\\n/g, ', ')};;;;\r\n`;
       vcard += 'END:VCARD';
       return vcard;
+    }
+
+    function escapeICalValue(v) {
+      return String(v || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/\r\n|\r|\n/g, '\\n')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,');
+    }
+
+    function formatICalLocal(dateStr) {
+      if (!dateStr) return '';
+      // datetime-local returns local time (no timezone). Keep it as a floating local time.
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return '';
+      const pad = (n) => String(n).padStart(2, '0');
+      return (
+        d.getFullYear() +
+        pad(d.getMonth() + 1) +
+        pad(d.getDate()) +
+        'T' +
+        pad(d.getHours()) +
+        pad(d.getMinutes()) +
+        pad(d.getSeconds())
+      );
     }
     
     // Helper function for Calendar Event
@@ -4334,23 +4383,21 @@
       const startInput = document.getElementById('event-start').value;
       const endInput = document.getElementById('event-end').value;
       const desc = document.getElementById('event-desc').value || '';
-      
-      const formatDate = (dateStr) => {
-        if (!dateStr) return '';
-        const d = new Date(dateStr);
-        return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      };
-      
-      const start = formatDate(startInput) || formatDate(new Date().toISOString());
-      const end = formatDate(endInput) || formatDate(new Date(Date.now() + 3600000).toISOString());
-      
-      let vevent = 'BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\n';
-      vevent += `SUMMARY:${title}\n`;
-      vevent += `DTSTART:${start}\n`;
-      vevent += `DTEND:${end}\n`;
-      if (location) vevent += `LOCATION:${location}\n`;
-      if (desc) vevent += `DESCRIPTION:${desc.replace(/\n/g, '\\n')}\n`;
-      vevent += 'END:VEVENT\nEND:VCALENDAR';
+
+      const now = new Date();
+      const defaultStart = new Date(now.getTime() + 5 * 60 * 1000);
+      const defaultEnd = new Date(defaultStart.getTime() + 60 * 60 * 1000);
+
+      const start = formatICalLocal(startInput) || formatICalLocal(defaultStart);
+      const end = formatICalLocal(endInput) || formatICalLocal(defaultEnd);
+
+      let vevent = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\n';
+      vevent += `SUMMARY:${escapeICalValue(title)}\r\n`;
+      vevent += `DTSTART:${start}\r\n`;
+      vevent += `DTEND:${end}\r\n`;
+      if (location) vevent += `LOCATION:${escapeICalValue(location)}\r\n`;
+      if (desc) vevent += `DESCRIPTION:${escapeICalValue(desc)}\r\n`;
+      vevent += 'END:VEVENT\r\nEND:VCALENDAR';
       return vevent;
     }
     
@@ -4368,13 +4415,17 @@
       // Simplified version - for full compliance, use VietQR API
       let qrContent = '';
       qrContent += '000201'; // Payload Format Indicator
-      qrContent += '010212'; // Point of Initiation Method (dynamic)
+      // Use static if amount is empty (more compatible), dynamic if amount is provided.
+      qrContent += amount ? '010212' : '010211';
       
       // Merchant Account Information (ID 38 for VietQR)
       let mai = '0010A000000727'; // GUID
       mai += `01${String(bankBin.length).padStart(2, '0')}${bankBin}`; // Bank BIN
       mai += `02${String(account.length).padStart(2, '0')}${account}`; // Account
       qrContent += `38${String(mai.length).padStart(2, '0')}${mai}`;
+
+      // Merchant Category Code (required by many parsers)
+      qrContent += '52040000';
       
       qrContent += '5303704'; // Currency (VND)
       
@@ -4390,7 +4441,8 @@
         qrContent += `59${String(nameClean.length).padStart(2, '0')}${nameClean}`;
       }
       
-      qrContent += '6006HANOI'; // City (default)
+      const city = 'HANOI';
+      qrContent += `60${String(city.length).padStart(2, '0')}${city}`; // City (default)
       
       if (memo) {
         const memoClean = memo.substring(0, 25);
@@ -4467,7 +4519,7 @@
     let uploadedFileUrl = '';
     let uploadedFileData = null;
     
-    function handleFileUpload(event) {
+    async function handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
       
@@ -4482,17 +4534,24 @@
       document.getElementById('uploaded-file-name').textContent = file.name;
       document.getElementById('file-size').textContent = formatFileSize(file.size);
       
-      // Convert to base64 data URL (for demo - in production, upload to server)
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        uploadedFileData = e.target.result;
-        // For demo purposes, we'll encode the file as a data URL
-        // In production, you'd upload to a server and get a real URL
-        uploadedFileUrl = `https://qrio.vn/download?file=${encodeURIComponent(file.name)}`;
-        showToast('File đã sẵn sàng!');
+      // Upload to backend and get a real download URL
+      try {
+        showToast('Đang tải file lên...');
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/file/upload', { method: 'POST', body: fd });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(payload.error || 'Upload thất bại');
+        uploadedFileData = null;
+        uploadedFileUrl = payload.url || '';
+        if (!uploadedFileUrl) throw new Error('Không nhận được link download');
+        showToast('Đã tạo link tải file!');
         generateQR();
-      };
-      reader.readAsDataURL(file);
+      } catch (e) {
+        uploadedFileUrl = '';
+        uploadedFileData = null;
+        showToast('Upload lỗi: ' + (e?.message || e));
+      }
     }
     
     function removeUploadedFile() {

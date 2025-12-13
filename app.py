@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_file, send_from_directory, redirect, url_for, Response
+from werkzeug.utils import secure_filename
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.moduledrawers import (
     RoundedModuleDrawer,
@@ -16,21 +17,38 @@ from PIL import Image, ImageDraw, ImageFont, ImageChops
 import io
 import base64
 import os
+import uuid
+import mimetypes
 from typing import Any
 from typing import Optional
 import json
 
 import re
-import html
+
+
+_CONTROL_CHARS_RE = re.compile(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]')
 
 
 def sanitize_input(value: str, max_length: int = 2000) -> str:
-    """Sanitize user input to prevent XSS and limit length."""
-    if not value:
+    """Sanitize user input for server-side processing.
+
+    Note: Do NOT HTML-escape here because the values are not rendered into HTML.
+    Escaping would corrupt QR payloads (e.g. URLs with '&', mailto params, etc.).
+    """
+    if value is None:
         return ''
-    # Escape HTML entities
-    sanitized = html.escape(str(value)[:max_length])
-    return sanitized
+    s = str(value)[:max_length]
+    s = _CONTROL_CHARS_RE.sub('', s)
+    return s.strip()
+
+
+def sanitize_qr_data(value: str, max_length: int = 4000) -> str:
+    """Sanitize QR payload without altering its semantics."""
+    if value is None:
+        return ''
+    s = str(value)[:max_length]
+    # Remove only control chars that can break generators/scanners.
+    return _CONTROL_CHARS_RE.sub('', s)
 
 
 def validate_hex_color(color: str) -> str:
@@ -156,6 +174,10 @@ app = Flask(
 # Tạo thư mục lưu nếu chưa có
 thu_muc_ma = Path("mã")
 thu_muc_ma.mkdir(exist_ok=True)
+
+# Uploads for "File QR"
+uploads_dir = Path('uploads')
+uploads_dir.mkdir(exist_ok=True)
 
 # Security headers - CSP, XSS protection, cache
 @app.after_request
@@ -472,7 +494,7 @@ def api_generate():
     """API tạo QR preview"""
     try:
         # Sanitize and validate all inputs
-        data = sanitize_input(request.form.get('data', 'https://qrio.vn'), max_length=4000)
+        data = sanitize_qr_data(request.form.get('data', 'https://qrio.vn'), max_length=4000)
         if not data:
             data = 'https://qrio.vn'
         
@@ -547,17 +569,17 @@ def api_generate():
 def api_download():
     """API tải QR dưới dạng file (có thể kèm tiêu đề)"""
     try:
-        data = request.form.get('data', 'https://agrichat.site')
-        qr_color = request.form.get('qr_color', '#0c6c3b')
-        bg_color = request.form.get('bg_color', '#ffffff')
-        box_size = int(request.form.get('box_size', 10))
-        dot_type = request.form.get('dot_type', 'rounded')
-        border = int(request.form.get('border', 4))
-        ecc_level = request.form.get('ecc_level', 'H')
+        data = sanitize_qr_data(request.form.get('data', 'https://qrio.vn'), max_length=4000)
+        qr_color = validate_hex_color(request.form.get('qr_color', '#0c6c3b'))
+        bg_color = validate_hex_color(request.form.get('bg_color', '#ffffff'))
+        box_size = validate_int(request.form.get('box_size', 10), default=10, min_val=1, max_val=50)
+        dot_type = sanitize_input(request.form.get('dot_type', 'rounded'), max_length=50)
+        border = validate_int(request.form.get('border', 4), default=4, min_val=0, max_val=20)
+        ecc_level = sanitize_input(request.form.get('ecc_level', 'H'), max_length=1).upper()
         version = _parse_version(request.form.get('version'))
-        module_style = request.form.get('module_style', 'legacy')
-        eye_style = request.form.get('eye_style', 'square')
-        filename = request.form.get('filename', 'qr_code')
+        module_style = sanitize_input(request.form.get('module_style', 'legacy'), max_length=50)
+        eye_style = sanitize_input(request.form.get('eye_style', 'square'), max_length=50)
+        filename = sanitize_input(request.form.get('filename', 'qr_code'), max_length=80) or 'qr_code'
 
         # Logo rounding (optional)
         logo_radius = request.form.get('logo_radius', 0)
@@ -609,6 +631,63 @@ def api_download():
         return send_file(buf, mimetype='image/png', as_attachment=True, download_name=f'{filename}.png')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/file/upload', methods=['POST'])
+def api_file_upload():
+    """Upload a file and return a download URL (used by File QR)."""
+    try:
+        if 'file' not in request.files or not request.files['file'].filename:
+            return jsonify({'error': 'Thiếu file upload'}), 400
+
+        up = request.files['file']
+        original_name = up.filename
+        safe_name = secure_filename(original_name) or 'download'
+
+        # Enforce 5MB limit (match UI)
+        data = up.read()
+        if len(data) > 5 * 1024 * 1024:
+            return jsonify({'error': 'File quá lớn! Tối đa 5MB'}), 400
+
+        token = uuid.uuid4().hex
+        file_path = uploads_dir / token
+        meta_path = uploads_dir / f'{token}.json'
+
+        file_path.write_bytes(data)
+        mime, _ = mimetypes.guess_type(safe_name)
+        meta_path.write_text(
+            json.dumps({'filename': safe_name, 'mime': mime or 'application/octet-stream'}, ensure_ascii=False),
+            encoding='utf-8',
+        )
+
+        url = url_for('download_uploaded_file', token=token, _external=True)
+        return jsonify({'url': url})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/file/<token>')
+def download_uploaded_file(token: str):
+    """Download previously uploaded file (Content-Disposition: attachment)."""
+    token = sanitize_input(token, max_length=64)
+    file_path = uploads_dir / token
+    meta_path = uploads_dir / f'{token}.json'
+
+    if not file_path.exists() or not meta_path.exists():
+        return jsonify({'error': 'File không tồn tại'}), 404
+
+    try:
+        meta = json.loads(meta_path.read_text(encoding='utf-8'))
+    except Exception:
+        meta = {'filename': 'download', 'mime': 'application/octet-stream'}
+
+    return send_file(
+        str(file_path),
+        mimetype=meta.get('mime') or 'application/octet-stream',
+        as_attachment=True,
+        download_name=meta.get('filename') or 'download',
+        max_age=0,
+    )
 
 
 def add_titles_to_qr(qr_img, title_top, title_bottom, title_color, top_size, bottom_size, bg_color):
