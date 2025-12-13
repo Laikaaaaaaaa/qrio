@@ -741,8 +741,15 @@ def api_file_upload():
             return jsonify({'error': 'Thiếu file upload'}), 400
 
         up = request.files['file']
-        original_name = up.filename
+        original_name = up.filename or ''
         safe_name = secure_filename(original_name) or 'download'
+
+        # Prefer the user's original filename for the download name, but sanitize
+        # to avoid control characters and header injection.
+        download_name = sanitize_input(original_name, max_length=200)
+        download_name = download_name.replace('\r', '').replace('\n', '').strip()
+        if not download_name:
+            download_name = safe_name
 
         # Enforce 5MB limit (match UI)
         data = up.read()
@@ -850,9 +857,7 @@ def api_file_upload():
                 from urllib.parse import quote
 
                 sep = '&' if '?' in proxy_base else '?'
-                proxied = (
-                    f"{proxy_base}{sep}u={quote(url, safe='')}&name={quote(safe_name, safe='')}"
-                )
+                proxied = f"{proxy_base}{sep}u={quote(url, safe='')}&name={quote(download_name, safe='')}"
                 return jsonify({'url': proxied, 'directUrl': url})
             except Exception:
                 # Fall back to direct URL if proxy formatting fails.
