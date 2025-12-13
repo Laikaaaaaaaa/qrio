@@ -19,6 +19,7 @@ import os
 import sqlite3
 from typing import Any
 from typing import Optional
+import json
 
 import re
 import html
@@ -77,6 +78,28 @@ app = Flask(
 )
 
 
+def get_maptiler_api_key() -> str:
+    """Return MAPTILER_API_KEY if it looks valid, else empty string."""
+    key = (os.environ.get('MAPTILER_API_KEY') or '').strip()
+    # MapTiler keys are URL-safe tokens; keep validation permissive but safe.
+    if not re.match(r'^[A-Za-z0-9_-]{10,}$', key):
+        return ''
+    return key
+
+
+@app.route('/config.js')
+def client_config_js():
+    """Small JS config blob for the frontend (served from same-origin)."""
+    key = get_maptiler_api_key()
+    payload = (
+        "window.__QRIO_CONFIG__ = window.__QRIO_CONFIG__ || {};\n"
+        f"window.__QRIO_CONFIG__.maptilerKey = {json.dumps(key)};\n"
+    )
+    resp = Response(payload, mimetype='application/javascript; charset=utf-8')
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
+
 @app.route('/location')
 def location_viewer():
         """Simple location viewer for scanned QR codes.
@@ -89,7 +112,6 @@ def location_viewer():
         zoom = validate_int(request.args.get('z'), 18, 1, 19)
 
         # Render as inline HTML to keep deployment simple.
-        # This page uses CARTO tiles only (approved provider).
         page = f"""<!doctype html>
 <html lang=\"vi\">
 <head>
@@ -129,14 +151,80 @@ def location_viewer():
             var lat = {lat:.6f};
             var lng = {lng:.6f};
             var zoom = {zoom:d};
-            var map = L.map('map', {{ zoomControl: true }}).setView([lat, lng], zoom);
+            var VIETNAM_BOUNDS = L.latLngBounds(L.latLng(5.0, 102.0), L.latLng(25.2, 118.8));
+            var map = L.map('map', {{
+                zoomControl: true,
+                minZoom: 5,
+                maxZoom: 20,
+                maxBounds: VIETNAM_BOUNDS,
+                maxBoundsViscosity: 1.0,
+            }}).setView([lat, lng], zoom);
 
-            // CARTO tiles (approved)
-            L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
-                maxZoom: 19,
-                subdomains: 'abcd',
-                attribution: ''
-            }}).addTo(map);
+            function buildNeutralGridLayer() {{
+                var layer = L.gridLayer({{ maxZoom: 20, tileSize: 256, attribution: '' }});
+                layer.createTile = function(coords) {{
+                    var tile = document.createElement('canvas');
+                    tile.width = 256;
+                    tile.height = 256;
+                    var ctx = tile.getContext('2d');
+                    if (!ctx) return tile;
+                    ctx.fillStyle = '#1e1e2e';
+                    ctx.fillRect(0, 0, 256, 256);
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+                    ctx.lineWidth = 1;
+                    for (var i = 0; i <= 256; i += 32) {{
+                        ctx.beginPath();
+                        ctx.moveTo(i + 0.5, 0);
+                        ctx.lineTo(i + 0.5, 256);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(0, i + 0.5);
+                        ctx.lineTo(256, i + 0.5);
+                        ctx.stroke();
+                    }}
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
+                    ctx.strokeRect(0.5, 0.5, 255, 255);
+                    ctx.fillStyle = 'rgba(148, 163, 184, 0.85)';
+                    ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+                    ctx.fillText('offline tile', 10, 20);
+                    return tile;
+                }};
+                return layer;
+            }}
+
+            function addMbtilesLayer(maxNativeZoom) {{
+                var opts = {{
+                    maxZoom: 20,
+                    attribution: '',
+                    crossOrigin: false,
+                }};
+                if (Number.isFinite(maxNativeZoom)) {{
+                    opts.maxNativeZoom = maxNativeZoom;
+                    opts.maxZoom = Math.max(20, maxNativeZoom);
+                }}
+                var tl = L.tileLayer('/tiles/{{z}}/{{x}}/{{y}}.png', opts);
+                tl.on('tileerror', function() {{
+                    // If local tiles missing/corrupt, fall back to neutral grid.
+                    if (!map.__qrioFallback) {{
+                        map.__qrioFallback = true;
+                        buildNeutralGridLayer().addTo(map);
+                    }}
+                }});
+                tl.addTo(map);
+            }}
+
+            fetch('/tiles/status', {{ cache: 'no-store' }})
+                .then(function(r) {{ return r.ok ? r.json() : null; }})
+                .then(function(info) {{
+                    if (info && info.found && info.is_raster) {{
+                        addMbtilesLayer((typeof info.max_zoom === 'number') ? info.max_zoom : null);
+                    }} else {{
+                        buildNeutralGridLayer().addTo(map);
+                    }}
+                }})
+                .catch(function() {{
+                    buildNeutralGridLayer().addTo(map);
+                }});
 
             var markerIcon = L.divIcon({{
                 className: 'qrio-leaflet-marker',
@@ -180,8 +268,9 @@ def add_security_headers(response):
         "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; "
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-        "img-src 'self' data: blob: https://*.basemaps.cartocdn.com; "
+        "img-src 'self' data: blob:; "
         "connect-src 'self'; "
+        "worker-src 'self' blob:; "
         "frame-ancestors 'none';"
     )
     response.headers['X-Content-Type-Options'] = 'nosniff'

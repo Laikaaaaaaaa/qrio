@@ -7647,17 +7647,8 @@
 
     const locationPickerTileSources = [
       {
-        id: 'carto_light_all',
-        name: 'CARTO (khuyến nghị)',
-        kind: 'xyz',
-        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '',
-      },
-      {
         id: 'local_mbtiles',
-        name: 'Local MBTiles',
+        name: 'Bản đồ Việt Nam (Local MBTiles)',
         kind: 'xyz',
         url: '/tiles/{z}/{x}/{y}.png',
         maxZoom: 20,
@@ -7999,26 +7990,29 @@
         });
 
         const hasLocalTiles = await locationPickerDetectLocalTiles();
-        // Prefer external tiles on production (user request). If they fail, Leaflet tileerror fallback will switch.
-        // If no local mbtiles, fallback chain is: CARTO -> Local MBTiles (if any) -> Neutral Grid.
-        const preferredIndex = 0;
+        const preferredIndex = 0; // local_mbtiles is first
         const initialZoom = (hasLocalTiles && Number.isFinite(locationPickerLocalTilesZoomMax))
-          ? Math.min(13, locationPickerLocalTilesZoomMax)
-          : 13;
+          ? Math.min(12, locationPickerLocalTilesZoomMax)
+          : 12;
+
+        const VIETNAM_BOUNDS = L.latLngBounds(L.latLng(5.0, 102.0), L.latLng(25.2, 118.8));
 
         locationPickerMap = L.map('location-map', {
           center,
           zoom: initialZoom,
           zoomControl: true,
+          minZoom: 5,
+          maxZoom: 20,
+          maxBounds: VIETNAM_BOUNDS,
+          maxBoundsViscosity: 1.0,
         });
 
-        // Tiles: prefer external basemap, fall back to local MBTiles, then neutral grid.
+        // Tiles: self-host only (MBTiles). If missing/unavailable, fall back to neutral grid.
         locationPickerTileSourceIndex = preferredIndex;
         locationPickerApplyTileSource(locationPickerTileSourceIndex, 'init');
 
         if (!hasLocalTiles) {
-          // Keep message subtle; external tiles should work on production.
-          // If external tiles are blocked by network/CSP, fallback logic will switch.
+          locationPickerToast('Chưa có file MBTiles local. Đang dùng lưới (offline).');
         }
 
         locationPickerMarker = L.marker(center, { draggable: true, icon: locationPickerMarkerIcon }).addTo(locationPickerMap);
