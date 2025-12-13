@@ -89,7 +89,7 @@ def location_viewer():
         zoom = validate_int(request.args.get('z'), 18, 1, 19)
 
         # Render as inline HTML to keep deployment simple.
-        # CSP already allows unpkg + OSM tiles via img-src.
+        # This page uses CARTO tiles only (approved provider).
         page = f"""<!doctype html>
 <html lang=\"vi\">
 <head>
@@ -178,7 +178,7 @@ def add_security_headers(response):
         "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; "
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-        "img-src 'self' data: blob: https://unpkg.com https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://server.arcgisonline.com; "
+        "img-src 'self' data: blob: https://*.basemaps.cartocdn.com; "
         "connect-src 'self'; "
         "frame-ancestors 'none';"
     )
