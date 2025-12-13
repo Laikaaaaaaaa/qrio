@@ -842,6 +842,22 @@ def api_file_upload():
         if not _is_http_url(url):
             return jsonify({'error': 'Upload trung gian lỗi: ' + ' | '.join(errors)}), 502
 
+        # Optional: return a proxy URL which forces download + preserves filename.
+        # This avoids relying on the third-party host's filename/headers.
+        proxy_base = (os.environ.get('FILE_QR_DOWNLOAD_PROXY') or '').strip()
+        if proxy_base:
+            try:
+                from urllib.parse import quote
+
+                sep = '&' if '?' in proxy_base else '?'
+                proxied = (
+                    f"{proxy_base}{sep}u={quote(url, safe='')}&name={quote(safe_name, safe='')}"
+                )
+                return jsonify({'url': proxied, 'directUrl': url})
+            except Exception:
+                # Fall back to direct URL if proxy formatting fails.
+                pass
+
         return jsonify({'url': url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
