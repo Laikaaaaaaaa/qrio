@@ -22,6 +22,7 @@ import mimetypes
 from typing import Any
 from typing import Optional
 import json
+import requests
 
 import re
 
@@ -169,15 +170,6 @@ app = Flask(
     static_folder='static',
     static_url_path='/static',
 )
-
-
-# Tạo thư mục lưu nếu chưa có
-thu_muc_ma = Path("mã")
-thu_muc_ma.mkdir(exist_ok=True)
-
-# Uploads for "File QR"
-uploads_dir = Path('uploads')
-uploads_dir.mkdir(exist_ok=True)
 
 # Security headers - CSP, XSS protection, cache
 @app.after_request
@@ -494,9 +486,67 @@ def api_generate():
     """API tạo QR preview"""
     try:
         # Sanitize and validate all inputs
+        qr_type = sanitize_input(request.form.get('qr_type', ''), max_length=30).lower()
         data = sanitize_qr_data(request.form.get('data', 'https://qrio.vn'), max_length=4000)
         if not data:
             data = 'https://qrio.vn'
+
+        # VietQR: generate a bank-compatible payload via official public API.
+        if qr_type == 'vietqr':
+            account_no = sanitize_input(request.form.get('vietqr_account', ''), max_length=32)
+            account_name = sanitize_input(request.form.get('vietqr_name', ''), max_length=80)
+            acq_id = sanitize_input(request.form.get('vietqr_bank', ''), max_length=16)
+            add_info = sanitize_input(request.form.get('vietqr_memo', ''), max_length=120)
+
+            amount_raw = sanitize_input(request.form.get('vietqr_amount', ''), max_length=20)
+            try:
+                amount_val = int(float(amount_raw)) if amount_raw else None
+            except ValueError:
+                amount_val = None
+
+            if not account_no or not acq_id:
+                return jsonify({'error': 'Vui lòng nhập Số tài khoản và chọn Ngân hàng'}), 400
+
+            payload = {
+                'accountNo': account_no,
+                'accountName': account_name,
+                'acqId': int(acq_id) if str(acq_id).isdigit() else acq_id,
+                'amount': amount_val,
+                'addInfo': add_info,
+                'format': 'text',
+            }
+            # Remove empty keys
+            payload = {k: v for k, v in payload.items() if v not in (None, '')}
+
+            try:
+                r = requests.post('https://api.vietqr.io/v2/generate', json=payload, timeout=12)
+                r.raise_for_status()
+                resp = r.json()
+            except Exception as e:
+                return jsonify({'error': f'VietQR API lỗi: {e}'}), 502
+
+            data_obj = resp.get('data') if isinstance(resp, dict) else None
+            # Preferred: use returned EMV text payload to preserve our styling pipeline
+            if isinstance(data_obj, dict):
+                emv_text = data_obj.get('qrCode') or data_obj.get('qrData') or data_obj.get('qrText')
+                if isinstance(emv_text, str) and emv_text.strip():
+                    data = sanitize_qr_data(emv_text.strip(), max_length=8000)
+                else:
+                    # Fallback: base64 image
+                    qr_data_url = data_obj.get('qrDataURL') or data_obj.get('qrImage')
+                    if isinstance(qr_data_url, str) and 'base64,' in qr_data_url:
+                        b64 = qr_data_url.split('base64,', 1)[1]
+                        try:
+                            img_bytes = base64.b64decode(b64)
+                            img = Image.open(io.BytesIO(img_bytes)).convert('RGBA')
+                            buf = io.BytesIO()
+                            img.save(buf, format='PNG')
+                            img_base64 = base64.b64encode(buf.getvalue()).decode()
+                            return jsonify({'image': f'data:image/png;base64,{img_base64}'})
+                        except Exception:
+                            return jsonify({'error': 'Không đọc được QR từ VietQR API'}), 502
+            else:
+                return jsonify({'error': 'VietQR API trả về dữ liệu không hợp lệ'}), 502
         
         qr_color = validate_hex_color(request.form.get('qr_color', '#0c6c3b'))
         bg_color = validate_hex_color(request.form.get('bg_color', '#ffffff'))
@@ -569,6 +619,7 @@ def api_generate():
 def api_download():
     """API tải QR dưới dạng file (có thể kèm tiêu đề)"""
     try:
+        qr_type = sanitize_input(request.form.get('qr_type', ''), max_length=30).lower()
         data = sanitize_qr_data(request.form.get('data', 'https://qrio.vn'), max_length=4000)
         qr_color = validate_hex_color(request.form.get('qr_color', '#0c6c3b'))
         bg_color = validate_hex_color(request.form.get('bg_color', '#ffffff'))
@@ -580,6 +631,48 @@ def api_download():
         module_style = sanitize_input(request.form.get('module_style', 'legacy'), max_length=50)
         eye_style = sanitize_input(request.form.get('eye_style', 'square'), max_length=50)
         filename = sanitize_input(request.form.get('filename', 'qr_code'), max_length=80) or 'qr_code'
+
+        if qr_type == 'vietqr':
+            account_no = sanitize_input(request.form.get('vietqr_account', ''), max_length=32)
+            account_name = sanitize_input(request.form.get('vietqr_name', ''), max_length=80)
+            acq_id = sanitize_input(request.form.get('vietqr_bank', ''), max_length=16)
+            add_info = sanitize_input(request.form.get('vietqr_memo', ''), max_length=120)
+
+            amount_raw = sanitize_input(request.form.get('vietqr_amount', ''), max_length=20)
+            try:
+                amount_val = int(float(amount_raw)) if amount_raw else None
+            except ValueError:
+                amount_val = None
+
+            if not account_no or not acq_id:
+                return jsonify({'error': 'Vui lòng nhập Số tài khoản và chọn Ngân hàng'}), 400
+
+            payload = {
+                'accountNo': account_no,
+                'accountName': account_name,
+                'acqId': int(acq_id) if str(acq_id).isdigit() else acq_id,
+                'amount': amount_val,
+                'addInfo': add_info,
+                'format': 'text',
+            }
+            payload = {k: v for k, v in payload.items() if v not in (None, '')}
+
+            try:
+                r = requests.post('https://api.vietqr.io/v2/generate', json=payload, timeout=12)
+                r.raise_for_status()
+                resp = r.json()
+            except Exception as e:
+                return jsonify({'error': f'VietQR API lỗi: {e}'}), 502
+
+            data_obj = resp.get('data') if isinstance(resp, dict) else None
+            if isinstance(data_obj, dict):
+                emv_text = data_obj.get('qrCode') or data_obj.get('qrData') or data_obj.get('qrText')
+                if isinstance(emv_text, str) and emv_text.strip():
+                    data = sanitize_qr_data(emv_text.strip(), max_length=8000)
+                else:
+                    return jsonify({'error': 'VietQR API không trả về dữ liệu QR text'}), 502
+            else:
+                return jsonify({'error': 'VietQR API trả về dữ liệu không hợp lệ'}), 502
 
         # Logo rounding (optional)
         logo_radius = request.form.get('logo_radius', 0)
@@ -635,7 +728,14 @@ def api_download():
 
 @app.route('/api/file/upload', methods=['POST'])
 def api_file_upload():
-    """Upload a file and return a download URL (used by File QR)."""
+    """Upload a file and return a download URL (used by File QR).
+
+    This endpoint uses a free third-party intermediary by default so that:
+    - The QR can point to a direct download link even if this app isn't running.
+    - The server does NOT persist the uploaded file in the project folder.
+
+    Note: The uploaded file becomes accessible via a public URL on the chosen service.
+    """
     try:
         if 'file' not in request.files or not request.files['file'].filename:
             return jsonify({'error': 'Thiếu file upload'}), 400
@@ -649,18 +749,76 @@ def api_file_upload():
         if len(data) > 5 * 1024 * 1024:
             return jsonify({'error': 'File quá lớn! Tối đa 5MB'}), 400
 
-        token = uuid.uuid4().hex
-        file_path = uploads_dir / token
-        meta_path = uploads_dir / f'{token}.json'
+        # Proxy-upload to a free public file host so the QR points to a direct
+        # download link even if this app isn't running.
+        #
+        # 0x0.st sometimes returns 403 (rate-limit / network restrictions).
+        # Prefer Catbox, and fall back to other services.
 
-        file_path.write_bytes(data)
-        mime, _ = mimetypes.guess_type(safe_name)
-        meta_path.write_text(
-            json.dumps({'filename': safe_name, 'mime': mime or 'application/octet-stream'}, ensure_ascii=False),
-            encoding='utf-8',
-        )
+        def _is_http_url(u: str) -> bool:
+            return isinstance(u, str) and (u.startswith('http://') or u.startswith('https://'))
 
-        url = url_for('download_uploaded_file', token=token, _external=True)
+        def _upload_catbox() -> str:
+            # Anonymous uploads supported: omit userhash.
+            r = requests.post(
+                'https://catbox.moe/user/api.php',
+                data={'reqtype': 'fileupload'},
+                files={'fileToUpload': (safe_name, data)},
+                headers={'User-Agent': 'qr-editor/1.0', 'Accept': 'text/plain'},
+                timeout=25,
+            )
+            r.raise_for_status()
+            return (r.text or '').strip()
+
+        def _upload_0x0() -> str:
+            r = requests.post(
+                'https://0x0.st',
+                files={'file': (safe_name, data)},
+                headers={'User-Agent': 'qr-editor/1.0', 'Accept': 'text/plain'},
+                timeout=25,
+            )
+            r.raise_for_status()
+            return (r.text or '').strip()
+
+        def _upload_litterbox() -> str:
+            # Temporary link (max 72h) but works anonymously.
+            r = requests.post(
+                'https://litterbox.catbox.moe/resources/internals/api.php',
+                data={'reqtype': 'fileupload', 'time': '72h'},
+                files={'fileToUpload': (safe_name, data)},
+                headers={'User-Agent': 'qr-editor/1.0', 'Accept': 'text/plain'},
+                timeout=25,
+            )
+            r.raise_for_status()
+            return (r.text or '').strip()
+
+        providers = [
+            ('catbox.moe', _upload_catbox),
+            ('0x0.st', _upload_0x0),
+            ('litterbox.catbox.moe (72h)', _upload_litterbox),
+        ]
+
+        url = None
+        errors = []
+        for name, fn in providers:
+            try:
+                candidate = fn()
+                if _is_http_url(candidate):
+                    url = candidate
+                    break
+                errors.append(f"{name}: response không hợp lệ: {repr(candidate)[:200]}")
+            except requests.HTTPError as e:
+                resp = getattr(e, 'response', None)
+                status = getattr(resp, 'status_code', None)
+                body = (getattr(resp, 'text', '') or '')
+                body = body.strip().replace('\n', ' ')[:200]
+                errors.append(f"{name}: HTTP {status} {body}".strip())
+            except Exception as e:
+                errors.append(f"{name}: {e}")
+
+        if not _is_http_url(url):
+            return jsonify({'error': 'Upload trung gian lỗi: ' + ' | '.join(errors)}), 502
+
         return jsonify({'url': url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

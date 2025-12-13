@@ -438,6 +438,39 @@
       font-weight: 700;
     }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(226,232,240,0.95);
+    }
+
+    .lang-select {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 14px;
+    }
+
+    .lang-select option {
+      color: #0f172a;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -1906,26 +1939,43 @@
       <div class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></div>
       <h1>Qrio</h1>
     </div>
-    <a href="edit.html" class="btn btn-primary" onclick="createNewProject(event)">
-      <i class="fa-solid fa-plus"></i>
-      <span>Tạo mới</span>
-    </a>
+    <div class="header-right">
+      <div class="lang-picker">
+        <i class="fa-solid fa-globe"></i>
+        <select id="lang-select" class="lang-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+          <option value="hi">हिन्दी</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="ar">العربية</option>
+          <option value="pt">Português</option>
+          <option value="ru">Русский</option>
+          <option value="id">Bahasa Indonesia</option>
+          <option value="vi">Tiếng Việt</option>
+        </select>
+      </div>
+      <a href="edit.html" class="btn btn-primary" onclick="createNewProject(event)">
+        <i class="fa-solid fa-plus"></i>
+        <span data-i18n="home.createNew">Tạo mới</span>
+      </a>
+    </div>
   </header>
 
   <!-- HERO SECTION -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-badge">✨ Miễn phí mãi mãi</div>
+      <div class="hero-badge" data-i18n="home.badge">✨ Miễn phí mãi mãi</div>
       <h1 class="hero-title">
-        Tạo mã <span class="title-nowrap">QR&nbsp;<span class="typing-text" id="typing-text"></span></span>
+        <span data-i18n="home.titlePrefix">Tạo mã</span> <span class="title-nowrap">QR&nbsp;<span class="typing-text" id="typing-text"></span></span>
       </h1>
-      <p class="hero-subtitle">Thiết kế mã QR chuyên nghiệp với 100+ kiểu dáng, 150+ font chữ và xuất ảnh chất lượng cao.</p>
+      <p class="hero-subtitle" data-i18n="home.subtitle">Thiết kế mã QR chuyên nghiệp với 100+ kiểu dáng, 150+ font chữ và xuất ảnh chất lượng cao.</p>
       <div class="hero-actions">
         <a href="edit.html" class="btn btn-primary btn-lg" onclick="createNewProject(event)">
-          <i class="fa-solid fa-rocket"></i> Bắt đầu ngay
+          <i class="fa-solid fa-rocket"></i> <span data-i18n="home.startNow">Bắt đầu ngay</span>
         </a>
         <a href="#features" class="btn btn-secondary" id="features-anchor">
-          <i class="fa-solid fa-play"></i> Xem tính năng
+          <i class="fa-solid fa-play"></i> <span data-i18n="home.viewFeatures">Xem tính năng</span>
         </a>
       </div>
     </div>
@@ -1974,13 +2024,13 @@
     <!-- PROJECTS SECTION -->
     <section class="projects-section">
       <div class="section-header">
-        <h2><i class="fa-solid fa-folder-open"></i> Dự án của bạn</h2>
+        <h2><i class="fa-solid fa-folder-open"></i> <span data-i18n="projects.title">Dự án của bạn</span></h2>
         <div class="section-actions" id="section-actions" style="display:none;">
           <button class="btn" style="background:rgba(239,68,68,0.2);color:#ef4444;" id="delete-selected-btn">
-            <i class="fa-solid fa-trash"></i> Xóa đã chọn (<span id="selected-count">0</span>)
+            <i class="fa-solid fa-trash"></i> <span data-i18n="projects.deleteSelected">Xóa đã chọn</span> (<span id="selected-count">0</span>)
           </button>
           <button class="btn" style="background:rgba(255,255,255,0.1);color:#888;" id="cancel-select-btn">
-            Hủy
+            <span data-i18n="common.cancel">Hủy</span>
           </button>
         </div>
       </div>
@@ -1988,7 +2038,7 @@
       <div class="projects-grid" id="projects-grid">
         <a href="edit.html" class="new-project-card" onclick="createNewProject(event)">
           <div class="icon"><i class="fa-solid fa-plus"></i></div>
-          <div class="text">Tạo dự án mới</div>
+          <div class="text" data-i18n="projects.newProject">Tạo dự án mới</div>
         </a>
       </div>
 
@@ -2055,22 +2105,22 @@
 
     <!-- ABOUT SECTION -->
     <section class="about-section reveal">
-      <h2><i class="fa-solid fa-heart"></i> Về Chúng tôi</h2>
+      <h2><i class="fa-solid fa-heart"></i> <span data-i18n="about.title">Về Chúng tôi</span></h2>
       <div class="about-grid">
         <div class="about-card reveal reveal-delay-1">
           <div class="about-icon"><i class="fa-solid fa-bullseye"></i></div>
-          <h4>Mục tiêu dự án</h4>
-          <p>Tạo ra công cụ thiết kế mã QR miễn phí, đẹp mắt và dễ sử dụng cho mọi người. Chúng tôi tin rằng mã QR không chỉ là công nghệ, mà còn là nghệ thuật.</p>
+          <h4 data-i18n="about.card1.title">Mục tiêu dự án</h4>
+          <p data-i18n="about.card1.body">Tạo ra công cụ thiết kế mã QR miễn phí, đẹp mắt và dễ sử dụng cho mọi người. Chúng tôi tin rằng mã QR không chỉ là công nghệ, mà còn là nghệ thuật.</p>
         </div>
         <div class="about-card reveal reveal-delay-2">
           <div class="about-icon"><i class="fa-solid fa-code"></i></div>
-          <h4>Công nghệ sử dụng</h4>
-          <p>Xây dựng bằng HTML5 Canvas, JavaScript thuần và Python Flask. Sử dụng thư viện qrcode-svg để tạo mã QR chất lượng cao.</p>
+          <h4 data-i18n="about.card2.title">Công nghệ sử dụng</h4>
+          <p data-i18n="about.card2.body">Xây dựng bằng HTML5 Canvas, JavaScript thuần và Python Flask. Sử dụng thư viện qrcode-svg để tạo mã QR chất lượng cao.</p>
         </div>
         <div class="about-card reveal reveal-delay-3">
           <div class="about-icon"><i class="fa-solid fa-rocket"></i></div>
-          <h4>Liên tục cập nhật</h4>
-          <p>Dự án được phát triển liên tục với các tính năng mới. Đóng góp ý tưởng và phản hồi luôn được hoan nghênh!</p>
+          <h4 data-i18n="about.card3.title">Liên tục cập nhật</h4>
+          <p data-i18n="about.card3.body">Dự án được phát triển liên tục với các tính năng mới. Đóng góp ý tưởng và phản hồi luôn được hoan nghênh!</p>
         </div>
       </div>
     </section>
@@ -2082,17 +2132,433 @@
           <div class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></div>
           <span>Qrio</span>
         </div>
-        <p class="footer-text">Công cụ thiết kế mã QR miễn phí • Tạo mã QR đẹp chỉ trong vài giây</p>
+        <p class="footer-text" data-i18n="footer.tagline">Công cụ thiết kế mã QR miễn phí • Tạo mã QR đẹp chỉ trong vài giây</p>
         <div class="footer-links">
           <span>© 2024 Qrio</span>
           <span>•</span>
-          <span>Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳</span>
+          <span data-i18n="footer.madeWith">Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳</span>
         </div>
       </div>
     </footer>
   </main>
 
   <script>
+    const LANG_KEY = 'qr_lang';
+
+    const I18N = {
+      vi: {
+        'home.createNew': 'Tạo mới',
+        'home.badge': '✨ Miễn phí mãi mãi',
+        'home.titlePrefix': 'Tạo mã',
+        'home.subtitle': 'Thiết kế mã QR chuyên nghiệp với 100+ kiểu dáng, 150+ font chữ và xuất ảnh chất lượng cao.',
+        'home.startNow': 'Bắt đầu ngay',
+        'home.viewFeatures': 'Xem tính năng',
+        'projects.title': 'Dự án của bạn',
+        'projects.deleteSelected': 'Xóa đã chọn',
+        'projects.newProject': 'Tạo dự án mới',
+        'projects.copy': 'Sao chép',
+        'common.cancel': 'Hủy',
+        'confirm.deleteSelected': 'Xóa {count} dự án đã chọn?',
+        'confirm.deleteOne': 'Xóa dự án này?',
+        'toast.deletedCount': 'Đã xóa {count} dự án',
+        'toast.deleted': 'Đã xóa',
+        'toast.copied': 'Đã sao chép',
+        'project.newName': 'Dự án mới',
+        'project.copySuffix': ' (sao chép)',
+        'time.justNow': 'Vừa xong',
+        'time.minutesAgo': '{count} phút trước',
+        'time.hoursAgo': '{count} giờ trước',
+        'time.daysAgo': '{count} ngày trước',
+        'about.title': 'Về Chúng tôi',
+        'about.card1.title': 'Mục tiêu dự án',
+        'about.card1.body': 'Tạo ra công cụ thiết kế mã QR miễn phí, đẹp mắt và dễ sử dụng cho mọi người. Chúng tôi tin rằng mã QR không chỉ là công nghệ, mà còn là nghệ thuật.',
+        'about.card2.title': 'Công nghệ sử dụng',
+        'about.card2.body': 'Xây dựng bằng HTML5 Canvas, JavaScript thuần và Python Flask. Sử dụng thư viện qrcode-svg để tạo mã QR chất lượng cao.',
+        'about.card3.title': 'Liên tục cập nhật',
+        'about.card3.body': 'Dự án được phát triển liên tục với các tính năng mới. Đóng góp ý tưởng và phản hồi luôn được hoan nghênh!',
+        'footer.tagline': 'Công cụ thiết kế mã QR miễn phí • Tạo mã QR đẹp chỉ trong vài giây',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['đẹp mắt', 'miễn phí', 'nhanh chóng', 'sáng tạo', 'đa dạng', 'hiện đại'],
+      },
+      en: {
+        'home.createNew': 'New',
+        'home.badge': '✨ Free forever',
+        'home.titlePrefix': 'Create',
+        'home.subtitle': 'Design professional QR codes with 100+ styles, 150+ fonts, and high-quality exports.',
+        'home.startNow': 'Start now',
+        'home.viewFeatures': 'View features',
+        'projects.title': 'Your projects',
+        'projects.deleteSelected': 'Delete selected',
+        'projects.newProject': 'Create new project',
+        'projects.copy': 'Duplicate',
+        'common.cancel': 'Cancel',
+        'confirm.deleteSelected': 'Delete {count} selected project(s)?',
+        'confirm.deleteOne': 'Delete this project?',
+        'toast.deletedCount': 'Deleted {count} project(s)',
+        'toast.deleted': 'Deleted',
+        'toast.copied': 'Duplicated',
+        'project.newName': 'New project',
+        'project.copySuffix': ' (copy)',
+        'time.justNow': 'Just now',
+        'time.minutesAgo': '{count} min ago',
+        'time.hoursAgo': '{count} hr ago',
+        'time.daysAgo': '{count} day(s) ago',
+        'about.title': 'About us',
+        'about.card1.title': 'Our mission',
+        'about.card1.body': 'Build a free, beautiful, and easy QR design tool for everyone. We believe QR codes are not just technology, but also art.',
+        'about.card2.title': 'Technology',
+        'about.card2.body': 'Built with HTML5 Canvas, vanilla JavaScript, and Python Flask. Uses qrcode-svg to generate high-quality QR.',
+        'about.card3.title': 'Always improving',
+        'about.card3.body': 'We continuously ship new features. Ideas and feedback are always welcome!',
+        'footer.tagline': 'Free QR design tool • Create beautiful QR codes in seconds',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['beautiful', 'free', 'fast', 'creative', 'flexible', 'modern'],
+      },
+      zh: {
+        'home.createNew': '新建',
+        'home.badge': '✨ 永久免费',
+        'home.titlePrefix': '创建',
+        'home.subtitle': '使用 100+ 风格、150+ 字体，快速设计专业二维码并导出高清图片。',
+        'home.startNow': '立即开始',
+        'home.viewFeatures': '查看功能',
+        'projects.title': '你的项目',
+        'projects.deleteSelected': '删除所选',
+        'projects.newProject': '创建新项目',
+        'projects.copy': '复制',
+        'common.cancel': '取消',
+        'confirm.deleteSelected': '删除已选的 {count} 个项目？',
+        'confirm.deleteOne': '删除该项目？',
+        'toast.deletedCount': '已删除 {count} 个项目',
+        'toast.deleted': '已删除',
+        'toast.copied': '已复制',
+        'project.newName': '新项目',
+        'project.copySuffix': '（副本）',
+        'time.justNow': '刚刚',
+        'time.minutesAgo': '{count} 分钟前',
+        'time.hoursAgo': '{count} 小时前',
+        'time.daysAgo': '{count} 天前',
+        'about.title': '关于我们',
+        'about.card1.title': '项目目标',
+        'about.card1.body': '为每个人打造免费、美观、易用的二维码设计工具。我们相信二维码不仅是技术，也是艺术。',
+        'about.card2.title': '使用技术',
+        'about.card2.body': '基于 HTML5 Canvas、原生 JavaScript 与 Python Flask 构建，并使用 qrcode-svg 生成高质量二维码。',
+        'about.card3.title': '持续更新',
+        'about.card3.body': '项目持续迭代并不断加入新功能。欢迎提出想法与反馈！',
+        'footer.tagline': '免费二维码设计工具 • 几秒钟生成漂亮二维码',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['美观', '免费', '快速', '创意', '多样', '现代'],
+      },
+      hi: {
+        'home.createNew': 'नया',
+        'home.badge': '✨ हमेशा के लिए मुफ्त',
+        'home.titlePrefix': 'बनाएँ',
+        'home.subtitle': '100+ स्टाइल, 150+ फॉन्ट और हाई-क्वालिटी एक्सपोर्ट के साथ प्रोफेशनल QR कोड डिज़ाइन करें।',
+        'home.startNow': 'अभी शुरू करें',
+        'home.viewFeatures': 'फ़ीचर देखें',
+        'projects.title': 'आपके प्रोजेक्ट',
+        'projects.deleteSelected': 'चयनित हटाएँ',
+        'projects.newProject': 'नया प्रोजेक्ट बनाएँ',
+        'projects.copy': 'डुप्लिकेट',
+        'common.cancel': 'रद्द करें',
+        'confirm.deleteSelected': 'चयनित {count} प्रोजेक्ट हटाएँ?',
+        'confirm.deleteOne': 'यह प्रोजेक्ट हटाएँ?',
+        'toast.deletedCount': '{count} प्रोजेक्ट हटाए गए',
+        'toast.deleted': 'हटा दिया गया',
+        'toast.copied': 'डुप्लिकेट हो गया',
+        'project.newName': 'नया प्रोजेक्ट',
+        'project.copySuffix': ' (कॉपी)',
+        'time.justNow': 'अभी',
+        'time.minutesAgo': '{count} मिनट पहले',
+        'time.hoursAgo': '{count} घंटे पहले',
+        'time.daysAgo': '{count} दिन पहले',
+        'about.title': 'हमारे बारे में',
+        'about.card1.title': 'उद्देश्य',
+        'about.card1.body': 'सभी के लिए एक मुफ्त, सुंदर और आसान QR डिज़ाइन टूल बनाना। हम मानते हैं कि QR सिर्फ तकनीक नहीं, कला भी है।',
+        'about.card2.title': 'तकनीक',
+        'about.card2.body': 'HTML5 Canvas, वैनिला JavaScript और Python Flask से बनाया गया। हाई-क्वालिटी QR के लिए qrcode-svg उपयोग करता है।',
+        'about.card3.title': 'लगातार अपडेट',
+        'about.card3.body': 'हम लगातार नए फीचर जोड़ते हैं। आपके विचार और फीडबैक का स्वागत है!',
+        'footer.tagline': 'मुफ़्त QR डिज़ाइन टूल • सेकंडों में सुंदर QR बनाएँ',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['सुंदर', 'मुफ़्त', 'तेज़', 'रचनात्मक', 'विविध', 'आधुनिक'],
+      },
+      es: {
+        'home.createNew': 'Nuevo',
+        'home.badge': '✨ Gratis para siempre',
+        'home.titlePrefix': 'Crea',
+        'home.subtitle': 'Diseña códigos QR profesionales con 100+ estilos, 150+ fuentes y exportaciones de alta calidad.',
+        'home.startNow': 'Empezar',
+        'home.viewFeatures': 'Ver funciones',
+        'projects.title': 'Tus proyectos',
+        'projects.deleteSelected': 'Eliminar seleccionados',
+        'projects.newProject': 'Crear nuevo proyecto',
+        'projects.copy': 'Duplicar',
+        'common.cancel': 'Cancelar',
+        'confirm.deleteSelected': '¿Eliminar {count} proyecto(s) seleccionado(s)?',
+        'confirm.deleteOne': '¿Eliminar este proyecto?',
+        'toast.deletedCount': 'Se eliminaron {count} proyecto(s)',
+        'toast.deleted': 'Eliminado',
+        'toast.copied': 'Duplicado',
+        'project.newName': 'Nuevo proyecto',
+        'project.copySuffix': ' (copia)',
+        'time.justNow': 'Ahora mismo',
+        'time.minutesAgo': 'hace {count} min',
+        'time.hoursAgo': 'hace {count} h',
+        'time.daysAgo': 'hace {count} día(s)',
+        'about.title': 'Acerca de',
+        'about.card1.title': 'Misión',
+        'about.card1.body': 'Crear una herramienta gratuita, bonita y fácil para diseñar QR. Creemos que el QR no es solo tecnología, también es arte.',
+        'about.card2.title': 'Tecnología',
+        'about.card2.body': 'Construido con HTML5 Canvas, JavaScript puro y Python Flask. Usa qrcode-svg para generar QR de alta calidad.',
+        'about.card3.title': 'Mejoras constantes',
+        'about.card3.body': 'Seguimos añadiendo nuevas funciones. ¡Las ideas y comentarios son bienvenidos!',
+        'footer.tagline': 'Herramienta gratis de diseño QR • Crea QR bonitos en segundos',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['bonito', 'gratis', 'rápido', 'creativo', 'variado', 'moderno'],
+      },
+      fr: {
+        'home.createNew': 'Nouveau',
+        'home.badge': '✨ Gratuit pour toujours',
+        'home.titlePrefix': 'Créez',
+        'home.subtitle': 'Concevez des QR codes professionnels avec 100+ styles, 150+ polices et des exports haute qualité.',
+        'home.startNow': 'Commencer',
+        'home.viewFeatures': 'Voir les fonctionnalités',
+        'projects.title': 'Vos projets',
+        'projects.deleteSelected': 'Supprimer la sélection',
+        'projects.newProject': 'Créer un nouveau projet',
+        'projects.copy': 'Dupliquer',
+        'common.cancel': 'Annuler',
+        'confirm.deleteSelected': 'Supprimer {count} projet(s) sélectionné(s) ?',
+        'confirm.deleteOne': 'Supprimer ce projet ?',
+        'toast.deletedCount': '{count} projet(s) supprimé(s)',
+        'toast.deleted': 'Supprimé',
+        'toast.copied': 'Dupliqué',
+        'project.newName': 'Nouveau projet',
+        'project.copySuffix': ' (copie)',
+        'time.justNow': 'À l’instant',
+        'time.minutesAgo': 'il y a {count} min',
+        'time.hoursAgo': 'il y a {count} h',
+        'time.daysAgo': 'il y a {count} j',
+        'about.title': 'À propos',
+        'about.card1.title': 'Objectif',
+        'about.card1.body': 'Créer un outil gratuit, beau et simple pour concevoir des QR. Pour nous, le QR est aussi un art.',
+        'about.card2.title': 'Technologie',
+        'about.card2.body': 'Construit avec HTML5 Canvas, JavaScript vanilla et Python Flask. Utilise qrcode-svg pour des QR de haute qualité.',
+        'about.card3.title': 'Améliorations continues',
+        'about.card3.body': 'De nouvelles fonctions arrivent régulièrement. Vos idées et retours sont les bienvenus !',
+        'footer.tagline': 'Outil gratuit de design QR • Créez de beaux QR en quelques secondes',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['beau', 'gratuit', 'rapide', 'créatif', 'varié', 'moderne'],
+      },
+      ar: {
+        'home.createNew': 'جديد',
+        'home.badge': '✨ مجاني للأبد',
+        'home.titlePrefix': 'أنشئ',
+        'home.subtitle': 'صمّم رموز QR احترافية مع أكثر من 100 نمط و150 خطًا وتصدير عالي الجودة.',
+        'home.startNow': 'ابدأ الآن',
+        'home.viewFeatures': 'عرض الميزات',
+        'projects.title': 'مشاريعك',
+        'projects.deleteSelected': 'حذف المحدد',
+        'projects.newProject': 'إنشاء مشروع جديد',
+        'projects.copy': 'نسخ',
+        'common.cancel': 'إلغاء',
+        'confirm.deleteSelected': 'هل تريد حذف {count} من المشاريع المحددة؟',
+        'confirm.deleteOne': 'هل تريد حذف هذا المشروع؟',
+        'toast.deletedCount': 'تم حذف {count} مشروع/مشاريع',
+        'toast.deleted': 'تم الحذف',
+        'toast.copied': 'تم النسخ',
+        'project.newName': 'مشروع جديد',
+        'project.copySuffix': ' (نسخة)',
+        'time.justNow': 'الآن',
+        'time.minutesAgo': 'قبل {count} دقيقة',
+        'time.hoursAgo': 'قبل {count} ساعة',
+        'time.daysAgo': 'قبل {count} يوم',
+        'about.title': 'من نحن',
+        'about.card1.title': 'الهدف',
+        'about.card1.body': 'إنشاء أداة مجانية وجميلة وسهلة لتصميم رموز QR للجميع. نؤمن أن QR ليس تقنية فقط بل فن أيضًا.',
+        'about.card2.title': 'التقنية',
+        'about.card2.body': 'مبني باستخدام HTML5 Canvas وJavaScript خالص وPython Flask. يستخدم qrcode-svg لإنشاء QR عالي الجودة.',
+        'about.card3.title': 'تحديثات مستمرة',
+        'about.card3.body': 'نطوّر المشروع باستمرار بميزات جديدة. نرحّب بالأفكار والملاحظات!',
+        'footer.tagline': 'أداة مجانية لتصميم QR • أنشئ QR جميلًا خلال ثوانٍ',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['جميل', 'مجاني', 'سريع', 'إبداعي', 'متنوع', 'حديث'],
+      },
+      pt: {
+        'home.createNew': 'Novo',
+        'home.badge': '✨ Grátis para sempre',
+        'home.titlePrefix': 'Crie',
+        'home.subtitle': 'Crie QR codes profissionais com 100+ estilos, 150+ fontes e exportação em alta qualidade.',
+        'home.startNow': 'Começar agora',
+        'home.viewFeatures': 'Ver recursos',
+        'projects.title': 'Seus projetos',
+        'projects.deleteSelected': 'Excluir selecionados',
+        'projects.newProject': 'Criar novo projeto',
+        'projects.copy': 'Duplicar',
+        'common.cancel': 'Cancelar',
+        'confirm.deleteSelected': 'Excluir {count} projeto(s) selecionado(s)?',
+        'confirm.deleteOne': 'Excluir este projeto?',
+        'toast.deletedCount': '{count} projeto(s) excluído(s)',
+        'toast.deleted': 'Excluído',
+        'toast.copied': 'Duplicado',
+        'project.newName': 'Novo projeto',
+        'project.copySuffix': ' (cópia)',
+        'time.justNow': 'Agora',
+        'time.minutesAgo': 'há {count} min',
+        'time.hoursAgo': 'há {count} h',
+        'time.daysAgo': 'há {count} dia(s)',
+        'about.title': 'Sobre',
+        'about.card1.title': 'Objetivo',
+        'about.card1.body': 'Criar uma ferramenta gratuita, bonita e fácil de usar para design de QR. Acreditamos que QR é tecnologia e arte.',
+        'about.card2.title': 'Tecnologia',
+        'about.card2.body': 'Construído com HTML5 Canvas, JavaScript puro e Python Flask. Usa qrcode-svg para gerar QR de alta qualidade.',
+        'about.card3.title': 'Sempre melhorando',
+        'about.card3.body': 'O projeto evolui continuamente com novas funções. Ideias e feedback são bem-vindos!',
+        'footer.tagline': 'Ferramenta gratuita de design QR • Crie QR bonitos em segundos',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['bonito', 'grátis', 'rápido', 'criativo', 'diverso', 'moderno'],
+      },
+      ru: {
+        'home.createNew': 'Создать',
+        'home.badge': '✨ Бесплатно навсегда',
+        'home.titlePrefix': 'Создавайте',
+        'home.subtitle': 'Создавайте профессиональные QR-коды: 100+ стилей, 150+ шрифтов и экспорт высокого качества.',
+        'home.startNow': 'Начать',
+        'home.viewFeatures': 'Посмотреть возможности',
+        'projects.title': 'Ваши проекты',
+        'projects.deleteSelected': 'Удалить выбранное',
+        'projects.newProject': 'Создать проект',
+        'projects.copy': 'Дублировать',
+        'common.cancel': 'Отмена',
+        'confirm.deleteSelected': 'Удалить выбранные проекты ({count})?',
+        'confirm.deleteOne': 'Удалить этот проект?',
+        'toast.deletedCount': 'Удалено проектов: {count}',
+        'toast.deleted': 'Удалено',
+        'toast.copied': 'Скопировано',
+        'project.newName': 'Новый проект',
+        'project.copySuffix': ' (копия)',
+        'time.justNow': 'Только что',
+        'time.minutesAgo': '{count} мин назад',
+        'time.hoursAgo': '{count} ч назад',
+        'time.daysAgo': '{count} дн назад',
+        'about.title': 'О нас',
+        'about.card1.title': 'Цель',
+        'about.card1.body': 'Создать бесплатный, красивый и простой инструмент для дизайна QR. Мы считаем, что QR — это не только технология, но и искусство.',
+        'about.card2.title': 'Технологии',
+        'about.card2.body': 'HTML5 Canvas, чистый JavaScript и Python Flask. Используется qrcode-svg для высококачественных QR.',
+        'about.card3.title': 'Постоянные обновления',
+        'about.card3.body': 'Мы постоянно добавляем новые функции. Идеи и отзывы приветствуются!',
+        'footer.tagline': 'Бесплатный редактор QR • Красивые QR за секунды',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['красиво', 'бесплатно', 'быстро', 'креативно', 'разнообразно', 'современно'],
+      },
+      id: {
+        'home.createNew': 'Baru',
+        'home.badge': '✨ Gratis selamanya',
+        'home.titlePrefix': 'Buat',
+        'home.subtitle': 'Desain QR profesional dengan 100+ gaya, 150+ font, dan ekspor berkualitas tinggi.',
+        'home.startNow': 'Mulai sekarang',
+        'home.viewFeatures': 'Lihat fitur',
+        'projects.title': 'Proyek Anda',
+        'projects.deleteSelected': 'Hapus yang dipilih',
+        'projects.newProject': 'Buat proyek baru',
+        'projects.copy': 'Duplikat',
+        'common.cancel': 'Batal',
+        'confirm.deleteSelected': 'Hapus {count} proyek yang dipilih?',
+        'confirm.deleteOne': 'Hapus proyek ini?',
+        'toast.deletedCount': '{count} proyek dihapus',
+        'toast.deleted': 'Dihapus',
+        'toast.copied': 'Diduplikasi',
+        'project.newName': 'Proyek baru',
+        'project.copySuffix': ' (salinan)',
+        'time.justNow': 'Baru saja',
+        'time.minutesAgo': '{count} menit lalu',
+        'time.hoursAgo': '{count} jam lalu',
+        'time.daysAgo': '{count} hari lalu',
+        'about.title': 'Tentang kami',
+        'about.card1.title': 'Tujuan',
+        'about.card1.body': 'Membuat alat desain QR gratis, cantik, dan mudah digunakan untuk semua orang. QR bukan hanya teknologi, tapi juga seni.',
+        'about.card2.title': 'Teknologi',
+        'about.card2.body': 'Dibangun dengan HTML5 Canvas, JavaScript murni, dan Python Flask. Menggunakan qrcode-svg untuk QR berkualitas tinggi.',
+        'about.card3.title': 'Terus diperbarui',
+        'about.card3.body': 'Kami terus menambahkan fitur baru. Ide dan masukan sangat diterima!',
+        'footer.tagline': 'Alat desain QR gratis • Buat QR cantik dalam hitungan detik',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'typing.words': ['cantik', 'gratis', 'cepat', 'kreatif', 'beragam', 'modern'],
+      },
+    };
+
+    function detectDefaultLang() {
+      const raw = (navigator.language || '').toLowerCase();
+      if (raw.startsWith('vi')) return 'vi';
+      if (raw.startsWith('zh')) return 'zh';
+      if (raw.startsWith('hi')) return 'hi';
+      if (raw.startsWith('es')) return 'es';
+      if (raw.startsWith('fr')) return 'fr';
+      if (raw.startsWith('ar')) return 'ar';
+      if (raw.startsWith('pt')) return 'pt';
+      if (raw.startsWith('ru')) return 'ru';
+      if (raw.startsWith('id') || raw.startsWith('in')) return 'id';
+      return 'en';
+    }
+
+    function getLang() {
+      return localStorage.getItem(LANG_KEY) || detectDefaultLang();
+    }
+
+    function setLang(lang) {
+      localStorage.setItem(LANG_KEY, lang);
+      applyI18n(lang);
+      // Re-render dynamic areas and re-init animations that depend on text.
+      try { renderProjects(); } catch {}
+      try { initTypingAnimation(); } catch {}
+    }
+
+    function formatWithVars(template, vars) {
+      return String(template).replace(/\{(\w+)\}/g, (_, k) => {
+        const v = vars && Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : '';
+        return String(v);
+      });
+    }
+
+    function t(key, vars) {
+      const lang = getLang();
+      const dict = I18N[lang] || I18N.vi;
+      const fallback = I18N.vi || {};
+      const value = dict[key] ?? fallback[key] ?? key;
+      if (Array.isArray(value)) return value;
+      return formatWithVars(value, vars);
+    }
+
+    function applyI18n(lang) {
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const value = t(key);
+        if (typeof value === 'string') el.innerHTML = value;
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', t(key));
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', t(key));
+      });
+
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', t(key));
+      });
+
+      // Update the language selector UI (if present)
+      const select = document.getElementById('lang-select');
+      if (select && select.value !== lang) select.value = lang;
+    }
+
     const STORAGE_KEY = 'qr_studio_projects';
     let selectedProjects = new Set();
     let selectMode = false;
@@ -2138,13 +2604,13 @@
     function deleteSelectedProjects() {
       if (selectedProjects.size === 0) return;
       const count = selectedProjects.size;
-      if (!confirm(`Xóa ${count} dự án đã chọn?`)) return;
+      if (!confirm(t('confirm.deleteSelected', { count }))) return;
       let projects = loadProjects().filter(p => !selectedProjects.has(p.id));
       saveProjects(projects);
       selectedProjects.clear();
       updateSelectUI();
       renderProjects();
-      showToast('Đã xóa ' + count + ' dự án');
+      showToast(t('toast.deletedCount', { count }));
     }
 
     function cancelSelection() {
@@ -2159,7 +2625,7 @@
       const projects = loadProjects();
       projects.unshift({
         id: projectId,
-        name: 'Dự án mới',
+        name: t('project.newName'),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
@@ -2170,11 +2636,11 @@
     function deleteProject(id, e) {
       e.preventDefault();
       e.stopPropagation();
-      if (!confirm('Xóa dự án này?')) return;
+      if (!confirm(t('confirm.deleteOne'))) return;
       const projects = loadProjects().filter(p => p.id !== id);
       saveProjects(projects);
       renderProjects();
-      showToast('Đã xóa');
+      showToast(t('toast.deleted'));
     }
 
     function duplicateProject(id, e) {
@@ -2186,23 +2652,35 @@
       const newProject = {
         ...JSON.parse(JSON.stringify(project)),
         id: 'project-' + Date.now(),
-        name: project.name + ' (sao chép)',
+        name: project.name + t('project.copySuffix'),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       projects.unshift(newProject);
       saveProjects(projects);
       renderProjects();
-      showToast('Đã sao chép');
+      showToast(t('toast.copied'));
     }
 
     function formatDate(dateString) {
       const diff = Date.now() - new Date(dateString);
-      if (diff < 60000) return 'Vừa xong';
-      if (diff < 3600000) return Math.floor(diff / 60000) + ' phút trước';
-      if (diff < 86400000) return Math.floor(diff / 3600000) + ' giờ trước';
-      if (diff < 604800000) return Math.floor(diff / 86400000) + ' ngày trước';
-      return new Date(dateString).toLocaleDateString('vi-VN');
+      if (diff < 60000) return t('time.justNow');
+      if (diff < 3600000) return t('time.minutesAgo', { count: Math.floor(diff / 60000) });
+      if (diff < 86400000) return t('time.hoursAgo', { count: Math.floor(diff / 3600000) });
+      if (diff < 604800000) return t('time.daysAgo', { count: Math.floor(diff / 86400000) });
+      const lang = getLang();
+      const locale =
+        lang === 'vi' ? 'vi-VN' :
+        lang === 'zh' ? 'zh-CN' :
+        lang === 'hi' ? 'hi-IN' :
+        lang === 'es' ? 'es-ES' :
+        lang === 'fr' ? 'fr-FR' :
+        lang === 'ar' ? 'ar' :
+        lang === 'pt' ? 'pt-BR' :
+        lang === 'ru' ? 'ru-RU' :
+        lang === 'id' ? 'id-ID' :
+        'en-US';
+      return new Date(dateString).toLocaleDateString(locale);
     }
 
     function renderProjects() {
@@ -2252,7 +2730,7 @@
           </div>
           <div class="project-actions">
             <button class="project-action-btn" onclick="duplicateProject('${project.id}', event)">
-              <i class="fa-solid fa-clone"></i> Sao chép
+              <i class="fa-solid fa-clone"></i> ${t('projects.copy')}
             </button>
             <button class="project-action-btn delete" onclick="deleteProject('${project.id}', event)">
               <i class="fa-solid fa-trash"></i>
@@ -2274,6 +2752,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      const initialLang = getLang();
+      applyI18n(initialLang);
+      const langSelect = document.getElementById('lang-select');
+      if (langSelect) {
+        langSelect.value = initialLang;
+        langSelect.addEventListener('change', () => setLang(langSelect.value));
+      }
+
       renderProjects();
       initScrollReveal();
       initTypingAnimation();
@@ -2582,10 +3068,21 @@
       const typingEl = document.getElementById('typing-text');
       if (!typingEl) return;
 
+      // Cleanup previous run (if any) to avoid duplicate timers/listeners.
+      if (window.__qrTypingCleanup && typeof window.__qrTypingCleanup === 'function') {
+        window.__qrTypingCleanup();
+        window.__qrTypingCleanup = null;
+      }
+
       const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const words = ['đẹp mắt', 'miễn phí', 'nhanh chóng', 'sáng tạo','đa dạng', 'hiện đại'];
+      const words = t('typing.words');
       if (reduceMotion) {
-        typingEl.textContent = words[0];
+        typingEl.textContent = Array.isArray(words) ? (words[0] || '') : '';
+        return;
+      }
+
+      if (!Array.isArray(words) || words.length === 0) {
+        typingEl.textContent = '';
         return;
       }
 
@@ -2625,14 +3122,21 @@
         schedule(typeSpeed);
       }
 
-      document.addEventListener('visibilitychange', () => {
+      const onVisibility = () => {
         if (document.hidden) {
           if (typingTimeoutId) clearTimeout(typingTimeoutId);
           typingTimeoutId = null;
         } else {
           schedule(200);
         }
-      });
+      };
+      document.addEventListener('visibilitychange', onVisibility);
+
+      window.__qrTypingCleanup = () => {
+        if (typingTimeoutId) clearTimeout(typingTimeoutId);
+        typingTimeoutId = null;
+        document.removeEventListener('visibilitychange', onVisibility);
+      };
 
       schedule(1000);
     }
