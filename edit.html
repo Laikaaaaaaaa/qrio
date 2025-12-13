@@ -7632,41 +7632,11 @@
 
     const locationPickerTileSources = [
       {
-        id: 'osm_standard',
-        name: 'OpenStreetMap (labels)',
+        id: 'carto_light_all',
+        name: 'CARTO (khuyến nghị)',
         kind: 'xyz',
-        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        subdomains: 'abc',
-        maxZoom: 19,
-        attribution: '',
-      },
-      {
-        id: 'esri_light_gray_canvas',
-        name: 'Street (labels)',
-        kind: 'composite',
-        maxZoom: 19,
-        attribution: '',
-        layers: [
-          {
-            // Base
-            kind: 'xyz',
-            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-            maxZoom: 19,
-          },
-          {
-            // Labels overlay
-            kind: 'xyz',
-            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-            maxZoom: 19,
-            pane: 'overlayPane',
-          },
-        ],
-      },
-      {
-        id: 'esri_world_imagery',
-        name: 'Imagery (no labels)',
-        kind: 'xyz',
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        subdomains: 'abcd',
         maxZoom: 19,
         attribution: '',
       },
