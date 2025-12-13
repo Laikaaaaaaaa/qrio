@@ -87,6 +87,20 @@
       pointer-events: none;
     }
 
+    .map-text-label {
+      background: rgba(42, 42, 62, 0.88);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      letter-spacing: 0.2px;
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
     :root {
       --sidebar-width: 320px;
       --mobile-header-height: 44px;
@@ -7629,31 +7643,17 @@
     let locationPickerInvalidateTimer = null;
     let locationPickerLocalTilesAvailable = null; // null = unknown, boolean once checked
     let locationPickerLocalTilesZoomMax = null;
+    let locationPickerPoliticalLabels = null;
 
     const locationPickerTileSources = [
       {
         id: 'carto_light_all',
         name: 'CARTO (khuyến nghị)',
-        kind: 'masked_xyz',
+        kind: 'xyz',
         url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
         subdomains: 'abcd',
         maxZoom: 19,
         attribution: '',
-        // Hard guarantee for our UI: mask the tile area where raster labels often render.
-        // This does not draw any disputed boundary lines.
-        masks: [
-          {
-            // Approximate label area for “Biển Đông / South China Sea” at low zooms.
-            // Applying a mask guarantees the undesired label is not visible.
-            minLat: 12.0,
-            maxLat: 16.8,
-            minLng: 112.0,
-            maxLng: 116.8,
-            minZoom: 0,
-            maxZoom: 7,
-            fill: 'rgba(255,255,255,0.94)',
-          }
-        ]
       },
       {
         id: 'local_mbtiles',
@@ -7761,93 +7761,6 @@
 
     function locationPickerBuildTileLayer(source) {
       if (!source) return null;
-
-      if (source.kind === 'masked_xyz') {
-        const template = source.url;
-        const subdomains = (source.subdomains && String(source.subdomains)) ? String(source.subdomains) : 'abcd';
-        const subs = subdomains.split('');
-        const maxZoom = source.maxZoom || 19;
-        const masks = Array.isArray(source.masks) ? source.masks : [];
-
-        const layer = L.gridLayer({
-          maxZoom,
-          attribution: source.attribution || '',
-          tileSize: 256,
-        });
-
-        layer.createTile = (coords, done) => {
-          const tile = document.createElement('canvas');
-          tile.width = 256;
-          tile.height = 256;
-          const ctx = tile.getContext('2d');
-          if (!ctx) {
-            done(null, tile);
-            return tile;
-          }
-
-          const s = subs[(coords.x + coords.y) % subs.length];
-          const isRetina = (window.devicePixelRatio || 1) >= 2;
-          const r = isRetina ? '@2x' : '';
-          const url = template
-            .replace('{s}', s)
-            .replace('{z}', String(coords.z))
-            .replace('{x}', String(coords.x))
-            .replace('{y}', String(coords.y))
-            .replace('{r}', r);
-
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.referrerPolicy = 'no-referrer';
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, 256, 256);
-
-            try {
-              // Apply geographic masks (guaranteed redaction in our UI).
-              if (locationPickerMap && masks.length) {
-                const z = coords.z;
-                const tileSize = 256;
-                const tileOriginX = coords.x * tileSize;
-                const tileOriginY = coords.y * tileSize;
-
-                for (const m of masks) {
-                  const minZoom = Number.isFinite(m.minZoom) ? m.minZoom : 0;
-                  const maxZoomM = Number.isFinite(m.maxZoom) ? m.maxZoom : 99;
-                  if (z < minZoom || z > maxZoomM) continue;
-
-                  // Project bbox to pixel coords at this zoom.
-                  const nw = locationPickerMap.project([m.maxLat, m.minLng], z);
-                  const se = locationPickerMap.project([m.minLat, m.maxLng], z);
-
-                  const left = Math.max(0, Math.floor(nw.x - tileOriginX));
-                  const top = Math.max(0, Math.floor(nw.y - tileOriginY));
-                  const right = Math.min(tileSize, Math.ceil(se.x - tileOriginX));
-                  const bottom = Math.min(tileSize, Math.ceil(se.y - tileOriginY));
-
-                  if (right <= 0 || bottom <= 0 || left >= tileSize || top >= tileSize) continue;
-                  const w = Math.max(0, right - left);
-                  const h = Math.max(0, bottom - top);
-                  if (w <= 0 || h <= 0) continue;
-
-                  ctx.fillStyle = m.fill || 'rgba(255,255,255,0.94)';
-                  ctx.fillRect(left, top, w, h);
-                }
-              }
-            } catch {
-              // If masking fails, still show the base tile (do not break the map).
-            }
-
-            done(null, tile);
-          };
-          img.onerror = () => {
-            // Signal tileerror so the existing fallback logic can switch sources.
-            done(new Error('tile load error'), tile);
-          };
-          img.src = url;
-          return tile;
-        };
-
-        return layer;
-      }
 
       if (source.kind === 'composite') {
         const layers = Array.isArray(source.layers) ? source.layers : [];
@@ -7977,6 +7890,29 @@
       invalidateLocationPickerMapSizeSoon();
     }
 
+    function ensureLocationPickerPoliticalLabels() {
+      if (!locationPickerMap || !window.L) return;
+      if (locationPickerPoliticalLabels) return;
+
+      const mk = (lat, lng, text) => L.marker([lat, lng], {
+        interactive: false,
+        keyboard: false,
+        zIndexOffset: 1000,
+        icon: L.divIcon({
+          className: 'map-text-label',
+          html: text,
+          iconSize: null,
+        })
+      }).addTo(locationPickerMap);
+
+      // Cover common raster label location with our own Vietnamese label (no hole, no boundaries).
+      const bienDong = mk(14.5000, 114.3000, 'Biển Đông');
+      const hoangSa = mk(16.5000, 112.3000, 'Quần đảo Hoàng Sa');
+      const truongSa = mk(10.0000, 114.3500, 'Quần đảo Trường Sa');
+
+      locationPickerPoliticalLabels = [bienDong, hoangSa, truongSa];
+    }
+
     async function verifyLocationPickerTilesOnce() {
       if (locationPickerTileChecked) return;
       locationPickerTileChecked = true;
@@ -8088,6 +8024,8 @@
         locationPickerMarker = L.marker(center, { draggable: true, icon: locationPickerMarkerIcon }).addTo(locationPickerMap);
         locationPickerSelected = { lat: center[0], lng: center[1] };
         updateLocationPickerCoordsLabel(locationPickerSelected.lat, locationPickerSelected.lng);
+
+        ensureLocationPickerPoliticalLabels();
 
         locationPickerMap.on('click', (ev) => {
           const latlng = ev.latlng;

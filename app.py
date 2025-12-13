@@ -110,7 +110,7 @@ def location_viewer():
             color: #fff;
             border: 1px solid rgba(255,255,255,0.18);
             border-radius: 10px;
-            padding: 6px 8px;
+            padding: 8px 10px;
             font-size: 12px;
             font-weight: 700;
             white-space: nowrap;
@@ -131,68 +131,12 @@ def location_viewer():
             var zoom = {zoom:d};
             var map = L.map('map', {{ zoomControl: true }}).setView([lat, lng], zoom);
 
-            // CARTO tiles (approved) + a hard UI mask to guarantee the unwanted label won't show.
-            (function addMaskedCartoTiles() {{
-                var template = 'https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png';
-                var subs = ['a','b','c','d'];
-                var masks = [
-                    {{ minLat: 12.0, maxLat: 16.8, minLng: 112.0, maxLng: 116.8, minZoom: 0, maxZoom: 7, fill: 'rgba(255,255,255,0.94)' }}
-                ];
-
-                var layer = L.gridLayer({{ maxZoom: 19, tileSize: 256, attribution: '' }});
-                layer.createTile = function(coords, done) {{
-                    var tile = document.createElement('canvas');
-                    tile.width = 256;
-                    tile.height = 256;
-                    var ctx = tile.getContext('2d');
-                    if (!ctx) {{ done(null, tile); return tile; }}
-
-                    var s = subs[(coords.x + coords.y) % subs.length];
-                    var isRetina = (window.devicePixelRatio || 1) >= 2;
-                    var r = isRetina ? '@2x' : '';
-                    var url = template
-                        .replace('{{s}}', s)
-                        .replace('{{z}}', String(coords.z))
-                        .replace('{{x}}', String(coords.x))
-                        .replace('{{y}}', String(coords.y))
-                        .replace('{{r}}', r);
-
-                    var img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.referrerPolicy = 'no-referrer';
-                    img.onload = function() {{
-                        ctx.drawImage(img, 0, 0, 256, 256);
-                        try {{
-                            var z = coords.z;
-                            var tileSize = 256;
-                            var tileOriginX = coords.x * tileSize;
-                            var tileOriginY = coords.y * tileSize;
-                            for (var i = 0; i < masks.length; i++) {{
-                                var m = masks[i];
-                                if (z < m.minZoom || z > m.maxZoom) continue;
-                                var nw = map.project([m.maxLat, m.minLng], z);
-                                var se = map.project([m.minLat, m.maxLng], z);
-                                var left = Math.max(0, Math.floor(nw.x - tileOriginX));
-                                var top = Math.max(0, Math.floor(nw.y - tileOriginY));
-                                var right = Math.min(tileSize, Math.ceil(se.x - tileOriginX));
-                                var bottom = Math.min(tileSize, Math.ceil(se.y - tileOriginY));
-                                if (right <= 0 || bottom <= 0 || left >= tileSize || top >= tileSize) continue;
-                                var w = Math.max(0, right - left);
-                                var h = Math.max(0, bottom - top);
-                                if (w <= 0 || h <= 0) continue;
-                                ctx.fillStyle = m.fill || 'rgba(255,255,255,0.94)';
-                                ctx.fillRect(left, top, w, h);
-                            }}
-                        }} catch (e) {{}}
-                        done(null, tile);
-                    }};
-                    img.onerror = function() {{ done(new Error('tile load error'), tile); }};
-                    img.src = url;
-                    return tile;
-                }};
-
-                layer.addTo(map);
-            }})();
+            // CARTO tiles (approved)
+            L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
+                maxZoom: 19,
+                subdomains: 'abcd',
+                attribution: ''
+            }}).addTo(map);
 
             var markerIcon = L.divIcon({{
                 className: 'qrio-leaflet-marker',
@@ -214,6 +158,7 @@ def location_viewer():
                 }}).addTo(map);
             }}
             // Approximate label points for visibility. This does not draw any disputed boundary lines.
+            label(14.5000, 114.3000, 'Biển Đông');
             label(16.5000, 112.3000, 'Quần đảo Hoàng Sa');
             label(10.0000, 114.3500, 'Quần đảo Trường Sa');
         }})();
