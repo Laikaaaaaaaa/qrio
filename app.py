@@ -16,11 +16,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageChops
 import io
 import base64
 import os
-import sqlite3
 from typing import Any
 from typing import Optional
 import json
-import requests
 
 import re
 import html
@@ -71,6 +69,82 @@ def validate_float(value, default: float, min_val: float = None, max_val: float 
         return default
 
 
+def _hex_to_rgb(color: str):
+    """Convert #RRGGBB or RRGGBB to an (R, G, B) tuple."""
+    if not color:
+        return (0, 0, 0)
+    c = str(color).strip().lstrip('#')
+    if len(c) != 6 or not re.match(r'^[0-9a-fA-F]{6}$', c):
+        return (0, 0, 0)
+    return (int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16))
+
+
+def _parse_version(value):
+    """Parse QR version. Returns int 1..40 or None for auto-fit."""
+    try:
+        v = int(value)
+    except (TypeError, ValueError):
+        return None
+    return max(1, min(40, v))
+
+
+def _clamp_logo_size_percent(ecc_level: str, requested, default: float = 25.0):
+    """Clamp logo size percent based on ECC level.
+
+    Returns (percent_used, max_allowed, clamped_bool).
+    """
+    try:
+        pct = float(requested)
+    except (TypeError, ValueError):
+        pct = float(default)
+
+    ecc = (ecc_level or 'H').upper()
+    max_by_ecc = {
+        'L': 18.0,
+        'M': 22.0,
+        'Q': 26.0,
+        'H': 30.0,
+    }
+    max_allowed = max_by_ecc.get(ecc, 30.0)
+    pct_clamped = max(5.0, min(max_allowed, pct))
+    return pct_clamped, max_allowed, (pct_clamped != pct)
+
+
+def get_module_drawer(module_style: str, dot_type: str, dot_scale: float = 1.0, dot_gap: float = 0.0):
+    """Return a qrcode module drawer based on style selection."""
+    style = (module_style or '').lower().strip()
+    dt = (dot_type or '').lower().strip()
+
+    if style in ('legacy', ''):
+        # Keep legacy behavior driven by dot_type.
+        if dt in ('circle', 'dot', 'dots'):
+            return CircleModuleDrawer()
+        if dt in ('square',):
+            return SquareModuleDrawer()
+        if dt in ('gapped', 'gap'):
+            return GappedSquareModuleDrawer()
+        if dt in ('hbars', 'horizontal-bars'):
+            return HorizontalBarsDrawer()
+        if dt in ('vbars', 'vertical-bars'):
+            return VerticalBarsDrawer()
+        return RoundedModuleDrawer()
+
+    if style in ('rounded', 'round'):
+        return RoundedModuleDrawer()
+    if style in ('circle', 'dot', 'dots'):
+        return CircleModuleDrawer()
+    if style in ('square',):
+        return SquareModuleDrawer()
+    if style in ('gapped', 'gap'):
+        return GappedSquareModuleDrawer()
+    if style in ('hbars', 'horizontal-bars'):
+        return HorizontalBarsDrawer()
+    if style in ('vbars', 'vertical-bars'):
+        return VerticalBarsDrawer()
+
+    return RoundedModuleDrawer()
+
+
 app = Flask(
     __name__,
     template_folder='.',
@@ -79,186 +153,9 @@ app = Flask(
 )
 
 
-def get_maptiler_api_key() -> str:
-    """Return MAPTILER_API_KEY if it looks valid, else empty string."""
-    key = (os.environ.get('MAPTILER_API_KEY') or '').strip()
-    # MapTiler keys are URL-safe tokens; keep validation permissive but safe.
-    if not re.match(r'^[A-Za-z0-9_-]{10,}$', key):
-        return ''
-    return key
-
-
-@app.route('/config.js')
-def client_config_js():
-    """Small JS config blob for the frontend (served from same-origin)."""
-    key = get_maptiler_api_key()
-    payload = (
-        "window.__QRIO_CONFIG__ = window.__QRIO_CONFIG__ || {};\n"
-        f"window.__QRIO_CONFIG__.maptilerKey = {json.dumps(key)};\n"
-    )
-    resp = Response(payload, mimetype='application/javascript; charset=utf-8')
-    resp.headers['Cache-Control'] = 'no-store'
-    return resp
-
-
-@app.route('/location')
-def location_viewer():
-        """Simple location viewer for scanned QR codes.
-
-        Renders an interactive map with a marker at the provided coordinates and
-        overlays Vietnamese labels for Hoàng Sa / Trường Sa.
-        """
-        lat = validate_float(request.args.get('lat'), 21.0285, -90.0, 90.0)
-        lng = validate_float(request.args.get('lng'), 105.8542, -180.0, 180.0)
-        zoom = validate_int(request.args.get('z'), 18, 1, 19)
-
-        # Render as inline HTML to keep deployment simple.
-        page = f"""<!doctype html>
-<html lang=\"vi\">
-<head>
-    <meta charset=\"utf-8\" />
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-    <title>Vị trí đã chọn</title>
-    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" />
-    <script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"></script>
-    <style>
-        html, body {{ height: 100%; margin: 0; }}
-        body {{ background:#1e1e2e; color:#fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }}
-        .topbar {{ padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; }}
-        .title {{ font-weight: 700; font-size: 14px; }}
-        .coords {{ font-size: 12px; color: rgba(255,255,255,0.7); }}
-        #map {{ height: calc(100% - 44px); width: 100%; }}
-        .sovereignty-label {{
-            background: rgba(30,30,46,0.85);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 10px;
-            padding: 8px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            white-space: nowrap;
-            box-shadow: 0 10px 18px rgba(0,0,0,0.35);
-        }}
-    </style>
-</head>
-<body>
-    <div class=\"topbar\">
-        <div class=\"title\">Vị trí đã chọn</div>
-        <div class=\"coords\">{lat:.6f}, {lng:.6f}</div>
-    </div>
-    <div id=\"map\"></div>
-    <script>
-        (function() {{
-            var lat = {lat:.6f};
-            var lng = {lng:.6f};
-            var zoom = {zoom:d};
-            var VIETNAM_BOUNDS = L.latLngBounds(L.latLng(5.0, 102.0), L.latLng(25.2, 118.8));
-            var map = L.map('map', {{
-                zoomControl: true,
-                minZoom: 5,
-                maxZoom: 20,
-                maxBounds: VIETNAM_BOUNDS,
-                maxBoundsViscosity: 1.0,
-            }}).setView([lat, lng], zoom);
-
-            function buildNeutralGridLayer() {{
-                var layer = L.gridLayer({{ maxZoom: 20, tileSize: 256, attribution: '' }});
-                layer.createTile = function(coords) {{
-                    var tile = document.createElement('canvas');
-                    tile.width = 256;
-                    tile.height = 256;
-                    var ctx = tile.getContext('2d');
-                    if (!ctx) return tile;
-                    ctx.fillStyle = '#1e1e2e';
-                    ctx.fillRect(0, 0, 256, 256);
-                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
-                    ctx.lineWidth = 1;
-                    for (var i = 0; i <= 256; i += 32) {{
-                        ctx.beginPath();
-                        ctx.moveTo(i + 0.5, 0);
-                        ctx.lineTo(i + 0.5, 256);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(0, i + 0.5);
-                        ctx.lineTo(256, i + 0.5);
-                        ctx.stroke();
-                    }}
-                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
-                    ctx.strokeRect(0.5, 0.5, 255, 255);
-                    ctx.fillStyle = 'rgba(148, 163, 184, 0.85)';
-                    ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-                    ctx.fillText('offline tile', 10, 20);
-                    return tile;
-                }};
-                return layer;
-            }}
-
-            function addMbtilesLayer(maxNativeZoom) {{
-                var opts = {{
-                    maxZoom: 20,
-                    attribution: '',
-                    crossOrigin: false,
-                }};
-                if (Number.isFinite(maxNativeZoom)) {{
-                    opts.maxNativeZoom = maxNativeZoom;
-                    opts.maxZoom = Math.max(20, maxNativeZoom);
-                }}
-                var tl = L.tileLayer('/tiles/{{z}}/{{x}}/{{y}}.png', opts);
-                tl.on('tileerror', function() {{
-                    // If local tiles missing/corrupt, fall back to neutral grid.
-                    if (!map.__qrioFallback) {{
-                        map.__qrioFallback = true;
-                        buildNeutralGridLayer().addTo(map);
-                    }}
-                }});
-                tl.addTo(map);
-            }}
-
-            fetch('/tiles/status', {{ cache: 'no-store' }})
-                .then(function(r) {{ return r.ok ? r.json() : null; }})
-                .then(function(info) {{
-                    if (info && info.found && info.is_raster) {{
-                        addMbtilesLayer((typeof info.max_zoom === 'number') ? info.max_zoom : null);
-                    }} else {{
-                        buildNeutralGridLayer().addTo(map);
-                    }}
-                }})
-                .catch(function() {{
-                    buildNeutralGridLayer().addTo(map);
-                }});
-
-            var markerIcon = L.divIcon({{
-                className: 'qrio-leaflet-marker',
-                html: `\
-                    <svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" aria-hidden=\"true\">\
-                        <path d=\"M16 31s10-9.2 10-17A10 10 0 0 0 6 14c0 7.8 10 17 10 17z\" fill=\"#7c3aed\"/>\
-                        <circle cx=\"16\" cy=\"14\" r=\"4.2\" fill=\"#ffffff\" fill-opacity=\"0.95\"/>\
-                        <circle cx=\"16\" cy=\"14\" r=\"2.4\" fill=\"#1e1e2e\" fill-opacity=\"0.25\"/>\
-                    </svg>`,
-                iconSize: [32, 32],
-                iconAnchor: [16, 31]
-            }});
-            L.marker([lat, lng], {{ icon: markerIcon }}).addTo(map);
-
-            function label(lat, lng, text) {{
-                return L.marker([lat, lng], {{
-                    interactive: false,
-                    icon: L.divIcon({{ className: 'sovereignty-label', html: text, iconSize: null }})
-                }}).addTo(map);
-            }}
-            // Approximate label points for visibility. This does not draw any disputed boundary lines.
-            label(14.5000, 114.3000, 'Biển Đông');
-            label(16.5000, 112.3000, 'Quần đảo Hoàng Sa');
-            label(10.0000, 114.3500, 'Quần đảo Trường Sa');
-        }})();
-    </script>
-    <style>
-        .qrio-leaflet-marker {{ background: transparent; border: none; }}
-        .qrio-leaflet-marker svg {{ display:block; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35)); }}
-    </style>
-</body>
-</html>"""
-        return Response(page, mimetype='text/html; charset=utf-8')
+# Tạo thư mục lưu nếu chưa có
+thu_muc_ma = Path("mã")
+thu_muc_ma.mkdir(exist_ok=True)
 
 # Security headers - CSP, XSS protection, cache
 @app.after_request
@@ -276,170 +173,46 @@ def add_security_headers(response):
     )
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
+
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    
+
     # Cache static assets
     if request.path.startswith('/static/'):
         response.headers['Cache-Control'] = 'public, max-age=31536000'  # 1 year
-    
+
     return response
 
 
-# Sitemap and robots.txt
-@app.route('/sitemap.xml')
-def sitemap():
-    return send_from_directory('static', 'sitemap.xml', mimetype='application/xml')
-
-
-@app.route('/robots.txt')
-def robots():
-    return send_from_directory('static', 'robots.txt', mimetype='text/plain')
-
-# Tạo thư mục lưu nếu chưa có
-thu_muc_ma = Path("mã")
-thu_muc_ma.mkdir(exist_ok=True)
-
-def _hex_to_rgb(color: str):
-    """Convert #RRGGBB or RRGGBB to RGB tuple."""
-    c = color.strip().lstrip('#')
-    if len(c) != 6:
-        return (0, 0, 0)
-    r = int(c[0:2], 16)
-    g = int(c[2:4], 16)
-    b = int(c[4:6], 16)
-    return (r, g, b)
-
-
-def _parse_version(value):
-    """Clamp and validate QR version (1-12)."""
-    try:
-        version = int(value)
-    except (TypeError, ValueError):
-        return None
-    return max(1, min(12, version))
-
-
-def _clamp_logo_size_percent(ecc_level: str, value, default: int = 25) -> tuple[int, int, bool]:
-    """Clamp logo size percent to a scan-friendly range by ECC.
-
-    Returns (clamped, max_allowed, was_clamped).
-    """
-    try:
-        requested = int(value)
-    except (TypeError, ValueError):
-        requested = int(default)
-
-    ecc = (ecc_level or 'H').upper()
-    # Conservative caps to avoid breaking scan reliability.
-    max_allowed = {
-        'L': 14,
-        'M': 18,
-        'Q': 22,
-        'H': 25,
-    }.get(ecc, 25)
-    clamped = max(10, min(max_allowed, requested))
-    return clamped, max_allowed, (clamped != requested)
-
-
-def get_module_drawer(style, dot_type, dot_scale=1.0, dot_gap=0.0):
-    """Get module drawer with customization for scale and gap."""
-    # Clamp inputs to safe ranges
-    dot_scale = max(0.5, min(1.5, dot_scale))
-    dot_gap = max(0.0, min(0.6, dot_gap))
-
-    # Base shrink from scale (1.0 = normal size)
-    base_shrink = max(0.35, min(1.0, dot_scale))
-    # Gap reduces the visible body size
-    gap_penalty = dot_gap * 0.8
-    shrink = max(0.25, base_shrink - gap_penalty)
-
-    legacy_drawers = {
-        'rounded': lambda: RoundedModuleDrawer(),
-        'dots': lambda: CircleModuleDrawer(),
-        'square': lambda: SquareModuleDrawer(),
-        'classy': lambda: GappedSquareModuleDrawer(),
-        'classy-rounded': lambda: RoundedModuleDrawer(),
-        'extra-rounded': lambda: RoundedModuleDrawer(),
-    }
-
-    if style == 'legacy':
-        return legacy_drawers.get(dot_type, lambda: RoundedModuleDrawer())()
-
-    # Use gapped drawer when gap > 0.05 to make effect obvious
-    def gapped_or(drawer_fn):
-        if dot_gap > 0.05:
-            return GappedSquareModuleDrawer()
-        return drawer_fn()
-
-    drawer_map = {
-        'square': lambda: gapped_or(SquareModuleDrawer),
-        'rounded-square': lambda: gapped_or(lambda: RoundedModuleDrawer(radius_ratio=0.45)),
-        'circle': lambda: CircleModuleDrawer(),
-        'rounded-bar': lambda: gapped_or(lambda: RoundedModuleDrawer(radius_ratio=0.7)),
-        'horizontal-bar': lambda: HorizontalBarsDrawer(vertical_shrink=shrink),
-        'vertical-bar': lambda: VerticalBarsDrawer(horizontal_shrink=shrink),
-        'capsule': lambda: gapped_or(lambda: RoundedModuleDrawer(radius_ratio=1.0)),
-        'organic': lambda: gapped_or(lambda: RoundedModuleDrawer(radius_ratio=0.95)),
-    }
-    return drawer_map.get(style, lambda: RoundedModuleDrawer(radius_ratio=0.45))()
-
-
-def draw_shape(draw, x, y, size, fill, shape):
-    if shape == 'square':
-        draw.rectangle((x, y, x + size, y + size), fill=fill)
-    elif shape == 'rounded-square':
-        radius = max(2, size // 4)
-        draw.rounded_rectangle((x, y, x + size, y + size), radius=radius, fill=fill)
-    elif shape == 'circle':
-        draw.ellipse((x, y, x + size, y + size), fill=fill)
-    elif shape == 'diamond':
-        cx = x + size / 2
-        cy = y + size / 2
-        points = [
-            (cx, y),
-            (x + size, cy),
-            (cx, y + size),
-            (x, cy),
-        ]
-        draw.polygon(points, fill=fill)
-    else:
-        draw.rectangle((x, y, x + size, y + size), fill=fill)
-
-
-def draw_finder_pattern(draw, x, y, module_size, front_color, back_color, eye_style='square', eye_thickness=1.0):
-    """Draw a single finder pattern (eye) with custom style."""
-    # Finder pattern is 7x7 modules
+def draw_finder_pattern(draw, x, y, module_size, front_color, back_color, eye_style, eye_thickness=1.0):
+    """Draw a 7x7 finder pattern at (x, y) with configurable eye style/thickness."""
     outer_size = 7 * module_size
-    
-    # eye_thickness: 0.7-2.0 controls the ring/border thickness
-    # Higher value = thicker border ring
-    t = max(0.7, min(2.0, eye_thickness))
-    
+    t = float(eye_thickness) if eye_thickness is not None else 1.0
+
     # Ring thickness in pixels (border between outer and middle)
     ring_width = max(1, int(module_size * t))
-    
+
     # Calculate middle (gap) area - this is the "white" ring
     middle_offset = ring_width
     middle_size = outer_size - 2 * ring_width
-    
+
     # Inner square is always 3x3 modules, centered
     inner_size = 3 * module_size
     inner_offset = (outer_size - inner_size) // 2
-    
+
     # Ensure valid dimensions
     if middle_size < inner_size + 2:
         middle_size = inner_size + 2
         middle_offset = (outer_size - middle_size) // 2
-    
+
     if eye_style == 'square':
         # Classic square style
         draw.rectangle((x, y, x + outer_size, y + outer_size), fill=front_color)
-        draw.rectangle((x + middle_offset, y + middle_offset, 
+        draw.rectangle((x + middle_offset, y + middle_offset,
                         x + middle_offset + middle_size, y + middle_offset + middle_size), fill=back_color)
         draw.rectangle((x + inner_offset, y + inner_offset,
                         x + inner_offset + inner_size, y + inner_offset + inner_size), fill=front_color)
-    
+
     elif eye_style == 'rounded':
         # Rounded corners
         radius_outer = max(2, outer_size // 5)
@@ -447,20 +220,20 @@ def draw_finder_pattern(draw, x, y, module_size, front_color, back_color, eye_st
         radius_inner = max(2, inner_size // 5)
         draw.rounded_rectangle((x, y, x + outer_size, y + outer_size), radius=radius_outer, fill=front_color)
         draw.rounded_rectangle((x + middle_offset, y + middle_offset,
-                                x + middle_offset + middle_size, y + middle_offset + middle_size), 
+                                x + middle_offset + middle_size, y + middle_offset + middle_size),
                                radius=radius_middle, fill=back_color)
         draw.rounded_rectangle((x + inner_offset, y + inner_offset,
                                 x + inner_offset + inner_size, y + inner_offset + inner_size),
                                radius=radius_inner, fill=front_color)
-    
+
     elif eye_style == 'circle':
         # Bubble/Dot style
         draw.ellipse((x, y, x + outer_size, y + outer_size), fill=front_color)
         draw.ellipse((x + middle_offset, y + middle_offset,
-                     x + middle_offset + middle_size, y + middle_offset + middle_size), fill=back_color)
+                      x + middle_offset + middle_size, y + middle_offset + middle_size), fill=back_color)
         draw.ellipse((x + inner_offset, y + inner_offset,
-                     x + inner_offset + inner_size, y + inner_offset + inner_size), fill=front_color)
-    
+                      x + inner_offset + inner_size, y + inner_offset + inner_size), fill=front_color)
+
     elif eye_style == 'rounded-bar':
         # Rounded bars style
         radius_outer = outer_size // 3
@@ -473,20 +246,19 @@ def draw_finder_pattern(draw, x, y, module_size, front_color, back_color, eye_st
         draw.rounded_rectangle((x + inner_offset, y + inner_offset,
                                 x + inner_offset + inner_size, y + inner_offset + inner_size),
                                radius=radius_inner, fill=front_color)
-    
+
     elif eye_style == 'diamond':
         # Diamond style
         def draw_diamond(x1, y1, size, fill):
             cx = x1 + size / 2
             cy = y1 + size / 2
-            half = size / 2
             points = [(cx, y1), (x1 + size, cy), (cx, y1 + size), (x1, cy)]
             draw.polygon(points, fill=fill)
-        
+
         draw_diamond(x, y, outer_size, front_color)
         draw_diamond(x + middle_offset, y + middle_offset, middle_size, back_color)
         draw_diamond(x + inner_offset, y + inner_offset, inner_size, front_color)
-    
+
     else:
         # Default square
         draw.rectangle((x, y, x + outer_size, y + outer_size), fill=front_color)
@@ -685,234 +457,14 @@ def favicon():
     return redirect(url_for('static', filename='logo/favicon_io (3)/favicon.ico'))
 
 
-# ===== LOCAL MBTILES TILE SERVER (offline, same-origin for CSP) =====
-
-def _guess_tile_mime(tile_bytes: bytes) -> str:
-    if not tile_bytes:
-        return 'application/octet-stream'
-    # PNG signature
-    if tile_bytes.startswith(b'\x89PNG\r\n\x1a\n'):
-        return 'image/png'
-    # JPEG
-    if tile_bytes.startswith(b'\xff\xd8\xff'):
-        return 'image/jpeg'
-    # WEBP (RIFF....WEBP)
-    if len(tile_bytes) >= 12 and tile_bytes[0:4] == b'RIFF' and tile_bytes[8:12] == b'WEBP':
-        return 'image/webp'
-    return 'application/octet-stream'
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('static', 'sitemap.xml', mimetype='application/xml')
 
 
-def _find_mbtiles_path() -> Optional[Path]:
-    env = os.environ.get('MBTILES_PATH') or os.environ.get('MAP_MBTILES_PATH')
-    if env:
-        p = Path(env)
-        if p.exists() and p.is_file():
-            return p
-
-    # Conventional locations
-    candidates = [
-        Path('tiles') / 'map.mbtiles',
-        Path('tiles') / 'tiles.mbtiles',
-        Path('static') / 'tiles.mbtiles',
-    ]
-    for c in candidates:
-        if c.exists() and c.is_file():
-            return c
-
-    # First .mbtiles in ./tiles
-    tiles_dir = Path('tiles')
-    if tiles_dir.exists() and tiles_dir.is_dir():
-        for f in tiles_dir.glob('*.mbtiles'):
-            if f.is_file():
-                return f
-
-    # Also allow dropping a single .mbtiles next to app.py
-    for f in Path('.').glob('*.mbtiles'):
-        if f.is_file():
-            return f
-
-    return None
-
-
-def _get_mbtiles_conn(path: Path) -> sqlite3.Connection:
-    # Read-only open (uri mode) to avoid locking issues
-    uri = f"file:{path.as_posix()}?mode=ro"
-    conn = sqlite3.connect(uri, uri=True, check_same_thread=False)
-    return conn
-
-
-def _has_table(conn: sqlite3.Connection, table_name: str) -> bool:
-    row = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1",
-        (table_name,),
-    ).fetchone()
-    return bool(row)
-
-
-def _read_metadata(conn: sqlite3.Connection) -> dict:
-    if not _has_table(conn, 'metadata'):
-        return {}
-    out: dict[str, str] = {}
-    try:
-        for k, v in conn.execute('SELECT name, value FROM metadata').fetchall():
-            if isinstance(k, str):
-                out[k] = v
-    except Exception:
-        return out
-    return out
-
-
-def _query_one_tile(conn: sqlite3.Connection, z: int, x: int, y: int):
-    return conn.execute(
-        'SELECT tile_data FROM tiles WHERE zoom_level=? AND tile_column=? AND tile_row=? LIMIT 1',
-        (z, x, y),
-    ).fetchone()
-
-
-def _query_one_tile_map_images(conn: sqlite3.Connection, z: int, x: int, y: int):
-    # Some MBTiles producers store de-duplicated tiles in `images` and an index in `map`.
-    return conn.execute(
-        'SELECT images.tile_data '
-        'FROM map JOIN images ON map.tile_id = images.tile_id '
-        'WHERE map.zoom_level=? AND map.tile_column=? AND map.tile_row=? '
-        'LIMIT 1',
-        (z, x, y),
-    ).fetchone()
-
-
-def _mbtiles_zoom_range(conn: sqlite3.Connection):
-    row = conn.execute('SELECT MIN(zoom_level), MAX(zoom_level) FROM tiles').fetchone()
-    if not row:
-        return None, None
-    return row[0], row[1]
-
-
-def _mbtiles_zoom_range_map_images(conn: sqlite3.Connection):
-    row = conn.execute('SELECT MIN(zoom_level), MAX(zoom_level) FROM map').fetchone()
-    if not row:
-        return None, None
-    return row[0], row[1]
-
-
-@app.route('/tiles/status')
-def mbtiles_status():
-    """Return whether a local MBTiles file is available and what it contains."""
-    searched = [
-        'MBTILES_PATH / MAP_MBTILES_PATH (env)',
-        'tiles/map.mbtiles',
-        'tiles/tiles.mbtiles',
-        'static/tiles.mbtiles',
-        'tiles/*.mbtiles (first match)',
-    ]
-
-    mbtiles_path = _find_mbtiles_path()
-    if not mbtiles_path:
-        return jsonify({
-            'found': False,
-            'path': None,
-            'searched': searched,
-            'hint': 'Put a *raster* .mbtiles file at tiles/map.mbtiles (or set MBTILES_PATH).',
-        })
-
-    info: dict[str, Any] = {
-        'found': True,
-        'path': str(mbtiles_path),
-        'searched': searched,
-        'schema': None,
-        'min_zoom': None,
-        'max_zoom': None,
-        'sample_mime': None,
-        'is_raster': None,
-        'metadata': None,
-    }
-
-    try:
-        conn = _get_mbtiles_conn(mbtiles_path)
-        try:
-            md = _read_metadata(conn)
-            info['metadata'] = {k: md.get(k) for k in ('name', 'format', 'bounds', 'center', 'minzoom', 'maxzoom') if k in md}
-
-            if _has_table(conn, 'tiles'):
-                info['schema'] = 'tiles'
-                min_z, max_z = _mbtiles_zoom_range(conn)
-                info['min_zoom'] = min_z
-                info['max_zoom'] = max_z
-                sample = conn.execute('SELECT tile_data FROM tiles LIMIT 1').fetchone()
-                if sample and sample[0]:
-                    mime = _guess_tile_mime(sample[0])
-                    info['sample_mime'] = mime
-                    info['is_raster'] = bool(mime.startswith('image/'))
-            elif _has_table(conn, 'map') and _has_table(conn, 'images'):
-                info['schema'] = 'map_images'
-                min_z, max_z = _mbtiles_zoom_range_map_images(conn)
-                info['min_zoom'] = min_z
-                info['max_zoom'] = max_z
-                sample = conn.execute('SELECT tile_data FROM images LIMIT 1').fetchone()
-                if sample and sample[0]:
-                    mime = _guess_tile_mime(sample[0])
-                    info['sample_mime'] = mime
-                    info['is_raster'] = bool(mime.startswith('image/'))
-            else:
-                info['schema'] = 'unknown'
-        finally:
-            conn.close()
-    except Exception as e:
-        info['error'] = str(e)
-
-    return jsonify(info)
-
-
-@app.route('/tiles/<int:z>/<int:x>/<int:y>.png')
-def mbtiles_tile_png(z: int, x: int, y: int):
-    """Serve XYZ raster tiles from a local MBTiles file.
-
-    Expected MBTiles schema: table `tiles` with columns
-    (zoom_level, tile_column, tile_row, tile_data).
-    MBTiles uses TMS Y, so we flip from XYZ.
-    """
-    if z < 0 or z > 22:
-        return Response(status=404)
-
-    max_index = (1 << z) - 1
-    if x < 0 or y < 0 or x > max_index or y > max_index:
-        return Response(status=404)
-
-    mbtiles_path = _find_mbtiles_path()
-    if not mbtiles_path:
-        return Response(status=404)
-
-    tms_y = max_index - y
-
-    try:
-        conn = _get_mbtiles_conn(mbtiles_path)
-        try:
-            row = None
-            if _has_table(conn, 'tiles'):
-                # MBTiles spec uses TMS Y, but some generators store XYZ Y.
-                # Try TMS first, then fall back to XYZ for compatibility.
-                row = _query_one_tile(conn, z, x, tms_y)
-                if not row and tms_y != y:
-                    row = _query_one_tile(conn, z, x, y)
-            elif _has_table(conn, 'map') and _has_table(conn, 'images'):
-                row = _query_one_tile_map_images(conn, z, x, tms_y)
-                if not row and tms_y != y:
-                    row = _query_one_tile_map_images(conn, z, x, y)
-            else:
-                row = None
-        finally:
-            conn.close()
-    except Exception as e:
-        print(f"MBTiles error: {e}")
-        return Response(status=500)
-
-    if not row:
-        return Response(status=404)
-
-    tile_bytes = row[0]
-    mime = _guess_tile_mime(tile_bytes)
-    resp = Response(tile_bytes, mimetype=mime)
-    resp.headers['Cache-Control'] = 'public, max-age=86400'
-    return resp
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('static', 'robots.txt', mimetype='text/plain')
 
 
 @app.route('/api/generate', methods=['POST'])
@@ -1132,46 +684,6 @@ def add_titles_to_qr(qr_img, title_top, title_bottom, title_color, top_size, bot
         print(f"Lỗi thêm tiêu đề: {e}")
         return qr_img
 
-
-# Proxy vector tiles từ TileServer GL
-@app.route('/api/tiles/<path:tile_path>')
-def proxy_vector_tiles(tile_path):
-    """Proxy vector tiles từ TileServer GL server."""
-    try:
-        tileserver_url = f"http://localhost:8080/{tile_path}"
-        response = requests.get(tileserver_url, timeout=10)
-        
-        if response.status_code == 200:
-            return Response(
-                response.content,
-                content_type=response.headers.get('content-type', 'application/x-protobuf'),
-                headers={
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET',
-                    'Cache-Control': 'max-age=3600'
-                }
-            )
-        else:
-            return Response("Tile not found", status=404)
-    except requests.RequestException as e:
-        print(f"TileServer GL proxy error: {e}")
-        return Response("TileServer GL not available", status=503)
-
-
-@app.route('/api/tileserver/status')
-def tileserver_status():
-    """Check TileServer GL availability."""
-    try:
-        response = requests.get("http://localhost:8080/health", timeout=5)
-        return jsonify({
-            "status": "online" if response.status_code == 200 else "offline",
-            "tileserver_url": "http://localhost:8080"
-        })
-    except requests.RequestException:
-        return jsonify({
-            "status": "offline",
-            "message": "TileServer GL not running on port 8080"
-        })
 
 
 if __name__ == '__main__':
