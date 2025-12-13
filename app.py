@@ -76,6 +76,99 @@ app = Flask(
     static_url_path='/static',
 )
 
+
+@app.route('/location')
+def location_viewer():
+        """Simple location viewer for scanned QR codes.
+
+        Renders an interactive map with a marker at the provided coordinates and
+        overlays Vietnamese labels for Hoàng Sa / Trường Sa.
+        """
+        lat = validate_float(request.args.get('lat'), 21.0285, -90.0, 90.0)
+        lng = validate_float(request.args.get('lng'), 105.8542, -180.0, 180.0)
+        zoom = validate_int(request.args.get('z'), 18, 1, 19)
+
+        # Render as inline HTML to keep deployment simple.
+        # CSP already allows unpkg + OSM tiles via img-src.
+        page = f"""<!doctype html>
+<html lang=\"vi\">
+<head>
+    <meta charset=\"utf-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+    <title>Vị trí đã chọn</title>
+    <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" />
+    <script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"></script>
+    <style>
+        html, body {{ height: 100%; margin: 0; }}
+        body {{ background:#1e1e2e; color:#fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }}
+        .topbar {{ padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.12); display:flex; gap:10px; align-items:center; }}
+        .title {{ font-weight: 700; font-size: 14px; }}
+        .coords {{ font-size: 12px; color: rgba(255,255,255,0.7); }}
+        #map {{ height: calc(100% - 44px); width: 100%; }}
+        .sovereignty-label {{
+            background: rgba(30,30,46,0.85);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 10px;
+            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 10px 18px rgba(0,0,0,0.35);
+        }}
+    </style>
+</head>
+<body>
+    <div class=\"topbar\">
+        <div class=\"title\">Vị trí đã chọn</div>
+        <div class=\"coords\">{lat:.6f}, {lng:.6f}</div>
+    </div>
+    <div id=\"map\"></div>
+    <script>
+        (function() {{
+            var lat = {lat:.6f};
+            var lng = {lng:.6f};
+            var zoom = {zoom:d};
+            var map = L.map('map', {{ zoomControl: true }}).setView([lat, lng], zoom);
+
+            L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                maxZoom: 19,
+                subdomains: 'abc',
+                attribution: ''
+            }}).addTo(map);
+
+            var markerIcon = L.divIcon({{
+                className: 'qrio-leaflet-marker',
+                html: `\
+                    <svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" aria-hidden=\"true\">\
+                        <path d=\"M16 31s10-9.2 10-17A10 10 0 0 0 6 14c0 7.8 10 17 10 17z\" fill=\"#7c3aed\"/>\
+                        <circle cx=\"16\" cy=\"14\" r=\"4.2\" fill=\"#ffffff\" fill-opacity=\"0.95\"/>\
+                        <circle cx=\"16\" cy=\"14\" r=\"2.4\" fill=\"#1e1e2e\" fill-opacity=\"0.25\"/>\
+                    </svg>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 31]
+            }});
+            L.marker([lat, lng], {{ icon: markerIcon }}).addTo(map);
+
+            function label(lat, lng, text) {{
+                return L.marker([lat, lng], {{
+                    interactive: false,
+                    icon: L.divIcon({{ className: 'sovereignty-label', html: text, iconSize: null }})
+                }}).addTo(map);
+            }}
+            // Approximate label points for visibility. This does not draw any disputed boundary lines.
+            label(16.5000, 112.3000, 'Quần đảo Hoàng Sa');
+            label(10.0000, 114.3500, 'Quần đảo Trường Sa');
+        }})();
+    </script>
+    <style>
+        .qrio-leaflet-marker {{ background: transparent; border: none; }}
+        .qrio-leaflet-marker svg {{ display:block; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35)); }}
+    </style>
+</body>
+</html>"""
+        return Response(page, mimetype='text/html; charset=utf-8')
+
 # Security headers - CSP, XSS protection, cache
 @app.after_request
 def add_security_headers(response):

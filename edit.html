@@ -74,6 +74,19 @@
       filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
     }
 
+    .sovereignty-label {
+      background: rgba(30, 30, 46, 0.85);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
     :root {
       --sidebar-width: 320px;
       --mobile-header-height: 44px;
@@ -4340,9 +4353,8 @@
           const lngNum = Number.parseFloat(lng);
           const safeLat = Number.isFinite(latNum) ? latNum : 21.0285;
           const safeLng = Number.isFinite(lngNum) ? lngNum : 105.8542;
-          // Use an OSM URL with mlat/mlon so the destination shows a marker/pin.
-          // This is more reliable than geo: URIs across scanner apps.
-          return `https://www.openstreetmap.org/?mlat=${safeLat.toFixed(6)}&mlon=${safeLng.toFixed(6)}#map=18/${safeLat.toFixed(6)}/${safeLng.toFixed(6)}`;
+          // Use our built-in viewer page so scanning always shows a marker + Vietnamese labels.
+          return `${window.location.origin}/location?lat=${safeLat.toFixed(6)}&lng=${safeLng.toFixed(6)}&z=18`;
         case 'vcard':
           return generateVCard();
         case 'event':
