@@ -423,6 +423,11 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 analytics_bp = Blueprint('analytics', __name__, url_prefix='/analytics')
 
 
+def _wants_json_response() -> bool:
+    accept = (request.headers.get('Accept', '') or '').lower()
+    return 'application/json' in accept
+
+
 def require_admin(f):
     """Decorator to require admin authentication."""
     @functools.wraps(f)
@@ -464,10 +469,15 @@ def login():
 def login_post():
     """Handle login submission."""
     ip = get_client_ip()
+
+    wants_json = _wants_json_response()
     
     # Check lockout
     if is_ip_locked(ip):
-        return send_login_page(error='Quá nhiều lần thử. Vui lòng đợi 15 phút.')
+        msg = 'Quá nhiều lần thử. Vui lòng đợi 15 phút.'
+        if wants_json:
+            return jsonify({'error': msg}), 429
+        return send_login_page(error=msg)
     
     password = request.form.get('password', '')
     
@@ -475,8 +485,12 @@ def login_post():
     if verify_password(password):
         clear_failed_attempts(ip)
         session_id = create_session()
-        
-        response = make_response(redirect(url_for('admin.dashboard')))
+
+        if wants_json:
+            response = make_response(jsonify({'ok': True, 'redirect': url_for('admin.dashboard')}))
+        else:
+            response = make_response(redirect(url_for('admin.dashboard')))
+
         response.set_cookie(
             SESSION_COOKIE_NAME,
             session_id,
@@ -499,7 +513,10 @@ def login_post():
         return response
     else:
         record_failed_attempt(ip)
-        return send_login_page(error='Mật khẩu không chính xác.')
+        msg = 'Mật khẩu không chính xác.'
+        if wants_json:
+            return jsonify({'error': msg}), 401
+        return send_login_page(error=msg)
 
 
 @admin_bp.route('/logout', methods=['POST'], strict_slashes=False)

@@ -23,6 +23,7 @@ from typing import Any
 from typing import Optional
 import json
 import requests
+import time
 
 import re
 
@@ -455,9 +456,94 @@ def generate_qr(
 # ========================
 # ANALYTICS TRACKING HELPER
 # ========================
+_GEOIP_CACHE = {}  # ip -> (country_code, ts)
+_GEOIP_CACHE_TTL = 3600  # seconds
+
+
+def _normalize_country_code(value: str) -> str:
+    code = (value or '').strip().upper()
+    if not code:
+        return 'Unknown'
+    if code in ('UNKNOWN', 'UN', 'N/A', 'NA', 'NONE', 'NULL', 'XX', 'ZZ'):
+        return 'Unknown'
+    if re.match(r'^[A-Z]{2}$', code):
+        return code
+    return 'Unknown'
+
+
+def _get_client_ip_for_geo() -> Optional[str]:
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    if forwarded:
+        ip = forwarded.split(',')[0].strip()
+    else:
+        ip = request.remote_addr or ''
+    if not ip:
+        return None
+    # Avoid geo-lookup for localhost
+    if ip.startswith('127.') or ip in ('::1', '0.0.0.0'):
+        return None
+    return ip
+
+
+def _geoip_lookup_country(ip: str) -> str:
+    """Optional IP→country lookup. Disabled by default (privacy + external call)."""
+    enable = (os.environ.get('ENABLE_GEOIP', '') or '').strip().lower()
+    if enable not in ('1', 'true', 'yes', 'on'):
+        return 'Unknown'
+
+    now = time.time()
+    cached = _GEOIP_CACHE.get(ip)
+    if cached and (now - cached[1]) < _GEOIP_CACHE_TTL:
+        return cached[0]
+
+    try:
+        provider = (os.environ.get('GEOIP_PROVIDER', 'ipapi') or 'ipapi').strip().lower()
+        if provider == 'ipapi':
+            url = f'https://ipapi.co/{ip}/country/'
+            r = requests.get(url, timeout=1.25, headers={'User-Agent': 'Qrio/1.0'})
+            if r.status_code == 200:
+                code = _normalize_country_code(r.text)
+            else:
+                code = 'Unknown'
+        else:
+            # Custom provider: GEOIP_URL_TEMPLATE like https://example.com/lookup?ip={ip}
+            tpl = (os.environ.get('GEOIP_URL_TEMPLATE') or '').strip()
+            if not tpl or '{ip}' not in tpl:
+                code = 'Unknown'
+            else:
+                url = tpl.replace('{ip}', ip)
+                r = requests.get(url, timeout=1.25, headers={'User-Agent': 'Qrio/1.0'})
+                if r.status_code == 200:
+                    code = _normalize_country_code(r.text)
+                else:
+                    code = 'Unknown'
+    except Exception:
+        code = 'Unknown'
+
+    _GEOIP_CACHE[ip] = (code, now)
+    return code
+
+
 def get_country_from_request():
-    """Get country from CF-IPCountry header (Cloudflare) or return Unknown."""
-    return request.headers.get('CF-IPCountry', 'Unknown')
+    """Get country from common CDN headers; fallback optional geoip."""
+    # Prefer CDN-provided country headers (no external calls).
+    candidates = (
+        'CF-IPCountry',
+        'CloudFront-Viewer-Country',
+        'X-Vercel-IP-Country',
+        'Fly-Client-Country',
+        'Fastly-Client-Country',
+        'X-AppEngine-Country',
+    )
+    for h in candidates:
+        code = _normalize_country_code(request.headers.get(h, ''))
+        if code != 'Unknown':
+            return code
+
+    ip = _get_client_ip_for_geo()
+    if ip:
+        return _geoip_lookup_country(ip)
+    return 'Unknown'
 
 
 def get_device_type():

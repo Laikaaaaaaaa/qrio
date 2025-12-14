@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Admin Dashboard - Qrio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * {
@@ -14,18 +17,93 @@
         }
         
         body {
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0f;
+            font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+            background: #0f0f1a;
             color: #e4e4e7;
             min-height: 100vh;
+        }
+
+        /* Background like public pages */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(56px);
+            opacity: 0.22;
+            will-change: transform;
+            animation: floatOrb 28s ease-in-out infinite;
+        }
+
+        .bg-orb-1 {
+            width: 420px;
+            height: 420px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            top: -160px;
+            right: -140px;
+            animation-delay: 0s;
+        }
+
+        .bg-orb-2 {
+            width: 320px;
+            height: 320px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            bottom: 80px;
+            left: -140px;
+            animation-delay: -6s;
+        }
+
+        .bg-orb-3 {
+            width: 260px;
+            height: 260px;
+            background: linear-gradient(135deg, #ec4899, #f43f5e);
+            top: 44%;
+            right: 18%;
+            animation-delay: -12s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(-30px, -20px) scale(1.02); }
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+            background-size: 56px 56px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridDrift 30s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            from { background-position: 0 0; }
+            to { background-position: 240px 240px; }
         }
         
         /* ========================
            HEADER
            ======================== */
         .header {
-            background: #18181b;
-            border-bottom: 1px solid #27272a;
+            background: rgba(24, 24, 27, 0.72);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.12);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -33,6 +111,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
         
         .header-left {
@@ -115,6 +194,8 @@
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
         
         .section-title {
@@ -137,11 +218,12 @@
         }
         
         .stat-card {
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: rgba(24, 24, 27, 0.82);
+            border: 1px solid rgba(124, 58, 237, 0.12);
             border-radius: 12px;
             padding: 1.25rem;
             transition: border-color 0.2s;
+            backdrop-filter: blur(10px);
         }
         
         .stat-card:hover {
@@ -212,10 +294,60 @@
         }
         
         .chart-card {
-            background: #18181b;
-            border: 1px solid #27272a;
+            background: rgba(24, 24, 27, 0.82);
+            border: 1px solid rgba(124, 58, 237, 0.12);
             border-radius: 12px;
             padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 86px;
+            right: 18px;
+            max-width: 360px;
+            z-index: 200;
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-inner {
+            background: rgba(24, 24, 27, 0.92);
+            border: 1px solid rgba(124, 58, 237, 0.18);
+            border-left: 4px solid rgba(124, 58, 237, 0.8);
+            color: #e4e4e7;
+            padding: 12px 14px;
+            border-radius: 12px;
+            box-shadow: 0 18px 44px rgba(0,0,0,0.45);
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast-inner i {
+            margin-top: 2px;
+            color: #a78bfa;
+        }
+
+        .toast-title {
+            font-weight: 700;
+            font-size: 0.86rem;
+            margin-bottom: 2px;
+        }
+
+        .toast-msg {
+            font-size: 0.82rem;
+            color: #a1a1aa;
+            line-height: 1.35;
         }
         
         .chart-card h3 {
@@ -519,6 +651,12 @@
     </style>
 </head>
 <body>
+    <div class="bg-effects" aria-hidden="true">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+    <div class="bg-grid" aria-hidden="true"></div>
     <header class="header">
         <div class="header-left">
             <h1><i class="fa-solid fa-chart-simple" aria-hidden="true"></i>Admin Dashboard</h1>
@@ -534,6 +672,16 @@
             </form>
         </div>
     </header>
+
+    <div class="toast" id="toast" aria-live="polite" aria-atomic="true">
+        <div class="toast-inner">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <div>
+                <div class="toast-title">Thông báo</div>
+                <div class="toast-msg" id="toast-msg">...</div>
+            </div>
+        </div>
+    </div>
     
     <main class="main">
         <!-- Stats Cards -->
@@ -608,6 +756,23 @@
          */
         (function() {
             'use strict';
+
+            var toastEl = document.getElementById('toast');
+            var toastMsgEl = document.getElementById('toast-msg');
+            var toastTimer = null;
+
+            function showToast(message) {
+                try {
+                    toastMsgEl.textContent = String(message || 'Có lỗi xảy ra.');
+                    toastEl.classList.add('show');
+                    clearTimeout(toastTimer);
+                    toastTimer = setTimeout(function() {
+                        toastEl.classList.remove('show');
+                    }, 3200);
+                } catch (e) {
+                    // ignore
+                }
+            }
             
             // ========================
             // SECURE FETCH
@@ -647,6 +812,30 @@
                 div.textContent = String(text || '');
                 return div.innerHTML;
             }
+
+            var regionNames = null;
+            try {
+                regionNames = new Intl.DisplayNames(['vi'], { type: 'region' });
+            } catch (e) {
+                regionNames = null;
+            }
+
+            function formatCountry(country) {
+                var c = String(country || '').trim();
+                if (!c || c.toLowerCase() === 'unknown') {
+                    return 'Không xác định';
+                }
+                if (c.length === 2) {
+                    var code = c.toUpperCase();
+                    if (regionNames) {
+                        try {
+                            return regionNames.of(code) || code;
+                        } catch (e) {}
+                    }
+                    return code;
+                }
+                return c;
+            }
             
             function getEventIcon(eventName) {
                 var icons = {
@@ -681,6 +870,7 @@
                     })
                     .catch(function(err) {
                         console.error('Failed to load summary:', err.message);
+                        showToast('Không thể tải tổng quan.');
                         document.getElementById('daily-chart').innerHTML = 
                             '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
                     });
@@ -732,9 +922,10 @@
                         
                         data.slice(0, 8).forEach(function(item, i) {
                             var pct = (item.count / maxVal) * 100;
+                            var countryLabel = formatCountry(item.country);
                             html += '<div class="bar-item">' +
                                 '<span class="bar-rank">#' + (i + 1) + '</span>' +
-                                '<span class="bar-label" title="' + escapeHtml(item.country) + '">' + escapeHtml(item.country) + '</span>' +
+                                '<span class="bar-label" title="' + escapeHtml(countryLabel) + '">' + escapeHtml(countryLabel) + '</span>' +
                                 '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
                                 '<span class="bar-value">' + formatNumber(item.count) + '</span>' +
                             '</div>';
@@ -744,6 +935,7 @@
                     })
                     .catch(function(err) {
                         console.error('Failed to load countries:', err.message);
+                        showToast('Không thể tải thống kê quốc gia.');
                         document.getElementById('countries-chart').innerHTML = 
                             '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
                     });
@@ -778,6 +970,7 @@
                     })
                     .catch(function(err) {
                         console.error('Failed to load events:', err.message);
+                        showToast('Không thể tải sự kiện.');
                         document.getElementById('events-list').innerHTML = 
                             '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
                     });
