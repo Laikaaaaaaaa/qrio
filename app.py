@@ -24,6 +24,7 @@ from typing import Optional
 import json
 import requests
 import time
+from urllib.parse import urlparse
 
 import re
 
@@ -610,10 +611,38 @@ def get_device_type():
     return 'Desktop'
 
 
+def get_source_from_request() -> str:
+    """Rudimentary traffic source classification (gg, fb, direct, other)."""
+    utm = (request.args.get('utm_source', '') or '').strip().lower()
+    if utm:
+        if utm in ('gg', 'google'):
+            return 'gg'
+        if utm in ('fb', 'facebook'):
+            return 'fb'
+        if utm == 'direct':
+            return 'direct'
+        return 'other'
+
+    ref = (request.headers.get('Referer', '') or '').strip()
+    if not ref:
+        return 'direct'
+    try:
+        host = (urlparse(ref).netloc or '').lower()
+    except Exception:
+        host = ''
+    if not host:
+        return 'direct'
+    if 'google.' in host or host == 'google.com':
+        return 'gg'
+    if 'facebook.' in host or host == 'fb.com' or host.endswith('.fb.com') or 'l.facebook.com' in host:
+        return 'fb'
+    return 'other'
+
+
 @app.route('/')
 def index():
     """Serve trang chủ mặc định (home)."""
-    track_event('/', 'page_view', get_country_from_request(), get_device_type())
+    track_event('/', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'home.html')
 
 
@@ -627,7 +656,7 @@ def home_html():
 @app.route('/edit.html')
 def edit_html():
     """Trang chỉnh sửa (tên cũ: index)."""
-    track_event('/edit', 'page_view', get_country_from_request(), get_device_type())
+    track_event('/edit', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'edit.html')
 
 
@@ -818,7 +847,14 @@ def api_generate():
             })
         
         # Track analytics
-        track_event('/api/generate', 'generate_qr', get_country_from_request(), get_device_type())
+        track_event(
+            '/api/generate',
+            'generate_qr',
+            get_country_from_request(),
+            get_device_type(),
+            qr_type=qr_type,
+            source=get_source_from_request(),
+        )
         
         return jsonify(payload)
     except Exception as e:
@@ -929,7 +965,14 @@ def api_download():
         buf.seek(0)
         
         # Track analytics (before sending file)
-        track_event('/api/download', 'download_qr', get_country_from_request(), get_device_type())
+        track_event(
+            '/api/download',
+            'download_qr',
+            get_country_from_request(),
+            get_device_type(),
+            qr_type=qr_type,
+            source=get_source_from_request(),
+        )
         
         return send_file(buf, mimetype='image/png', as_attachment=True, download_name=f'{filename}.png')
     except Exception as e:

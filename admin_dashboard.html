@@ -286,6 +286,13 @@
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
+
+        .charts-grid-secondary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
         
         @media (max-width: 1024px) {
             .charts-grid {
@@ -444,9 +451,9 @@
             color: #71717a;
         }
         
-        /* ========================
-           BAR CHART (Countries)
-           ======================== */
+          /* ========================
+              BAR CHART
+              ======================== */
         .bar-chart {
             display: flex;
             flex-direction: column;
@@ -467,7 +474,7 @@
         }
         
         .bar-label {
-            width: 80px;
+            width: 110px;
             font-size: 0.8rem;
             color: #a1a1aa;
             white-space: nowrap;
@@ -722,8 +729,31 @@
             </div>
             
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-earth-asia"></i></span> Top quốc gia</h3>
-                <div id="countries-chart" class="bar-chart">
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-mobile-screen"></i></span> Top thiết bị sử dụng</h3>
+                <div id="devices-chart" class="bar-chart">
+                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid-secondary">
+            <div class="chart-card">
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-clock"></i></span> Top khung giờ hoạt động</h3>
+                <div id="hours-chart" class="bar-chart">
+                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span> Top loại mã QR được tạo</h3>
+                <div id="qrtypes-chart" class="bar-chart">
+                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-share-nodes"></i></span> Top nguồn truy cập</h3>
+                <div id="sources-chart" class="bar-chart">
                     <div class="loading"><span class="spinner"></span> Đang tải...</div>
                 </div>
             </div>
@@ -813,28 +843,64 @@
                 return div.innerHTML;
             }
 
-            var regionNames = null;
-            try {
-                regionNames = new Intl.DisplayNames(['vi'], { type: 'region' });
-            } catch (e) {
-                regionNames = null;
+            function renderBarList(containerId, data, keyName, labelFn, emptyIconClass, emptyText) {
+                var container = document.getElementById(containerId);
+                if (!container) return;
+
+                if (!data || !data.length) {
+                    container.innerHTML =
+                        '<div class="empty-state">' +
+                        '<div class="emoji"><i class="' + escapeHtml(emptyIconClass || 'fa-solid fa-inbox') + '" aria-hidden="true"></i></div>' +
+                        '<div>' + escapeHtml(emptyText || 'Chưa có dữ liệu') + '</div>' +
+                        '</div>';
+                    return;
+                }
+
+                var maxVal = data[0].count || 1;
+                var html = '';
+                data.slice(0, 8).forEach(function(item, i) {
+                    var pct = (item.count / maxVal) * 100;
+                    var rawLabel = item[keyName];
+                    var label = labelFn ? labelFn(rawLabel) : String(rawLabel || '');
+                    html += '<div class="bar-item">' +
+                        '<span class="bar-rank">#' + (i + 1) + '</span>' +
+                        '<span class="bar-label" title="' + escapeHtml(label) + '">' + escapeHtml(label) + '</span>' +
+                        '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
+                        '<span class="bar-value">' + formatNumber(item.count) + '</span>' +
+                    '</div>';
+                });
+                container.innerHTML = html;
             }
 
-            function formatCountry(country) {
-                var c = String(country || '').trim();
-                if (!c || c.toLowerCase() === 'unknown') {
-                    return 'Không xác định';
-                }
-                if (c.length === 2) {
-                    var code = c.toUpperCase();
-                    if (regionNames) {
-                        try {
-                            return regionNames.of(code) || code;
-                        } catch (e) {}
-                    }
-                    return code;
-                }
-                return c;
+            function formatDevice(device) {
+                var d = String(device || '').trim();
+                if (!d || d.toLowerCase() === 'unknown') return 'Không xác định';
+                if (d.toLowerCase() === 'mobile') return 'Mobile';
+                if (d.toLowerCase() === 'desktop') return 'Desktop';
+                if (d.toLowerCase() === 'tablet') return 'Tablet';
+                return d;
+            }
+
+            function formatHour(h) {
+                var n = parseInt(h, 10);
+                if (isNaN(n) || n < 0 || n > 23) return 'Không xác định';
+                var hh = (n < 10 ? '0' : '') + n;
+                return hh + ':00';
+            }
+
+            function formatQrType(t) {
+                var s = String(t || '').trim();
+                if (!s || s.toLowerCase() === 'unknown') return 'Không xác định';
+                return s;
+            }
+
+            function formatSource(s) {
+                var v = String(s || '').trim().toLowerCase();
+                if (!v) return 'direct';
+                if (v === 'gg' || v === 'google') return 'gg';
+                if (v === 'fb' || v === 'facebook') return 'fb';
+                if (v === 'direct') return 'direct';
+                return 'other';
             }
             
             function getEventIcon(eventName) {
@@ -904,47 +970,51 @@
                 labels.innerHTML = labelsHtml;
             }
             
-            // ========================
-            // LOAD COUNTRIES
-            // ========================
-            function loadCountries() {
-                secureFetch('/analytics/countries')
+            function loadDevices() {
+                secureFetch('/analytics/devices')
                     .then(function(data) {
-                        var container = document.getElementById('countries-chart');
-                        
-                        if (!data || !data.length) {
-                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-globe" aria-hidden="true"></i></div><div>Chưa có dữ liệu quốc gia</div></div>';
-                            return;
-                        }
-
-                        // Prefer known countries for the leaderboard if any exist.
-                        var known = data.filter(function(item) {
-                            var c = String((item && item.country) || '').trim().toLowerCase();
-                            return c && c !== 'unknown';
-                        });
-                        var list = known.length ? known : data;
-                        
-                        var maxVal = list[0].count || 1;
-                        var html = '';
-                        
-                        list.slice(0, 8).forEach(function(item, i) {
-                            var pct = (item.count / maxVal) * 100;
-                            var countryLabel = formatCountry(item.country);
-                            html += '<div class="bar-item">' +
-                                '<span class="bar-rank">#' + (i + 1) + '</span>' +
-                                '<span class="bar-label" title="' + escapeHtml(countryLabel) + '">' + escapeHtml(countryLabel) + '</span>' +
-                                '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
-                                '<span class="bar-value">' + formatNumber(item.count) + '</span>' +
-                            '</div>';
-                        });
-                        
-                        container.innerHTML = html;
+                        renderBarList('devices-chart', data || [], 'device', formatDevice, 'fa-solid fa-mobile-screen', 'Chưa có dữ liệu thiết bị');
                     })
                     .catch(function(err) {
-                        console.error('Failed to load countries:', err.message);
-                        showToast('Không thể tải thống kê quốc gia.');
-                        document.getElementById('countries-chart').innerHTML = 
-                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
+                        console.error('Failed to load devices:', err.message);
+                        showToast('Không thể tải thống kê thiết bị.');
+                        renderBarList('devices-chart', [], 'device', formatDevice, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                    });
+            }
+
+            function loadHours() {
+                secureFetch('/analytics/hours')
+                    .then(function(data) {
+                        renderBarList('hours-chart', data || [], 'hour', formatHour, 'fa-solid fa-clock', 'Chưa có dữ liệu khung giờ');
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to load hours:', err.message);
+                        showToast('Không thể tải thống kê khung giờ.');
+                        renderBarList('hours-chart', [], 'hour', formatHour, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                    });
+            }
+
+            function loadQrTypes() {
+                secureFetch('/analytics/qr-types')
+                    .then(function(data) {
+                        renderBarList('qrtypes-chart', data || [], 'qr_type', formatQrType, 'fa-solid fa-qrcode', 'Chưa có dữ liệu loại QR');
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to load qr types:', err.message);
+                        showToast('Không thể tải thống kê loại QR.');
+                        renderBarList('qrtypes-chart', [], 'qr_type', formatQrType, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                    });
+            }
+
+            function loadSources() {
+                secureFetch('/analytics/sources')
+                    .then(function(data) {
+                        renderBarList('sources-chart', data || [], 'source', formatSource, 'fa-solid fa-share-nodes', 'Chưa có dữ liệu nguồn truy cập');
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to load sources:', err.message);
+                        showToast('Không thể tải thống kê nguồn truy cập.');
+                        renderBarList('sources-chart', [], 'source', formatSource, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
                     });
             }
             
@@ -987,7 +1057,10 @@
             // INITIALIZE
             // ========================
             loadSummary();
-            loadCountries();
+            loadDevices();
+            loadHours();
+            loadQrTypes();
+            loadSources();
             loadEvents();
             
         })();

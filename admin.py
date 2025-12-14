@@ -280,14 +280,33 @@ def init_analytics_db():
             page TEXT NOT NULL,
             event TEXT NOT NULL,
             country TEXT DEFAULT 'Unknown',
-            device TEXT DEFAULT 'Unknown'
+            device TEXT DEFAULT 'Unknown',
+            qr_type TEXT,
+            source TEXT
         )
     ''')
+
+    # Lightweight migration for existing DBs (SQLite doesn't support IF NOT EXISTS for columns)
+    cursor.execute('PRAGMA table_info(analytics_events)')
+    existing_cols = {row[1] for row in cursor.fetchall() if row and len(row) > 1}
+    if 'qr_type' not in existing_cols:
+        try:
+            cursor.execute('ALTER TABLE analytics_events ADD COLUMN qr_type TEXT')
+        except Exception:
+            pass
+    if 'source' not in existing_cols:
+        try:
+            cursor.execute('ALTER TABLE analytics_events ADD COLUMN source TEXT')
+        except Exception:
+            pass
     
     # Create indexes for common queries
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_time ON analytics_events(time)')
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_event ON analytics_events(event)')
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_country ON analytics_events(country)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_device ON analytics_events(device)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_qr_type ON analytics_events(qr_type)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_source ON analytics_events(source)')
     
     conn.commit()
     conn.close()
@@ -373,6 +392,82 @@ def get_country_stats():
         conn.close()
 
 
+def get_device_stats():
+    """Top devices (for page views)."""
+    conn = get_analytics_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            SELECT device, COUNT(*) as count
+            FROM analytics_events
+            WHERE event = 'page_view'
+            GROUP BY device
+            ORDER BY count DESC
+            LIMIT 10
+        ''')
+        rows = cursor.fetchall()
+        return [{'device': row[0] or 'Unknown', 'count': row[1]} for row in rows]
+    finally:
+        conn.close()
+
+
+def get_hour_stats():
+    """Top active hours (0-23) for page views."""
+    conn = get_analytics_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            SELECT CAST(strftime('%H', time) AS INTEGER) as hour, COUNT(*) as count
+            FROM analytics_events
+            WHERE event = 'page_view'
+            GROUP BY hour
+            ORDER BY count DESC
+            LIMIT 10
+        ''')
+        rows = cursor.fetchall()
+        return [{'hour': int(row[0]) if row[0] is not None else None, 'count': row[1]} for row in rows]
+    finally:
+        conn.close()
+
+
+def get_qr_type_stats():
+    """Top QR types (for generate_qr events)."""
+    conn = get_analytics_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            SELECT COALESCE(NULLIF(qr_type, ''), 'Unknown') as qr_type, COUNT(*) as count
+            FROM analytics_events
+            WHERE event = 'generate_qr'
+            GROUP BY qr_type
+            ORDER BY count DESC
+            LIMIT 10
+        ''')
+        rows = cursor.fetchall()
+        return [{'qr_type': row[0] or 'Unknown', 'count': row[1]} for row in rows]
+    finally:
+        conn.close()
+
+
+def get_source_stats():
+    """Top traffic sources (for page views)."""
+    conn = get_analytics_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            SELECT COALESCE(NULLIF(source, ''), 'direct') as source, COUNT(*) as count
+            FROM analytics_events
+            WHERE event = 'page_view'
+            GROUP BY source
+            ORDER BY count DESC
+            LIMIT 10
+        ''')
+        rows = cursor.fetchall()
+        return [{'source': row[0] or 'direct', 'count': row[1]} for row in rows]
+    finally:
+        conn.close()
+
+
 def get_event_stats():
     """Get pre-aggregated event statistics."""
     conn = get_analytics_db()
@@ -396,7 +491,7 @@ def get_event_stats():
 # TRACKING FUNCTION (for use in main app)
 # ========================
 
-def track_event(page, event, country='Unknown', device='Unknown'):
+def track_event(page, event, country='Unknown', device='Unknown', qr_type=None, source=None):
     """
     Track an analytics event.
     Called from main app routes.
@@ -405,10 +500,27 @@ def track_event(page, event, country='Unknown', device='Unknown'):
     try:
         conn = get_analytics_db()
         cursor = conn.cursor()
-        cursor.execute(
-            'INSERT INTO analytics_events (page, event, country, device) VALUES (?, ?, ?, ?)',
-            (page[:100], event[:50], country[:50], device[:50])
-        )
+
+        cursor.execute('PRAGMA table_info(analytics_events)')
+        cols = {row[1] for row in cursor.fetchall() if row and len(row) > 1}
+
+        if 'qr_type' in cols and 'source' in cols:
+            cursor.execute(
+                'INSERT INTO analytics_events (page, event, country, device, qr_type, source) VALUES (?, ?, ?, ?, ?, ?)',
+                (
+                    (page or '')[:100],
+                    (event or '')[:50],
+                    (country or 'Unknown')[:50],
+                    (device or 'Unknown')[:50],
+                    (str(qr_type) if qr_type is not None else None)[:50] if qr_type is not None else None,
+                    (str(source) if source is not None else None)[:50] if source is not None else None,
+                )
+            )
+        else:
+            cursor.execute(
+                'INSERT INTO analytics_events (page, event, country, device) VALUES (?, ?, ?, ?)',
+                ((page or '')[:100], (event or '')[:50], (country or 'Unknown')[:50], (device or 'Unknown')[:50])
+            )
         conn.commit()
         conn.close()
     except Exception:
@@ -556,6 +668,34 @@ def api_summary():
 def api_countries():
     """GET country statistics."""
     return jsonify(get_country_stats())
+
+
+@analytics_bp.route('/devices')
+@require_admin
+def api_devices():
+    """GET device statistics."""
+    return jsonify(get_device_stats())
+
+
+@analytics_bp.route('/hours')
+@require_admin
+def api_hours():
+    """GET hour-of-day statistics."""
+    return jsonify(get_hour_stats())
+
+
+@analytics_bp.route('/qr-types')
+@require_admin
+def api_qr_types():
+    """GET QR type statistics."""
+    return jsonify(get_qr_type_stats())
+
+
+@analytics_bp.route('/sources')
+@require_admin
+def api_sources():
+    """GET traffic source statistics."""
+    return jsonify(get_source_stats())
 
 
 @analytics_bp.route('/events')
