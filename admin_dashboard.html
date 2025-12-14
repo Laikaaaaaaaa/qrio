@@ -144,11 +144,10 @@
             gap: 1rem;
         }
 
-        /* ========================
-           LANGUAGE PICKER
-           Desktop: dropdown list
-           Mobile: modal picker
-           ======================== */
+          /* ========================
+              LANGUAGE PICKER
+              Modal picker
+              ======================== */
         .lang-picker {
             position: relative;
             user-select: none;
@@ -183,47 +182,6 @@
             font-size: 0.75rem;
             opacity: 0.85;
             transition: transform .2s;
-        }
-
-        .lang-picker.open .lang-current .arrow {
-            transform: rotate(180deg);
-        }
-
-        .lang-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            list-style: none;
-            min-width: 200px;
-            border-radius: 14px;
-            background: rgba(24, 24, 27, 0.96);
-            border: 1px solid rgba(124, 58, 237, 0.16);
-            overflow: hidden;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-6px);
-            transition: .2s;
-            z-index: 220;
-            backdrop-filter: blur(10px);
-        }
-
-        .lang-picker.open .lang-dropdown {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
-
-        .lang-dropdown li {
-            padding: 12px 14px;
-            cursor: pointer;
-            font-weight: 800;
-            color: #dcdcff;
-            transition: .15s;
-        }
-
-        .lang-dropdown li:hover {
-            background: linear-gradient(135deg, rgba(124,58,237,.35), rgba(79,70,229,.25));
-            color: #fff;
         }
 
         .lang-modal-overlay {
@@ -307,10 +265,6 @@
             background: rgba(39, 39, 42, 0.85);
         }
 
-        @media (max-width: 640px) {
-            /* On mobile, we use modal instead of dropdown */
-            .lang-dropdown { display: none; }
-        }
         
         .session-info {
             font-size: 0.75rem;
@@ -1107,10 +1061,6 @@
                     <span id="langLabel">English</span>
                     <i class="fa-solid fa-chevron-down arrow" aria-hidden="true"></i>
                 </div>
-                <ul class="lang-dropdown" role="listbox" aria-label="Language">
-                    <li role="option" data-lang="vi">Tiếng Việt</li>
-                    <li role="option" data-lang="en">English</li>
-                </ul>
             </div>
             <div class="session-info">
                 <span class="session-dot"></span>
@@ -1881,14 +1831,6 @@
                 return (lang === 'vi') ? 'Tiếng Việt' : 'English';
             }
 
-            function isLangMobile() {
-                try {
-                    return window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
-                } catch (e) {
-                    return false;
-                }
-            }
-
             var langPicker = document.getElementById('langPicker');
             var langLabel = document.getElementById('langLabel');
             var langModalOverlay = document.getElementById('langModalOverlay');
@@ -1902,21 +1844,6 @@
                     var k = checks[i].getAttribute('data-lang-check');
                     checks[i].style.opacity = (k === currentLang) ? '1' : '0';
                 }
-            }
-
-            function closeLangDropdown() {
-                if (!langPicker) return;
-                langPicker.classList.remove('open');
-                var cur = langPicker.querySelector('.lang-current');
-                if (cur) cur.setAttribute('aria-expanded', 'false');
-            }
-
-            function toggleLangDropdown() {
-                if (!langPicker) return;
-                var next = !langPicker.classList.contains('open');
-                langPicker.classList.toggle('open', next);
-                var cur = langPicker.querySelector('.lang-current');
-                if (cur) cur.setAttribute('aria-expanded', next ? 'true' : 'false');
             }
 
             function openLangModal() {
@@ -1938,28 +1865,14 @@
                 if (curBtn) {
                     curBtn.addEventListener('click', function(e) {
                         if (e) e.stopPropagation();
-                        if (isLangMobile()) {
-                            openLangModal();
-                        } else {
-                            toggleLangDropdown();
-                        }
+                        openLangModal();
                     });
                     curBtn.addEventListener('keydown', function(e) {
                         if (!e) return;
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            if (isLangMobile()) openLangModal();
-                            else toggleLangDropdown();
+                            openLangModal();
                         }
-                    });
-                }
-
-                var ddItems = langPicker.querySelectorAll('.lang-dropdown [data-lang]');
-                for (var d = 0; d < ddItems.length; d++) {
-                    ddItems[d].addEventListener('click', function(e) {
-                        if (e) e.stopPropagation();
-                        var lang = (this.getAttribute('data-lang') || '').toLowerCase();
-                        if (lang === 'vi' || lang === 'en') setLangInUrlAndReload(lang);
                     });
                 }
             }
@@ -1984,13 +1897,8 @@
                 }
             }
 
-            window.addEventListener('click', function(e) {
-                if (langPicker && e && !langPicker.contains(e.target)) closeLangDropdown();
-            });
-
             document.addEventListener('keydown', function(e) {
                 if (!e || e.key !== 'Escape') return;
-                closeLangDropdown();
                 closeLangModal();
             });
 

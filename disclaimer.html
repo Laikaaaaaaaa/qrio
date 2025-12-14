@@ -230,6 +230,92 @@
       padding: 8px;
     }
 
+    .lang-native {
+      display: none;
+    }
+
+    .lang-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 9999;
+    }
+
+    .lang-modal-overlay.show {
+      display: flex;
+    }
+
+    .lang-modal {
+      width: 100%;
+      max-width: 420px;
+      background: #232337;
+      border: 1px solid #3a3a50;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+    }
+
+    .lang-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #3a3a50;
+    }
+
+    .lang-modal-title {
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .lang-modal-close {
+      background: transparent;
+      border: 0;
+      color: #c9c9da;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 10px;
+    }
+
+    .lang-modal-close:hover {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .lang-modal-body {
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .lang-modal-item {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(124, 58, 237, 0.25);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .lang-modal-item:hover {
+      border-color: rgba(124, 58, 237, 0.55);
+      background: rgba(124, 58, 237, 0.14);
+    }
+
+    .lang-modal-item.active {
+      border-color: rgba(124, 58, 237, 0.75);
+      background: rgba(124, 58, 237, 0.20);
+    }
+
     .brand {
       display: inline-flex;
       align-items: center;
@@ -452,13 +538,14 @@
     <div class="topbar">
       <a class="home-btn" href="/" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
       <div class="topbar-right">
-        <div class="lang-picker">
+        <button type="button" class="lang-picker" id="lang-btn" data-i18n-aria="aria.language" aria-haspopup="dialog" aria-expanded="false">
           <i class="fa-solid fa-globe"></i>
-          <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria="aria.language">
-            <option value="vi">Tiếng Việt</option>
-            <option value="en">English</option>
-          </select>
-        </div>
+          <span id="lang-label">English</span>
+        </button>
+        <select id="lang-select" class="lang-native" aria-hidden="true" tabindex="-1">
+          <option value="vi">Tiếng Việt</option>
+          <option value="en">English</option>
+        </select>
       </div>
     </div>
 
@@ -516,6 +603,18 @@
       </div>
     </div>
   </main>
+
+  <div class="lang-modal-overlay" id="lang-modal" aria-hidden="true">
+    <div class="lang-modal" role="dialog" aria-modal="true">
+      <div class="lang-modal-header">
+        <div class="lang-modal-title" data-i18n="aria.language">Language</div>
+        <button type="button" class="lang-modal-close" id="lang-modal-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="lang-modal-body" id="lang-modal-list"></div>
+    </div>
+  </div>
 
   <script>
     const LANG_KEY = 'qr_lang';
@@ -671,6 +770,12 @@
 
       const select = document.getElementById('lang-select');
       if (select && select.value !== normalized) select.value = normalized;
+
+      const label = document.getElementById('lang-label');
+      if (label && select) {
+        const opt = select.options[select.selectedIndex];
+        label.textContent = opt ? opt.textContent : (normalized === 'vi' ? 'Tiếng Việt' : 'English');
+      }
     }
 
     function setLang(lang) {
@@ -682,6 +787,56 @@
     document.getElementById('lang-select')?.addEventListener('change', (e) => {
       setLang(e.target.value);
     });
+
+    // Language modal (always modal)
+    (function initLangModal() {
+      const btn = document.getElementById('lang-btn');
+      const overlay = document.getElementById('lang-modal');
+      const closeBtn = document.getElementById('lang-modal-close');
+      const list = document.getElementById('lang-modal-list');
+      const select = document.getElementById('lang-select');
+      if (!btn || !overlay || !list || !select) return;
+
+      function open() {
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+
+      function close() {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      function render() {
+        const current = getLang();
+        list.innerHTML = '';
+        Array.from(select.options).forEach(opt => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'lang-modal-item' + (opt.value === current ? ' active' : '');
+          b.textContent = opt.textContent;
+          b.addEventListener('click', () => {
+            setLang(opt.value);
+            close();
+          });
+          list.appendChild(b);
+        });
+      }
+
+      btn.addEventListener('click', () => {
+        render();
+        open();
+      });
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      overlay.addEventListener('click', (e) => {
+        if (e && e.target === overlay) close();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e && e.key === 'Escape') close();
+      });
+    })();
 
     applyI18n(getLang());
   </script>
