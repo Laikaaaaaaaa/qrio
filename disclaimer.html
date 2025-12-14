@@ -201,6 +201,30 @@
       color: #c4b5fd;
     }
 
+    .lang-label {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .lang-picker:focus-visible {
+      outline: none;
+      border-color: rgba(124, 58, 237, 0.70);
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.20);
+    }
+
+    @media (max-width: 768px) {
+      .lang-label { display: none; }
+      .lang-picker {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: 12px;
+        justify-content: center;
+        gap: 0;
+      }
+    }
+
     .lang-select {
       background: rgba(30, 30, 46, 0.8);
       border: 1px solid rgba(124, 58, 237, 0.3);
@@ -540,7 +564,7 @@
       <div class="topbar-right">
         <button type="button" class="lang-picker" id="lang-btn" data-i18n-aria="aria.language" aria-haspopup="dialog" aria-expanded="false">
           <i class="fa-solid fa-globe"></i>
-          <span id="lang-label">English</span>
+          <span id="lang-label" class="lang-label">English</span>
         </button>
         <select id="lang-select" class="lang-native" aria-hidden="true" tabindex="-1">
           <option value="vi">Tiếng Việt</option>

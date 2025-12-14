@@ -156,32 +156,55 @@
         .lang-current {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 0.5rem 0.75rem;
-            border-radius: 12px;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
             cursor: pointer;
-            background: linear-gradient(135deg, rgba(79,70,229,.18), rgba(124,58,237,.18));
-            border: 1px solid rgba(124,58,237,.28);
-            color: #e4e4e7;
-            backdrop-filter: blur(10px);
-            transition: .2s;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: rgba(226,232,240,0.95);
+            transition: all 0.3s ease;
         }
 
         .lang-current:hover {
-            border-color: rgba(124, 58, 237, 0.55);
-            box-shadow: 0 10px 22px rgba(124, 58, 237, 0.18);
+            background: rgba(255,255,255,0.10);
+            border-color: rgba(124, 58, 237, 0.40);
+            transform: translateY(-1px);
         }
 
         .lang-current i {
-            color: #a78bfa;
-            font-size: 0.95rem;
+            font-size: 14px;
+            color: #a5b4fc;
+            transition: transform 0.3s ease;
         }
 
-        .lang-current .arrow {
-            margin-left: 2px;
-            font-size: 0.75rem;
-            opacity: 0.85;
-            transition: transform .2s;
+        .lang-current:hover i {
+            transform: rotate(15deg);
+            color: #c4b5fd;
+        }
+
+        .lang-label {
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .lang-current:focus-visible {
+            outline: none;
+            border-color: rgba(124, 58, 237, 0.70);
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.20);
+        }
+
+        @media (max-width: 768px) {
+            .lang-label { display: none; }
+            .lang-current {
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                border-radius: 12px;
+                justify-content: center;
+                gap: 0;
+            }
         }
 
         .lang-modal-overlay {
@@ -1058,8 +1081,7 @@
             <div class="lang-picker" id="langPicker" title="Language">
                 <div class="lang-current" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
                     <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                    <span id="langLabel">English</span>
-                    <i class="fa-solid fa-chevron-down arrow" aria-hidden="true"></i>
+                    <span id="langLabel" class="lang-label">English</span>
                 </div>
             </div>
             <div class="session-info">

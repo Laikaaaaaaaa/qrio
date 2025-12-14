@@ -453,6 +453,49 @@
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.10);
       color: rgba(226,232,240,0.95);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .lang-picker:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(124, 58, 237, 0.40);
+      transform: translateY(-1px);
+    }
+
+    .lang-picker i {
+      font-size: 14px;
+      color: #a5b4fc;
+      transition: transform 0.3s ease;
+    }
+
+    .lang-picker:hover i {
+      transform: rotate(15deg);
+      color: #c4b5fd;
+    }
+
+    .lang-label {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .lang-picker:focus-visible {
+      outline: none;
+      border-color: rgba(124, 58, 237, 0.70);
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.20);
+    }
+
+    @media (max-width: 768px) {
+      .lang-label { display: none; }
+      .lang-picker {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border-radius: 12px;
+        justify-content: center;
+        gap: 0;
+      }
     }
 
     .lang-select {
@@ -2187,7 +2230,7 @@
     <div class="header-right">
       <button type="button" class="lang-picker" id="lang-btn" aria-label="Language" aria-haspopup="dialog" aria-expanded="false">
         <i class="fa-solid fa-globe"></i>
-        <span id="lang-label">English</span>
+        <span id="lang-label" class="lang-label">English</span>
       </button>
       <select id="lang-select" class="lang-native" aria-hidden="true" tabindex="-1">
         <option value="en">English</option>
