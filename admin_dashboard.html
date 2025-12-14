@@ -916,11 +916,18 @@
                             container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-globe" aria-hidden="true"></i></div><div>Chưa có dữ liệu quốc gia</div></div>';
                             return;
                         }
+
+                        // Prefer known countries for the leaderboard if any exist.
+                        var known = data.filter(function(item) {
+                            var c = String((item && item.country) || '').trim().toLowerCase();
+                            return c && c !== 'unknown';
+                        });
+                        var list = known.length ? known : data;
                         
-                        var maxVal = data[0].count || 1;
+                        var maxVal = list[0].count || 1;
                         var html = '';
                         
-                        data.slice(0, 8).forEach(function(item, i) {
+                        list.slice(0, 8).forEach(function(item, i) {
                             var pct = (item.count / maxVal) * 100;
                             var countryLabel = formatCountry(item.country);
                             html += '<div class="bar-item">' +

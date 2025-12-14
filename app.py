@@ -497,26 +497,50 @@ def _geoip_lookup_country(ip: str) -> str:
         return cached[0]
 
     try:
-        provider = (os.environ.get('GEOIP_PROVIDER', 'ipapi') or 'ipapi').strip().lower()
-        if provider == 'ipapi':
-            url = f'https://ipapi.co/{ip}/country/'
-            r = requests.get(url, timeout=1.25, headers={'User-Agent': 'Qrio/1.0'})
-            if r.status_code == 200:
-                code = _normalize_country_code(r.text)
-            else:
-                code = 'Unknown'
-        else:
-            # Custom provider: GEOIP_URL_TEMPLATE like https://example.com/lookup?ip={ip}
+        provider = (os.environ.get('GEOIP_PROVIDER', 'auto') or 'auto').strip().lower()
+
+        # Provider: ipapi.co (plain text ISO-2)
+        if provider in ('auto', 'ipapi'):
+            try:
+                url = f'https://ipapi.co/{ip}/country/'
+                r = requests.get(url, timeout=1.6, headers={'User-Agent': 'Qrio/1.0'})
+                if r.status_code == 200:
+                    code = _normalize_country_code(r.text)
+                    if code != 'Unknown':
+                        _GEOIP_CACHE[ip] = (code, now)
+                        return code
+            except Exception:
+                pass
+
+        # Provider: ipwho.is (JSON, no key)
+        if provider in ('auto', 'ipwhois', 'ipwho'):
+            try:
+                url = f'https://ipwho.is/{ip}'
+                r = requests.get(url, timeout=1.6, headers={'User-Agent': 'Qrio/1.0'})
+                if r.status_code == 200:
+                    data = r.json() if r.headers.get('Content-Type', '').lower().startswith('application/json') else None
+                    if isinstance(data, dict):
+                        code = _normalize_country_code(data.get('country_code') or '')
+                        if code != 'Unknown':
+                            _GEOIP_CACHE[ip] = (code, now)
+                            return code
+            except Exception:
+                pass
+
+        # Custom provider: GEOIP_URL_TEMPLATE like https://example.com/lookup?ip={ip}
+        if provider not in ('auto', 'ipapi', 'ipwhois', 'ipwho'):
             tpl = (os.environ.get('GEOIP_URL_TEMPLATE') or '').strip()
-            if not tpl or '{ip}' not in tpl:
-                code = 'Unknown'
-            else:
+            if tpl and '{ip}' in tpl:
                 url = tpl.replace('{ip}', ip)
-                r = requests.get(url, timeout=1.25, headers={'User-Agent': 'Qrio/1.0'})
+                r = requests.get(url, timeout=1.6, headers={'User-Agent': 'Qrio/1.0'})
                 if r.status_code == 200:
                     code = _normalize_country_code(r.text)
                 else:
                     code = 'Unknown'
+            else:
+                code = 'Unknown'
+        else:
+            code = 'Unknown'
     except Exception:
         code = 'Unknown'
 
