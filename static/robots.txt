@@ -2,5 +2,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /admin/
+Disallow: /analytics/
 
 Sitemap: https://qrio.vn/sitemap.xml

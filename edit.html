@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -1665,6 +1666,13 @@
       flex-direction: column;
       gap: 12px;
     }
+
+    .export-filename-hint {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #a8a8b8;
+      opacity: 0.9;
+    }
     
     .export-size-mode {
       background: #1e1e2e;
@@ -3113,6 +3121,11 @@
             </div>
           </div>
           <div class="form-group">
+            <label data-i18n="export.filename">Tên file</label>
+            <input type="text" id="export-filename" value="" autocomplete="off" spellcheck="false" />
+            <div class="export-filename-hint" data-i18n="export.filenameHint">Tên file sẽ tự thêm đuôi theo định dạng (png/jpg/svg)</div>
+          </div>
+          <div class="form-group">
             <label data-i18n="export.size">Kích thước xuất</label>
             <div class="export-size-mode">
               <div class="pill-row" style="margin-bottom:12px;">
@@ -3837,6 +3850,8 @@
             'canvas.center': 'Đặt vào giữa',
 
             'export.title': 'Tải xuống thiết kế',
+            'export.filename': 'Tên file',
+            'export.filenameHint': 'Tên file sẽ tự thêm đuôi theo định dạng (png/jpg/svg)',
             'export.format': 'Định dạng',
             'export.size': 'Kích thước xuất',
             'export.sizeMode.scale': 'Tỷ lệ',
@@ -4207,6 +4222,8 @@
             'canvas.center': 'Center in canvas',
 
             'export.title': 'Download design',
+            'export.filename': 'File name',
+            'export.filenameHint': 'File name will automatically match the selected format (png/jpg/svg)',
             'export.format': 'Format',
             'export.size': 'Export size',
             'export.sizeMode.scale': 'Scale',
@@ -4570,6 +4587,8 @@
             'canvas.center': '居中到画布',
 
             'export.title': '下载设计',
+            'export.filename': '文件名',
+            'export.filenameHint': '文件名会自动匹配所选格式（png/jpg/svg）',
             'export.format': '格式',
             'export.size': '导出尺寸',
             'export.sizeMode.scale': '比例',
@@ -4872,6 +4891,8 @@
             'canvas.center': 'कैनवास के बीच',
 
             'export.title': 'डिज़ाइन डाउनलोड करें',
+            'export.filename': 'फ़ाइल नाम',
+            'export.filenameHint': 'फ़ाइल नाम चुने गए फ़ॉर्मेट (png/jpg/svg) के अनुसार स्वतः सेट होगा',
             'export.format': 'फ़ॉर्मेट',
             'export.size': 'एक्सपोर्ट आकार',
             'export.sizeMode.scale': 'स्केल',
@@ -5027,6 +5048,8 @@
             'canvas.center': 'Centrar en el lienzo',
 
             'export.title': 'Descargar diseño',
+            'export.filename': 'Nombre de archivo',
+            'export.filenameHint': 'El nombre se ajustará automáticamente al formato seleccionado (png/jpg/svg)',
             'export.format': 'Formato',
             'export.size': 'Tamaño de exportación',
             'export.sizeMode.scale': 'Escala',
@@ -5182,6 +5205,8 @@
             'canvas.center': 'Centrer sur le canevas',
 
             'export.title': 'Télécharger le design',
+            'export.filename': 'Nom du fichier',
+            'export.filenameHint': 'Le nom s’adapte automatiquement au format choisi (png/jpg/svg)',
             'export.format': 'Format',
             'export.size': 'Taille d’export',
             'export.sizeMode.scale': 'Échelle',
@@ -5337,6 +5362,8 @@
             'canvas.center': 'توسيط في اللوحة',
 
             'export.title': 'تنزيل التصميم',
+            'export.filename': 'اسم الملف',
+            'export.filenameHint': 'سيتم ضبط اسم الملف تلقائيًا حسب التنسيق المختار (png/jpg/svg)',
             'export.format': 'التنسيق',
             'export.size': 'حجم التصدير',
             'export.sizeMode.scale': 'المقياس',
@@ -5492,6 +5519,8 @@
             'canvas.center': 'Centralizar no canvas',
 
             'export.title': 'Baixar design',
+            'export.filename': 'Nome do arquivo',
+            'export.filenameHint': 'O nome do arquivo se ajusta automaticamente ao formato selecionado (png/jpg/svg)',
             'export.format': 'Formato',
             'export.size': 'Tamanho de exportação',
             'export.sizeMode.scale': 'Escala',
@@ -5647,6 +5676,8 @@
             'canvas.center': 'Центрировать на холсте',
 
             'export.title': 'Скачать дизайн',
+            'export.filename': 'Имя файла',
+            'export.filenameHint': 'Имя файла автоматически подстроится под выбранный формат (png/jpg/svg)',
             'export.format': 'Формат',
             'export.size': 'Размер экспорта',
             'export.sizeMode.scale': 'Масштаб',
@@ -5802,6 +5833,8 @@
             'canvas.center': 'Tengah di kanvas',
 
             'export.title': 'Unduh desain',
+            'export.filename': 'Nama file',
+            'export.filenameHint': 'Nama file akan otomatis sesuai format yang dipilih (png/jpg/svg)',
             'export.format': 'Format',
             'export.size': 'Ukuran ekspor',
             'export.sizeMode.scale': 'Skala',
@@ -8392,6 +8425,23 @@
       // Handle events for moving the entire group
       box.onmousedown = (e) => {
         if (e.target.dataset.msHandle) return; // Let handle event fire
+
+        // Shift+click inside the multi-select box should toggle the underlying element
+        // (useful because the box sits above elements and can intercept clicks).
+        if (e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          const pt = getCanvasPoint(e);
+          const hit = [...elements].reverse().find(el =>
+            pt.x >= el.x && pt.x <= (el.x + el.width) &&
+            pt.y >= el.y && pt.y <= (el.y + el.height)
+          );
+          if (hit) {
+            selectElement(hit.id, true);
+          }
+          return;
+        }
+
         e.preventDefault();
         e.stopPropagation();
         const startPointer = getCanvasPoint(e);
@@ -9324,7 +9374,12 @@
 
           if (e.shiftKey) {
             // Shift+click: add/remove from selection
+            // If user shift-clicks something already selected, treat it as deselect and don't start dragging.
+            const wasSelected = selectedIds.has(id);
             selectElement(id, true);
+            if (wasSelected && !selectedIds.has(id)) {
+              return;
+            }
           } else if (!selectedIds.has(id)) {
             // Click on unselected element: select it
             selectElement(id, false);
@@ -10111,6 +10166,165 @@
     let exportCustomHeight = 800;
     let exportLockRatio = true;
     let exportAspectRatio = 1;
+    let exportSizeEstimateToken = 0;
+    let exportSizeEstimateTimer = null;
+
+    const EXPORT_FILENAME_DEFAULT = 'qr_design';
+    const EXPORT_FILENAME_MAX_LENGTH = 80;
+
+    function getExportExtension(format) {
+      if (format === 'jpg') return 'jpg';
+      if (format === 'svg') return 'svg';
+      if (format === 'pdf') return 'pdf';
+      return 'png';
+    }
+
+    function stripKnownExtension(filename) {
+      const v = String(filename || '').trim();
+      const m = v.match(/^(.*)\.([A-Za-z0-9]+)$/);
+      if (!m) return v;
+      const ext = String(m[2] || '').toLowerCase();
+      if (ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'svg' || ext === 'pdf') return (m[1] || '').trim();
+      return v;
+    }
+
+    function sanitizeFilenameBase(raw) {
+      let name = String(raw || '')
+        .replace(/[\\\/\:\*\?\"\<\>\|]+/g, ' ')
+        .replace(/[\r\n\t]+/g, ' ')
+        .trim();
+
+      name = name.replace(/[. ]+$/g, '').trim();
+      if (!name) name = EXPORT_FILENAME_DEFAULT;
+      if (name.length > EXPORT_FILENAME_MAX_LENGTH) name = name.slice(0, EXPORT_FILENAME_MAX_LENGTH).trim();
+      return name || EXPORT_FILENAME_DEFAULT;
+    }
+
+    function getExportFilenameInputEl() {
+      return document.getElementById('export-filename');
+    }
+
+    function getExportFilenameBaseFromUI() {
+      const input = getExportFilenameInputEl();
+      const raw = input ? input.value : '';
+      const base = stripKnownExtension(raw);
+      return sanitizeFilenameBase(base);
+    }
+
+    function formatBytes(bytes) {
+      const n = Number(bytes) || 0;
+      if (n < 1024) return `${n} B`;
+      const kb = n / 1024;
+      if (kb < 1024) return `${kb.toFixed(0)} KB`;
+      const mb = kb / 1024;
+      return `${mb.toFixed(1)} MB`;
+    }
+
+    function canvasToBlob(canvas, type, quality) {
+      return new Promise(resolve => {
+        try {
+          canvas.toBlob(b => resolve(b), type, quality);
+        } catch {
+          resolve(null);
+        }
+      });
+    }
+
+    function renderExportCanvas(dims) {
+      const canvasEl = document.getElementById('canvas');
+      const canvasW = parseInt(canvasEl.style.width);
+      const canvasH = parseInt(canvasEl.style.height);
+
+      const scaleX = dims.width / canvasW;
+      const scaleY = dims.height / canvasH;
+
+      const cvs = document.createElement('canvas');
+      cvs.width = dims.width;
+      cvs.height = dims.height;
+      const ctx = cvs.getContext('2d');
+      ctx.scale(scaleX, scaleY);
+
+      ctx.save();
+      if (exportRadius > 0) {
+        ctx.beginPath();
+        ctx.roundRect(0, 0, canvasW, canvasH, exportRadius);
+        ctx.clip();
+      }
+
+      ctx.fillStyle = canvasEl.style.backgroundColor || '#fff';
+      ctx.fillRect(0, 0, canvasW, canvasH);
+      drawElementsToContext(ctx, scaleX);
+      ctx.restore();
+      return cvs;
+    }
+
+    function scheduleEstimateExportFileSize(dims) {
+      if (exportSizeEstimateTimer) {
+        clearTimeout(exportSizeEstimateTimer);
+        exportSizeEstimateTimer = null;
+      }
+
+      exportSizeEstimateTimer = setTimeout(() => {
+        exportSizeEstimateTimer = null;
+        estimateExportFileSize(dims);
+      }, 250);
+    }
+
+    async function estimateExportFileSize(dims) {
+      const token = ++exportSizeEstimateToken;
+      const sizeInfo = document.getElementById('export-size-info');
+      if (sizeInfo) sizeInfo.textContent = `${dims.width} × ${dims.height} px (… )`;
+
+      // If modal closed while estimating, abort.
+      const modal = document.getElementById('export-modal');
+      if (!modal || modal.style.display === 'none') return;
+
+      try {
+        const cvs = renderExportCanvas(dims);
+        let bytes = 0;
+
+        // For PDF/SVG, estimating via actual PDF/SVG generation can be expensive.
+        // Use a PNG blob as a proxy: PDF currently embeds a PNG; SVG embeds a PNG data URI.
+        const needsPngProxy = exportFormat === 'pdf' || exportFormat === 'svg';
+        let pngProxyBytes = 0;
+        if (needsPngProxy) {
+          const pngBlob = await canvasToBlob(cvs, 'image/png');
+          pngProxyBytes = pngBlob ? pngBlob.size : 0;
+        }
+
+        if (exportFormat === 'png') {
+          const blob = await canvasToBlob(cvs, 'image/png');
+          bytes = blob ? blob.size : 0;
+        } else if (exportFormat === 'jpg') {
+          const blob = await canvasToBlob(cvs, 'image/jpeg', exportQuality / 100);
+          bytes = blob ? blob.size : 0;
+        } else if (exportFormat === 'svg') {
+          // Approx: base64 expands ~4/3 plus a small markup overhead.
+          bytes = pngProxyBytes ? Math.round(pngProxyBytes * 4 / 3 + 512) : 0;
+        } else if (exportFormat === 'pdf') {
+          // PDF currently embeds a PNG; add a small constant for PDF container overhead.
+          bytes = pngProxyBytes ? Math.round(pngProxyBytes + 2048) : 0;
+        }
+
+        if (token !== exportSizeEstimateToken) return;
+        if (!modal || modal.style.display === 'none') return;
+
+        const pretty = bytes ? formatBytes(bytes) : '—';
+        if (sizeInfo) sizeInfo.textContent = `${dims.width} × ${dims.height} px (~${pretty})`;
+      } catch {
+        if (token !== exportSizeEstimateToken) return;
+        const sizeInfo = document.getElementById('export-size-info');
+        if (sizeInfo) sizeInfo.textContent = `${dims.width} × ${dims.height} px`;
+      }
+    }
+
+    function updateExportFilenameExtension() {
+      const input = getExportFilenameInputEl();
+      if (!input) return;
+      const baseFromInput = stripKnownExtension(input.value);
+      const base = sanitizeFilenameBase(baseFromInput || getProjectNameValue() || EXPORT_FILENAME_DEFAULT);
+      input.value = base;
+    }
     
     // Open export modal
     function downloadImage() {
@@ -10120,6 +10334,12 @@
     function openExportModal() {
       const modal = document.getElementById('export-modal');
       modal.style.display = 'flex';
+
+      // Ensure exportFormat matches current UI selection
+      const activeFormatPill = document.querySelector('#format-pills .pill.active');
+      if (activeFormatPill && activeFormatPill.dataset && activeFormatPill.dataset.format) {
+        exportFormat = activeFormatPill.dataset.format;
+      }
       
       // Get canvas size and set initial custom sizes
       const canvasEl = document.getElementById('canvas');
@@ -10140,9 +10360,24 @@
           // Show/hide quality slider based on format
           const qualityGroup = document.getElementById('quality-group');
           qualityGroup.style.display = (exportFormat === 'jpg') ? 'block' : 'none';
+          updateExportFilenameExtension();
           updateExportPreview();
         };
       });
+
+      // Setup filename input
+      const filenameInput = getExportFilenameInputEl();
+      if (filenameInput) {
+        filenameInput.onblur = () => updateExportFilenameExtension();
+        filenameInput.onkeydown = (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            updateExportFilenameExtension();
+            doExport();
+          }
+        };
+        updateExportFilenameExtension();
+      }
       
       // Initial quality visibility
       document.getElementById('quality-group').style.display = (exportFormat === 'jpg') ? 'block' : 'none';
@@ -10300,8 +10535,8 @@
       // Update size info
       const dims = getExportDimensions();
       const sizeInfo = document.getElementById('export-size-info');
-      const fileSizeEstimate = Math.round((dims.width * dims.height * 4) / 1024);
-      sizeInfo.textContent = `${dims.width} × ${dims.height} px (~${fileSizeEstimate > 1024 ? (fileSizeEstimate/1024).toFixed(1) + ' MB' : fileSizeEstimate + ' KB'})`;
+      if (sizeInfo) sizeInfo.textContent = `${dims.width} × ${dims.height} px`;
+      scheduleEstimateExportFileSize(dims);
     }
     
     function drawElementsToContext(ctx, scale) {
@@ -10528,7 +10763,8 @@
     
     async function doExport() {
       const canvasEl = document.getElementById('canvas');
-      const filename = (getProjectNameValue() || 'qr_design').replace(/[\\\/\:\*\?\"\<\>\|]+/g, ' ').trim() || 'qr_design';
+      const filenameBase = getExportFilenameBaseFromUI();
+      const filename = filenameBase || EXPORT_FILENAME_DEFAULT;
       const canvasW = parseInt(canvasEl.style.width);
       const canvasH = parseInt(canvasEl.style.height);
       
@@ -10583,11 +10819,22 @@
         link.href = URL.createObjectURL(blob);
         link.click();
       } else if (exportFormat === 'pdf') {
-        // For PDF we need jsPDF library - fallback to PNG
-        alert((typeof t === 'function') ? t('alert.pdfNoJsPdfPngInstead') : 'PDF export requires jsPDF library. Downloading as PNG instead.');
-        link.download = filename + '.png';
-        link.href = cvs.toDataURL('image/png');
-        link.click();
+        const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+        if (!jsPDFCtor) {
+          alert((typeof t === 'function') ? t('alert.pdfNoJsPdfPngInstead') : 'PDF export requires jsPDF library. Downloading as PNG instead.');
+          link.download = filename + '.png';
+          link.href = cvs.toDataURL('image/png');
+          link.click();
+        } else {
+          const ptPerPx = 72 / 96;
+          const pdfW = dims.width * ptPerPx;
+          const pdfH = dims.height * ptPerPx;
+          const orientation = pdfW >= pdfH ? 'l' : 'p';
+          const doc = new jsPDFCtor({ orientation, unit: 'pt', format: [pdfW, pdfH] });
+          const dataUrl = cvs.toDataURL('image/png');
+          doc.addImage(dataUrl, 'PNG', 0, 0, pdfW, pdfH, undefined, 'FAST');
+          doc.save(filename + '.pdf');
+        }
       }
       
       closeExportModal();

@@ -31,6 +31,49 @@
       overflow-x: hidden;
     }
 
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(30, 30, 46, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #3a3a50;
+    }
+
+    .sticky-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .sticky-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .sticky-brand .logo-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .sticky-brand .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
     .bg-effects {
       position: fixed;
       inset: 0;
@@ -132,33 +175,59 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 10px;
+      padding: 8px 12px;
       border-radius: 10px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.10);
       color: rgba(226,232,240,0.95);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .lang-picker:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(124, 58, 237, 0.40);
+      transform: translateY(-1px);
+    }
+
+    .lang-picker i {
+      font-size: 14px;
+      color: #a5b4fc;
+      transition: transform 0.3s ease;
+    }
+
+    .lang-picker:hover i {
+      transform: rotate(15deg);
+      color: #c4b5fd;
     }
 
     .lang-select {
-      background: transparent;
-      border: none;
-      color: inherit;
-      font-size: 12px;
+      background: rgba(30, 30, 46, 0.8);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 13px;
       font-weight: 600;
       outline: none;
       cursor: pointer;
-      appearance: none;
-      padding-right: 18px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right center;
+      padding: 4px 8px;
+      transition: all 0.2s ease;
+    }
+
+    .lang-select:hover {
+      background: rgba(30, 30, 46, 0.95);
+      border-color: rgba(124, 58, 237, 0.5);
+    }
+
+    .lang-select:focus {
+      border-color: rgba(124, 58, 237, 0.7);
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
     }
 
     .lang-select option {
       background: #1e1e2e;
       color: #e2e8f0;
-      padding: 10px 16px;
-      font-size: 13px;
+      padding: 8px;
     }
 
     .brand {
@@ -170,6 +239,28 @@
       text-decoration: none;
       color: #fff;
     }
+
+    .home-btn {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: #1e1e2e;
+      border: 1px solid #3a3a50;
+      color: #d9d6ff;
+      text-decoration: none;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      flex: 0 0 auto;
+    }
+
+    .home-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(124, 58, 237, 0.70);
+    }
+
+    .home-btn i { font-size: 15px; }
 
     .brand .logo-box {
       width: 36px;
@@ -333,10 +424,8 @@
     .footer a:hover { text-decoration: underline; }
 
     @media (max-width: 720px) {
-      .topbar { flex-direction: column; align-items: stretch; }
-      .topbar-right { justify-content: center; }
-      .navlinks { justify-content: center; }
-      .navlinks a { flex: 1 1 auto; justify-content: center; }
+      .topbar { flex-direction: row; align-items: center; }
+      .topbar-right { justify-content: flex-end; }
       .footer { justify-content: center; flex-wrap: wrap; }
       .footer-links { justify-content: center; }
     }
@@ -344,6 +433,14 @@
 </head>
 
 <body>
+  <div class="sticky-header">
+    <div class="sticky-inner">
+      <a class="sticky-brand" href="/">
+        <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
+        <span>Qrio</span>
+      </a>
+    </div>
+  </div>
   <div class="bg-effects">
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
@@ -353,10 +450,7 @@
 
   <main class="page">
     <div class="topbar">
-      <a class="brand" href="/">
-        <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
-        <span>Qrio</span>
-      </a>
+      <a class="home-btn" href="/" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
       <div class="topbar-right">
         <div class="lang-picker">
           <i class="fa-solid fa-globe"></i>
@@ -365,12 +459,6 @@
             <option value="en">English</option>
           </select>
         </div>
-        <nav class="navlinks" aria-label="Legal navigation" data-i18n-aria="aria.legalNav">
-          <a href="/" data-i18n="nav.home" data-i18n-title="nav.homeTitle">Trang chủ</a>
-          <a href="/terms" aria-current="page" data-i18n="nav.terms" data-i18n-title="nav.termsTitle">Điều khoản</a>
-          <a href="/privacy" data-i18n="nav.privacy" data-i18n-title="nav.privacyTitle">Riêng tư</a>
-          <a href="/disclaimer" data-i18n="nav.disclaimer" data-i18n-title="nav.disclaimerTitle">Miễn trừ</a>
-        </nav>
       </div>
     </div>
 
@@ -454,8 +542,10 @@
     <div class="footer">
       <span data-i18n="common.copyright">© 2025 Qrio</span>
       <div class="footer-links">
-        <a href="/privacy" data-i18n="footer.privacy">Chính sách riêng tư</a>
+        <a href="/privacy" data-i18n="footer.privacy">Chính sách bảo mật</a>
         <a href="/disclaimer" data-i18n="footer.disclaimer">Miễn trừ trách nhiệm</a>
+        <a href="/about" data-i18n="footer.about">Về chúng tôi</a>
+        <a href="/contact" data-i18n="footer.contact">Liên hệ</a>
       </div>
     </div>
   </main>
@@ -527,8 +617,10 @@
 
         'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
 
-        'footer.privacy': 'Chính sách riêng tư',
+        'footer.privacy': 'Chính sách bảo mật',
         'footer.disclaimer': 'Miễn trừ trách nhiệm',
+        'footer.about': 'Về chúng tôi',
+        'footer.contact': 'Liên hệ',
         'common.copyright': '© 2025 Qrio',
       },
       en: {
@@ -596,12 +688,15 @@
 
         'footer.privacy': 'Privacy Policy',
         'footer.disclaimer': 'Disclaimer',
+        'footer.about': 'About Us',
+        'footer.contact': 'Contact',
         'common.copyright': '© 2025 Qrio',
       }
     };
 
     function normalizeLang(raw) {
-      return raw === 'en' ? 'en' : 'vi';
+      if (!raw) return 'vi';
+      return raw.toLowerCase() === 'vi' ? 'vi' : 'en';
     }
 
     function detectDefaultLang() {

@@ -171,6 +171,19 @@ app = Flask(
     static_url_path='/static',
 )
 
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv()
+
+# ========================
+# ADMIN DASHBOARD INTEGRATION
+# ========================
+from admin import admin_bp, analytics_bp, track_event
+
+app.register_blueprint(admin_bp)
+app.register_blueprint(analytics_bp)
+
+
 # Security headers - CSP, XSS protection, cache
 @app.after_request
 def add_security_headers(response):
@@ -439,9 +452,28 @@ def generate_qr(
         return None
 
 
+# ========================
+# ANALYTICS TRACKING HELPER
+# ========================
+def get_country_from_request():
+    """Get country from CF-IPCountry header (Cloudflare) or return Unknown."""
+    return request.headers.get('CF-IPCountry', 'Unknown')
+
+
+def get_device_type():
+    """Simple device detection from User-Agent."""
+    ua = request.headers.get('User-Agent', '').lower()
+    if 'mobile' in ua or 'android' in ua or 'iphone' in ua:
+        return 'Mobile'
+    if 'tablet' in ua or 'ipad' in ua:
+        return 'Tablet'
+    return 'Desktop'
+
+
 @app.route('/')
 def index():
     """Serve trang chủ mặc định (home)."""
+    track_event('/', 'page_view', get_country_from_request(), get_device_type())
     return send_from_directory('.', 'home.html')
 
 
@@ -455,6 +487,7 @@ def home_html():
 @app.route('/edit.html')
 def edit_html():
     """Trang chỉnh sửa (tên cũ: index)."""
+    track_event('/edit', 'page_view', get_country_from_request(), get_device_type())
     return send_from_directory('.', 'edit.html')
 
 
@@ -484,6 +517,19 @@ def disclaimer_html():
     """Legal: Disclaimer."""
     return send_from_directory('.', 'disclaimer.html')
 
+
+@app.route('/about')
+@app.route('/about.html')
+def about_html():
+    """About Us page."""
+    return send_from_directory('.', 'about.html')
+
+
+@app.route('/contact')
+@app.route('/contact.html')
+def contact_html():
+    """Contact page."""
+    return send_from_directory('.', 'contact.html')
 
 
 @app.route('/favicon.ico')
@@ -630,6 +676,10 @@ def api_generate():
                 'logo_size_max': logo_size_max,
                 'logo_size_clamped': True,
             })
+        
+        # Track analytics
+        track_event('/api/generate', 'generate_qr', get_country_from_request(), get_device_type())
+        
         return jsonify(payload)
     except Exception as e:
         print(f"Error in api_generate: {e}")
@@ -738,9 +788,8 @@ def api_download():
         qr_img.save(buf, format='PNG')
         buf.seek(0)
         
-        # Lưu vào thư mục mã
-        file_path = thu_muc_ma / f"{filename}.png"
-        qr_img.save(str(file_path))
+        # Track analytics (before sending file)
+        track_event('/api/download', 'download_qr', get_country_from_request(), get_device_type())
         
         return send_file(buf, mimetype='image/png', as_attachment=True, download_name=f'{filename}.png')
     except Exception as e:
@@ -893,6 +942,7 @@ def api_file_upload():
 def download_uploaded_file(token: str):
     """Download previously uploaded file (Content-Disposition: attachment)."""
     token = sanitize_input(token, max_length=64)
+    uploads_dir = Path(__file__).parent / 'data' / 'uploads'
     file_path = uploads_dir / token
     meta_path = uploads_dir / f'{token}.json'
 

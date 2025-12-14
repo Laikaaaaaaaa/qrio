@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tuyên bố miễn trừ trách nhiệm - Qrio</title>
-  <meta name="description" content="Tuyên bố miễn trừ trách nhiệm cho website tạo mã QR (QR code generator) của Qrio." />
+  <title>Về chúng tôi - Qrio</title>
+  <meta name="description" content="Tìm hiểu về Qrio - công cụ tạo mã QR miễn phí, nhanh chóng và dễ sử dụng." />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -278,40 +278,6 @@
       object-fit: contain;
     }
 
-    .navlinks {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .navlinks a {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: #1e1e2e;
-      border: 1px solid #3a3a50;
-      color: #d9d6ff;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .navlinks a:hover {
-      transform: translateY(-1px);
-      border-color: rgba(124, 58, 237, 0.70);
-    }
-
-    .navlinks a[aria-current="page"] {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(79, 70, 229, 0.18));
-      border-color: rgba(124, 58, 237, 0.70);
-      color: #fff;
-    }
-
     .header {
       margin-top: 20px;
       padding: 18px 2px 6px;
@@ -333,12 +299,6 @@
       font-size: 14px;
       line-height: 1.6;
       max-width: 84ch;
-    }
-
-    .meta {
-      margin-top: 12px;
-      color: #8c8ca5;
-      font-size: 12.5px;
     }
 
     .card {
@@ -372,14 +332,7 @@
 
     .card li { margin: 6px 0; }
 
-    .en {
-      color: #9aa0b8;
-      font-size: 13px;
-      line-height: 1.65;
-      margin-top: 6px;
-    }
-
-    .notice {
+    .highlight-box {
       border: 1px dashed rgba(124, 58, 237, 0.35);
       background: rgba(124, 58, 237, 0.10);
       border-radius: 12px;
@@ -387,7 +340,47 @@
       margin-top: 14px;
     }
 
-    .notice p { margin: 0; }
+    .highlight-box p { margin: 0; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      background: rgba(124, 58, 237, 0.08);
+      border-radius: 10px;
+      border: 1px solid rgba(124, 58, 237, 0.15);
+    }
+
+    .feature-item i {
+      font-size: 18px;
+      color: #a78bfa;
+      margin-top: 2px;
+    }
+
+    .feature-item div {
+      flex: 1;
+    }
+
+    .feature-item strong {
+      color: #eae9ff;
+      font-size: 14px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .feature-item span {
+      color: #b7b7c9;
+      font-size: 13px;
+      line-height: 1.5;
+    }
 
     .footer {
       margin-top: 26px;
@@ -428,6 +421,7 @@
       .topbar-right { justify-content: flex-end; }
       .footer { justify-content: center; flex-wrap: wrap; }
       .footer-links { justify-content: center; }
+      .feature-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -463,47 +457,82 @@
     </div>
 
     <header class="header">
-      <h1 data-i18n="disclaimer.h1">Tuyên bố miễn trừ trách nhiệm</h1>
-      <p class="subtitle" data-i18n="disclaimer.subtitle">Tuyên bố này làm rõ phạm vi trách nhiệm của Qrio và rủi ro khi bạn tạo, chia sẻ, quét hoặc sử dụng mã QR.</p>
-      <p class="meta" data-i18n="disclaimer.meta">Cập nhật lần cuối: 13/12/2025</p>
+      <h1 data-i18n="about.h1">Về chúng tôi</h1>
+      <p class="subtitle" data-i18n="about.subtitle">Chào mừng bạn đến với Qrio - công cụ tạo mã QR miễn phí, nhanh chóng và dễ sử dụng nhất.</p>
     </header>
 
-    <section class="card" id="tool-only">
-      <h2 data-i18n="disclaimer.s1.h2">1) Qrio chỉ là công cụ tạo QR</h2>
-      <p data-i18n="disclaimer.s1.p1">Qrio cung cấp công cụ để bạn tự tạo mã QR từ nội dung do bạn cung cấp. Qrio không đại diện, không bảo chứng và không cam kết về tính hợp pháp, tính chính xác hoặc tính an toàn của nội dung được mã hoá trong QR.</p>
+    <section class="card">
+      <h2 data-i18n="about.mission.h2">Sứ mệnh của chúng tôi</h2>
+      <p data-i18n="about.mission.p1">Qrio được tạo ra với mục tiêu mang đến cho mọi người một công cụ tạo mã QR đơn giản, nhanh chóng và hoàn toàn miễn phí. Chúng tôi tin rằng công nghệ nên dễ tiếp cận với tất cả mọi người.</p>
+      <div class="highlight-box">
+        <p data-i18n="about.mission.highlight"><strong>Cam kết:</strong> Qrio luôn miễn phí và không yêu cầu đăng ký tài khoản để sử dụng các tính năng cơ bản.</p>
+      </div>
     </section>
 
-    <section class="card" id="no-moderation">
-      <h2 data-i18n="disclaimer.s2.h2">2) Không kiểm duyệt nội dung QR</h2>
-      <p data-i18n="disclaimer.s2.p1">Qrio <strong>không kiểm duyệt</strong> và <strong>không giám sát</strong> nội dung QR mà người dùng tạo. Qrio cũng không có nghĩa vụ hoặc khả năng kiểm tra link/file/điểm đến mà QR trỏ tới theo từng trường hợp cụ thể.</p>
+    <section class="card">
+      <h2 data-i18n="about.features.h2">Tính năng nổi bật</h2>
+      <p data-i18n="about.features.p1">Qrio cung cấp đa dạng các loại mã QR để đáp ứng nhu cầu của bạn:</p>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <i class="fa-solid fa-link"></i>
+          <div>
+            <strong data-i18n="about.features.url.title">QR URL</strong>
+            <span data-i18n="about.features.url.desc">Tạo mã QR cho đường link website</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-font"></i>
+          <div>
+            <strong data-i18n="about.features.text.title">QR Text</strong>
+            <span data-i18n="about.features.text.desc">Mã hóa văn bản bất kỳ</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-wifi"></i>
+          <div>
+            <strong data-i18n="about.features.wifi.title">QR Wi-Fi</strong>
+            <span data-i18n="about.features.wifi.desc">Chia sẻ thông tin kết nối Wi-Fi</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-address-card"></i>
+          <div>
+            <strong data-i18n="about.features.vcard.title">QR vCard</strong>
+            <span data-i18n="about.features.vcard.desc">Tạo danh thiếp điện tử</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-file"></i>
+          <div>
+            <strong data-i18n="about.features.file.title">QR File</strong>
+            <span data-i18n="about.features.file.desc">Chia sẻ tệp tin qua mã QR</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="fa-solid fa-palette"></i>
+          <div>
+            <strong data-i18n="about.features.custom.title">Tùy chỉnh</strong>
+            <span data-i18n="about.features.custom.desc">Thay đổi màu sắc và kiểu dáng</span>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="card" id="no-liability">
-      <h2 data-i18n="disclaimer.s3.h2">3) Không chịu trách nhiệm về nội dung & điểm đến</h2>
-      <p data-i18n="disclaimer.s3.p1">Trong phạm vi tối đa pháp luật cho phép, Qrio không chịu trách nhiệm đối với:</p>
+    <section class="card">
+      <h2 data-i18n="about.why.h2">Tại sao chọn Qrio?</h2>
       <ul>
-        <li data-i18n="disclaimer.s3.li1">Nội dung QR do người dùng tạo (kể cả khi nội dung đó dẫn đến thiệt hại).</li>
-        <li data-i18n="disclaimer.s3.li2">Bất kỳ website, tệp, ứng dụng, dịch vụ hoặc nội dung của bên thứ ba mà QR trỏ tới.</li>
-        <li data-i18n="disclaimer.s3.li3">Việc tải xuống/cài đặt/mở tệp, thanh toán, hoặc cung cấp thông tin tại điểm đến.</li>
-        <li data-i18n="disclaimer.s3.li4">Bất kỳ tổn thất, thiệt hại, khiếu nại hoặc tranh chấp phát sinh từ việc sử dụng hoặc quét QR.</li>
+        <li data-i18n="about.why.li1"><strong>Miễn phí 100%:</strong> Không có chi phí ẩn, không cần đăng ký.</li>
+        <li data-i18n="about.why.li2"><strong>Nhanh chóng:</strong> Tạo mã QR chỉ trong vài giây.</li>
+        <li data-i18n="about.why.li3"><strong>Bảo mật:</strong> Dữ liệu được xử lý ngay trên trình duyệt của bạn.</li>
+        <li data-i18n="about.why.li4"><strong>Đa dạng:</strong> Hỗ trợ nhiều loại mã QR khác nhau.</li>
+        <li data-i18n="about.why.li5"><strong>Dễ sử dụng:</strong> Giao diện đơn giản, thân thiện với người dùng.</li>
       </ul>
     </section>
 
-    <section class="card" id="user-risk">
-      <h2 data-i18n="disclaimer.s4.h2">4) Người dùng tự chịu rủi ro khi quét hoặc sử dụng QR</h2>
-      <p data-i18n="disclaimer.s4.p1">Bạn hiểu và đồng ý rằng việc quét hoặc sử dụng QR có thể dẫn đến rủi ro như: truy cập trang web độc hại, tải tệp chứa mã độc, bị lừa đảo/phishing, hoặc bị thu thập dữ liệu.</p>
-      <p data-i18n="disclaimer.s4.p2">Khuyến nghị an toàn:</p>
-      <ul>
-        <li data-i18n="disclaimer.s4.li1">Chỉ quét QR từ nguồn tin cậy.</li>
-        <li data-i18n="disclaimer.s4.li2">Kiểm tra URL/điểm đến trước khi mở hoặc tải xuống.</li>
-        <li data-i18n="disclaimer.s4.li3">Cập nhật hệ điều hành, trình duyệt, và phần mềm bảo mật.</li>
-      </ul>
-    </section>
-
-    <section class="card" id="contact">
-      <h2 data-i18n="disclaimer.contact.h2">Thông tin liên hệ</h2>
-      <p data-i18n="disclaimer.contact.p1">Nếu bạn có câu hỏi về tuyên bố miễn trừ trách nhiệm, vui lòng liên hệ:</p>
-      <p data-i18n="common.emailLine"><strong>Email:</strong> support@yourdomain.com</p>
+    <section class="card">
+      <h2 data-i18n="about.team.h2">Đội ngũ phát triển</h2>
+      <p data-i18n="about.team.p1">Qrio được phát triển bởi một nhóm các nhà phát triển đam mê công nghệ, với mong muốn tạo ra những công cụ hữu ích cho cộng đồng.</p>
+      <p data-i18n="about.team.p2">Chúng tôi luôn lắng nghe phản hồi từ người dùng để cải thiện và phát triển thêm nhiều tính năng mới.</p>
     </section>
 
     <div class="footer">
@@ -511,7 +540,7 @@
       <div class="footer-links">
         <a href="/terms" data-i18n="footer.terms">Điều khoản sử dụng</a>
         <a href="/privacy" data-i18n="footer.privacy">Chính sách bảo mật</a>
-        <a href="/about" data-i18n="footer.about">Về chúng tôi</a>
+        <a href="/disclaimer" data-i18n="footer.disclaimer">Miễn trừ trách nhiệm</a>
         <a href="/contact" data-i18n="footer.contact">Liên hệ</a>
       </div>
     </div>
@@ -522,98 +551,88 @@
 
     const I18N = {
       vi: {
-        'doc.title': 'Tuyên bố miễn trừ trách nhiệm - Qrio',
+        'doc.title': 'Về chúng tôi - Qrio',
         'aria.language': 'Ngôn ngữ',
-        'aria.legalNav': 'Điều hướng pháp lý',
-        'nav.home': 'Trang chủ',
-        'nav.homeTitle': 'Trang chủ',
-        'nav.terms': 'Điều khoản',
-        'nav.termsTitle': 'Điều khoản sử dụng',
-        'nav.privacy': 'Riêng tư',
-        'nav.privacyTitle': 'Chính sách quyền riêng tư',
-        'nav.disclaimer': 'Miễn trừ',
-        'nav.disclaimerTitle': 'Tuyên bố miễn trừ trách nhiệm',
 
-        'disclaimer.h1': 'Tuyên bố miễn trừ trách nhiệm',
-        'disclaimer.subtitle': 'Tuyên bố này làm rõ phạm vi trách nhiệm của Qrio và rủi ro khi bạn tạo, chia sẻ, quét hoặc sử dụng mã QR.',
-        'disclaimer.meta': 'Cập nhật lần cuối: 13/12/2025',
+        'about.h1': 'Về chúng tôi',
+        'about.subtitle': 'Chào mừng bạn đến với Qrio - công cụ tạo mã QR miễn phí, nhanh chóng và dễ sử dụng nhất.',
 
-        'disclaimer.s1.h2': '1) Qrio chỉ là công cụ tạo QR',
-        'disclaimer.s1.p1': 'Qrio cung cấp công cụ để bạn tự tạo mã QR từ nội dung do bạn cung cấp. Qrio không đại diện, không bảo chứng và không cam kết về tính hợp pháp, tính chính xác hoặc tính an toàn của nội dung được mã hoá trong QR.',
+        'about.mission.h2': 'Sứ mệnh của chúng tôi',
+        'about.mission.p1': 'Qrio được tạo ra với mục tiêu mang đến cho mọi người một công cụ tạo mã QR đơn giản, nhanh chóng và hoàn toàn miễn phí. Chúng tôi tin rằng công nghệ nên dễ tiếp cận với tất cả mọi người.',
+        'about.mission.highlight': '<strong>Cam kết:</strong> Qrio luôn miễn phí và không yêu cầu đăng ký tài khoản để sử dụng các tính năng cơ bản.',
 
-        'disclaimer.s2.h2': '2) Không kiểm duyệt nội dung QR',
-        'disclaimer.s2.p1': 'Qrio <strong>không kiểm duyệt</strong> và <strong>không giám sát</strong> nội dung QR mà người dùng tạo. Qrio cũng không có nghĩa vụ hoặc khả năng kiểm tra link/file/điểm đến mà QR trỏ tới theo từng trường hợp cụ thể.',
+        'about.features.h2': 'Tính năng nổi bật',
+        'about.features.p1': 'Qrio cung cấp đa dạng các loại mã QR để đáp ứng nhu cầu của bạn:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'Tạo mã QR cho đường link website',
+        'about.features.text.title': 'QR Text',
+        'about.features.text.desc': 'Mã hóa văn bản bất kỳ',
+        'about.features.wifi.title': 'QR Wi-Fi',
+        'about.features.wifi.desc': 'Chia sẻ thông tin kết nối Wi-Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Tạo danh thiếp điện tử',
+        'about.features.file.title': 'QR File',
+        'about.features.file.desc': 'Chia sẻ tệp tin qua mã QR',
+        'about.features.custom.title': 'Tùy chỉnh',
+        'about.features.custom.desc': 'Thay đổi màu sắc và kiểu dáng',
 
-        'disclaimer.s3.h2': '3) Không chịu trách nhiệm về nội dung & điểm đến',
-        'disclaimer.s3.p1': 'Trong phạm vi tối đa pháp luật cho phép, Qrio không chịu trách nhiệm đối với:',
-        'disclaimer.s3.li1': 'Nội dung QR do người dùng tạo (kể cả khi nội dung đó dẫn đến thiệt hại).',
-        'disclaimer.s3.li2': 'Bất kỳ website, tệp, ứng dụng, dịch vụ hoặc nội dung của bên thứ ba mà QR trỏ tới.',
-        'disclaimer.s3.li3': 'Việc tải xuống/cài đặt/mở tệp, thanh toán, hoặc cung cấp thông tin tại điểm đến.',
-        'disclaimer.s3.li4': 'Bất kỳ tổn thất, thiệt hại, khiếu nại hoặc tranh chấp phát sinh từ việc sử dụng hoặc quét QR.',
+        'about.why.h2': 'Tại sao chọn Qrio?',
+        'about.why.li1': '<strong>Miễn phí 100%:</strong> Không có chi phí ẩn, không cần đăng ký.',
+        'about.why.li2': '<strong>Nhanh chóng:</strong> Tạo mã QR chỉ trong vài giây.',
+        'about.why.li3': '<strong>Bảo mật:</strong> Dữ liệu được xử lý ngay trên trình duyệt của bạn.',
+        'about.why.li4': '<strong>Đa dạng:</strong> Hỗ trợ nhiều loại mã QR khác nhau.',
+        'about.why.li5': '<strong>Dễ sử dụng:</strong> Giao diện đơn giản, thân thiện với người dùng.',
 
-        'disclaimer.s4.h2': '4) Người dùng tự chịu rủi ro khi quét hoặc sử dụng QR',
-        'disclaimer.s4.p1': 'Bạn hiểu và đồng ý rằng việc quét hoặc sử dụng QR có thể dẫn đến rủi ro như: truy cập trang web độc hại, tải tệp chứa mã độc, bị lừa đảo/phishing, hoặc bị thu thập dữ liệu.',
-        'disclaimer.s4.p2': 'Khuyến nghị an toàn:',
-        'disclaimer.s4.li1': 'Chỉ quét QR từ nguồn tin cậy.',
-        'disclaimer.s4.li2': 'Kiểm tra URL/điểm đến trước khi mở hoặc tải xuống.',
-        'disclaimer.s4.li3': 'Cập nhật hệ điều hành, trình duyệt, và phần mềm bảo mật.',
-
-        'disclaimer.contact.h2': 'Thông tin liên hệ',
-        'disclaimer.contact.p1': 'Nếu bạn có câu hỏi về tuyên bố miễn trừ trách nhiệm, vui lòng liên hệ:',
-
-        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+        'about.team.h2': 'Đội ngũ phát triển',
+        'about.team.p1': 'Qrio được phát triển bởi một nhóm các nhà phát triển đam mê công nghệ, với mong muốn tạo ra những công cụ hữu ích cho cộng đồng.',
+        'about.team.p2': 'Chúng tôi luôn lắng nghe phản hồi từ người dùng để cải thiện và phát triển thêm nhiều tính năng mới.',
 
         'footer.terms': 'Điều khoản sử dụng',
         'footer.privacy': 'Chính sách bảo mật',
-        'footer.about': 'Về chúng tôi',
+        'footer.disclaimer': 'Miễn trừ trách nhiệm',
         'footer.contact': 'Liên hệ',
         'common.copyright': '© 2025 Qrio',
       },
       en: {
-        'doc.title': 'Disclaimer - Qrio',
+        'doc.title': 'About Us - Qrio',
         'aria.language': 'Language',
-        'aria.legalNav': 'Legal navigation',
-        'nav.home': 'Home',
-        'nav.homeTitle': 'Home',
-        'nav.terms': 'Terms',
-        'nav.termsTitle': 'Terms of Service',
-        'nav.privacy': 'Privacy',
-        'nav.privacyTitle': 'Privacy Policy',
-        'nav.disclaimer': 'Disclaimer',
-        'nav.disclaimerTitle': 'Disclaimer',
 
-        'disclaimer.h1': 'Disclaimer',
-        'disclaimer.subtitle': 'This Disclaimer clarifies Qrio’s role and the risks of generating, sharing, scanning, or using QR codes.',
-        'disclaimer.meta': 'Last updated: Dec 13, 2025',
+        'about.h1': 'About Us',
+        'about.subtitle': 'Welcome to Qrio - the free, fast, and easy-to-use QR code generator.',
 
-        'disclaimer.s1.h2': '1) Tool Only',
-        'disclaimer.s1.p1': 'Qrio provides a tool for generating QR codes from content you provide. We do not guarantee the legality, accuracy, or safety of any user-generated QR content.',
+        'about.mission.h2': 'Our Mission',
+        'about.mission.p1': 'Qrio was created with the goal of providing everyone with a simple, fast, and completely free QR code generator. We believe technology should be accessible to everyone.',
+        'about.mission.highlight': '<strong>Commitment:</strong> Qrio is always free and does not require registration to use basic features.',
 
-        'disclaimer.s2.h2': '2) No Moderation',
-        'disclaimer.s2.p1': 'Qrio does <strong>not</strong> moderate or monitor QR content created by users. We also do not have an obligation or practical ability to inspect each destination link/file on a case-by-case basis.',
+        'about.features.h2': 'Key Features',
+        'about.features.p1': 'Qrio offers a variety of QR codes to meet your needs:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'Create QR codes for website links',
+        'about.features.text.title': 'QR Text',
+        'about.features.text.desc': 'Encode any text',
+        'about.features.wifi.title': 'QR Wi-Fi',
+        'about.features.wifi.desc': 'Share Wi-Fi connection info',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Create digital business cards',
+        'about.features.file.title': 'QR File',
+        'about.features.file.desc': 'Share files via QR code',
+        'about.features.custom.title': 'Customization',
+        'about.features.custom.desc': 'Change colors and styles',
 
-        'disclaimer.s3.h2': '3) No Responsibility for Content/Destination',
-        'disclaimer.s3.p1': 'To the maximum extent permitted by law, Qrio is not responsible for:',
-        'disclaimer.s3.li1': 'User-generated QR content (even if it causes damage).',
-        'disclaimer.s3.li2': 'Any third-party website, file, app, service, or content that a QR code points to.',
-        'disclaimer.s3.li3': 'Downloads/installs/opening files, payments, or providing information at the destination.',
-        'disclaimer.s3.li4': 'Any losses, damages, claims, or disputes arising from using or scanning QR codes.',
+        'about.why.h2': 'Why Choose Qrio?',
+        'about.why.li1': '<strong>100% Free:</strong> No hidden costs, no registration required.',
+        'about.why.li2': '<strong>Fast:</strong> Create QR codes in seconds.',
+        'about.why.li3': '<strong>Secure:</strong> Data is processed right in your browser.',
+        'about.why.li4': '<strong>Versatile:</strong> Supports multiple QR code types.',
+        'about.why.li5': '<strong>Easy to Use:</strong> Simple, user-friendly interface.',
 
-        'disclaimer.s4.h2': '4) Use at Your Own Risk',
-        'disclaimer.s4.p1': 'You understand and agree that scanning/using QR codes may involve risks such as malicious websites, malware downloads, phishing/scams, or data collection.',
-        'disclaimer.s4.p2': 'Safety tips:',
-        'disclaimer.s4.li1': 'Only scan QR codes from trusted sources.',
-        'disclaimer.s4.li2': 'Verify the URL/destination before opening or downloading.',
-        'disclaimer.s4.li3': 'Keep your OS, browser, and security software up to date.',
-
-        'disclaimer.contact.h2': 'Contact',
-        'disclaimer.contact.p1': 'If you have questions about this Disclaimer, contact:',
-
-        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+        'about.team.h2': 'Development Team',
+        'about.team.p1': 'Qrio is developed by a group of passionate tech developers who want to create useful tools for the community.',
+        'about.team.p2': 'We always listen to user feedback to improve and develop new features.',
 
         'footer.terms': 'Terms of Service',
         'footer.privacy': 'Privacy Policy',
-        'footer.about': 'About Us',
+        'footer.disclaimer': 'Disclaimer',
         'footer.contact': 'Contact',
         'common.copyright': '© 2025 Qrio',
       }

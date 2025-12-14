@@ -456,30 +456,32 @@
     }
 
     .lang-select {
-      background: transparent;
-      border: none;
-      color: inherit;
-      font-size: 12px;
+      background: rgba(30, 30, 46, 0.8);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 13px;
       font-weight: 600;
       outline: none;
       cursor: pointer;
-      appearance: none;
-      padding-right: 18px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right center;
+      padding: 4px 8px;
+      transition: all 0.2s ease;
     }
 
-    .lang-select option {
-      background: #1e1b4b;
-      color: #e2e8f0;
-      padding: 10px 16px;
-      font-size: 13px;
+    .lang-select:hover {
+      background: rgba(30, 30, 46, 0.95);
+      border-color: rgba(124, 58, 237, 0.5);
     }
 
     .lang-select:focus {
-      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
-      border-radius: 4px;
+      border-color: rgba(124, 58, 237, 0.7);
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+    }
+
+    .lang-select option {
+      background: #1e1e2e;
+      color: #e2e8f0;
+      padding: 8px;
     }
 
     .lang-picker {
@@ -690,13 +692,64 @@
       padding: 16px;
     }
 
+    .project-name-wrapper {
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .project-name-wrapper:hover {
+      border-color: rgba(124, 58, 237, 0.6);
+      box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.25);
+    }
+
+    .project-name-wrapper:focus-visible {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.35);
+    }
+
     .project-name {
       font-weight: 600;
       font-size: 14px;
-      margin-bottom: 6px;
-      white-space: nowrap;
+      color: #fff;
+      flex: 1;
+      white-space: pre;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    .project-name-input {
+      width: 100%;
+      font-weight: 600;
+      font-size: 14px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 6px 10px;
+      box-sizing: border-box;
+      caret-color: #fff;
+    }
+
+    .project-name-input:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25);
+    }
+
+    .project-name-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .project-date {
@@ -1175,12 +1228,13 @@
     .footer-links {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 8px;
       font-size: 13px;
       color: #666;
       flex-wrap: wrap;
       justify-content: center;
       text-align: center;
+      flex-direction: column;
     }
 
     .footer-links .nowrap { white-space: nowrap; }
@@ -1189,38 +1243,47 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 14px;
       flex-wrap: wrap;
+      max-width: 100%;
     }
 
     .footer-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(79, 70, 229, 0.10));
-      border: 1px solid rgba(124, 58, 237, 0.20);
-      color: #c4b5fd;
+      padding: 0;
+      border-radius: 0;
+      background: transparent;
+      border: none;
+      color: rgba(226, 232, 240, 0.58);
       text-decoration: none;
-      font-weight: 700;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      font-weight: 600;
+      transition: color 0.2s ease, text-decoration-color 0.2s ease;
       white-space: nowrap;
     }
 
     .footer-link:hover {
-      transform: translateY(-1px);
-      border-color: rgba(124, 58, 237, 0.40);
+      transform: none;
+      color: rgba(226, 232, 240, 0.90);
+      text-decoration: underline;
     }
 
     .footer-made {
       color: #777;
     }
 
+    @media (min-width: 720px) {
+      .footer-links {
+        flex-direction: row;
+        gap: 14px;
+      }
+    }
+
     @media (max-width: 520px) {
       .footer-links { gap: 12px; }
-      .footer-link { width: 100%; }
-      .footer-legal { width: 100%; }
+      .footer-link { width: auto; }
+      .footer-legal { width: 100%; justify-content: center; }
     }
     
     .footer-heart {
@@ -2204,8 +2267,10 @@
           <span class="nowrap">© 2025 Qrio</span>
           <span class="footer-legal" aria-label="Legal">
             <a class="footer-link" href="/terms" data-i18n="footer.terms">Điều khoản sử dụng</a>
-            <a class="footer-link" href="/privacy" data-i18n="footer.privacy">Chính sách riêng tư</a>
+            <a class="footer-link" href="/privacy" data-i18n="footer.privacy">Chính sách bảo mật</a>
             <a class="footer-link" href="/disclaimer" data-i18n="footer.disclaimer">Miễn trừ trách nhiệm</a>
+            <a class="footer-link" href="/about" data-i18n="footer.about">Về chúng tôi</a>
+            <a class="footer-link" href="/contact" data-i18n="footer.contact">Liên hệ</a>
           </span>
           <span class="footer-made" data-i18n="footer.madeWith">Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam</span>
         </div>
@@ -2249,8 +2314,10 @@
         'about.card3.body': 'Dự án được phát triển liên tục với các tính năng mới. Đóng góp ý tưởng và phản hồi luôn được hoan nghênh!',
         'footer.tagline': 'Công cụ thiết kế mã QR miễn phí • Tạo mã QR đẹp chỉ trong vài giây',
         'footer.terms': 'Điều khoản sử dụng',
-        'footer.privacy': 'Chính sách riêng tư',
+        'footer.privacy': 'Chính sách bảo mật',
         'footer.disclaimer': 'Miễn trừ trách nhiệm',
+        'footer.about': 'Về chúng tôi',
+        'footer.contact': 'Liên hệ',
         'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam',
         'typing.words': ['đẹp mắt', 'miễn phí', 'nhanh chóng', 'sáng tạo', 'đa dạng', 'hiện đại'],
         'features.title': 'Tính năng nổi bật',
@@ -2312,8 +2379,10 @@
         'about.card3.body': 'We continuously ship new features. Ideas and feedback are always welcome!',
         'footer.tagline': 'Free QR design tool • Create beautiful QR codes in seconds',
         'footer.terms': 'Terms of Service',
-        'footer.privacy': 'Privacy Policy',
+        'footer.privacy': 'Security Policy',
         'footer.disclaimer': 'Disclaimer',
+        'footer.about': 'About Us',
+        'footer.contact': 'Contact',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['beautiful', 'free', 'fast', 'creative', 'flexible', 'modern'],
         'features.title': 'Key Features',
@@ -2375,8 +2444,10 @@
         'about.card3.body': '项目持续迭代并不断加入新功能。欢迎提出想法与反馈！',
         'footer.tagline': '免费二维码设计工具 • 几秒钟生成漂亮二维码',
         'footer.terms': '服务条款',
-        'footer.privacy': '隐私政策',
+        'footer.privacy': '安全政策',
         'footer.disclaimer': '免责声明',
+        'footer.about': '关于我们',
+        'footer.contact': '联系我们',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['美观', '免费', '快速', '创意', '多样', '现代'],
         'features.title': '主要功能',
@@ -2438,8 +2509,10 @@
         'about.card3.body': 'हम लगातार नए फीचर जोड़ते हैं। आपके विचार और फीडबैक का स्वागत है!',
         'footer.tagline': 'मुफ़्त QR डिज़ाइन टूल • सेकंडों में सुंदर QR बनाएँ',
         'footer.terms': 'सेवा की शर्तें',
-        'footer.privacy': 'गोपनीयता नीति',
+        'footer.privacy': 'सुरक्षा नीति',
         'footer.disclaimer': 'अस्वीकरण',
+        'footer.about': 'हमारे बारे में',
+        'footer.contact': 'संपर्क करें',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['सुंदर', 'मुफ़्त', 'तेज़', 'रचनात्मक', 'विविध', 'आधुनिक'],
         'features.title': 'मुख्य विशेषताएं',
@@ -2501,8 +2574,10 @@
         'about.card3.body': 'Seguimos añadiendo nuevas funciones. ¡Las ideas y comentarios son bienvenidos!',
         'footer.tagline': 'Herramienta gratis de diseño QR • Crea QR bonitos en segundos',
         'footer.terms': 'Términos de uso',
-        'footer.privacy': 'Política de privacidad',
+        'footer.privacy': 'Política de seguridad',
         'footer.disclaimer': 'Descargo de responsabilidad',
+        'footer.about': 'Sobre nosotros',
+        'footer.contact': 'Contacto',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['bonito', 'gratis', 'rápido', 'creativo', 'variado', 'moderno'],
         'features.title': 'Funciones principales',
@@ -2566,6 +2641,8 @@
         'footer.terms': 'Conditions d’utilisation',
         'footer.privacy': 'Politique de confidentialité',
         'footer.disclaimer': 'Avertissement',
+        'footer.about': 'À propos',
+        'footer.contact': 'Contact',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['beau', 'gratuit', 'rapide', 'créatif', 'varié', 'moderne'],
         'features.title': 'Fonctionnalités clés',
@@ -2627,8 +2704,10 @@
         'about.card3.body': 'نطوّر المشروع باستمرار بميزات جديدة. نرحّب بالأفكار والملاحظات!',
         'footer.tagline': 'أداة مجانية لتصميم QR • أنشئ QR جميلًا خلال ثوانٍ',
         'footer.terms': 'شروط الاستخدام',
-        'footer.privacy': 'سياسة الخصوصية',
+        'footer.privacy': 'سياسة الأمان',
         'footer.disclaimer': 'إخلاء المسؤولية',
+        'footer.about': 'من نحن',
+        'footer.contact': 'اتصل بنا',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['جميل', 'مجاني', 'سريع', 'إبداعي', 'متنوع', 'حديث'],
         'features.title': 'الميزات الرئيسية',
@@ -2690,8 +2769,10 @@
         'about.card3.body': 'O projeto evolui continuamente com novas funções. Ideias e feedback são bem-vindos!',
         'footer.tagline': 'Ferramenta gratuita de design QR • Crie QR bonitos em segundos',
         'footer.terms': 'Termos de uso',
-        'footer.privacy': 'Política de privacidade',
+        'footer.privacy': 'Política de segurança',
         'footer.disclaimer': 'Aviso legal',
+        'footer.about': 'Sobre nós',
+        'footer.contact': 'Contato',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['bonito', 'grátis', 'rápido', 'criativo', 'diverso', 'moderno'],
         'features.title': 'Recursos principais',
@@ -2753,8 +2834,10 @@
         'about.card3.body': 'Мы постоянно добавляем новые функции. Идеи и отзывы приветствуются!',
         'footer.tagline': 'Бесплатный редактор QR • Красивые QR за секунды',
         'footer.terms': 'Условия использования',
-        'footer.privacy': 'Политика конфиденциальности',
+        'footer.privacy': 'Политика безопасности',
         'footer.disclaimer': 'Отказ от ответственности',
+        'footer.about': 'О нас',
+        'footer.contact': 'Контакты',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['красиво', 'бесплатно', 'быстро', 'креативно', 'разнообразно', 'современно'],
         'features.title': 'Основные функции',
@@ -2816,8 +2899,10 @@
         'about.card3.body': 'Kami terus menambahkan fitur baru. Ide dan masukan sangat diterima!',
         'footer.tagline': 'Alat desain QR gratis • Buat QR cantik dalam hitungan detik',
         'footer.terms': 'Ketentuan layanan',
-        'footer.privacy': 'Kebijakan privasi',
+        'footer.privacy': 'Kebijakan keamanan',
         'footer.disclaimer': 'Disclaimer',
+        'footer.about': 'Tentang Kami',
+        'footer.contact': 'Kontak',
         'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['cantik', 'gratis', 'cepat', 'kreatif', 'beragam', 'modern'],
         'features.title': 'Fitur Utama',
@@ -2882,6 +2967,19 @@
       });
     }
 
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => {
+        switch (char) {
+          case '&': return '&amp;';
+          case '<': return '&lt;';
+          case '>': return '&gt;';
+          case '"': return '&quot;';
+          case "'": return '&#39;';
+          default: return char;
+        }
+      });
+    }
+
     function t(key, vars) {
       const lang = getLang();
       const dict = I18N[lang] || I18N.vi;
@@ -2923,6 +3021,8 @@
     const STORAGE_KEY = 'qr_studio_projects';
     let selectedProjects = new Set();
     let selectMode = false;
+    const PROJECT_NAME_INPUT_MAX_LENGTH = 64;
+    let activeProjectNameEditor = null;
 
     function loadProjects() {
       try {
@@ -3064,6 +3164,7 @@
       projects.forEach(project => {
         const card = document.createElement('div');
         const isSelected = selectedProjects.has(project.id);
+        const safeName = escapeHtml(project.name);
         card.className = 'project-card' + (isSelected ? ' selected' : '');
         card.onclick = (e) => {
           if (selectMode) {
@@ -3083,7 +3184,10 @@
             }
           </div>
           <div class="project-info">
-            <div class="project-name">${project.name}</div>
+            <div class="project-name-wrapper" role="button" tabindex="0">
+              <div class="project-name">${safeName}</div>
+              <div class="project-name-label" aria-hidden="true"><i class="fa-solid fa-pen"></i></div>
+            </div>
             <div class="project-date">
               <i class="fa-solid fa-clock"></i>
               ${formatDate(project.updatedAt)}
@@ -3098,8 +3202,90 @@
             </button>
           </div>
         `;
+        const nameWrapper = card.querySelector('.project-name-wrapper');
+        if (nameWrapper) {
+          nameWrapper.addEventListener('click', (e) => {
+            // If already editing (click inside input), just keep focus and don't let card handler run.
+            if (activeProjectNameEditor && e.target === activeProjectNameEditor) {
+              e.stopPropagation();
+              return;
+            }
+            startProjectNameEditing(project.id, nameWrapper, e);
+          });
+
+          nameWrapper.addEventListener('keydown', (e) => {
+            // Don't hijack typing inside the input (space must insert a space)
+            const target = e.target;
+            if (target && target.tagName === 'INPUT') return;
+
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+              e.preventDefault();
+              startProjectNameEditing(project.id, nameWrapper, e);
+            }
+          });
+        }
         grid.appendChild(card);
       });
+    }
+
+    function startProjectNameEditing(projectId, nameElement, event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (activeProjectNameEditor) return;
+      const projects = loadProjects();
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'project-name-input';
+      input.value = project.name || '';
+      input.maxLength = PROJECT_NAME_INPUT_MAX_LENGTH;
+      input.autocomplete = 'off';
+      input.spellcheck = false;
+      input.setAttribute('aria-label', t('projects.title'));
+
+      // Prevent click/typing in the input from triggering the card click (which navigates).
+      input.addEventListener('click', (e) => e.stopPropagation());
+      input.addEventListener('mousedown', (e) => e.stopPropagation());
+      input.addEventListener('keydown', (e) => e.stopPropagation());
+
+      nameElement.innerHTML = '';
+      nameElement.appendChild(input);
+      input.focus();
+      input.setSelectionRange(0, input.value.length);
+      let committed = false;
+
+      const finalize = (shouldSave) => {
+        if (committed) return;
+        committed = true;
+        if (activeProjectNameEditor === input) activeProjectNameEditor = null;
+        const trimmed = input.value.trim();
+        if (shouldSave && trimmed && trimmed !== project.name) {
+          const updatedProjects = loadProjects();
+          const target = updatedProjects.find(p => p.id === projectId);
+          if (target) {
+            target.name = trimmed;
+            target.updatedAt = new Date().toISOString();
+            saveProjects(updatedProjects);
+          }
+        }
+        renderProjects();
+      };
+
+      const onKeyDown = (evt) => {
+        if (evt.key === 'Enter') {
+          evt.preventDefault();
+          finalize(true);
+        } else if (evt.key === 'Escape') {
+          evt.preventDefault();
+          finalize(false);
+        }
+      };
+
+      input.addEventListener('keydown', onKeyDown);
+      input.addEventListener('blur', () => finalize(true));
+      activeProjectNameEditor = input;
     }
 
     function showToast(message) {
