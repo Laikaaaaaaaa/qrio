@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chính sách quyền riêng tư - Qrio</title>
+  <meta name="description" content="Chính sách quyền riêng tư cho website tạo mã QR (QR code generator) của Qrio." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/logo/favicon_io%20(3)/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="manifest" href="/static/logo/favicon_io%20(3)/site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #1e1e2e;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects {
+      position: fixed;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      will-change: transform;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+
+    .bg-orb-1 {
+      width: 420px;
+      height: 420px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -120px;
+      right: -140px;
+      animation-delay: 0s;
+    }
+
+    .bg-orb-2 {
+      width: 320px;
+      height: 320px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 120px;
+      left: -120px;
+      animation-delay: -5s;
+    }
+
+    .bg-orb-3 {
+      width: 260px;
+      height: 260px;
+      background: linear-gradient(135deg, #ec4899, #f43f5e);
+      top: 42%;
+      right: 18%;
+      animation-delay: -10s;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+      animation: gridDrift 30s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      from { background-position: 0 0; }
+      to { background-position: 240px 240px; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border: 1px solid #3a3a50;
+      background: #2a2a3e;
+      border-radius: 14px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lang-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(226,232,240,0.95);
+    }
+
+    .lang-select {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+    }
+
+    .lang-select option {
+      background: #1e1e2e;
+      color: #e2e8f0;
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand .logo-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: transparent;
+      display: grid;
+      place-items: center;
+    }
+
+    .brand .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .navlinks a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #1e1e2e;
+      border: 1px solid #3a3a50;
+      color: #d9d6ff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .navlinks a:hover {
+      transform: translateY(-1px);
+      border-color: rgba(124, 58, 237, 0.70);
+    }
+
+    .navlinks a[aria-current="page"] {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(79, 70, 229, 0.18));
+      border-color: rgba(124, 58, 237, 0.70);
+      color: #fff;
+    }
+
+    .header {
+      margin-top: 20px;
+      padding: 18px 2px 6px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 3.6vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #b7b7c9;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 84ch;
+    }
+
+    .meta {
+      margin-top: 12px;
+      color: #8c8ca5;
+      font-size: 12.5px;
+    }
+
+    .card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #2a2a3e;
+      border: 1px solid #3a3a50;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #eae9ff;
+    }
+
+    .card p {
+      color: #c9c9da;
+      font-size: 14px;
+      line-height: 1.75;
+      margin: 8px 0;
+    }
+
+    .card ul {
+      margin: 10px 0 0 18px;
+      color: #c9c9da;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .card li { margin: 6px 0; }
+
+    .en {
+      color: #9aa0b8;
+      font-size: 13px;
+      line-height: 1.65;
+      margin-top: 6px;
+    }
+
+    .notice {
+      border: 1px dashed rgba(124, 58, 237, 0.35);
+      background: rgba(124, 58, 237, 0.10);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+
+    .notice p { margin: 0; }
+
+    .footer {
+      margin-top: 26px;
+      padding: 16px 2px 0;
+      color: #7f7f98;
+      font-size: 12.5px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer > span {
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .footer a {
+      color: #a78bfa;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 720px) {
+      .topbar { flex-direction: column; align-items: stretch; }
+      .topbar-right { justify-content: center; }
+      .navlinks { justify-content: center; }
+      .navlinks a { flex: 1 1 auto; justify-content: center; }
+      .footer { justify-content: center; flex-wrap: wrap; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <main class="page">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
+        <span>Qrio</span>
+      </a>
+      <div class="topbar-right">
+        <div class="lang-picker">
+          <i class="fa-solid fa-globe"></i>
+          <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria="aria.language">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <nav class="navlinks" aria-label="Legal navigation" data-i18n-aria="aria.legalNav">
+          <a href="/" data-i18n="nav.home" data-i18n-title="nav.homeTitle">Trang chủ</a>
+          <a href="/terms" data-i18n="nav.terms" data-i18n-title="nav.termsTitle">Điều khoản</a>
+          <a href="/privacy" aria-current="page" data-i18n="nav.privacy" data-i18n-title="nav.privacyTitle">Riêng tư</a>
+          <a href="/disclaimer" data-i18n="nav.disclaimer" data-i18n-title="nav.disclaimerTitle">Miễn trừ</a>
+        </nav>
+      </div>
+    </div>
+
+    <header class="header">
+      <h1 data-i18n="privacy.h1">Chính sách quyền riêng tư</h1>
+      <p class="subtitle" data-i18n="privacy.subtitle">Chính sách này mô tả dữ liệu chúng tôi có thể thu thập khi bạn sử dụng Qrio, mục đích sử dụng, cách chia sẻ, và quyền của bạn.</p>
+      <p class="meta" data-i18n="privacy.meta">Cập nhật lần cuối: 13/12/2025</p>
+      <div class="notice">
+        <p data-i18n="privacy.notice"> <strong>Nguyên tắc:</strong> Chúng tôi không bán dữ liệu người dùng. Chúng tôi thu thập tối thiểu để vận hành, bảo mật và cải thiện dịch vụ.</p>
+      </div>
+    </header>
+
+    <section class="card" id="data-we-collect">
+      <h2 data-i18n="privacy.s1.h2">1) Dữ liệu có thể thu thập</h2>
+      <p data-i18n="privacy.s1.p1">Tùy cách bạn sử dụng dịch vụ, chúng tôi có thể thu thập các loại dữ liệu sau:</p>
+      <ul>
+        <li data-i18n="privacy.s1.li1"><strong>Dữ liệu kỹ thuật/nhật ký truy cập:</strong> địa chỉ IP, loại thiết bị, hệ điều hành, trình duyệt, ngôn ngữ, trang/đường dẫn truy cập, thời gian truy cập, referrer, mã lỗi.</li>
+        <li data-i18n="privacy.s1.li2"><strong>Dữ liệu sử dụng sản phẩm:</strong> loại QR bạn chọn (ví dụ: URL/Text/Wi‑Fi/vCard/File), các thao tác tổng hợp (analytics dạng thống kê), và thông tin hiệu năng.</li>
+        <li data-i18n="privacy.s1.li3"><strong>Dữ liệu lưu cục bộ trên thiết bị:</strong> các thiết lập như ngôn ngữ, tuỳ chọn giao diện, hoặc dự án lưu trong trình duyệt (nếu có).</li>
+        <li data-i18n="privacy.s1.li4"><strong>Tệp tải lên (nếu có):</strong> khi bạn dùng tính năng QR File, hệ thống/bên thứ ba có thể xử lý tệp để tạo liên kết tải xuống. Tệp có thể được lưu tạm thời để phục vụ việc tải xuống.</li>
+      </ul>
+      <p data-i18n="privacy.s1.p2">Chúng tôi <strong>không</strong> chủ đích thu thập dữ liệu nhạy cảm (ví dụ: thông tin tài khoản ngân hàng, mật khẩu, dữ liệu sức khoẻ). Vui lòng không nhập thông tin nhạy cảm vào nội dung QR trừ khi bạn hiểu rõ rủi ro.</p>
+    </section>
+
+    <section class="card" id="how-we-use">
+      <h2 data-i18n="privacy.s2.h2">2) Mục đích sử dụng dữ liệu</h2>
+      <p data-i18n="privacy.s2.p1">Chúng tôi sử dụng dữ liệu để:</p>
+      <ul>
+        <li data-i18n="privacy.s2.li1">Vận hành và cung cấp dịch vụ tạo QR.</li>
+        <li data-i18n="privacy.s2.li2">Bảo mật: phát hiện gian lận, spam, tấn công, lạm dụng; bảo vệ hệ thống và người dùng.</li>
+        <li data-i18n="privacy.s2.li3">Đo lường và cải thiện: phân tích thống kê, tối ưu hiệu năng, sửa lỗi, nâng cấp tính năng.</li>
+        <li data-i18n="privacy.s2.li4">Hỗ trợ người dùng: xử lý yêu cầu hỗ trợ, phản hồi và khiếu nại.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="no-selling">
+      <h2 data-i18n="privacy.s3.h2">3) Không bán dữ liệu</h2>
+      <p data-i18n="privacy.s3.p1">Chúng tôi <strong>không bán</strong> dữ liệu cá nhân của bạn cho bất kỳ bên thứ ba nào.</p>
+    </section>
+
+    <section class="card" id="sharing">
+      <h2 data-i18n="privacy.s4.h2">4) Bên thứ ba có thể sử dụng</h2>
+      <p data-i18n="privacy.s4.p1">Để website hoạt động ổn định và an toàn, chúng tôi có thể sử dụng dịch vụ của bên thứ ba, ví dụ:</p>
+      <ul>
+        <li data-i18n="privacy.s4.li1"><strong>CDN/WAF/DDoS protection:</strong> Cloudflare (hoặc dịch vụ tương đương) để tăng tốc và bảo vệ website.</li>
+        <li data-i18n="privacy.s4.li2"><strong>Phân tích truy cập (nếu có):</strong> công cụ Analytics để hiểu cách người dùng sử dụng sản phẩm (dạng thống kê).</li>
+        <li data-i18n="privacy.s4.li3"><strong>Lưu trữ/hạ tầng:</strong> máy chủ, nhà cung cấp cloud/hosting để vận hành hệ thống.</li>
+        <li data-i18n="privacy.s4.li4"><strong>Upload/Download file (nếu có):</strong> dịch vụ lưu trữ/đường truyền của bên thứ ba để tạo liên kết tải xuống cho QR File.</li>
+      </ul>
+      <p data-i18n="privacy.s4.p2">Các bên thứ ba có thể xử lý dữ liệu ở vai trò nhà cung cấp dịch vụ, theo điều khoản và chính sách riêng của họ. Trong một số trường hợp, dữ liệu có thể được xử lý ở ngoài lãnh thổ Việt Nam tùy theo hạ tầng của nhà cung cấp.</p>
+    </section>
+
+    <section class="card" id="retention">
+      <h2 data-i18n="privacy.s5.h2">5) Thời gian lưu trữ</h2>
+      <p data-i18n="privacy.s5.p1">Chúng tôi lưu dữ liệu trong khoảng thời gian cần thiết cho mục đích vận hành, bảo mật và tuân thủ pháp luật. Nhật ký truy cập thường được lưu trong thời gian hợp lý để điều tra sự cố và ngăn chặn lạm dụng.</p>
+      <p data-i18n="privacy.s5.p2">Nếu có tính năng tải lên tệp, tệp có thể được lưu tạm thời để phục vụ tải xuống và có thể bị xóa theo chính sách lưu trữ của hệ thống/bên thứ ba.</p>
+    </section>
+
+    <section class="card" id="security">
+      <h2 data-i18n="privacy.s6.h2">6) Bảo mật</h2>
+      <p data-i18n="privacy.s6.p1">Chúng tôi áp dụng các biện pháp kỹ thuật và tổ chức phù hợp để bảo vệ dữ liệu khỏi truy cập trái phép, mất mát hoặc lạm dụng. Tuy nhiên, không có hệ thống nào an toàn tuyệt đối.</p>
+    </section>
+
+    <section class="card" id="your-rights">
+      <h2 data-i18n="privacy.s7.h2">7) Quyền của người dùng</h2>
+      <p data-i18n="privacy.s7.p1">Bạn có thể yêu cầu:</p>
+      <ul>
+        <li data-i18n="privacy.s7.li1">Được giải thích về dữ liệu chúng tôi xử lý liên quan đến bạn (trong phạm vi hợp lý).</li>
+        <li data-i18n="privacy.s7.li2">Yêu cầu xoá dữ liệu (nếu chúng tôi có thể xác định và xoá được theo hệ thống và nghĩa vụ pháp lý).</li>
+        <li data-i18n="privacy.s7.li3">Rút lại đồng ý (nếu việc xử lý dựa trên đồng ý), hoặc phản đối một số hoạt động xử lý trong phạm vi pháp luật cho phép.</li>
+      </ul>
+      <p data-i18n="privacy.s7.p2">Để bảo vệ bạn, chúng tôi có thể cần xác minh thông tin trước khi xử lý yêu cầu.</p>
+    </section>
+
+    <section class="card" id="contact">
+      <h2 data-i18n="privacy.contact.h2">Thông tin liên hệ</h2>
+      <p data-i18n="privacy.contact.p1">Nếu bạn có câu hỏi hoặc muốn yêu cầu về dữ liệu, vui lòng liên hệ:</p>
+      <p data-i18n="common.emailLine"><strong>Email:</strong> support@yourdomain.com</p>
+    </section>
+
+    <div class="footer">
+      <span data-i18n="common.copyright">© 2025 Qrio</span>
+      <div class="footer-links">
+        <a href="/terms" data-i18n="footer.terms">Điều khoản sử dụng</a>
+        <a href="/disclaimer" data-i18n="footer.disclaimer">Miễn trừ trách nhiệm</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const LANG_KEY = 'qr_lang';
+
+    const I18N = {
+      vi: {
+        'doc.title': 'Chính sách quyền riêng tư - Qrio',
+        'aria.language': 'Ngôn ngữ',
+        'aria.legalNav': 'Điều hướng pháp lý',
+        'nav.home': 'Trang chủ',
+        'nav.homeTitle': 'Trang chủ',
+        'nav.terms': 'Điều khoản',
+        'nav.termsTitle': 'Điều khoản sử dụng',
+        'nav.privacy': 'Riêng tư',
+        'nav.privacyTitle': 'Chính sách quyền riêng tư',
+        'nav.disclaimer': 'Miễn trừ',
+        'nav.disclaimerTitle': 'Tuyên bố miễn trừ trách nhiệm',
+
+        'privacy.h1': 'Chính sách quyền riêng tư',
+        'privacy.subtitle': 'Chính sách này mô tả dữ liệu chúng tôi có thể thu thập khi bạn sử dụng Qrio, mục đích sử dụng, cách chia sẻ, và quyền của bạn.',
+        'privacy.meta': 'Cập nhật lần cuối: 13/12/2025',
+        'privacy.notice': '<strong>Nguyên tắc:</strong> Chúng tôi không bán dữ liệu người dùng. Chúng tôi thu thập tối thiểu để vận hành, bảo mật và cải thiện dịch vụ.',
+
+        'privacy.s1.h2': '1) Dữ liệu có thể thu thập',
+        'privacy.s1.p1': 'Tùy cách bạn sử dụng dịch vụ, chúng tôi có thể thu thập các loại dữ liệu sau:',
+        'privacy.s1.li1': '<strong>Dữ liệu kỹ thuật/nhật ký truy cập:</strong> địa chỉ IP, loại thiết bị, hệ điều hành, trình duyệt, ngôn ngữ, trang/đường dẫn truy cập, thời gian truy cập, referrer, mã lỗi.',
+        'privacy.s1.li2': '<strong>Dữ liệu sử dụng sản phẩm:</strong> loại QR bạn chọn (ví dụ: URL/Text/Wi‑Fi/vCard/File), các thao tác tổng hợp (analytics dạng thống kê), và thông tin hiệu năng.',
+        'privacy.s1.li3': '<strong>Dữ liệu lưu cục bộ trên thiết bị:</strong> các thiết lập như ngôn ngữ, tuỳ chọn giao diện, hoặc dự án lưu trong trình duyệt (nếu có).',
+        'privacy.s1.li4': '<strong>Tệp tải lên (nếu có):</strong> khi bạn dùng tính năng QR File, hệ thống/bên thứ ba có thể xử lý tệp để tạo liên kết tải xuống. Tệp có thể được lưu tạm thời để phục vụ việc tải xuống.',
+        'privacy.s1.p2': 'Chúng tôi <strong>không</strong> chủ đích thu thập dữ liệu nhạy cảm (ví dụ: thông tin tài khoản ngân hàng, mật khẩu, dữ liệu sức khoẻ). Vui lòng không nhập thông tin nhạy cảm vào nội dung QR trừ khi bạn hiểu rõ rủi ro.',
+
+        'privacy.s2.h2': '2) Mục đích sử dụng dữ liệu',
+        'privacy.s2.p1': 'Chúng tôi sử dụng dữ liệu để:',
+        'privacy.s2.li1': 'Vận hành và cung cấp dịch vụ tạo QR.',
+        'privacy.s2.li2': 'Bảo mật: phát hiện gian lận, spam, tấn công, lạm dụng; bảo vệ hệ thống và người dùng.',
+        'privacy.s2.li3': 'Đo lường và cải thiện: phân tích thống kê, tối ưu hiệu năng, sửa lỗi, nâng cấp tính năng.',
+        'privacy.s2.li4': 'Hỗ trợ người dùng: xử lý yêu cầu hỗ trợ, phản hồi và khiếu nại.',
+
+        'privacy.s3.h2': '3) Không bán dữ liệu',
+        'privacy.s3.p1': 'Chúng tôi <strong>không bán</strong> dữ liệu cá nhân của bạn cho bất kỳ bên thứ ba nào.',
+
+        'privacy.s4.h2': '4) Bên thứ ba có thể sử dụng',
+        'privacy.s4.p1': 'Để website hoạt động ổn định và an toàn, chúng tôi có thể sử dụng dịch vụ của bên thứ ba, ví dụ:',
+        'privacy.s4.li1': '<strong>CDN/WAF/DDoS protection:</strong> Cloudflare (hoặc dịch vụ tương đương) để tăng tốc và bảo vệ website.',
+        'privacy.s4.li2': '<strong>Phân tích truy cập (nếu có):</strong> công cụ Analytics để hiểu cách người dùng sử dụng sản phẩm (dạng thống kê).',
+        'privacy.s4.li3': '<strong>Lưu trữ/hạ tầng:</strong> máy chủ, nhà cung cấp cloud/hosting để vận hành hệ thống.',
+        'privacy.s4.li4': '<strong>Upload/Download file (nếu có):</strong> dịch vụ lưu trữ/đường truyền của bên thứ ba để tạo liên kết tải xuống cho QR File.',
+        'privacy.s4.p2': 'Các bên thứ ba có thể xử lý dữ liệu ở vai trò nhà cung cấp dịch vụ, theo điều khoản và chính sách riêng của họ. Trong một số trường hợp, dữ liệu có thể được xử lý ở ngoài lãnh thổ Việt Nam tùy theo hạ tầng của nhà cung cấp.',
+
+        'privacy.s5.h2': '5) Thời gian lưu trữ',
+        'privacy.s5.p1': 'Chúng tôi lưu dữ liệu trong khoảng thời gian cần thiết cho mục đích vận hành, bảo mật và tuân thủ pháp luật. Nhật ký truy cập thường được lưu trong thời gian hợp lý để điều tra sự cố và ngăn chặn lạm dụng.',
+        'privacy.s5.p2': 'Nếu có tính năng tải lên tệp, tệp có thể được lưu tạm thời để phục vụ tải xuống và có thể bị xóa theo chính sách lưu trữ của hệ thống/bên thứ ba.',
+
+        'privacy.s6.h2': '6) Bảo mật',
+        'privacy.s6.p1': 'Chúng tôi áp dụng các biện pháp kỹ thuật và tổ chức phù hợp để bảo vệ dữ liệu khỏi truy cập trái phép, mất mát hoặc lạm dụng. Tuy nhiên, không có hệ thống nào an toàn tuyệt đối.',
+
+        'privacy.s7.h2': '7) Quyền của người dùng',
+        'privacy.s7.p1': 'Bạn có thể yêu cầu:',
+        'privacy.s7.li1': 'Được giải thích về dữ liệu chúng tôi xử lý liên quan đến bạn (trong phạm vi hợp lý).',
+        'privacy.s7.li2': 'Yêu cầu xoá dữ liệu (nếu chúng tôi có thể xác định và xoá được theo hệ thống và nghĩa vụ pháp lý).',
+        'privacy.s7.li3': 'Rút lại đồng ý (nếu việc xử lý dựa trên đồng ý), hoặc phản đối một số hoạt động xử lý trong phạm vi pháp luật cho phép.',
+        'privacy.s7.p2': 'Để bảo vệ bạn, chúng tôi có thể cần xác minh thông tin trước khi xử lý yêu cầu.',
+
+        'privacy.contact.h2': 'Thông tin liên hệ',
+        'privacy.contact.p1': 'Nếu bạn có câu hỏi hoặc muốn yêu cầu về dữ liệu, vui lòng liên hệ:',
+
+        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+
+        'footer.terms': 'Điều khoản sử dụng',
+        'footer.disclaimer': 'Miễn trừ trách nhiệm',
+        'common.copyright': '© 2025 Qrio',
+      },
+      en: {
+        'doc.title': 'Privacy Policy - Qrio',
+        'aria.language': 'Language',
+        'aria.legalNav': 'Legal navigation',
+        'nav.home': 'Home',
+        'nav.homeTitle': 'Home',
+        'nav.terms': 'Terms',
+        'nav.termsTitle': 'Terms of Service',
+        'nav.privacy': 'Privacy',
+        'nav.privacyTitle': 'Privacy Policy',
+        'nav.disclaimer': 'Disclaimer',
+        'nav.disclaimerTitle': 'Disclaimer',
+
+        'privacy.h1': 'Privacy Policy',
+        'privacy.subtitle': 'This Policy explains what data we may collect when you use Qrio, why we use it, how we share it, and your rights.',
+        'privacy.meta': 'Last updated: Dec 13, 2025',
+        'privacy.notice': '<strong>Principle:</strong> We do not sell user data. We collect minimal data to operate, secure, and improve the Service.',
+
+        'privacy.s1.h2': '1) Data We May Collect',
+        'privacy.s1.p1': 'Depending on how you use the Service, we may collect:',
+        'privacy.s1.li1': '<strong>Technical/access logs:</strong> IP address, device type, OS, browser, language, accessed pages/paths, timestamps, referrer, error codes.',
+        'privacy.s1.li2': '<strong>Product usage data:</strong> QR type you choose (e.g., URL/Text/Wi‑Fi/vCard/File), aggregated analytics, and performance information.',
+        'privacy.s1.li3': '<strong>Local device storage:</strong> settings such as language, UI preferences, or projects stored in your browser (if any).',
+        'privacy.s1.li4': '<strong>Uploaded files (if any):</strong> when you use QR File, the system/third parties may process files to generate download links. Files may be stored temporarily to enable downloads.',
+        'privacy.s1.p2': 'We do <strong>not</strong> intentionally collect sensitive data (e.g., bank accounts, passwords, health data). Please do not encode sensitive information unless you understand the risks.',
+
+        'privacy.s2.h2': '2) How We Use Data',
+        'privacy.s2.p1': 'We use data to:',
+        'privacy.s2.li1': 'Operate and provide the QR generation service.',
+        'privacy.s2.li2': 'Security: detect fraud, spam, attacks, and abuse; protect the system and users.',
+        'privacy.s2.li3': 'Measure and improve: analytics, performance optimization, bug fixes, feature upgrades.',
+        'privacy.s2.li4': 'User support: handle support requests, feedback, and complaints.',
+
+        'privacy.s3.h2': '3) No Sale of Data',
+        'privacy.s3.p1': 'We do <strong>not sell</strong> your personal data to any third party.',
+
+        'privacy.s4.h2': '4) Third Parties',
+        'privacy.s4.p1': 'To run the website reliably and securely, we may use third‑party services, such as:',
+        'privacy.s4.li1': '<strong>CDN/WAF/DDoS protection:</strong> Cloudflare (or equivalent) for performance and protection.',
+        'privacy.s4.li2': '<strong>Analytics (if enabled):</strong> analytics tools to understand product usage (aggregated statistics).',
+        'privacy.s4.li3': '<strong>Hosting/infrastructure:</strong> servers and cloud/hosting providers to operate the system.',
+        'privacy.s4.li4': '<strong>File upload/download (if used):</strong> third‑party storage/network providers to generate download links for QR File.',
+        'privacy.s4.p2': 'Third parties may process data as service providers under their own terms and policies. In some cases, data may be processed outside Vietnam depending on provider infrastructure.',
+
+        'privacy.s5.h2': '5) Retention',
+        'privacy.s5.p1': 'We retain data for as long as necessary for operations, security, and legal compliance. Access logs are typically kept for a reasonable period to investigate incidents and prevent abuse.',
+        'privacy.s5.p2': 'If file upload is available, files may be stored temporarily to enable downloads and may be deleted according to system/provider retention policies.',
+
+        'privacy.s6.h2': '6) Security',
+        'privacy.s6.p1': 'We apply reasonable technical and organizational measures to protect data from unauthorized access, loss, or misuse. However, no system is 100% secure.',
+
+        'privacy.s7.h2': '7) Your Rights',
+        'privacy.s7.p1': 'You may request:',
+        'privacy.s7.li1': 'An explanation of data we process about you (within reasonable limits).',
+        'privacy.s7.li2': 'Deletion of data (where we can identify and delete it under our systems and legal obligations).',
+        'privacy.s7.li3': 'Withdrawal of consent (where processing is consent-based) or objections to certain processing as permitted by law.',
+        'privacy.s7.p2': 'To protect you, we may need to verify your identity before processing requests.',
+
+        'privacy.contact.h2': 'Contact',
+        'privacy.contact.p1': 'If you have questions or want to make a data-related request, contact:',
+
+        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+
+        'footer.terms': 'Terms of Service',
+        'footer.disclaimer': 'Disclaimer',
+        'common.copyright': '© 2025 Qrio',
+      }
+    };
+
+    function normalizeLang(raw) {
+      return raw === 'en' ? 'en' : 'vi';
+    }
+
+    function detectDefaultLang() {
+      const raw = (navigator.language || '').toLowerCase();
+      return raw.startsWith('en') ? 'en' : 'vi';
+    }
+
+    function getLang() {
+      return normalizeLang(localStorage.getItem(LANG_KEY) || detectDefaultLang());
+    }
+
+    function formatWithVars(template, vars) {
+      return String(template).replace(/\{(\w+)\}/g, (_, k) => {
+        const v = vars && Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : '';
+        return String(v);
+      });
+    }
+
+    function t(key, vars) {
+      const lang = getLang();
+      const dict = I18N[lang] || I18N.vi;
+      const fallback = I18N.vi || {};
+      const value = dict[key] ?? fallback[key] ?? key;
+      return formatWithVars(value, vars);
+    }
+
+    function applyI18n(lang) {
+      const normalized = normalizeLang(lang);
+      document.documentElement.lang = normalized;
+      document.title = String(t('doc.title'));
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const value = t(key);
+        if (typeof value === 'string') el.innerHTML = value;
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', String(t(key)));
+      });
+
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', String(t(key)));
+      });
+
+      const select = document.getElementById('lang-select');
+      if (select && select.value !== normalized) select.value = normalized;
+    }
+
+    function setLang(lang) {
+      const normalized = normalizeLang(lang);
+      localStorage.setItem(LANG_KEY, normalized);
+      applyI18n(normalized);
+    }
+
+    document.getElementById('lang-select')?.addEventListener('change', (e) => {
+      setLang(e.target.value);
+    });
+
+    applyI18n(getLang());
+  </script>
+</body>
+
+</html>

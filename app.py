@@ -464,6 +464,27 @@ def legacy_index_html():
     return send_from_directory('.', 'edit.html')
 
 
+@app.route('/terms')
+@app.route('/terms.html')
+def terms_html():
+    """Legal: Terms of Service."""
+    return send_from_directory('.', 'terms.html')
+
+
+@app.route('/privacy')
+@app.route('/privacy.html')
+def privacy_html():
+    """Legal: Privacy Policy."""
+    return send_from_directory('.', 'privacy.html')
+
+
+@app.route('/disclaimer')
+@app.route('/disclaimer.html')
+def disclaimer_html():
+    """Legal: Disclaimer."""
+    return send_from_directory('.', 'disclaimer.html')
+
+
 
 @app.route('/favicon.ico')
 def favicon():

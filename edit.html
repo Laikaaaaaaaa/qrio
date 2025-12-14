@@ -1390,6 +1390,30 @@
       gap: 10px;
     }
 
+    .mobile-bottom-logo-link {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .mobile-bottom-logo-link img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      display: block;
+    }
+
+    @media (max-width: 750px) {
+      .sidebar-home-btn {
+        display: none;
+      }
+
+      .mobile-bottom-logo-link {
+        display: inline-flex;
+      }
+    }
+
     .mobile-header .home-btn {
       display: flex;
       align-items: center;
@@ -1465,6 +1489,14 @@
       font-size: 12px;
       min-width: 0;
       width: 100%;
+    }
+
+    @media (max-width: 750px) {
+      .sidebar-header {
+        background: linear-gradient(135deg, #0b0423, #372175);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 12px 30px rgba(0, 4, 40, 0.65);
+      }
     }
 
     .mobile-zoom-controls {
@@ -2327,6 +2359,12 @@
       </a>
     </div>
 
+    <div class="mobile-header-bar" aria-label="Project name" data-i18n-aria="aria.projectName">
+      <div class="mobile-file-pill">
+        <input type="text" id="project-name-mobile" value="" placeholder="Tên file" data-i18n-placeholder="project.namePlaceholder" />
+      </div>
+    </div>
+
     <button class="download-btn" onclick="openExportModal()" title="Tải xuống" data-i18n-title="action.download">
       <i class="fa-solid fa-download"></i>
     </button>
@@ -2385,13 +2423,15 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
+        <a href="home.html" class="mobile-bottom-logo-link" title="Về trang chủ" data-i18n-title="nav.home" aria-label="Home">
+          <img src="/static/logo/logo.png" alt="Qrio" />
+        </a>
         <a href="home.html" class="sidebar-home-btn" title="Về trang chủ" data-i18n-title="nav.home">
           <i class="fa-solid fa-house"></i>
         </a>
 
         <!-- Mobile-only: project name + zoom slider (placed on bottom panel header) -->
         <div class="mobile-bottom-controls" aria-label="Mobile viewport zoom" data-i18n-aria="aria.mobileZoom">
-          <input type="text" id="project-name-mobile" value="qr_design" placeholder="Tên file" data-i18n-placeholder="project.namePlaceholder" />
           <div class="mobile-zoom-slider">
             <input type="range" id="zoom-slider-mobile" min="10" max="400" step="1" value="100" />
             <span id="zoom-slider-value-mobile">100%</span>
@@ -2497,8 +2537,8 @@
               <div class="form-group">
                 <label><span data-i18n="field.security">Bảo mật</span></label>
                 <select id="wifi-security">
-                  <option value="WPA">WPA/WPA2</option>
-                  <option value="WEP">WEP</option>
+                  <option value="WPA" data-i18n="wifi.security.wpa">WPA/WPA2</option>
+                  <option value="WEP" data-i18n="wifi.security.wep">WEP</option>
                   <option value="nopass" data-i18n="wifi.security.none">Không</option>
                 </select>
               </div>
@@ -2886,7 +2926,7 @@
         <div class="toolbar-left">
           <div class="toolbar-group">
             <span class="toolbar-label" data-i18n="project.nameLabel">Tên File:</span>
-            <input type="text" id="project-name-desktop" class="toolbar-input" value="qr_design" placeholder="Tên file" data-i18n-placeholder="project.namePlaceholder" />
+            <input type="text" id="project-name-desktop" class="toolbar-input" value="" placeholder="Tên file" data-i18n-placeholder="project.namePlaceholder" />
           </div>
           <div class="zoom-controls">
             <button class="zoom-btn" onclick="zoomCanvas(-10)">−</button>
@@ -3590,7 +3630,8 @@
     function getProjectNameValue() {
       const desktop = document.getElementById('project-name-desktop');
       const mobile = document.getElementById('project-name-mobile');
-      return (desktop?.value || mobile?.value || 'Thiết kế mới').trim() || 'Thiết kế mới';
+      const fallbackName = (typeof t === 'function') ? t('project.defaultName') : 'qr_design';
+      return (desktop?.value || mobile?.value || fallbackName).trim() || fallbackName;
     }
 
     function setProjectNameValue(name) {
@@ -3677,7 +3718,7 @@
         document.body.appendChild(indicator);
       }
       
-      indicator.textContent = 'Đã lưu';
+      indicator.textContent = (typeof t === 'function') ? t('autosave.saved') : 'Saved';
       indicator.style.opacity = '1';
       
       setTimeout(() => {
@@ -3747,6 +3788,8 @@
             'qr.version': 'Phiên bản',
             'qr.content': 'Nội dung',
             'qr.gridUnit': 'ô vuông',
+            'wifi.security.wpa': 'WPA/WPA2',
+            'wifi.security.wep': 'WEP',
             'bank.scheme': 'Phương thức',
             'bank.scheme.vietqr': 'VietQR (VN)',
             'bank.scheme.sepa': 'SEPA (EPC)',
@@ -3940,6 +3983,8 @@
             'alert.copyFail': '❌ {msg}',
             'project.nameLabel': 'Tên File:',
             'project.namePlaceholder': 'Tên file',
+            'project.defaultName': 'Thiết kế mới',
+            'autosave.saved': 'Đã lưu',
             'zoom.reset': 'Reset 100%',
             'zoom.fit': 'Vừa khung',
             'align.left': 'Căn trái',
@@ -3949,6 +3994,7 @@
             'align.centerV': 'Căn giữa dọc',
             'align.bottom': 'Căn dưới',
             'aria.mobileZoom': 'Thu phóng khung nhìn (mobile)',
+            'aria.projectName': 'Tên dự án',
 
             'field.urlLabel': 'URL',
             'field.textLabel': 'Văn bản',
@@ -3965,7 +4011,7 @@
             'field.lng': 'Kinh độ (Longitude)',
             'field.placeName': 'Tên địa điểm (tùy chọn)',
 
-            'ph.url': 'https://example.com',
+            'ph.url': 'https://example.vn',
             'ph.text': 'Nhập văn bản...',
             'ph.phone': '+84...',
             'ph.ssid': 'Tên WiFi',
@@ -4112,6 +4158,8 @@
             'qr.version': 'Version',
             'qr.content': 'Content',
             'qr.gridUnit': 'cells',
+            'wifi.security.wpa': 'WPA/WPA2',
+            'wifi.security.wep': 'WEP',
             'bank.scheme': 'Scheme',
             'bank.scheme.vietqr': 'VietQR (VN)',
             'bank.scheme.sepa': 'SEPA (EPC)',
@@ -4305,6 +4353,8 @@
             'alert.copyFail': '❌ {msg}',
             'project.nameLabel': 'File name:',
             'project.namePlaceholder': 'File name',
+            'project.defaultName': 'New design',
+            'autosave.saved': 'Saved',
             'zoom.reset': 'Reset 100%',
             'zoom.fit': 'Fit to view',
             'align.left': 'Align left',
@@ -4314,6 +4364,7 @@
             'align.centerV': 'Align vertical center',
             'align.bottom': 'Align bottom',
             'aria.mobileZoom': 'Mobile viewport zoom',
+            'aria.projectName': 'Project name',
 
             'field.urlLabel': 'URL',
             'field.textLabel': 'Text',
@@ -4332,7 +4383,7 @@
 
             'ph.url': 'https://example.com',
             'ph.text': 'Enter text...',
-            'ph.phone': '+84...',
+            'ph.phone': '+1...',
             'ph.ssid': 'WiFi name',
             'ph.password': 'Password',
             'ph.email': 'email@...',
@@ -4476,6 +4527,15 @@
             'qr.content': '内容',
             'section.properties': '属性',
             'action.download': '下载',
+            'action.addHeading': '添加标题',
+            'action.addSubheading': '添加副标题',
+            'action.addBodyText': '添加文本',
+            'action.apply': '应用',
+            'project.nameLabel': '文件名：',
+            'project.namePlaceholder': '文件名',
+            'project.defaultName': '新设计',
+            'autosave.saved': '已保存',
+            'aria.projectName': '项目名称',
             'action.cancel': '取消',
             'action.selectAll': '全选',
             'layer.up': '上移一层',
@@ -4620,14 +4680,120 @@
             'qr.complexity': 'जटिलता',
             'qr.version': 'संस्करण',
             'qr.content': 'सामग्री',
+            'qr.gridUnit': 'कोशिकाएँ',
             'section.properties': 'गुण',
             'action.download': 'डाउनलोड',
+            'action.addHeading': 'शीर्षक जोड़ें',
+            'action.addSubheading': 'उपशीर्षक जोड़ें',
+            'action.addBodyText': 'टेक्स्ट जोड़ें',
+            'action.apply': 'लागू करें',
+            'action.copy': 'कॉपी',
+            'action.paste': 'पेस्ट',
+            'action.duplicate': 'डुप्लिकेट',
             'action.cancel': 'रद्द करें',
             'action.selectAll': 'सभी चुनें',
             'layer.up': 'ऊपर लाएँ',
             'layer.down': 'नीचे भेजें',
             'layer.top': 'सबसे ऊपर लाएँ',
             'layer.bottom': 'सबसे नीचे भेजें',
+
+            'project.nameLabel': 'फ़ाइल नाम:',
+            'project.namePlaceholder': 'फ़ाइल नाम',
+            'project.defaultName': 'नया डिज़ाइन',
+            'autosave.saved': 'सहेजा गया',
+            'zoom.reset': 'रीसेट 100%',
+            'zoom.fit': 'व्यू में फिट',
+            'aria.mobileZoom': 'मोबाइल व्यूपोर्ट ज़ूम',
+            'aria.projectName': 'प्रोजेक्ट नाम',
+
+            'field.ssid': 'SSID',
+            'field.urlLabel': 'URL',
+            'field.textLabel': 'टेक्स्ट',
+            'field.phone': 'फोन नंबर',
+            'field.password': 'पासवर्ड',
+            'field.security': 'सुरक्षा',
+            'field.email': 'ईमेल',
+            'field.subject': 'विषय',
+            'field.body': 'संदेश',
+            'field.smsPhone': 'फोन',
+            'field.smsMessage': 'संदेश',
+            'field.lat': 'अक्षांश',
+            'field.lng': 'देशांतर',
+            'field.placeName': 'स्थान नाम (वैकल्पिक)',
+
+            'vcard.lastName': 'उपनाम',
+            'vcard.firstName': 'पहला नाम',
+            'vcard.company': 'कंपनी',
+            'vcard.title': 'पद',
+            'vcard.phone': 'फोन',
+            'vcard.email': 'ईमेल',
+            'vcard.website': 'वेबसाइट',
+            'vcard.address': 'पता',
+
+            'event.title': 'इवेंट शीर्षक',
+            'event.location': 'स्थान',
+            'event.start': 'शुरू',
+            'event.end': 'समाप्त',
+            'event.description': 'विवरण',
+
+            'vietqr.bank': 'बैंक',
+            'vietqr.account': 'खाता संख्या',
+            'vietqr.name': 'खाता नाम (वैकल्पिक)',
+            'vietqr.amount': 'राशि (VND, वैकल्पिक)',
+            'vietqr.memo': 'टिप्पणी/विवरण (वैकल्पिक)',
+
+            'crypto.currencyType': 'मुद्रा',
+            'crypto.address': 'वॉलेट पता',
+            'crypto.amount': 'राशि (वैकल्पिक)',
+            'crypto.note': 'नोट (वैकल्पिक)',
+
+            'ph.url': 'https://example.in',
+            'ph.text': 'टेक्स्ट दर्ज करें...',
+            'ph.phone': '+91...',
+            'ph.ssid': 'WiFi नाम',
+            'ph.password': 'पासवर्ड',
+            'ph.email': 'email@...',
+            'ph.subject': 'विषय',
+            'ph.body': 'संदेश...',
+            'ph.smsMessage': 'संदेश...',
+            'ph.placeName': 'उदा. Hanoi, Vietnam',
+
+            'ph.vcard.lastName': 'शर्मा',
+            'ph.vcard.firstName': 'राहुल',
+            'ph.vcard.company': 'ABC कंपनी',
+            'ph.vcard.title': 'निर्देशक',
+            'ph.vcard.email': 'email@company.com',
+            'ph.vcard.website': 'https://...',
+            'ph.vcard.address': '123 उदाहरण मार्ग, नई दिल्ली',
+
+            'ph.event.title': 'टीम मीटिंग',
+            'ph.event.location': 'मीटिंग रूम A',
+            'ph.event.description': 'इवेंट विवरण...',
+
+            'ph.vietqr.account': '0123456789',
+            'ph.vietqr.name': 'NGUYEN VAN A',
+            'ph.vietqr.amount': '100000',
+            'ph.vietqr.memo': 'Transfer',
+
+            'ph.crypto.address': 'bc1q...',
+            'ph.crypto.amount': '0.001',
+            'ph.crypto.note': 'Donation',
+
+            'wifi.security.wpa': 'WPA/WPA2',
+            'wifi.security.wep': 'WEP',
+
+            'shape.rect': 'वर्ग',
+            'shape.rounded': 'गोल कोने वाला वर्ग',
+            'shape.circle': 'वृत्त',
+            'shape.pill': 'कैप्सूल',
+            'shape.triangle': 'त्रिभुज',
+            'shape.triangle-down': 'उल्टा त्रिभुज',
+            'shape.diamond': 'हीरा',
+            'shape.pentagon': 'पंचभुज',
+            'shape.hexagon': 'षट्भुज',
+            'shape.star': 'तारा',
+            'shape.star-4': '4-नुकीला तारा',
+            'shape.heart': 'हृदय',
 
             'tooltip.undo': 'पूर्ववत करें (Ctrl+Z)',
             'tooltip.redo': 'फिर करें (Ctrl+Shift+Z)',
@@ -4637,6 +4803,56 @@
             'tooltip.layer': 'लेयर',
             'tooltip.paste': 'पेस्ट (Ctrl+V)',
             'tooltip.more': 'और',
+
+            'file.uploadLabel': 'फ़ाइल अपलोड करें (डाउनलोड लिंक बनेगा)',
+            'file.choose': 'फ़ाइल चुनें',
+            'file.supportHint': 'समर्थित: PDF, DOC, XLS, ZIP, चित्र... (अधिकतम 5MB)',
+            'file.orDirectUrl': 'या सीधे फ़ाइल URL दर्ज करें',
+
+            'section.qrColor': 'QR रंग',
+            'label.qrCodeColor': 'कोड रंग',
+            'label.qrBgColor': 'पृष्ठभूमि रंग',
+            'section.qrLogo': 'QR लोगो',
+            'label.logoUploadHint': 'लोगो अपलोड करें (बीच में दिखेगा)',
+            'action.uploadLogo': 'लोगो अपलोड करें',
+            'label.logoSize': 'लोगो आकार (%)',
+            'label.logoRadius': 'लोगो गोलाई (%)',
+            'section.dotEcc': 'डॉट्स और ECC',
+            'label.dotStyle': 'डॉट शैली',
+            'dotStyle.roundedSquare': 'गोल कोने वाला वर्ग',
+            'dotStyle.square': 'वर्ग',
+            'dotStyle.circle': 'वृत्त',
+            'dotStyle.roundedBar': 'गोल बार',
+            'dotStyle.horizontalBar': 'क्षैतिज बार',
+            'dotStyle.verticalBar': 'ऊर्ध्व बार',
+            'dotStyle.capsule': 'कैप्सूल',
+            'label.eyeStyle': 'आँख शैली',
+            'eyeStyle.square': 'क्लासिक वर्ग',
+            'eyeStyle.rounded': 'गोल',
+            'eyeStyle.circle': 'बबल / डॉट',
+            'eyeStyle.roundedBar': 'गोल बार',
+            'eyeStyle.diamond': 'हीरा',
+            'label.ecc': 'त्रुटि सुधार',
+            'ecc.low': 'कम',
+            'ecc.medium': 'मध्यम',
+            'ecc.high': 'उच्च',
+            'section.tune': 'सूक्ष्म समायोजन',
+            'label.dotGap': 'डॉट अंतर',
+            'label.eyeThickness': 'आँख बॉर्डर मोटाई',
+
+            'section.addText': 'टेक्स्ट जोड़ें',
+            'text.heading': 'शीर्षक',
+            'text.subheading': 'उपशीर्षक',
+            'text.body': 'टेक्स्ट',
+
+            'section.canvasBg': 'कैनवास पृष्ठभूमि',
+            'section.canvasSize': 'कैनवास आकार',
+            'label.width': 'चौड़ाई',
+            'label.height': 'ऊँचाई',
+            'section.shapes': 'आकृतियाँ',
+            'section.actions': 'क्रियाएँ',
+
+            'wifi.security.none': 'कोई नहीं',
 
             'align.left': 'बाएँ संरेखित',
             'align.centerH': 'क्षैतिज केंद्र',
@@ -4768,6 +4984,15 @@
             'qr.content': 'Contenido',
             'section.properties': 'Propiedades',
             'action.download': 'Descargar',
+            'action.addHeading': 'Añadir título',
+            'action.addSubheading': 'Añadir subtítulo',
+            'action.addBodyText': 'Añadir texto',
+            'action.apply': 'Aplicar',
+            'project.nameLabel': 'Nombre de archivo:',
+            'project.namePlaceholder': 'Nombre de archivo',
+            'project.defaultName': 'Nuevo diseño',
+            'autosave.saved': 'Guardado',
+            'aria.projectName': 'Nombre del proyecto',
             'action.cancel': 'Cancelar',
             'action.selectAll': 'Seleccionar todo',
             'layer.up': 'Traer adelante',
@@ -4914,6 +5139,15 @@
             'qr.content': 'Contenu',
             'section.properties': 'Propriétés',
             'action.download': 'Télécharger',
+            'action.addHeading': 'Ajouter un titre',
+            'action.addSubheading': 'Ajouter un sous-titre',
+            'action.addBodyText': 'Ajouter du texte',
+            'action.apply': 'Appliquer',
+            'project.nameLabel': 'Nom du fichier :',
+            'project.namePlaceholder': 'Nom du fichier',
+            'project.defaultName': 'Nouveau design',
+            'autosave.saved': 'Enregistré',
+            'aria.projectName': 'Nom du projet',
             'action.cancel': 'Annuler',
             'action.selectAll': 'Tout sélectionner',
             'layer.up': 'Avancer',
@@ -5060,6 +5294,15 @@
             'qr.content': 'المحتوى',
             'section.properties': 'الخصائص',
             'action.download': 'تنزيل',
+            'action.addHeading': 'إضافة عنوان',
+            'action.addSubheading': 'إضافة عنوان فرعي',
+            'action.addBodyText': 'إضافة نص',
+            'action.apply': 'تطبيق',
+            'project.nameLabel': 'اسم الملف:',
+            'project.namePlaceholder': 'اسم الملف',
+            'project.defaultName': 'تصميم جديد',
+            'autosave.saved': 'تم الحفظ',
+            'aria.projectName': 'اسم المشروع',
             'action.cancel': 'إلغاء',
             'action.selectAll': 'تحديد الكل',
             'layer.up': 'إحضار للأمام',
@@ -5206,6 +5449,15 @@
             'qr.content': 'Conteúdo',
             'section.properties': 'Propriedades',
             'action.download': 'Baixar',
+            'action.addHeading': 'Adicionar título',
+            'action.addSubheading': 'Adicionar subtítulo',
+            'action.addBodyText': 'Adicionar texto',
+            'action.apply': 'Aplicar',
+            'project.nameLabel': 'Nome do arquivo:',
+            'project.namePlaceholder': 'Nome do arquivo',
+            'project.defaultName': 'Novo design',
+            'autosave.saved': 'Salvo',
+            'aria.projectName': 'Nome do projeto',
             'action.cancel': 'Cancelar',
             'action.selectAll': 'Selecionar tudo',
             'layer.up': 'Trazer para frente',
@@ -5352,6 +5604,15 @@
             'qr.content': 'Содержимое',
             'section.properties': 'Свойства',
             'action.download': 'Скачать',
+            'action.addHeading': 'Добавить заголовок',
+            'action.addSubheading': 'Добавить подзаголовок',
+            'action.addBodyText': 'Добавить текст',
+            'action.apply': 'Применить',
+            'project.nameLabel': 'Имя файла:',
+            'project.namePlaceholder': 'Имя файла',
+            'project.defaultName': 'Новый дизайн',
+            'autosave.saved': 'Сохранено',
+            'aria.projectName': 'Название проекта',
             'action.cancel': 'Отмена',
             'action.selectAll': 'Выбрать всё',
             'layer.up': 'На слой выше',
@@ -5498,6 +5759,15 @@
             'qr.content': 'Konten',
             'section.properties': 'Properti',
             'action.download': 'Unduh',
+            'action.addHeading': 'Tambah judul',
+            'action.addSubheading': 'Tambah subjudul',
+            'action.addBodyText': 'Tambah teks',
+            'action.apply': 'Terapkan',
+            'project.nameLabel': 'Nama file:',
+            'project.namePlaceholder': 'Nama file',
+            'project.defaultName': 'Desain baru',
+            'autosave.saved': 'Tersimpan',
+            'aria.projectName': 'Nama proyek',
             'action.cancel': 'Batal',
             'action.selectAll': 'Pilih semua',
             'layer.up': 'Naikkan',
@@ -5747,6 +6017,15 @@
       // Keep desktop/mobile project name inputs in sync
       syncProjectNameInputs();
 
+      // Set a localized default project name (only if still empty)
+      const pnDesktop = document.getElementById('project-name-desktop');
+      const pnMobile = document.getElementById('project-name-mobile');
+      const hasName = Boolean((pnDesktop?.value || '').trim() || (pnMobile?.value || '').trim());
+      if (!hasName) {
+        const defaultName = (typeof t === 'function') ? t('project.defaultName') : 'qr_design';
+        setProjectNameValue(defaultName);
+      }
+
       // Mobile-only zoom slider (in bottom panel header)
       setupMobileZoomSlider();
 
@@ -5833,15 +6112,11 @@
           handleToggle();
         };
       }
-      
-      // Allow tapping on sidebar header to toggle on mobile/tablet
-      if (sidebarHeader && sidebar) {
-        sidebarHeader.onclick = (e) => {
-          // Don't toggle if clicking on buttons inside header
-          if (e.target.closest('a, button')) return;
-          if (!isMobileOrTablet()) return;
-          handleToggle();
-        };
+
+      // Mobile UX: only the arrow button toggles the panel.
+      // (Header contains interactive controls like zoom slider.)
+      if (sidebarHeader) {
+        sidebarHeader.onclick = null;
       }
       
       const handleResize = () => {
@@ -8169,11 +8444,14 @@
       emptyQRNotice.innerHTML = `
         <div class="canvas-empty-card">
           <i class="fa-solid fa-qrcode"></i>
-          <div class="title">Tạo QR</div>
-          <div class="subtitle">Thêm mã QR mới để bắt đầu</div>
-          <button class="cta-btn">Tạo QR mới</button>
+          <div class="title" data-i18n="empty.createQr">Tạo mã QR</div>
+          <div class="subtitle" data-i18n="empty.noQrHint">Tạo mã QR để bắt đầu thiết kế</div>
+          <button class="cta-btn" data-i18n="empty.createQr">Tạo mã QR</button>
         </div>
       `;
+
+      // This node is created dynamically after initial page i18n pass
+      if (typeof applyI18n === 'function') applyI18n();
       const btn = emptyQRNotice.querySelector('.cta-btn');
       if (btn) {
         btn.onclick = (e) => {

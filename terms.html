@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Điều khoản sử dụng - Qrio</title>
+  <meta name="description" content="Điều khoản sử dụng dịch vụ tạo mã QR (QR code generator) của Qrio." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/logo/favicon_io%20(3)/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="manifest" href="/static/logo/favicon_io%20(3)/site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #1e1e2e;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects {
+      position: fixed;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      will-change: transform;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+
+    .bg-orb-1 {
+      width: 420px;
+      height: 420px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -120px;
+      right: -140px;
+      animation-delay: 0s;
+    }
+
+    .bg-orb-2 {
+      width: 320px;
+      height: 320px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 120px;
+      left: -120px;
+      animation-delay: -5s;
+    }
+
+    .bg-orb-3 {
+      width: 260px;
+      height: 260px;
+      background: linear-gradient(135deg, #ec4899, #f43f5e);
+      top: 42%;
+      right: 18%;
+      animation-delay: -10s;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+      animation: gridDrift 30s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      from { background-position: 0 0; }
+      to { background-position: 240px 240px; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border: 1px solid #3a3a50;
+      background: #2a2a3e;
+      border-radius: 14px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lang-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(226,232,240,0.95);
+    }
+
+    .lang-select {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+    }
+
+    .lang-select option {
+      background: #1e1e2e;
+      color: #e2e8f0;
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand .logo-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: transparent;
+      display: grid;
+      place-items: center;
+    }
+
+    .brand .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .navlinks a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #1e1e2e;
+      border: 1px solid #3a3a50;
+      color: #d9d6ff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .navlinks a:hover {
+      transform: translateY(-1px);
+      border-color: rgba(124, 58, 237, 0.70);
+    }
+
+    .navlinks a[aria-current="page"] {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(79, 70, 229, 0.18));
+      border-color: rgba(124, 58, 237, 0.70);
+      color: #fff;
+    }
+
+    .header {
+      margin-top: 20px;
+      padding: 18px 2px 6px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 3.6vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #b7b7c9;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 80ch;
+    }
+
+    .meta {
+      margin-top: 12px;
+      color: #8c8ca5;
+      font-size: 12.5px;
+    }
+
+    .card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #2a2a3e;
+      border: 1px solid #3a3a50;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #eae9ff;
+    }
+
+    .card p {
+      color: #c9c9da;
+      font-size: 14px;
+      line-height: 1.75;
+      margin: 8px 0;
+    }
+
+    .card ul {
+      margin: 10px 0 0 18px;
+      color: #c9c9da;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .card li { margin: 6px 0; }
+
+    .en {
+      color: #9aa0b8;
+      font-size: 13px;
+      line-height: 1.65;
+      margin-top: 6px;
+    }
+
+    .notice {
+      border: 1px dashed rgba(124, 58, 237, 0.35);
+      background: rgba(124, 58, 237, 0.10);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+
+    .notice p { margin: 0; }
+
+    .footer {
+      margin-top: 26px;
+      padding: 16px 2px 0;
+      color: #7f7f98;
+      font-size: 12.5px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer > span {
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .footer a {
+      color: #a78bfa;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 720px) {
+      .topbar { flex-direction: column; align-items: stretch; }
+      .topbar-right { justify-content: center; }
+      .navlinks { justify-content: center; }
+      .navlinks a { flex: 1 1 auto; justify-content: center; }
+      .footer { justify-content: center; flex-wrap: wrap; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <main class="page">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
+        <span>Qrio</span>
+      </a>
+      <div class="topbar-right">
+        <div class="lang-picker">
+          <i class="fa-solid fa-globe"></i>
+          <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria="aria.language">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <nav class="navlinks" aria-label="Legal navigation" data-i18n-aria="aria.legalNav">
+          <a href="/" data-i18n="nav.home" data-i18n-title="nav.homeTitle">Trang chủ</a>
+          <a href="/terms" aria-current="page" data-i18n="nav.terms" data-i18n-title="nav.termsTitle">Điều khoản</a>
+          <a href="/privacy" data-i18n="nav.privacy" data-i18n-title="nav.privacyTitle">Riêng tư</a>
+          <a href="/disclaimer" data-i18n="nav.disclaimer" data-i18n-title="nav.disclaimerTitle">Miễn trừ</a>
+        </nav>
+      </div>
+    </div>
+
+    <header class="header">
+      <h1 data-i18n="terms.h1">Điều khoản sử dụng</h1>
+      <p class="subtitle" data-i18n="terms.subtitle">Điều khoản này quy định quyền, nghĩa vụ và giới hạn trách nhiệm khi bạn sử dụng website tạo mã QR của Qrio.</p>
+      <p class="meta" data-i18n="terms.meta">Cập nhật lần cuối: 13/12/2025</p>
+      <div class="notice">
+        <p data-i18n="terms.notice"><strong>Lưu ý:</strong> Qrio chỉ cung cấp công cụ tạo QR. Qrio không kiểm duyệt nội dung QR và không xác minh an toàn của link/file mà QR trỏ tới.</p>
+      </div>
+    </header>
+
+    <section class="card" id="acceptance">
+      <h2 data-i18n="terms.s1.h2">1) Chấp nhận điều khoản</h2>
+      <p data-i18n="terms.s1.p1">Bằng việc truy cập hoặc sử dụng dịch vụ, bạn xác nhận đã đọc, hiểu và đồng ý bị ràng buộc bởi Điều khoản này. Nếu bạn không đồng ý, vui lòng không sử dụng dịch vụ.</p>
+    </section>
+
+    <section class="card" id="service-scope">
+      <h2 data-i18n="terms.s2.h2">2) Phạm vi dịch vụ</h2>
+      <p data-i18n="terms.s2.p1">Qrio cung cấp công cụ để tạo mã QR từ nội dung do bạn nhập (ví dụ: URL, văn bản, Wi‑Fi, vCard, file, v.v.). Dịch vụ có thể thay đổi theo thời gian và có thể bao gồm các tính năng lưu dự án, xuất file, hoặc tải lên tệp.</p>
+      <p data-i18n="terms.s2.p2">Qrio không phải là nhà cung cấp nội dung, không kiểm duyệt, không bảo đảm và không chịu trách nhiệm về nội dung QR hoặc nội dung tại điểm đến (website, file, ứng dụng, dịch vụ bên thứ ba) mà QR trỏ tới.</p>
+    </section>
+
+    <section class="card" id="user-rights-responsibilities">
+      <h2 data-i18n="terms.s3.h2">3) Quyền và trách nhiệm của người dùng</h2>
+      <p data-i18n="terms.s3.p1">Bạn chịu trách nhiệm hoàn toàn đối với nội dung bạn nhập để tạo QR và việc sử dụng QR được tạo ra, bao gồm nhưng không giới hạn:</p>
+      <ul>
+        <li data-i18n="terms.s3.li1">Đảm bảo bạn có quyền hợp pháp để sử dụng, chia sẻ, phát tán nội dung (ví dụ: bản quyền, nhãn hiệu, dữ liệu cá nhân, bí mật kinh doanh).</li>
+        <li data-i18n="terms.s3.li2">Đảm bảo link/file đích là an toàn, không chứa mã độc, không lừa đảo, và tuân thủ pháp luật.</li>
+        <li data-i18n="terms.s3.li3">Kiểm tra QR trước khi phát hành (in ấn, đăng mạng, gắn lên sản phẩm) để giảm rủi ro nhầm lẫn, sai link hoặc bị thay thế.</li>
+      </ul>
+      <p data-i18n="terms.s3.p2">Bạn tự chịu rủi ro và trách nhiệm đối với dữ liệu bạn mã hoá, điểm đến mà QR trỏ tới, và cách bạn chia sẻ/sử dụng QR.</p>
+    </section>
+
+    <section class="card" id="prohibited">
+      <h2 data-i18n="terms.s4.h2">4) Các hành vi bị cấm</h2>
+      <p data-i18n="terms.s4.p1">Bạn không được sử dụng Qrio để tạo hoặc hỗ trợ việc tạo QR phục vụ các hành vi sau:</p>
+      <ul>
+        <li data-i18n="terms.s4.li1">Lừa đảo, giả mạo, chiếm đoạt tài sản; phishing; mạo danh tổ chức/cá nhân.</li>
+        <li data-i18n="terms.s4.li2">Phát tán mã độc, phần mềm gián điệp, ransomware, tệp/đường dẫn gây hại hoặc khai thác lỗ hổng.</li>
+        <li data-i18n="terms.s4.li3">Vi phạm pháp luật Việt Nam hoặc pháp luật áp dụng khác; vi phạm quyền sở hữu trí tuệ; phát tán nội dung bị cấm theo quy định.</li>
+        <li data-i18n="terms.s4.li4">Xâm phạm quyền riêng tư, thu thập trái phép dữ liệu cá nhân; doxxing; quấy rối, đe doạ.</li>
+        <li data-i18n="terms.s4.li5">Can thiệp, tấn công, làm gián đoạn dịch vụ; thử nghiệm xâm nhập trái phép; spam hoặc tự động hoá gây quá tải.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="limitation">
+      <h2 data-i18n="terms.s5.h2">5) Giới hạn trách nhiệm</h2>
+      <p data-i18n="terms.s5.p1">Dịch vụ được cung cấp trên cơ sở <strong>“nguyên trạng” (as‑is)</strong> và <strong>“tuỳ khả dụng” (as‑available)</strong>. Trong phạm vi tối đa pháp luật cho phép, Qrio không chịu trách nhiệm đối với bất kỳ thiệt hại trực tiếp hoặc gián tiếp nào phát sinh từ:</p>
+      <ul>
+        <li data-i18n="terms.s5.li1">Nội dung QR do người dùng tạo và/hoặc hành vi sử dụng, phát tán QR.</li>
+        <li data-i18n="terms.s5.li2">Link/file đích mà QR trỏ tới, bao gồm việc tải xuống, cài đặt, thanh toán hoặc cung cấp thông tin tại điểm đến.</li>
+        <li data-i18n="terms.s5.li3">Mất dữ liệu, gián đoạn dịch vụ, sai khác hiển thị do thiết bị, trình duyệt, hệ điều hành, hoặc bên thứ ba.</li>
+      </ul>
+      <p data-i18n="terms.s5.p2">Qrio không cam kết QR sẽ phù hợp cho mọi mục đích sử dụng, không cam kết không có lỗi, và không cam kết điểm đến là an toàn. Bạn tự đánh giá rủi ro và chịu trách nhiệm khi quét/đưa QR cho người khác quét.</p>
+    </section>
+
+    <section class="card" id="suspension">
+      <h2 data-i18n="terms.s6.h2">6) Quyền tạm ngưng/chấm dứt dịch vụ</h2>
+      <p data-i18n="terms.s6.p1">Qrio có quyền tạm ngưng hoặc chấm dứt quyền truy cập của bạn (toàn bộ hoặc một phần) nếu có cơ sở hợp lý cho rằng bạn vi phạm Điều khoản này, vi phạm pháp luật, hoặc gây rủi ro cho hệ thống/người dùng khác.</p>
+      <p data-i18n="terms.s6.p2">Qrio cũng có thể tạm ngưng dịch vụ để bảo trì, nâng cấp, hoặc xử lý sự cố bảo mật.</p>
+    </section>
+
+    <section class="card" id="changes">
+      <h2 data-i18n="terms.s7.h2">7) Thay đổi dịch vụ & điều khoản</h2>
+      <p data-i18n="terms.s7.p1">Qrio có thể thay đổi tính năng, giới hạn kỹ thuật, hoặc cập nhật Điều khoản này theo thời gian. Phiên bản cập nhật sẽ được đăng trên website và có hiệu lực từ thời điểm công bố (trừ khi ghi rõ khác).</p>
+      <p data-i18n="terms.s7.p2">Việc bạn tiếp tục sử dụng dịch vụ sau khi Điều khoản được cập nhật được hiểu là bạn đồng ý với phiên bản mới.</p>
+    </section>
+
+    <section class="card" id="governing-law">
+      <h2 data-i18n="terms.s8.h2">8) Luật áp dụng & giải quyết tranh chấp</h2>
+      <p data-i18n="terms.s8.p1">Điều khoản này được điều chỉnh và giải thích theo pháp luật Việt Nam, trừ khi quy định bắt buộc của pháp luật áp dụng khác yêu cầu khác. Mọi tranh chấp phát sinh sẽ được ưu tiên giải quyết bằng thương lượng thiện chí; nếu không đạt được, tranh chấp có thể được giải quyết tại cơ quan có thẩm quyền theo quy định pháp luật.</p>
+    </section>
+
+    <section class="card" id="contact">
+      <h2 data-i18n="terms.contact.h2">Thông tin liên hệ</h2>
+      <p data-i18n="terms.contact.p1">Nếu bạn có câu hỏi về Điều khoản sử dụng, vui lòng liên hệ:</p>
+      <p data-i18n="common.emailLine"><strong>Email:</strong> support@yourdomain.com</p>
+    </section>
+
+    <div class="footer">
+      <span data-i18n="common.copyright">© 2025 Qrio</span>
+      <div class="footer-links">
+        <a href="/privacy" data-i18n="footer.privacy">Chính sách riêng tư</a>
+        <a href="/disclaimer" data-i18n="footer.disclaimer">Miễn trừ trách nhiệm</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const LANG_KEY = 'qr_lang';
+
+    const I18N = {
+      vi: {
+        'doc.title': 'Điều khoản sử dụng - Qrio',
+        'aria.language': 'Ngôn ngữ',
+        'aria.legalNav': 'Điều hướng pháp lý',
+        'nav.home': 'Trang chủ',
+        'nav.homeTitle': 'Trang chủ',
+        'nav.terms': 'Điều khoản',
+        'nav.termsTitle': 'Điều khoản sử dụng',
+        'nav.privacy': 'Riêng tư',
+        'nav.privacyTitle': 'Chính sách quyền riêng tư',
+        'nav.disclaimer': 'Miễn trừ',
+        'nav.disclaimerTitle': 'Tuyên bố miễn trừ trách nhiệm',
+
+        'terms.h1': 'Điều khoản sử dụng',
+        'terms.subtitle': 'Điều khoản này quy định quyền, nghĩa vụ và giới hạn trách nhiệm khi bạn sử dụng website tạo mã QR của Qrio.',
+        'terms.meta': 'Cập nhật lần cuối: 13/12/2025',
+        'terms.notice': '<strong>Lưu ý:</strong> Qrio chỉ cung cấp công cụ tạo QR. Qrio không kiểm duyệt nội dung QR và không xác minh an toàn của link/file mà QR trỏ tới.',
+
+        'terms.s1.h2': '1) Chấp nhận điều khoản',
+        'terms.s1.p1': 'Bằng việc truy cập hoặc sử dụng dịch vụ, bạn xác nhận đã đọc, hiểu và đồng ý bị ràng buộc bởi Điều khoản này. Nếu bạn không đồng ý, vui lòng không sử dụng dịch vụ.',
+
+        'terms.s2.h2': '2) Phạm vi dịch vụ',
+        'terms.s2.p1': 'Qrio cung cấp công cụ để tạo mã QR từ nội dung do bạn nhập (ví dụ: URL, văn bản, Wi‑Fi, vCard, file, v.v.). Dịch vụ có thể thay đổi theo thời gian và có thể bao gồm các tính năng lưu dự án, xuất file, hoặc tải lên tệp.',
+        'terms.s2.p2': 'Qrio không phải là nhà cung cấp nội dung, không kiểm duyệt, không bảo đảm và không chịu trách nhiệm về nội dung QR hoặc nội dung tại điểm đến (website, file, ứng dụng, dịch vụ bên thứ ba) mà QR trỏ tới.',
+
+        'terms.s3.h2': '3) Quyền và trách nhiệm của người dùng',
+        'terms.s3.p1': 'Bạn chịu trách nhiệm hoàn toàn đối với nội dung bạn nhập để tạo QR và việc sử dụng QR được tạo ra, bao gồm nhưng không giới hạn:',
+        'terms.s3.li1': 'Đảm bảo bạn có quyền hợp pháp để sử dụng, chia sẻ, phát tán nội dung (ví dụ: bản quyền, nhãn hiệu, dữ liệu cá nhân, bí mật kinh doanh).',
+        'terms.s3.li2': 'Đảm bảo link/file đích là an toàn, không chứa mã độc, không lừa đảo, và tuân thủ pháp luật.',
+        'terms.s3.li3': 'Kiểm tra QR trước khi phát hành (in ấn, đăng mạng, gắn lên sản phẩm) để giảm rủi ro nhầm lẫn, sai link hoặc bị thay thế.',
+        'terms.s3.p2': 'Bạn tự chịu rủi ro và trách nhiệm đối với dữ liệu bạn mã hoá, điểm đến mà QR trỏ tới, và cách bạn chia sẻ/sử dụng QR.',
+
+        'terms.s4.h2': '4) Các hành vi bị cấm',
+        'terms.s4.p1': 'Bạn không được sử dụng Qrio để tạo hoặc hỗ trợ việc tạo QR phục vụ các hành vi sau:',
+        'terms.s4.li1': 'Lừa đảo, giả mạo, chiếm đoạt tài sản; phishing; mạo danh tổ chức/cá nhân.',
+        'terms.s4.li2': 'Phát tán mã độc, phần mềm gián điệp, ransomware, tệp/đường dẫn gây hại hoặc khai thác lỗ hổng.',
+        'terms.s4.li3': 'Vi phạm pháp luật Việt Nam hoặc pháp luật áp dụng khác; vi phạm quyền sở hữu trí tuệ; phát tán nội dung bị cấm theo quy định.',
+        'terms.s4.li4': 'Xâm phạm quyền riêng tư, thu thập trái phép dữ liệu cá nhân; doxxing; quấy rối, đe doạ.',
+        'terms.s4.li5': 'Can thiệp, tấn công, làm gián đoạn dịch vụ; thử nghiệm xâm nhập trái phép; spam hoặc tự động hoá gây quá tải.',
+
+        'terms.s5.h2': '5) Giới hạn trách nhiệm',
+        'terms.s5.p1': 'Dịch vụ được cung cấp trên cơ sở <strong>“nguyên trạng”</strong> và <strong>“tuỳ khả dụng”</strong>. Trong phạm vi tối đa pháp luật cho phép, Qrio không chịu trách nhiệm đối với bất kỳ thiệt hại trực tiếp hoặc gián tiếp nào phát sinh từ:',
+        'terms.s5.li1': 'Nội dung QR do người dùng tạo và/hoặc hành vi sử dụng, phát tán QR.',
+        'terms.s5.li2': 'Link/file đích mà QR trỏ tới, bao gồm việc tải xuống, cài đặt, thanh toán hoặc cung cấp thông tin tại điểm đến.',
+        'terms.s5.li3': 'Mất dữ liệu, gián đoạn dịch vụ, sai khác hiển thị do thiết bị, trình duyệt, hệ điều hành, hoặc bên thứ ba.',
+        'terms.s5.p2': 'Qrio không cam kết QR sẽ phù hợp cho mọi mục đích sử dụng, không cam kết không có lỗi, và không cam kết điểm đến là an toàn. Bạn tự đánh giá rủi ro và chịu trách nhiệm khi quét/đưa QR cho người khác quét.',
+
+        'terms.s6.h2': '6) Quyền tạm ngưng/chấm dứt dịch vụ',
+        'terms.s6.p1': 'Qrio có quyền tạm ngưng hoặc chấm dứt quyền truy cập của bạn (toàn bộ hoặc một phần) nếu có cơ sở hợp lý cho rằng bạn vi phạm Điều khoản này, vi phạm pháp luật, hoặc gây rủi ro cho hệ thống/người dùng khác.',
+        'terms.s6.p2': 'Qrio cũng có thể tạm ngưng dịch vụ để bảo trì, nâng cấp, hoặc xử lý sự cố bảo mật.',
+
+        'terms.s7.h2': '7) Thay đổi dịch vụ & điều khoản',
+        'terms.s7.p1': 'Qrio có thể thay đổi tính năng, giới hạn kỹ thuật, hoặc cập nhật Điều khoản này theo thời gian. Phiên bản cập nhật sẽ được đăng trên website và có hiệu lực từ thời điểm công bố (trừ khi ghi rõ khác).',
+        'terms.s7.p2': 'Việc bạn tiếp tục sử dụng dịch vụ sau khi Điều khoản được cập nhật được hiểu là bạn đồng ý với phiên bản mới.',
+
+        'terms.s8.h2': '8) Luật áp dụng & giải quyết tranh chấp',
+        'terms.s8.p1': 'Điều khoản này được điều chỉnh và giải thích theo pháp luật Việt Nam, trừ khi quy định bắt buộc của pháp luật áp dụng khác yêu cầu khác. Mọi tranh chấp phát sinh sẽ được ưu tiên giải quyết bằng thương lượng thiện chí; nếu không đạt được, tranh chấp có thể được giải quyết tại cơ quan có thẩm quyền theo quy định pháp luật.',
+
+        'terms.contact.h2': 'Thông tin liên hệ',
+        'terms.contact.p1': 'Nếu bạn có câu hỏi về Điều khoản sử dụng, vui lòng liên hệ:',
+
+        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+
+        'footer.privacy': 'Chính sách riêng tư',
+        'footer.disclaimer': 'Miễn trừ trách nhiệm',
+        'common.copyright': '© 2025 Qrio',
+      },
+      en: {
+        'doc.title': 'Terms of Service - Qrio',
+        'aria.language': 'Language',
+        'aria.legalNav': 'Legal navigation',
+        'nav.home': 'Home',
+        'nav.homeTitle': 'Home',
+        'nav.terms': 'Terms',
+        'nav.termsTitle': 'Terms of Service',
+        'nav.privacy': 'Privacy',
+        'nav.privacyTitle': 'Privacy Policy',
+        'nav.disclaimer': 'Disclaimer',
+        'nav.disclaimerTitle': 'Disclaimer',
+
+        'terms.h1': 'Terms of Service',
+        'terms.subtitle': 'These Terms govern your use of Qrio’s QR Code Generator, including responsibilities and limitations of liability.',
+        'terms.meta': 'Last updated: Dec 13, 2025',
+        'terms.notice': '<strong>Note:</strong> Qrio is a QR generator tool only. We do not moderate QR content and do not verify the safety of the target link/file.',
+
+        'terms.s1.h2': '1) Acceptance',
+        'terms.s1.p1': 'By accessing or using the Service, you confirm you have read, understood, and agree to be bound by these Terms. If you do not agree, please do not use the Service.',
+
+        'terms.s2.h2': '2) Service Scope',
+        'terms.s2.p1': 'Qrio provides a tool to generate QR codes from content you provide (e.g., URL, text, Wi‑Fi, vCard, file, etc.). The Service may change over time and may include features like project saving, exporting, or file upload.',
+        'terms.s2.p2': 'Qrio is not a content provider. We do not moderate, endorse, or guarantee QR content or the destination content (websites, files, apps, or third‑party services) that QR codes may link to.',
+
+        'terms.s3.h2': '3) User Responsibilities',
+        'terms.s3.p1': 'You are fully responsible for the content you encode and how you use the generated QR codes, including but not limited to:',
+        'terms.s3.li1': 'Ensuring you have lawful rights to use, share, and distribute the content (e.g., copyright, trademarks, personal data, trade secrets).',
+        'terms.s3.li2': 'Ensuring the destination link/file is safe, free of malware, not fraudulent, and compliant with applicable laws.',
+        'terms.s3.li3': 'Testing QR codes before publishing (printing, posting online, attaching to products) to reduce confusion, wrong links, or tampering risks.',
+        'terms.s3.p2': 'You assume all risks and responsibilities for what you encode, where it points, and how you distribute/use the QR codes.',
+
+        'terms.s4.h2': '4) Prohibited Uses',
+        'terms.s4.p1': 'You must not use Qrio to create or assist in creating QR codes for:',
+        'terms.s4.li1': 'Fraud, impersonation, phishing, or scams.',
+        'terms.s4.li2': 'Distributing malware/spyware/ransomware, harmful files/links, or exploiting vulnerabilities.',
+        'terms.s4.li3': 'Violating Vietnam law or other applicable laws; infringing intellectual property; distributing prohibited content.',
+        'terms.s4.li4': 'Privacy violations or unlawful collection of personal data; doxxing; harassment or threats.',
+        'terms.s4.li5': 'Attacking or disrupting the Service; unauthorized penetration testing; spam or abusive automation that overloads the system.',
+
+        'terms.s5.h2': '5) Limitation of Liability',
+        'terms.s5.p1': 'The Service is provided <strong>“as‑is”</strong> and <strong>“as‑available”</strong>. To the maximum extent permitted by law, Qrio is not liable for any direct or indirect damages arising from:',
+        'terms.s5.li1': 'User-generated QR content and/or how QR codes are used or distributed.',
+        'terms.s5.li2': 'QR destinations (links/files), including downloads, installations, payments, or providing information at the destination.',
+        'terms.s5.li3': 'Data loss, service interruptions, or display differences caused by devices, browsers, operating systems, or third parties.',
+        'terms.s5.p2': 'We do not guarantee QR codes will fit every purpose, be error‑free, or that destinations are safe. You must assess risks and are responsible when scanning or sharing QR codes.',
+
+        'terms.s6.h2': '6) Suspension/Termination',
+        'terms.s6.p1': 'We may suspend or terminate your access (in whole or in part) if we reasonably believe you violate these Terms, applicable laws, or create risks to the system/other users.',
+        'terms.s6.p2': 'We may also suspend the Service for maintenance, upgrades, or to address security incidents.',
+
+        'terms.s7.h2': '7) Changes',
+        'terms.s7.p1': 'We may modify features, technical limits, or update these Terms over time. Updates will be posted on the website and take effect upon publication unless stated otherwise.',
+        'terms.s7.p2': 'Your continued use after updates means you accept the updated Terms.',
+
+        'terms.s8.h2': '8) Governing Law & Disputes',
+        'terms.s8.p1': 'These Terms are governed and interpreted under Vietnam law, subject to mandatory applicable laws. Disputes should be resolved in good faith first; if not possible, they may be handled by competent authorities as permitted by law.',
+
+        'terms.contact.h2': 'Contact',
+        'terms.contact.p1': 'If you have questions about these Terms, contact:',
+
+        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+
+        'footer.privacy': 'Privacy Policy',
+        'footer.disclaimer': 'Disclaimer',
+        'common.copyright': '© 2025 Qrio',
+      }
+    };
+
+    function normalizeLang(raw) {
+      return raw === 'en' ? 'en' : 'vi';
+    }
+
+    function detectDefaultLang() {
+      const raw = (navigator.language || '').toLowerCase();
+      return raw.startsWith('en') ? 'en' : 'vi';
+    }
+
+    function getLang() {
+      return normalizeLang(localStorage.getItem(LANG_KEY) || detectDefaultLang());
+    }
+
+    function formatWithVars(template, vars) {
+      return String(template).replace(/\{(\w+)\}/g, (_, k) => {
+        const v = vars && Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : '';
+        return String(v);
+      });
+    }
+
+    function t(key, vars) {
+      const lang = getLang();
+      const dict = I18N[lang] || I18N.vi;
+      const fallback = I18N.vi || {};
+      const value = dict[key] ?? fallback[key] ?? key;
+      return formatWithVars(value, vars);
+    }
+
+    function applyI18n(lang) {
+      const normalized = normalizeLang(lang);
+      document.documentElement.lang = normalized;
+      document.title = String(t('doc.title'));
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const value = t(key);
+        if (typeof value === 'string') el.innerHTML = value;
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', String(t(key)));
+      });
+
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', String(t(key)));
+      });
+
+      const select = document.getElementById('lang-select');
+      if (select && select.value !== normalized) select.value = normalized;
+    }
+
+    function setLang(lang) {
+      const normalized = normalizeLang(lang);
+      localStorage.setItem(LANG_KEY, normalized);
+      applyI18n(normalized);
+    }
+
+    document.getElementById('lang-select')?.addEventListener('change', (e) => {
+      setLang(e.target.value);
+    });
+
+    applyI18n(getLang());
+  </script>
+</body>
+
+</html>

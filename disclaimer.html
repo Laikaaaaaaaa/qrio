@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tuyên bố miễn trừ trách nhiệm - Qrio</title>
+  <meta name="description" content="Tuyên bố miễn trừ trách nhiệm cho website tạo mã QR (QR code generator) của Qrio." />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/logo/favicon_io%20(3)/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="manifest" href="/static/logo/favicon_io%20(3)/site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #1e1e2e;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects {
+      position: fixed;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      will-change: transform;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+
+    .bg-orb-1 {
+      width: 420px;
+      height: 420px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -120px;
+      right: -140px;
+      animation-delay: 0s;
+    }
+
+    .bg-orb-2 {
+      width: 320px;
+      height: 320px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 120px;
+      left: -120px;
+      animation-delay: -5s;
+    }
+
+    .bg-orb-3 {
+      width: 260px;
+      height: 260px;
+      background: linear-gradient(135deg, #ec4899, #f43f5e);
+      top: 42%;
+      right: 18%;
+      animation-delay: -10s;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+      animation: gridDrift 30s linear infinite;
+    }
+
+    @keyframes gridDrift {
+      from { background-position: 0 0; }
+      to { background-position: 240px 240px; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border: 1px solid #3a3a50;
+      background: #2a2a3e;
+      border-radius: 14px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lang-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(226,232,240,0.95);
+    }
+
+    .lang-select {
+      background: transparent;
+      border: none;
+      color: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+    }
+
+    .lang-select option {
+      background: #1e1e2e;
+      color: #e2e8f0;
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand .logo-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: transparent;
+      display: grid;
+      place-items: center;
+    }
+
+    .brand .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .navlinks a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #1e1e2e;
+      border: 1px solid #3a3a50;
+      color: #d9d6ff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .navlinks a:hover {
+      transform: translateY(-1px);
+      border-color: rgba(124, 58, 237, 0.70);
+    }
+
+    .navlinks a[aria-current="page"] {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.30), rgba(79, 70, 229, 0.18));
+      border-color: rgba(124, 58, 237, 0.70);
+      color: #fff;
+    }
+
+    .header {
+      margin-top: 20px;
+      padding: 18px 2px 6px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 3.6vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #b7b7c9;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 84ch;
+    }
+
+    .meta {
+      margin-top: 12px;
+      color: #8c8ca5;
+      font-size: 12.5px;
+    }
+
+    .card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #2a2a3e;
+      border: 1px solid #3a3a50;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #eae9ff;
+    }
+
+    .card p {
+      color: #c9c9da;
+      font-size: 14px;
+      line-height: 1.75;
+      margin: 8px 0;
+    }
+
+    .card ul {
+      margin: 10px 0 0 18px;
+      color: #c9c9da;
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .card li { margin: 6px 0; }
+
+    .en {
+      color: #9aa0b8;
+      font-size: 13px;
+      line-height: 1.65;
+      margin-top: 6px;
+    }
+
+    .notice {
+      border: 1px dashed rgba(124, 58, 237, 0.35);
+      background: rgba(124, 58, 237, 0.10);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+
+    .notice p { margin: 0; }
+
+    .footer {
+      margin-top: 26px;
+      padding: 16px 2px 0;
+      color: #7f7f98;
+      font-size: 12.5px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer > span {
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .footer a {
+      color: #a78bfa;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 720px) {
+      .topbar { flex-direction: column; align-items: stretch; }
+      .topbar-right { justify-content: center; }
+      .navlinks { justify-content: center; }
+      .navlinks a { flex: 1 1 auto; justify-content: center; }
+      .footer { justify-content: center; flex-wrap: wrap; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <main class="page">
+    <div class="topbar">
+      <a class="brand" href="/">
+        <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
+        <span>Qrio</span>
+      </a>
+      <div class="topbar-right">
+        <div class="lang-picker">
+          <i class="fa-solid fa-globe"></i>
+          <select id="lang-select" class="lang-select" aria-label="Language" data-i18n-aria="aria.language">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <nav class="navlinks" aria-label="Legal navigation" data-i18n-aria="aria.legalNav">
+          <a href="/" data-i18n="nav.home" data-i18n-title="nav.homeTitle">Trang chủ</a>
+          <a href="/terms" data-i18n="nav.terms" data-i18n-title="nav.termsTitle">Điều khoản</a>
+          <a href="/privacy" data-i18n="nav.privacy" data-i18n-title="nav.privacyTitle">Riêng tư</a>
+          <a href="/disclaimer" aria-current="page" data-i18n="nav.disclaimer" data-i18n-title="nav.disclaimerTitle">Miễn trừ</a>
+        </nav>
+      </div>
+    </div>
+
+    <header class="header">
+      <h1 data-i18n="disclaimer.h1">Tuyên bố miễn trừ trách nhiệm</h1>
+      <p class="subtitle" data-i18n="disclaimer.subtitle">Tuyên bố này làm rõ phạm vi trách nhiệm của Qrio và rủi ro khi bạn tạo, chia sẻ, quét hoặc sử dụng mã QR.</p>
+      <p class="meta" data-i18n="disclaimer.meta">Cập nhật lần cuối: 13/12/2025</p>
+    </header>
+
+    <section class="card" id="tool-only">
+      <h2 data-i18n="disclaimer.s1.h2">1) Qrio chỉ là công cụ tạo QR</h2>
+      <p data-i18n="disclaimer.s1.p1">Qrio cung cấp công cụ để bạn tự tạo mã QR từ nội dung do bạn cung cấp. Qrio không đại diện, không bảo chứng và không cam kết về tính hợp pháp, tính chính xác hoặc tính an toàn của nội dung được mã hoá trong QR.</p>
+    </section>
+
+    <section class="card" id="no-moderation">
+      <h2 data-i18n="disclaimer.s2.h2">2) Không kiểm duyệt nội dung QR</h2>
+      <p data-i18n="disclaimer.s2.p1">Qrio <strong>không kiểm duyệt</strong> và <strong>không giám sát</strong> nội dung QR mà người dùng tạo. Qrio cũng không có nghĩa vụ hoặc khả năng kiểm tra link/file/điểm đến mà QR trỏ tới theo từng trường hợp cụ thể.</p>
+    </section>
+
+    <section class="card" id="no-liability">
+      <h2 data-i18n="disclaimer.s3.h2">3) Không chịu trách nhiệm về nội dung & điểm đến</h2>
+      <p data-i18n="disclaimer.s3.p1">Trong phạm vi tối đa pháp luật cho phép, Qrio không chịu trách nhiệm đối với:</p>
+      <ul>
+        <li data-i18n="disclaimer.s3.li1">Nội dung QR do người dùng tạo (kể cả khi nội dung đó dẫn đến thiệt hại).</li>
+        <li data-i18n="disclaimer.s3.li2">Bất kỳ website, tệp, ứng dụng, dịch vụ hoặc nội dung của bên thứ ba mà QR trỏ tới.</li>
+        <li data-i18n="disclaimer.s3.li3">Việc tải xuống/cài đặt/mở tệp, thanh toán, hoặc cung cấp thông tin tại điểm đến.</li>
+        <li data-i18n="disclaimer.s3.li4">Bất kỳ tổn thất, thiệt hại, khiếu nại hoặc tranh chấp phát sinh từ việc sử dụng hoặc quét QR.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="user-risk">
+      <h2 data-i18n="disclaimer.s4.h2">4) Người dùng tự chịu rủi ro khi quét hoặc sử dụng QR</h2>
+      <p data-i18n="disclaimer.s4.p1">Bạn hiểu và đồng ý rằng việc quét hoặc sử dụng QR có thể dẫn đến rủi ro như: truy cập trang web độc hại, tải tệp chứa mã độc, bị lừa đảo/phishing, hoặc bị thu thập dữ liệu.</p>
+      <p data-i18n="disclaimer.s4.p2">Khuyến nghị an toàn:</p>
+      <ul>
+        <li data-i18n="disclaimer.s4.li1">Chỉ quét QR từ nguồn tin cậy.</li>
+        <li data-i18n="disclaimer.s4.li2">Kiểm tra URL/điểm đến trước khi mở hoặc tải xuống.</li>
+        <li data-i18n="disclaimer.s4.li3">Cập nhật hệ điều hành, trình duyệt, và phần mềm bảo mật.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="contact">
+      <h2 data-i18n="disclaimer.contact.h2">Thông tin liên hệ</h2>
+      <p data-i18n="disclaimer.contact.p1">Nếu bạn có câu hỏi về tuyên bố miễn trừ trách nhiệm, vui lòng liên hệ:</p>
+      <p data-i18n="common.emailLine"><strong>Email:</strong> support@yourdomain.com</p>
+    </section>
+
+    <div class="footer">
+      <span data-i18n="common.copyright">© 2025 Qrio</span>
+      <div class="footer-links">
+        <a href="/terms" data-i18n="footer.terms">Điều khoản sử dụng</a>
+        <a href="/privacy" data-i18n="footer.privacy">Chính sách riêng tư</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const LANG_KEY = 'qr_lang';
+
+    const I18N = {
+      vi: {
+        'doc.title': 'Tuyên bố miễn trừ trách nhiệm - Qrio',
+        'aria.language': 'Ngôn ngữ',
+        'aria.legalNav': 'Điều hướng pháp lý',
+        'nav.home': 'Trang chủ',
+        'nav.homeTitle': 'Trang chủ',
+        'nav.terms': 'Điều khoản',
+        'nav.termsTitle': 'Điều khoản sử dụng',
+        'nav.privacy': 'Riêng tư',
+        'nav.privacyTitle': 'Chính sách quyền riêng tư',
+        'nav.disclaimer': 'Miễn trừ',
+        'nav.disclaimerTitle': 'Tuyên bố miễn trừ trách nhiệm',
+
+        'disclaimer.h1': 'Tuyên bố miễn trừ trách nhiệm',
+        'disclaimer.subtitle': 'Tuyên bố này làm rõ phạm vi trách nhiệm của Qrio và rủi ro khi bạn tạo, chia sẻ, quét hoặc sử dụng mã QR.',
+        'disclaimer.meta': 'Cập nhật lần cuối: 13/12/2025',
+
+        'disclaimer.s1.h2': '1) Qrio chỉ là công cụ tạo QR',
+        'disclaimer.s1.p1': 'Qrio cung cấp công cụ để bạn tự tạo mã QR từ nội dung do bạn cung cấp. Qrio không đại diện, không bảo chứng và không cam kết về tính hợp pháp, tính chính xác hoặc tính an toàn của nội dung được mã hoá trong QR.',
+
+        'disclaimer.s2.h2': '2) Không kiểm duyệt nội dung QR',
+        'disclaimer.s2.p1': 'Qrio <strong>không kiểm duyệt</strong> và <strong>không giám sát</strong> nội dung QR mà người dùng tạo. Qrio cũng không có nghĩa vụ hoặc khả năng kiểm tra link/file/điểm đến mà QR trỏ tới theo từng trường hợp cụ thể.',
+
+        'disclaimer.s3.h2': '3) Không chịu trách nhiệm về nội dung & điểm đến',
+        'disclaimer.s3.p1': 'Trong phạm vi tối đa pháp luật cho phép, Qrio không chịu trách nhiệm đối với:',
+        'disclaimer.s3.li1': 'Nội dung QR do người dùng tạo (kể cả khi nội dung đó dẫn đến thiệt hại).',
+        'disclaimer.s3.li2': 'Bất kỳ website, tệp, ứng dụng, dịch vụ hoặc nội dung của bên thứ ba mà QR trỏ tới.',
+        'disclaimer.s3.li3': 'Việc tải xuống/cài đặt/mở tệp, thanh toán, hoặc cung cấp thông tin tại điểm đến.',
+        'disclaimer.s3.li4': 'Bất kỳ tổn thất, thiệt hại, khiếu nại hoặc tranh chấp phát sinh từ việc sử dụng hoặc quét QR.',
+
+        'disclaimer.s4.h2': '4) Người dùng tự chịu rủi ro khi quét hoặc sử dụng QR',
+        'disclaimer.s4.p1': 'Bạn hiểu và đồng ý rằng việc quét hoặc sử dụng QR có thể dẫn đến rủi ro như: truy cập trang web độc hại, tải tệp chứa mã độc, bị lừa đảo/phishing, hoặc bị thu thập dữ liệu.',
+        'disclaimer.s4.p2': 'Khuyến nghị an toàn:',
+        'disclaimer.s4.li1': 'Chỉ quét QR từ nguồn tin cậy.',
+        'disclaimer.s4.li2': 'Kiểm tra URL/điểm đến trước khi mở hoặc tải xuống.',
+        'disclaimer.s4.li3': 'Cập nhật hệ điều hành, trình duyệt, và phần mềm bảo mật.',
+
+        'disclaimer.contact.h2': 'Thông tin liên hệ',
+        'disclaimer.contact.p1': 'Nếu bạn có câu hỏi về tuyên bố miễn trừ trách nhiệm, vui lòng liên hệ:',
+
+        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+
+        'footer.terms': 'Điều khoản sử dụng',
+        'footer.privacy': 'Chính sách riêng tư',
+        'common.copyright': '© 2025 Qrio',
+      },
+      en: {
+        'doc.title': 'Disclaimer - Qrio',
+        'aria.language': 'Language',
+        'aria.legalNav': 'Legal navigation',
+        'nav.home': 'Home',
+        'nav.homeTitle': 'Home',
+        'nav.terms': 'Terms',
+        'nav.termsTitle': 'Terms of Service',
+        'nav.privacy': 'Privacy',
+        'nav.privacyTitle': 'Privacy Policy',
+        'nav.disclaimer': 'Disclaimer',
+        'nav.disclaimerTitle': 'Disclaimer',
+
+        'disclaimer.h1': 'Disclaimer',
+        'disclaimer.subtitle': 'This Disclaimer clarifies Qrio’s role and the risks of generating, sharing, scanning, or using QR codes.',
+        'disclaimer.meta': 'Last updated: Dec 13, 2025',
+
+        'disclaimer.s1.h2': '1) Tool Only',
+        'disclaimer.s1.p1': 'Qrio provides a tool for generating QR codes from content you provide. We do not guarantee the legality, accuracy, or safety of any user-generated QR content.',
+
+        'disclaimer.s2.h2': '2) No Moderation',
+        'disclaimer.s2.p1': 'Qrio does <strong>not</strong> moderate or monitor QR content created by users. We also do not have an obligation or practical ability to inspect each destination link/file on a case-by-case basis.',
+
+        'disclaimer.s3.h2': '3) No Responsibility for Content/Destination',
+        'disclaimer.s3.p1': 'To the maximum extent permitted by law, Qrio is not responsible for:',
+        'disclaimer.s3.li1': 'User-generated QR content (even if it causes damage).',
+        'disclaimer.s3.li2': 'Any third-party website, file, app, service, or content that a QR code points to.',
+        'disclaimer.s3.li3': 'Downloads/installs/opening files, payments, or providing information at the destination.',
+        'disclaimer.s3.li4': 'Any losses, damages, claims, or disputes arising from using or scanning QR codes.',
+
+        'disclaimer.s4.h2': '4) Use at Your Own Risk',
+        'disclaimer.s4.p1': 'You understand and agree that scanning/using QR codes may involve risks such as malicious websites, malware downloads, phishing/scams, or data collection.',
+        'disclaimer.s4.p2': 'Safety tips:',
+        'disclaimer.s4.li1': 'Only scan QR codes from trusted sources.',
+        'disclaimer.s4.li2': 'Verify the URL/destination before opening or downloading.',
+        'disclaimer.s4.li3': 'Keep your OS, browser, and security software up to date.',
+
+        'disclaimer.contact.h2': 'Contact',
+        'disclaimer.contact.p1': 'If you have questions about this Disclaimer, contact:',
+
+        'common.emailLine': '<strong>Email:</strong> support@yourdomain.com',
+
+        'footer.terms': 'Terms of Service',
+        'footer.privacy': 'Privacy Policy',
+        'common.copyright': '© 2025 Qrio',
+      }
+    };
+
+    function normalizeLang(raw) {
+      return raw === 'en' ? 'en' : 'vi';
+    }
+
+    function detectDefaultLang() {
+      const raw = (navigator.language || '').toLowerCase();
+      return raw.startsWith('en') ? 'en' : 'vi';
+    }
+
+    function getLang() {
+      return normalizeLang(localStorage.getItem(LANG_KEY) || detectDefaultLang());
+    }
+
+    function formatWithVars(template, vars) {
+      return String(template).replace(/\{(\w+)\}/g, (_, k) => {
+        const v = vars && Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : '';
+        return String(v);
+      });
+    }
+
+    function t(key, vars) {
+      const lang = getLang();
+      const dict = I18N[lang] || I18N.vi;
+      const fallback = I18N.vi || {};
+      const value = dict[key] ?? fallback[key] ?? key;
+      return formatWithVars(value, vars);
+    }
+
+    function applyI18n(lang) {
+      const normalized = normalizeLang(lang);
+      document.documentElement.lang = normalized;
+      document.title = String(t('doc.title'));
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const value = t(key);
+        if (typeof value === 'string') el.innerHTML = value;
+      });
+
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', String(t(key)));
+      });
+
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', String(t(key)));
+      });
+
+      const select = document.getElementById('lang-select');
+      if (select && select.value !== normalized) select.value = normalized;
+    }
+
+    function setLang(lang) {
+      const normalized = normalizeLang(lang);
+      localStorage.setItem(LANG_KEY, normalized);
+      applyI18n(normalized);
+    }
+
+    document.getElementById('lang-select')?.addEventListener('change', (e) => {
+      setLang(e.target.value);
+    });
+
+    applyI18n(getLang());
+  </script>
+</body>
+
+</html>

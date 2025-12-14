@@ -464,11 +464,35 @@
       outline: none;
       cursor: pointer;
       appearance: none;
-      padding-right: 14px;
+      padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
     }
 
     .lang-select option {
-      color: #0f172a;
+      background: #1e1b4b;
+      color: #e2e8f0;
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .lang-select:focus {
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
+      border-radius: 4px;
+    }
+
+    .lang-picker {
+      position: relative;
+    }
+
+    .lang-picker::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
     }
 
     .btn {
@@ -1151,9 +1175,52 @@
     .footer-links {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       font-size: 13px;
       color: #666;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .footer-links .nowrap { white-space: nowrap; }
+
+    .footer-legal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(79, 70, 229, 0.10));
+      border: 1px solid rgba(124, 58, 237, 0.20);
+      color: #c4b5fd;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .footer-link:hover {
+      transform: translateY(-1px);
+      border-color: rgba(124, 58, 237, 0.40);
+    }
+
+    .footer-made {
+      color: #777;
+    }
+
+    @media (max-width: 520px) {
+      .footer-links { gap: 12px; }
+      .footer-link { width: 100%; }
+      .footer-legal { width: 100%; }
     }
     
     .footer-heart {
@@ -2051,54 +2118,54 @@
 
     <!-- FEATURES SECTION -->
     <section id="features" class="features-section reveal">
-      <h2><i class="fa-solid fa-sparkles"></i> Tính năng nổi bật</h2>
+      <h2><i class="fa-solid fa-sparkles"></i> <span data-i18n="features.title">Tính năng nổi bật</span></h2>
       <div class="features-grid">
         <div class="feature-card reveal reveal-delay-1">
-          <h4><i class="fa-solid fa-palette"></i> Tùy chỉnh màu sắc</h4>
-          <p>Thay đổi màu mã QR và nền theo thương hiệu của bạn.</p>
+          <h4><i class="fa-solid fa-palette"></i> <span data-i18n="features.color.title">Tùy chỉnh màu sắc</span></h4>
+          <p data-i18n="features.color.desc">Thay đổi màu mã QR và nền theo thương hiệu của bạn.</p>
         </div>
         <div class="feature-card reveal reveal-delay-2">
-          <h4><i class="fa-solid fa-image"></i> Thêm logo</h4>
-          <p>Chèn logo vào giữa mã QR mà vẫn đảm bảo quét được.</p>
+          <h4><i class="fa-solid fa-image"></i> <span data-i18n="features.logo.title">Thêm logo</span></h4>
+          <p data-i18n="features.logo.desc">Chèn logo vào giữa mã QR mà vẫn đảm bảo quét được.</p>
         </div>
         <div class="feature-card reveal reveal-delay-3">
-          <h4><i class="fa-solid fa-shapes"></i> 100+ Hình dạng</h4>
-          <p>Vuông, tròn, ngôi sao, mũi tên và nhiều hơn nữa.</p>
+          <h4><i class="fa-solid fa-shapes"></i> <span data-i18n="features.shapes.title">100+ Hình dạng</span></h4>
+          <p data-i18n="features.shapes.desc">Vuông, tròn, ngôi sao, mũi tên và nhiều hơn nữa.</p>
         </div>
         <div class="feature-card reveal reveal-delay-1">
-          <h4><i class="fa-solid fa-font"></i> 150+ Font chữ</h4>
-          <p>Thêm văn bản với hơn 150 font đẹp từ Google Fonts.</p>
+          <h4><i class="fa-solid fa-font"></i> <span data-i18n="features.fonts.title">150+ Font chữ</span></h4>
+          <p data-i18n="features.fonts.desc">Thêm văn bản với hơn 150 font đẹp từ Google Fonts.</p>
         </div>
         <div class="feature-card reveal reveal-delay-2">
-          <h4><i class="fa-solid fa-download"></i> Xuất HD</h4>
-          <p>Tải xuống PNG, JPG, SVG với độ phân giải tùy chỉnh lên đến 4K.</p>
+          <h4><i class="fa-solid fa-download"></i> <span data-i18n="features.export.title">Xuất HD</span></h4>
+          <p data-i18n="features.export.desc">Tải xuống PNG, JPG, SVG với độ phân giải tùy chỉnh lên đến 4K.</p>
         </div>
         <div class="feature-card reveal reveal-delay-3">
-          <h4><i class="fa-solid fa-cloud"></i> Lưu tự động</h4>
-          <p>Dự án tự động lưu mỗi 10 giây, không lo mất dữ liệu.</p>
+          <h4><i class="fa-solid fa-cloud"></i> <span data-i18n="features.autosave.title">Lưu tự động</span></h4>
+          <p data-i18n="features.autosave.desc">Dự án tự động lưu mỗi 10 giây, không lo mất dữ liệu.</p>
         </div>
       </div>
     </section>
 
     <!-- PREVIEW SECTION -->
     <section class="preview-section reveal">
-      <h2><i class="fa-solid fa-qrcode"></i> Xem trước</h2>
+      <h2><i class="fa-solid fa-qrcode"></i> <span data-i18n="preview.title">Xem trước</span></h2>
       <div class="preview-board">
         <div class="preview-frame" aria-label="QR preview">
           <svg id="preview-qr" viewBox="0 0 210 210" width="112" height="112" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR sample"></svg>
         </div>
         <div class="preview-meta">
-          <div class="preview-title">Bảng preview mã QR</div>
-          <div class="preview-subtitle">Chọn thử màu/kiểu chấm/logo để xem trước cảm giác thiết kế.</div>
+          <div class="preview-title" data-i18n="preview.boardTitle">Bảng preview mã QR</div>
+          <div class="preview-subtitle" data-i18n="preview.boardSubtitle">Chọn thử màu/kiểu chấm/logo để xem trước cảm giác thiết kế.</div>
           <div class="preview-controls" aria-label="Preview controls">
-            <div class="preview-pill active" data-preview-theme="purple"><i class="fa-solid fa-droplet"></i> Tím</div>
-            <div class="preview-pill" data-preview-theme="blue"><i class="fa-solid fa-droplet"></i> Xanh</div>
-            <div class="preview-pill" data-preview-theme="green"><i class="fa-solid fa-droplet"></i> Lục</div>
-            <div class="preview-pill active" data-preview-style="rounded"><i class="fa-solid fa-border-all"></i> Bo</div>
-            <div class="preview-pill" data-preview-style="square"><i class="fa-solid fa-border-none"></i> Vuông</div>
-            <div class="preview-pill" data-preview-logo="on"><i class="fa-solid fa-image"></i> Logo</div>
+            <div class="preview-pill active" data-preview-theme="purple"><i class="fa-solid fa-droplet"></i> <span data-i18n="preview.purple">Tím</span></div>
+            <div class="preview-pill" data-preview-theme="blue"><i class="fa-solid fa-droplet"></i> <span data-i18n="preview.blue">Xanh</span></div>
+            <div class="preview-pill" data-preview-theme="green"><i class="fa-solid fa-droplet"></i> <span data-i18n="preview.green">Lục</span></div>
+            <div class="preview-pill active" data-preview-style="rounded"><i class="fa-solid fa-border-all"></i> <span data-i18n="preview.rounded">Bo</span></div>
+            <div class="preview-pill" data-preview-style="square"><i class="fa-solid fa-border-none"></i> <span data-i18n="preview.square">Vuông</span></div>
+            <div class="preview-pill" data-preview-logo="on"><i class="fa-solid fa-image"></i> <span data-i18n="preview.logo">Logo</span></div>
           </div>
-          <div class="preview-status" id="preview-status">Đang preview: Tím • Bo • Không logo</div>
+          <div class="preview-status" id="preview-status" data-i18n="preview.status">Đang preview: Tím • Bo • Không logo</div>
         </div>
       </div>
     </section>
@@ -2134,9 +2201,13 @@
         </div>
         <p class="footer-text" data-i18n="footer.tagline">Công cụ thiết kế mã QR miễn phí • Tạo mã QR đẹp chỉ trong vài giây</p>
         <div class="footer-links">
-          <span>© 2024 Qrio</span>
-          <span>•</span>
-          <span data-i18n="footer.madeWith">Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳</span>
+          <span class="nowrap">© 2025 Qrio</span>
+          <span class="footer-legal" aria-label="Legal">
+            <a class="footer-link" href="/terms" data-i18n="footer.terms">Điều khoản sử dụng</a>
+            <a class="footer-link" href="/privacy" data-i18n="footer.privacy">Chính sách riêng tư</a>
+            <a class="footer-link" href="/disclaimer" data-i18n="footer.disclaimer">Miễn trừ trách nhiệm</a>
+          </span>
+          <span class="footer-made" data-i18n="footer.madeWith">Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam</span>
         </div>
       </div>
     </footer>
@@ -2177,8 +2248,37 @@
         'about.card3.title': 'Liên tục cập nhật',
         'about.card3.body': 'Dự án được phát triển liên tục với các tính năng mới. Đóng góp ý tưởng và phản hồi luôn được hoan nghênh!',
         'footer.tagline': 'Công cụ thiết kế mã QR miễn phí • Tạo mã QR đẹp chỉ trong vài giây',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Điều khoản sử dụng',
+        'footer.privacy': 'Chính sách riêng tư',
+        'footer.disclaimer': 'Miễn trừ trách nhiệm',
+        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam',
         'typing.words': ['đẹp mắt', 'miễn phí', 'nhanh chóng', 'sáng tạo', 'đa dạng', 'hiện đại'],
+        'features.title': 'Tính năng nổi bật',
+        'features.color.title': 'Tùy chỉnh màu sắc',
+        'features.color.desc': 'Thay đổi màu mã QR và nền theo thương hiệu của bạn.',
+        'features.logo.title': 'Thêm logo',
+        'features.logo.desc': 'Chèn logo vào giữa mã QR mà vẫn đảm bảo quét được.',
+        'features.shapes.title': '100+ Hình dạng',
+        'features.shapes.desc': 'Vuông, tròn, ngôi sao, mũi tên và nhiều hơn nữa.',
+        'features.fonts.title': '150+ Font chữ',
+        'features.fonts.desc': 'Thêm văn bản với hơn 150 font đẹp từ Google Fonts.',
+        'features.export.title': 'Xuất HD',
+        'features.export.desc': 'Tải xuống PNG, JPG, SVG với độ phân giải tùy chỉnh lên đến 4K.',
+        'features.autosave.title': 'Lưu tự động',
+        'features.autosave.desc': 'Dự án tự động lưu mỗi 10 giây, không lo mất dữ liệu.',
+        'preview.title': 'Xem trước',
+        'preview.boardTitle': 'Bảng preview mã QR',
+        'preview.boardSubtitle': 'Chọn thử màu/kiểu chấm/logo để xem trước cảm giác thiết kế.',
+        'preview.purple': 'Tím',
+        'preview.blue': 'Xanh',
+        'preview.green': 'Lục',
+        'preview.rounded': 'Bo',
+        'preview.square': 'Vuông',
+        'preview.logo': 'Logo',
+        'preview.status': 'Đang preview: Tím • Bo • Không logo',
+        'preview.statusTemplate': 'Đang preview: {theme} • {style} • {logo}',
+        'preview.withLogo': 'Có logo',
+        'preview.noLogo': 'Không logo',
       },
       en: {
         'home.createNew': 'New',
@@ -2211,8 +2311,37 @@
         'about.card3.title': 'Always improving',
         'about.card3.body': 'We continuously ship new features. Ideas and feedback are always welcome!',
         'footer.tagline': 'Free QR design tool • Create beautiful QR codes in seconds',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Terms of Service',
+        'footer.privacy': 'Privacy Policy',
+        'footer.disclaimer': 'Disclaimer',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['beautiful', 'free', 'fast', 'creative', 'flexible', 'modern'],
+        'features.title': 'Key Features',
+        'features.color.title': 'Custom Colors',
+        'features.color.desc': 'Change QR code and background colors to match your brand.',
+        'features.logo.title': 'Add Logo',
+        'features.logo.desc': 'Insert your logo in the center while keeping it scannable.',
+        'features.shapes.title': '100+ Shapes',
+        'features.shapes.desc': 'Square, rounded, star, arrow, and many more styles.',
+        'features.fonts.title': '150+ Fonts',
+        'features.fonts.desc': 'Add text with 150+ beautiful fonts from Google Fonts.',
+        'features.export.title': 'HD Export',
+        'features.export.desc': 'Download PNG, JPG, SVG with custom resolution up to 4K.',
+        'features.autosave.title': 'Auto Save',
+        'features.autosave.desc': 'Projects auto-save every 10 seconds. Never lose your work.',
+        'preview.title': 'Live Preview',
+        'preview.boardTitle': 'QR Preview Board',
+        'preview.boardSubtitle': 'Try different colors, styles, and logos to see how your design looks.',
+        'preview.purple': 'Purple',
+        'preview.blue': 'Blue',
+        'preview.green': 'Green',
+        'preview.rounded': 'Rounded',
+        'preview.square': 'Square',
+        'preview.logo': 'Logo',
+        'preview.status': 'Preview: Purple • Rounded • No logo',
+        'preview.statusTemplate': 'Preview: {theme} • {style} • {logo}',
+        'preview.withLogo': 'With logo',
+        'preview.noLogo': 'No logo',
       },
       zh: {
         'home.createNew': '新建',
@@ -2245,8 +2374,37 @@
         'about.card3.title': '持续更新',
         'about.card3.body': '项目持续迭代并不断加入新功能。欢迎提出想法与反馈！',
         'footer.tagline': '免费二维码设计工具 • 几秒钟生成漂亮二维码',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': '服务条款',
+        'footer.privacy': '隐私政策',
+        'footer.disclaimer': '免责声明',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['美观', '免费', '快速', '创意', '多样', '现代'],
+        'features.title': '主要功能',
+        'features.color.title': '自定义颜色',
+        'features.color.desc': '更改二维码和背景颜色以匹配您的品牌。',
+        'features.logo.title': '添加Logo',
+        'features.logo.desc': '在中心插入Logo，同时保持可扫描性。',
+        'features.shapes.title': '100+ 形状',
+        'features.shapes.desc': '方形、圆形、星形、箭头等多种样式。',
+        'features.fonts.title': '150+ 字体',
+        'features.fonts.desc': '使用来自 Google Fonts 的 150+ 精美字体添加文本。',
+        'features.export.title': '高清导出',
+        'features.export.desc': '下载 PNG、JPG、SVG，自定义分辨率高达 4K。',
+        'features.autosave.title': '自动保存',
+        'features.autosave.desc': '项目每 10 秒自动保存，永不丢失数据。',
+        'preview.title': '实时预览',
+        'preview.boardTitle': '二维码预览面板',
+        'preview.boardSubtitle': '尝试不同的颜色、样式和Logo，查看设计效果。',
+        'preview.purple': '紫色',
+        'preview.blue': '蓝色',
+        'preview.green': '绿色',
+        'preview.rounded': '圆角',
+        'preview.square': '方形',
+        'preview.logo': 'Logo',
+        'preview.status': '预览: 紫色 • 圆角 • 无Logo',
+        'preview.statusTemplate': '预览: {theme} • {style} • {logo}',
+        'preview.withLogo': '有Logo',
+        'preview.noLogo': '无Logo',
       },
       hi: {
         'home.createNew': 'नया',
@@ -2279,8 +2437,37 @@
         'about.card3.title': 'लगातार अपडेट',
         'about.card3.body': 'हम लगातार नए फीचर जोड़ते हैं। आपके विचार और फीडबैक का स्वागत है!',
         'footer.tagline': 'मुफ़्त QR डिज़ाइन टूल • सेकंडों में सुंदर QR बनाएँ',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'सेवा की शर्तें',
+        'footer.privacy': 'गोपनीयता नीति',
+        'footer.disclaimer': 'अस्वीकरण',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['सुंदर', 'मुफ़्त', 'तेज़', 'रचनात्मक', 'विविध', 'आधुनिक'],
+        'features.title': 'मुख्य विशेषताएं',
+        'features.color.title': 'कस्टम रंग',
+        'features.color.desc': 'अपने ब्रांड से मिलान के लिए QR और बैकग्राउंड रंग बदलें।',
+        'features.logo.title': 'Logo जोड़ें',
+        'features.logo.desc': 'स्कैन योग्य रखते हुए बीच में Logo डालें।',
+        'features.shapes.title': '100+ आकार',
+        'features.shapes.desc': 'चौकोर, गोल, स्टार, तीर और कई अन्य।',
+        'features.fonts.title': '150+ फॉन्ट',
+        'features.fonts.desc': 'Google Fonts से 150+ सुंदर फॉन्ट के साथ टेक्स्ट जोड़ें।',
+        'features.export.title': 'HD एक्सपोर्ट',
+        'features.export.desc': '4K तक कस्टम रेज़ोल्यूशन में PNG, JPG, SVG डाउनलोड करें।',
+        'features.autosave.title': 'ऑटो सेव',
+        'features.autosave.desc': 'हर 10 सेकंड में ऑटो-सेव। डेटा कभी न खोएं।',
+        'preview.title': 'लाइव प्रीव्यू',
+        'preview.boardTitle': 'QR प्रीव्यू बोर्ड',
+        'preview.boardSubtitle': 'अलग-अलग रंग, स्टाइल और Logo आज़माएं।',
+        'preview.purple': 'बैंगनी',
+        'preview.blue': 'नीला',
+        'preview.green': 'हरा',
+        'preview.rounded': 'गोल',
+        'preview.square': 'चौकोर',
+        'preview.logo': 'Logo',
+        'preview.status': 'प्रीव्यू: बैंगनी • गोल • बिना Logo',
+        'preview.statusTemplate': 'प्रीव्यू: {theme} • {style} • {logo}',
+        'preview.withLogo': 'Logo के साथ',
+        'preview.noLogo': 'बिना Logo',
       },
       es: {
         'home.createNew': 'Nuevo',
@@ -2313,8 +2500,37 @@
         'about.card3.title': 'Mejoras constantes',
         'about.card3.body': 'Seguimos añadiendo nuevas funciones. ¡Las ideas y comentarios son bienvenidos!',
         'footer.tagline': 'Herramienta gratis de diseño QR • Crea QR bonitos en segundos',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Términos de uso',
+        'footer.privacy': 'Política de privacidad',
+        'footer.disclaimer': 'Descargo de responsabilidad',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['bonito', 'gratis', 'rápido', 'creativo', 'variado', 'moderno'],
+        'features.title': 'Funciones principales',
+        'features.color.title': 'Colores personalizados',
+        'features.color.desc': 'Cambia los colores del QR y fondo para tu marca.',
+        'features.logo.title': 'Añadir Logo',
+        'features.logo.desc': 'Inserta tu logo en el centro manteniendo la legibilidad.',
+        'features.shapes.title': '100+ Formas',
+        'features.shapes.desc': 'Cuadrado, redondo, estrella, flecha y muchos más.',
+        'features.fonts.title': '150+ Fuentes',
+        'features.fonts.desc': 'Añade texto con 150+ fuentes de Google Fonts.',
+        'features.export.title': 'Exportar HD',
+        'features.export.desc': 'Descarga PNG, JPG, SVG con resolución hasta 4K.',
+        'features.autosave.title': 'Guardado automático',
+        'features.autosave.desc': 'Guardado automático cada 10 segundos. Nunca pierdas tu trabajo.',
+        'preview.title': 'Vista previa',
+        'preview.boardTitle': 'Panel de vista previa QR',
+        'preview.boardSubtitle': 'Prueba diferentes colores, estilos y logos.',
+        'preview.purple': 'Morado',
+        'preview.blue': 'Azul',
+        'preview.green': 'Verde',
+        'preview.rounded': 'Redondeado',
+        'preview.square': 'Cuadrado',
+        'preview.logo': 'Logo',
+        'preview.status': 'Vista previa: Morado • Redondeado • Sin logo',
+        'preview.statusTemplate': 'Vista previa: {theme} • {style} • {logo}',
+        'preview.withLogo': 'Con logo',
+        'preview.noLogo': 'Sin logo',
       },
       fr: {
         'home.createNew': 'Nouveau',
@@ -2347,8 +2563,37 @@
         'about.card3.title': 'Améliorations continues',
         'about.card3.body': 'De nouvelles fonctions arrivent régulièrement. Vos idées et retours sont les bienvenus !',
         'footer.tagline': 'Outil gratuit de design QR • Créez de beaux QR en quelques secondes',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Conditions d’utilisation',
+        'footer.privacy': 'Politique de confidentialité',
+        'footer.disclaimer': 'Avertissement',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['beau', 'gratuit', 'rapide', 'créatif', 'varié', 'moderne'],
+        'features.title': 'Fonctionnalités clés',
+        'features.color.title': 'Couleurs personnalisées',
+        'features.color.desc': 'Changez les couleurs du QR et du fond selon votre marque.',
+        'features.logo.title': 'Ajouter un logo',
+        'features.logo.desc': 'Insérez votre logo au centre tout en restant scannable.',
+        'features.shapes.title': '100+ Formes',
+        'features.shapes.desc': 'Carré, rond, étoile, flèche et bien plus.',
+        'features.fonts.title': '150+ Polices',
+        'features.fonts.desc': 'Ajoutez du texte avec 150+ polices de Google Fonts.',
+        'features.export.title': 'Export HD',
+        'features.export.desc': 'Téléchargez PNG, JPG, SVG en résolution jusqu\'à 4K.',
+        'features.autosave.title': 'Sauvegarde auto',
+        'features.autosave.desc': 'Sauvegarde automatique toutes les 10 secondes.',
+        'preview.title': 'Aperçu en direct',
+        'preview.boardTitle': 'Panneau d\'aperçu QR',
+        'preview.boardSubtitle': 'Essayez différentes couleurs, styles et logos.',
+        'preview.purple': 'Violet',
+        'preview.blue': 'Bleu',
+        'preview.green': 'Vert',
+        'preview.rounded': 'Arrondi',
+        'preview.square': 'Carré',
+        'preview.logo': 'Logo',
+        'preview.status': 'Aperçu: Violet • Arrondi • Sans logo',
+        'preview.statusTemplate': 'Aperçu: {theme} • {style} • {logo}',
+        'preview.withLogo': 'Avec logo',
+        'preview.noLogo': 'Sans logo',
       },
       ar: {
         'home.createNew': 'جديد',
@@ -2381,8 +2626,37 @@
         'about.card3.title': 'تحديثات مستمرة',
         'about.card3.body': 'نطوّر المشروع باستمرار بميزات جديدة. نرحّب بالأفكار والملاحظات!',
         'footer.tagline': 'أداة مجانية لتصميم QR • أنشئ QR جميلًا خلال ثوانٍ',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'شروط الاستخدام',
+        'footer.privacy': 'سياسة الخصوصية',
+        'footer.disclaimer': 'إخلاء المسؤولية',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['جميل', 'مجاني', 'سريع', 'إبداعي', 'متنوع', 'حديث'],
+        'features.title': 'الميزات الرئيسية',
+        'features.color.title': 'ألوان مخصصة',
+        'features.color.desc': 'غيّر ألوان QR والخلفية لتتناسب مع علامتك التجارية.',
+        'features.logo.title': 'إضافة Logo',
+        'features.logo.desc': 'أدرج Logo في المركز مع الحفاظ على قابلية المسح.',
+        'features.shapes.title': '100+ شكل',
+        'features.shapes.desc': 'مربع، دائري، نجمة، سهم والمزيد.',
+        'features.fonts.title': '150+ خط',
+        'features.fonts.desc': 'أضف نصًا بأكثر من 150 خط من Google Fonts.',
+        'features.export.title': 'تصدير HD',
+        'features.export.desc': 'حمّل PNG، JPG، SVG بدقة تصل إلى 4K.',
+        'features.autosave.title': 'حفظ تلقائي',
+        'features.autosave.desc': 'حفظ تلقائي كل 10 ثوانٍ. لن تفقد عملك أبدًا.',
+        'preview.title': 'معاينة مباشرة',
+        'preview.boardTitle': 'لوحة معاينة QR',
+        'preview.boardSubtitle': 'جرّب ألوانًا وأنماطًا وشعارات مختلفة.',
+        'preview.purple': 'بنفسجي',
+        'preview.blue': 'أزرق',
+        'preview.green': 'أخضر',
+        'preview.rounded': 'مدور',
+        'preview.square': 'مربع',
+        'preview.logo': 'Logo',
+        'preview.status': 'معاينة: بنفسجي • مدور • بدون Logo',
+        'preview.statusTemplate': 'معاينة: {theme} • {style} • {logo}',
+        'preview.withLogo': 'مع Logo',
+        'preview.noLogo': 'بدون Logo',
       },
       pt: {
         'home.createNew': 'Novo',
@@ -2415,8 +2689,37 @@
         'about.card3.title': 'Sempre melhorando',
         'about.card3.body': 'O projeto evolui continuamente com novas funções. Ideias e feedback são bem-vindos!',
         'footer.tagline': 'Ferramenta gratuita de design QR • Crie QR bonitos em segundos',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Termos de uso',
+        'footer.privacy': 'Política de privacidade',
+        'footer.disclaimer': 'Aviso legal',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['bonito', 'grátis', 'rápido', 'criativo', 'diverso', 'moderno'],
+        'features.title': 'Recursos principais',
+        'features.color.title': 'Cores personalizadas',
+        'features.color.desc': 'Altere as cores do QR e do fundo para sua marca.',
+        'features.logo.title': 'Adicionar Logo',
+        'features.logo.desc': 'Insira seu logo no centro mantendo a leitura.',
+        'features.shapes.title': '100+ Formas',
+        'features.shapes.desc': 'Quadrado, redondo, estrela, seta e muito mais.',
+        'features.fonts.title': '150+ Fontes',
+        'features.fonts.desc': 'Adicione texto com 150+ fontes do Google Fonts.',
+        'features.export.title': 'Exportar HD',
+        'features.export.desc': 'Baixe PNG, JPG, SVG com resolução até 4K.',
+        'features.autosave.title': 'Salvamento automático',
+        'features.autosave.desc': 'Salvamento automático a cada 10 segundos.',
+        'preview.title': 'Visualização ao vivo',
+        'preview.boardTitle': 'Painel de visualização QR',
+        'preview.boardSubtitle': 'Experimente diferentes cores, estilos e logos.',
+        'preview.purple': 'Roxo',
+        'preview.blue': 'Azul',
+        'preview.green': 'Verde',
+        'preview.rounded': 'Arredondado',
+        'preview.square': 'Quadrado',
+        'preview.logo': 'Logo',
+        'preview.status': 'Visualização: Roxo • Arredondado • Sem logo',
+        'preview.statusTemplate': 'Visualização: {theme} • {style} • {logo}',
+        'preview.withLogo': 'Com logo',
+        'preview.noLogo': 'Sem logo',
       },
       ru: {
         'home.createNew': 'Создать',
@@ -2449,8 +2752,37 @@
         'about.card3.title': 'Постоянные обновления',
         'about.card3.body': 'Мы постоянно добавляем новые функции. Идеи и отзывы приветствуются!',
         'footer.tagline': 'Бесплатный редактор QR • Красивые QR за секунды',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Условия использования',
+        'footer.privacy': 'Политика конфиденциальности',
+        'footer.disclaimer': 'Отказ от ответственности',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['красиво', 'бесплатно', 'быстро', 'креативно', 'разнообразно', 'современно'],
+        'features.title': 'Основные функции',
+        'features.color.title': 'Пользовательские цвета',
+        'features.color.desc': 'Меняйте цвета QR и фона под ваш бренд.',
+        'features.logo.title': 'Добавить Logo',
+        'features.logo.desc': 'Вставьте логотип в центр, сохраняя сканируемость.',
+        'features.shapes.title': '100+ форм',
+        'features.shapes.desc': 'Квадрат, круг, звезда, стрелка и многое другое.',
+        'features.fonts.title': '150+ шрифтов',
+        'features.fonts.desc': 'Добавьте текст с 150+ шрифтами от Google Fonts.',
+        'features.export.title': 'Экспорт HD',
+        'features.export.desc': 'Скачивайте PNG, JPG, SVG с разрешением до 4K.',
+        'features.autosave.title': 'Автосохранение',
+        'features.autosave.desc': 'Автоматическое сохранение каждые 10 секунд.',
+        'preview.title': 'Живой предпросмотр',
+        'preview.boardTitle': 'Панель предпросмотра QR',
+        'preview.boardSubtitle': 'Пробуйте разные цвета, стили и логотипы.',
+        'preview.purple': 'Фиолетовый',
+        'preview.blue': 'Синий',
+        'preview.green': 'Зеленый',
+        'preview.rounded': 'Скругленный',
+        'preview.square': 'Квадрат',
+        'preview.logo': 'Logo',
+        'preview.status': 'Предпросмотр: Фиолетовый • Скругленный • Без Logo',
+        'preview.statusTemplate': 'Предпросмотр: {theme} • {style} • {logo}',
+        'preview.withLogo': 'С Logo',
+        'preview.noLogo': 'Без Logo',
       },
       id: {
         'home.createNew': 'Baru',
@@ -2483,8 +2815,37 @@
         'about.card3.title': 'Terus diperbarui',
         'about.card3.body': 'Kami terus menambahkan fitur baru. Ide dan masukan sangat diterima!',
         'footer.tagline': 'Alat desain QR gratis • Buat QR cantik dalam hitungan detik',
-        'footer.madeWith': 'Made with <i class="fa-solid fa-heart footer-heart"></i> in Vietnam 🇻🇳',
+        'footer.terms': 'Ketentuan layanan',
+        'footer.privacy': 'Kebijakan privasi',
+        'footer.disclaimer': 'Disclaimer',
+        'footer.madeWith': 'Made with  <i class="fa-solid fa-heart footer-heart"></i>  in Vietnam',
         'typing.words': ['cantik', 'gratis', 'cepat', 'kreatif', 'beragam', 'modern'],
+        'features.title': 'Fitur Utama',
+        'features.color.title': 'Warna Kustom',
+        'features.color.desc': 'Ubah warna QR dan latar belakang sesuai merek Anda.',
+        'features.logo.title': 'Tambah Logo',
+        'features.logo.desc': 'Sisipkan logo di tengah sambil tetap dapat dipindai.',
+        'features.shapes.title': '100+ Bentuk',
+        'features.shapes.desc': 'Kotak, bulat, bintang, panah, dan banyak lagi.',
+        'features.fonts.title': '150+ Font',
+        'features.fonts.desc': 'Tambahkan teks dengan 150+ font dari Google Fonts.',
+        'features.export.title': 'Ekspor HD',
+        'features.export.desc': 'Unduh PNG, JPG, SVG dengan resolusi hingga 4K.',
+        'features.autosave.title': 'Simpan Otomatis',
+        'features.autosave.desc': 'Simpan otomatis setiap 10 detik. Tidak akan kehilangan pekerjaan.',
+        'preview.title': 'Pratinjau Langsung',
+        'preview.boardTitle': 'Panel Pratinjau QR',
+        'preview.boardSubtitle': 'Coba berbagai warna, gaya, dan logo.',
+        'preview.purple': 'Ungu',
+        'preview.blue': 'Biru',
+        'preview.green': 'Hijau',
+        'preview.rounded': 'Bulat',
+        'preview.square': 'Kotak',
+        'preview.logo': 'Logo',
+        'preview.status': 'Pratinjau: Ungu • Bulat • Tanpa logo',
+        'preview.statusTemplate': 'Pratinjau: {theme} • {style} • {logo}',
+        'preview.withLogo': 'Dengan logo',
+        'preview.noLogo': 'Tanpa logo',
       },
     };
 
@@ -2791,9 +3152,9 @@
       if (!board || !svg) return;
 
       const themes = {
-        purple: { name: 'Tím', color: '#7c3aed' },
-        blue: { name: 'Xanh', color: '#3b82f6' },
-        green: { name: 'Lục', color: '#10b981' }
+        purple: { key: 'preview.purple', color: '#7c3aed' },
+        blue: { key: 'preview.blue', color: '#3b82f6' },
+        green: { key: 'preview.green', color: '#10b981' }
       };
 
       let currentTheme = 'purple';
@@ -2947,9 +3308,10 @@
 
       function updateStatus() {
         if (!status) return;
-        const themeName = themes[currentTheme]?.name || 'Tím';
-        const styleName = currentStyle === 'rounded' ? 'Bo' : 'Vuông';
-        status.textContent = `Đang preview: ${themeName} • ${styleName} • ${logoOn ? 'Có logo' : 'Không logo'}`;
+        const themeName = t(themes[currentTheme]?.key || 'preview.purple');
+        const styleName = currentStyle === 'rounded' ? t('preview.rounded') : t('preview.square');
+        const logoText = logoOn ? t('preview.withLogo') : t('preview.noLogo');
+        status.textContent = t('preview.statusTemplate', { theme: themeName, style: styleName, logo: logoText });
       }
 
       function setActive(selector, attr, value) {
