@@ -472,17 +472,47 @@ def _normalize_country_code(value: str) -> str:
 
 
 def _get_client_ip_for_geo() -> Optional[str]:
-    forwarded = request.headers.get('X-Forwarded-For', '')
+    def _is_public_ip(value: str) -> bool:
+        try:
+            import ipaddress
+
+            addr = ipaddress.ip_address(value)
+            if addr.is_loopback or addr.is_link_local or addr.is_multicast or addr.is_unspecified:
+                return False
+            # Covers RFC1918, CGNAT, unique-local v6, etc.
+            if addr.is_private:
+                return False
+            # Some Python versions expose is_reserved; keep safe
+            if getattr(addr, 'is_reserved', False):
+                return False
+            return True
+        except Exception:
+            return False
+
+    # Common direct client IP headers (CDNs / proxies)
+    direct_headers = (
+        'CF-Connecting-IP',
+        'True-Client-IP',
+        'X-Real-IP',
+    )
+    for h in direct_headers:
+        raw = (request.headers.get(h, '') or '').strip()
+        if raw and _is_public_ip(raw):
+            return raw
+
+    # Standard proxy chain
+    forwarded = (request.headers.get('X-Forwarded-For', '') or '').strip()
     if forwarded:
-        ip = forwarded.split(',')[0].strip()
-    else:
-        ip = request.remote_addr or ''
-    if not ip:
-        return None
-    # Avoid geo-lookup for localhost
-    if ip.startswith('127.') or ip in ('::1', '0.0.0.0'):
-        return None
-    return ip
+        parts = [p.strip() for p in forwarded.split(',') if p.strip()]
+        for candidate in parts:
+            if _is_public_ip(candidate):
+                return candidate
+
+    # Fallback to remote_addr
+    ip = (request.remote_addr or '').strip()
+    if ip and _is_public_ip(ip):
+        return ip
+    return None
 
 
 def _geoip_lookup_country(ip: str) -> str:
