@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Admin Dashboard - Qrio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,7 +14,7 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0a0a0f;
             color: #e4e4e7;
             min-height: 100vh;
@@ -43,6 +44,11 @@
         .header h1 {
             font-size: 1.25rem;
             font-weight: 600;
+        }
+
+        .header h1 i {
+            margin-right: 0.6rem;
+            color: #c7d2fe;
         }
         
         .badge {
@@ -91,6 +97,10 @@
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
+        }
+
+        .logout-btn i {
+            margin-right: 0.5rem;
         }
         
         .logout-btn:hover {
@@ -147,6 +157,10 @@
             justify-content: center;
             font-size: 1.25rem;
             margin-bottom: 1rem;
+        }
+
+        .stat-card .icon i {
+            font-size: 1.1rem;
         }
         
         .stat-card .icon.purple { background: #6366f120; }
@@ -215,7 +229,19 @@
         }
         
         .chart-card h3 .emoji {
-            font-size: 1.25rem;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #27272a;
+            border: 1px solid #3f3f46;
+        }
+
+        .chart-card h3 .emoji i {
+            font-size: 0.9rem;
+            color: #c7d2fe;
         }
         
         /* ========================
@@ -431,6 +457,11 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
         }
+
+        .empty-state .emoji i {
+            font-size: 1em;
+            color: #71717a;
+        }
         
         /* ========================
            FOOTER
@@ -490,7 +521,7 @@
 <body>
     <header class="header">
         <div class="header-left">
-            <h1>📊 Admin Dashboard</h1>
+            <h1><i class="fa-solid fa-chart-simple" aria-hidden="true"></i>Admin Dashboard</h1>
             <span class="badge">READ-ONLY</span>
         </div>
         <div class="header-actions">
@@ -499,7 +530,7 @@
                 <span>Phiên: 30 phút</span>
             </div>
             <form method="POST" action="/admin/logout" style="margin:0">
-                <button type="submit" class="logout-btn">🚪 Đăng xuất</button>
+                <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>Đăng xuất</button>
             </form>
         </div>
     </header>
@@ -509,22 +540,22 @@
         <div class="section-title">Tổng quan</div>
         <div class="stats-grid" id="stats-grid">
             <div class="stat-card">
-                <div class="icon purple">👁️</div>
+                <div class="icon purple" aria-hidden="true"><i class="fa-solid fa-eye"></i></div>
                 <h3>Tổng lượt xem</h3>
                 <div class="value" id="total-views">--</div>
             </div>
             <div class="stat-card">
-                <div class="icon blue">📅</div>
+                <div class="icon blue" aria-hidden="true"><i class="fa-solid fa-calendar-day"></i></div>
                 <h3>Hôm nay</h3>
                 <div class="value" id="today-views">--</div>
             </div>
             <div class="stat-card">
-                <div class="icon green">⚡</div>
+                <div class="icon green" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
                 <h3>QR đã tạo</h3>
                 <div class="value" id="total-generated">--</div>
             </div>
             <div class="stat-card">
-                <div class="icon orange">📥</div>
+                <div class="icon orange" aria-hidden="true"><i class="fa-solid fa-download"></i></div>
                 <h3>Lượt tải xuống</h3>
                 <div class="value" id="total-downloads">--</div>
             </div>
@@ -533,7 +564,7 @@
         <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3><span class="emoji">📈</span> Lượt xem 7 ngày qua</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span> Lượt xem 7 ngày qua</h3>
                 <div class="line-chart-container">
                     <div class="line-chart" id="daily-chart">
                         <div class="loading"><span class="spinner"></span> Đang tải...</div>
@@ -543,7 +574,7 @@
             </div>
             
             <div class="chart-card">
-                <h3><span class="emoji">🌍</span> Top quốc gia</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-earth-asia"></i></span> Top quốc gia</h3>
                 <div id="countries-chart" class="bar-chart">
                     <div class="loading"><span class="spinner"></span> Đang tải...</div>
                 </div>
@@ -552,7 +583,7 @@
         
         <!-- Events -->
         <div class="chart-card">
-            <h3><span class="emoji">🎯</span> Sự kiện</h3>
+            <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-bullseye"></i></span> Sự kiện</h3>
             <div id="events-list" class="events-grid">
                 <div class="loading"><span class="spinner"></span> Đang tải...</div>
             </div>
@@ -619,11 +650,11 @@
             
             function getEventIcon(eventName) {
                 var icons = {
-                    'page_view': ['👁️', 'view'],
-                    'generate_qr': ['⚡', 'generate'],
-                    'download_qr': ['📥', 'download']
+                    'page_view': ['fa-solid fa-eye', 'view'],
+                    'generate_qr': ['fa-solid fa-bolt', 'generate'],
+                    'download_qr': ['fa-solid fa-download', 'download']
                 };
-                return icons[eventName] || ['📊', 'view'];
+                return icons[eventName] || ['fa-solid fa-chart-simple', 'view'];
             }
             
             function getEventLabel(eventName) {
@@ -651,7 +682,7 @@
                     .catch(function(err) {
                         console.error('Failed to load summary:', err.message);
                         document.getElementById('daily-chart').innerHTML = 
-                            '<div class="empty-state"><div class="emoji">⚠️</div><div>Không thể tải dữ liệu</div></div>';
+                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
                     });
             }
             
@@ -663,7 +694,7 @@
                 var labels = document.getElementById('daily-labels');
                 
                 if (!dailyViews || !dailyViews.length) {
-                    container.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><div>Chưa có dữ liệu</div></div>';
+                    container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-inbox" aria-hidden="true"></i></div><div>Chưa có dữ liệu</div></div>';
                     return;
                 }
                 
@@ -692,7 +723,7 @@
                         var container = document.getElementById('countries-chart');
                         
                         if (!data || !data.length) {
-                            container.innerHTML = '<div class="empty-state"><div class="emoji">🌐</div><div>Chưa có dữ liệu quốc gia</div></div>';
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-globe" aria-hidden="true"></i></div><div>Chưa có dữ liệu quốc gia</div></div>';
                             return;
                         }
                         
@@ -714,7 +745,7 @@
                     .catch(function(err) {
                         console.error('Failed to load countries:', err.message);
                         document.getElementById('countries-chart').innerHTML = 
-                            '<div class="empty-state"><div class="emoji">⚠️</div><div>Không thể tải dữ liệu</div></div>';
+                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
                     });
             }
             
@@ -727,7 +758,7 @@
                         var container = document.getElementById('events-list');
                         
                         if (!data || !data.length) {
-                            container.innerHTML = '<div class="empty-state"><div class="emoji">📊</div><div>Chưa có sự kiện nào</div></div>';
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></div><div>Chưa có sự kiện nào</div></div>';
                             return;
                         }
                         
@@ -736,7 +767,7 @@
                             var iconData = getEventIcon(item.event);
                             html += '<div class="event-card">' +
                                 '<div class="event-info">' +
-                                    '<div class="event-icon ' + iconData[1] + '">' + iconData[0] + '</div>' +
+                                    '<div class="event-icon ' + iconData[1] + '"><i class="' + escapeHtml(iconData[0]) + '" aria-hidden="true"></i></div>' +
                                     '<span class="event-name">' + escapeHtml(getEventLabel(item.event)) + '</span>' +
                                 '</div>' +
                                 '<span class="event-count">' + formatNumber(item.count) + '</span>' +
@@ -748,7 +779,7 @@
                     .catch(function(err) {
                         console.error('Failed to load events:', err.message);
                         document.getElementById('events-list').innerHTML = 
-                            '<div class="empty-state"><div class="emoji">⚠️</div><div>Không thể tải dữ liệu</div></div>';
+                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
                     });
             }
             
