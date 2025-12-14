@@ -144,6 +144,41 @@
             align-items: center;
             gap: 1rem;
         }
+
+        .lang-picker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.45rem 0.65rem;
+            background: rgba(39, 39, 42, 0.7);
+            border: 1px solid rgba(124, 58, 237, 0.18);
+            border-radius: 10px;
+            color: #e4e4e7;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-picker i {
+            color: #a78bfa;
+            font-size: 0.9rem;
+        }
+
+        .lang-picker select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: transparent;
+            border: 0;
+            color: #e4e4e7;
+            font-weight: 800;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+            padding-right: 10px;
+        }
+
+        .lang-picker select option {
+            background: #18181b;
+            color: #e4e4e7;
+        }
         
         .session-info {
             font-size: 0.75rem;
@@ -794,13 +829,25 @@
             width: min(860px, 100%);
             max-height: min(80vh, 720px);
             overflow: hidden;
-            background: rgba(24, 24, 27, 0.92);
-            border: 1px solid rgba(124, 58, 237, 0.18);
+            background: rgba(24, 24, 27, 0.9);
+            border: 1px solid rgba(124, 58, 237, 0.22);
             border-radius: 16px;
             box-shadow: 0 22px 60px rgba(0,0,0,0.55);
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
+            position: relative;
+        }
+
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.9), rgba(124, 58, 237, 0.85), rgba(236, 72, 153, 0.75));
+            pointer-events: none;
         }
 
         .modal-head {
@@ -810,6 +857,8 @@
             gap: 12px;
             padding: 14px 16px;
             border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+            background: rgba(24, 24, 27, 0.55);
+            backdrop-filter: blur(10px);
         }
 
         .modal-title {
@@ -826,11 +875,12 @@
             font-size: 0.82rem;
             color: #a1a1aa;
             line-height: 1.4;
+            word-break: break-word;
         }
 
         .modal-close {
             border: 1px solid #3f3f46;
-            background: #27272a;
+            background: rgba(39, 39, 42, 0.85);
             color: #e4e4e7;
             border-radius: 10px;
             padding: 8px 10px;
@@ -866,16 +916,23 @@
     <div class="bg-grid" aria-hidden="true"></div>
     <header class="header">
         <div class="header-left">
-            <h1><i class="fa-solid fa-chart-simple" aria-hidden="true"></i>Admin Dashboard</h1>
-            <span class="badge">READ-ONLY</span>
+            <h1><i class="fa-solid fa-chart-simple" aria-hidden="true"></i><span data-i18n="title">Admin Dashboard</span></h1>
+            <span class="badge" data-i18n="badge_readonly">READ-ONLY</span>
         </div>
         <div class="header-actions">
+            <div class="lang-picker" title="Language">
+                <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                <select id="lang-select" aria-label="Language">
+                    <option value="vi">VI</option>
+                    <option value="en">EN</option>
+                </select>
+            </div>
             <div class="session-info">
                 <span class="session-dot"></span>
-                <span>Phiên: 30 phút</span>
+                <span data-i18n="session_30m">Phiên: 30 phút</span>
             </div>
             <form method="POST" action="/admin/logout" style="margin:0">
-                <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>Đăng xuất</button>
+                <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span data-i18n="logout">Đăng xuất</span></button>
             </form>
         </div>
     </header>
@@ -883,10 +940,10 @@
     <div class="tabs">
         <div class="tabbar" role="tablist" aria-label="Admin tabs">
             <button class="tabbtn active" id="tab-analytics" type="button" role="tab" aria-selected="true">
-                <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics
+                <i class="fa-solid fa-chart-line" aria-hidden="true"></i> <span data-i18n="tab_analytics">Analytics</span>
             </button>
             <button class="tabbtn" id="tab-messages" type="button" role="tab" aria-selected="false">
-                <i class="fa-solid fa-inbox" aria-hidden="true"></i> Tin nhắn
+                <i class="fa-solid fa-inbox" aria-hidden="true"></i> <span data-i18n="tab_messages">Tin nhắn</span>
             </button>
         </div>
     </div>
@@ -895,7 +952,7 @@
         <div class="toast-inner">
             <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
             <div>
-                <div class="toast-title">Thông báo</div>
+                <div class="toast-title" data-i18n="toast_title">Thông báo</div>
                 <div class="toast-msg" id="toast-msg">...</div>
             </div>
         </div>
@@ -904,26 +961,26 @@
     <main class="main">
         <section id="view-analytics">
         <!-- Stats Cards -->
-        <div class="section-title">Tổng quan</div>
+        <div class="section-title" data-i18n="overview">Tổng quan</div>
         <div class="stats-grid" id="stats-grid">
             <div class="stat-card">
                 <div class="icon purple" aria-hidden="true"><i class="fa-solid fa-eye"></i></div>
-                <h3>Tổng lượt xem</h3>
+                <h3 data-i18n="total_views">Tổng lượt xem</h3>
                 <div class="value" id="total-views">--</div>
             </div>
             <div class="stat-card">
                 <div class="icon blue" aria-hidden="true"><i class="fa-solid fa-calendar-day"></i></div>
-                <h3>Hôm nay</h3>
+                <h3 data-i18n="today">Hôm nay</h3>
                 <div class="value" id="today-views">--</div>
             </div>
             <div class="stat-card">
                 <div class="icon green" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
-                <h3>QR đã tạo</h3>
+                <h3 data-i18n="qr_generated">QR đã tạo</h3>
                 <div class="value" id="total-generated">--</div>
             </div>
             <div class="stat-card">
                 <div class="icon orange" aria-hidden="true"><i class="fa-solid fa-download"></i></div>
-                <h3>Lượt tải xuống</h3>
+                <h3 data-i18n="downloads">Lượt tải xuống</h3>
                 <div class="value" id="total-downloads">--</div>
             </div>
         </div>
@@ -931,68 +988,68 @@
         <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span> Lượt xem 7 ngày qua</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span> <span data-i18n="views_7d">Lượt xem 7 ngày qua</span></h3>
                 <div class="line-chart-container">
                     <div class="line-chart" id="daily-chart">
-                        <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                        <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                     </div>
                     <div class="chart-labels" id="daily-labels"></div>
                 </div>
             </div>
             
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-mobile-screen"></i></span> Top thiết bị sử dụng</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-mobile-screen"></i></span> <span data-i18n="top_devices">Top thiết bị sử dụng</span></h3>
                 <div id="devices-chart" class="bar-chart">
-                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                    <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                 </div>
             </div>
         </div>
 
         <div class="charts-grid-secondary">
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-clock"></i></span> Top khung giờ hoạt động</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-clock"></i></span> <span data-i18n="top_hours">Top khung giờ hoạt động</span></h3>
                 <div id="hours-chart" class="bar-chart">
-                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                    <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                 </div>
             </div>
 
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span> Top loại mã QR được tạo</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span> <span data-i18n="top_qr_types">Top loại mã QR được tạo</span></h3>
                 <div id="qrtypes-chart" class="bar-chart">
-                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                    <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                 </div>
             </div>
 
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-share-nodes"></i></span> Top nguồn truy cập</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-share-nodes"></i></span> <span data-i18n="top_sources">Top nguồn truy cập</span></h3>
                 <div id="sources-chart" class="bar-chart">
-                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                    <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                 </div>
             </div>
         </div>
         
         <!-- Events -->
         <div class="chart-card">
-            <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-bullseye"></i></span> Sự kiện</h3>
+            <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-bullseye"></i></span> <span data-i18n="events">Sự kiện</span></h3>
             <div id="events-list" class="events-grid">
-                <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
             </div>
         </div>
         </section>
 
         <section id="view-messages" style="display:none">
-            <div class="section-title">Tin nhắn</div>
+            <div class="section-title" data-i18n="messages">Tin nhắn</div>
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-inbox"></i></span> Tin nhắn từ trang liên hệ</h3>
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-inbox"></i></span> <span data-i18n="messages_from_contact">Tin nhắn từ trang liên hệ</span></h3>
                 <div id="messages-list" class="messages-list">
-                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                    <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                 </div>
             </div>
         </section>
     </main>
     
     <footer class="footer">
-        <p>Qrio Admin Dashboard • Dữ liệu được tải từ server • <a href="/">← Về trang chủ</a></p>
+        <p><span data-i18n="footer_prefix">Qrio Admin Dashboard • Dữ liệu được tải từ server •</span> <a href="/" data-i18n="footer_home">← Về trang chủ</a></p>
     </footer>
 
     <div class="modal-overlay" id="msg-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="msg-modal-title" style="display:none">
@@ -1031,6 +1088,132 @@
             var toastMsgEl = document.getElementById('toast-msg');
             var toastTimer = null;
 
+            // Language (no localStorage): read from ?lang=vi|en or browser default
+            var LANG_TEXT = {
+                vi: {
+                    title: 'Admin Dashboard',
+                    badge_readonly: 'READ-ONLY',
+                    session_30m: 'Phiên: 30 phút',
+                    logout: 'Đăng xuất',
+                    tab_analytics: 'Analytics',
+                    tab_messages: 'Tin nhắn',
+                    toast_title: 'Thông báo',
+                    overview: 'Tổng quan',
+                    total_views: 'Tổng lượt xem',
+                    today: 'Hôm nay',
+                    qr_generated: 'QR đã tạo',
+                    downloads: 'Lượt tải xuống',
+                    views_7d: 'Lượt xem 7 ngày qua',
+                    top_devices: 'Top thiết bị sử dụng',
+                    top_hours: 'Top khung giờ hoạt động',
+                    top_qr_types: 'Top loại mã QR được tạo',
+                    top_sources: 'Top nguồn truy cập',
+                    events: 'Sự kiện',
+                    messages: 'Tin nhắn',
+                    messages_from_contact: 'Tin nhắn từ trang liên hệ',
+                    loading: 'Đang tải...',
+                    footer_prefix: 'Qrio Admin Dashboard • Dữ liệu được tải từ server •',
+                    footer_home: '← Về trang chủ',
+                    unknown: 'Không xác định',
+                    page: 'Trang',
+                    source: 'Nguồn',
+                    device: 'Thiết bị',
+                    toast_failed: 'Có lỗi xảy ra.',
+                    toast_failed_summary: 'Không thể tải tổng quan.',
+                    toast_failed_devices: 'Không thể tải thống kê thiết bị.',
+                    toast_failed_hours: 'Không thể tải thống kê khung giờ.',
+                    toast_failed_qrtypes: 'Không thể tải thống kê loại QR.',
+                    toast_failed_sources: 'Không thể tải thống kê nguồn truy cập.',
+                    toast_failed_events: 'Không thể tải sự kiện.',
+                    toast_failed_messages: 'Không thể tải tin nhắn.',
+                    empty_no_data: 'Chưa có dữ liệu',
+                    empty_cant_load: 'Không thể tải dữ liệu',
+                    empty_no_messages: 'Chưa có tin nhắn',
+                    empty_no_events: 'Chưa có sự kiện nào'
+                },
+                en: {
+                    title: 'Admin Dashboard',
+                    badge_readonly: 'READ-ONLY',
+                    session_30m: 'Session: 30 minutes',
+                    logout: 'Log out',
+                    tab_analytics: 'Analytics',
+                    tab_messages: 'Messages',
+                    toast_title: 'Notice',
+                    overview: 'Overview',
+                    total_views: 'Total views',
+                    today: 'Today',
+                    qr_generated: 'QR generated',
+                    downloads: 'Downloads',
+                    views_7d: 'Views (last 7 days)',
+                    top_devices: 'Top devices',
+                    top_hours: 'Top active hours',
+                    top_qr_types: 'Top QR types',
+                    top_sources: 'Top traffic sources',
+                    events: 'Events',
+                    messages: 'Messages',
+                    messages_from_contact: 'Messages from contact page',
+                    loading: 'Loading...',
+                    footer_prefix: 'Qrio Admin Dashboard • Data loaded from server •',
+                    footer_home: '← Back to home',
+                    unknown: 'Unknown',
+                    page: 'Page',
+                    source: 'Source',
+                    device: 'Device',
+                    toast_failed: 'Something went wrong.',
+                    toast_failed_summary: 'Failed to load overview.',
+                    toast_failed_devices: 'Failed to load device stats.',
+                    toast_failed_hours: 'Failed to load hour stats.',
+                    toast_failed_qrtypes: 'Failed to load QR type stats.',
+                    toast_failed_sources: 'Failed to load source stats.',
+                    toast_failed_events: 'Failed to load events.',
+                    toast_failed_messages: 'Failed to load messages.',
+                    empty_no_data: 'No data yet',
+                    empty_cant_load: 'Unable to load data',
+                    empty_no_messages: 'No messages yet',
+                    empty_no_events: 'No events yet'
+                }
+            };
+
+            function getLang() {
+                try {
+                    var params = new URLSearchParams(window.location.search || '');
+                    var q = (params.get('lang') || '').toLowerCase();
+                    if (q === 'vi' || q === 'en') return q;
+                } catch (e) {}
+                try {
+                    var nav = (navigator.language || '').toLowerCase();
+                    if (nav.indexOf('vi') === 0) return 'vi';
+                } catch (e2) {}
+                return 'en';
+            }
+
+            var currentLang = getLang();
+
+            function t(key) {
+                var dict = LANG_TEXT[currentLang] || LANG_TEXT.vi;
+                return (dict && dict[key]) ? dict[key] : (LANG_TEXT.vi[key] || key);
+            }
+
+            function applyLang() {
+                document.documentElement.setAttribute('lang', currentLang);
+                var els = document.querySelectorAll('[data-i18n]');
+                for (var i = 0; i < els.length; i++) {
+                    var k = els[i].getAttribute('data-i18n');
+                    if (!k) continue;
+                    els[i].textContent = t(k);
+                }
+            }
+
+            function setLangInUrlAndReload(lang) {
+                try {
+                    var params = new URLSearchParams(window.location.search || '');
+                    params.set('lang', (lang === 'en' ? 'en' : 'vi'));
+                    window.location.href = window.location.pathname + '?' + params.toString();
+                } catch (e) {
+                    window.location.reload();
+                }
+            }
+
             // Message modal
             var msgModalOverlay = document.getElementById('msg-modal-overlay');
             var msgModalTitle = document.getElementById('msg-modal-title');
@@ -1061,7 +1244,6 @@
                 var page = String((m && m.page) || '').trim();
                 var source = String((m && m.source) || '').trim();
                 var device = String((m && m.device) || '').trim();
-                var country = String((m && m.country) || '').trim();
                 var message = String((m && m.message) || '').trim();
 
                 if (msgModalTitle) msgModalTitle.textContent = subject;
@@ -1070,7 +1252,7 @@
                     var who = [name, email].filter(Boolean).join(' • ');
                     if (who) metaBits.push(who);
                     if (timeStr) metaBits.push(timeStr);
-                    var extra = [page ? ('Trang: ' + page) : '', source ? ('Nguồn: ' + source) : '', device ? ('Thiết bị: ' + device) : '', country ? ('Quốc gia: ' + country) : ''].filter(Boolean).join(' • ');
+                    var extra = [page ? (t('page') + ': ' + page) : '', source ? (t('source') + ': ' + source) : '', device ? (t('device') + ': ' + device) : ''].filter(Boolean).join(' • ');
                     if (extra) metaBits.push(extra);
                     msgModalMeta.textContent = metaBits.join(' — ');
                 }
@@ -1091,7 +1273,7 @@
 
             function showToast(message) {
                 try {
-                    toastMsgEl.textContent = String(message || 'Có lỗi xảy ra.');
+                    toastMsgEl.textContent = String(message || t('toast_failed'));
                     toastEl.classList.add('show');
                     clearTimeout(toastTimer);
                     toastTimer = setTimeout(function() {
@@ -1158,7 +1340,7 @@
                     container.innerHTML =
                         '<div class="empty-state">' +
                         '<div class="emoji"><i class="' + escapeHtml(emptyIconClass || 'fa-solid fa-inbox') + '" aria-hidden="true"></i></div>' +
-                        '<div>' + escapeHtml(emptyText || 'Chưa có dữ liệu') + '</div>' +
+                        '<div>' + escapeHtml(emptyText || t('empty_no_data')) + '</div>' +
                         '</div>';
                     return;
                 }
@@ -1181,7 +1363,7 @@
 
             function formatDevice(device) {
                 var d = String(device || '').trim();
-                if (!d || d.toLowerCase() === 'unknown') return 'Không xác định';
+                if (!d || d.toLowerCase() === 'unknown') return t('unknown');
                 if (d.toLowerCase() === 'mobile') return 'Mobile';
                 if (d.toLowerCase() === 'desktop') return 'Desktop';
                 if (d.toLowerCase() === 'tablet') return 'Tablet';
@@ -1190,14 +1372,14 @@
 
             function formatHour(h) {
                 var n = parseInt(h, 10);
-                if (isNaN(n) || n < 0 || n > 23) return 'Không xác định';
+                if (isNaN(n) || n < 0 || n > 23) return t('unknown');
                 var hh = (n < 10 ? '0' : '') + n;
                 return hh + ':00';
             }
 
             function formatQrType(t) {
                 var s = String(t || '').trim();
-                if (!s || s.toLowerCase() === 'unknown') return 'Không xác định';
+                if (!s || s.toLowerCase() === 'unknown') return t('unknown');
                 return s;
             }
 
@@ -1220,7 +1402,11 @@
             }
             
             function getEventLabel(eventName) {
-                var labels = {
+                var labels = currentLang === 'en' ? {
+                    'page_view': 'Page views',
+                    'generate_qr': 'Generate QR',
+                    'download_qr': 'Download QR'
+                } : {
                     'page_view': 'Lượt xem trang',
                     'generate_qr': 'Tạo mã QR',
                     'download_qr': 'Tải xuống QR'
@@ -1243,9 +1429,9 @@
                     })
                     .catch(function(err) {
                         console.error('Failed to load summary:', err.message);
-                        showToast('Không thể tải tổng quan.');
+                        showToast(t('toast_failed_summary'));
                         document.getElementById('daily-chart').innerHTML = 
-                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
+                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_cant_load')) + '</div></div>';
                     });
             }
             
@@ -1257,7 +1443,7 @@
                 var labels = document.getElementById('daily-labels');
                 
                 if (!dailyViews || !dailyViews.length) {
-                    container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-inbox" aria-hidden="true"></i></div><div>Chưa có dữ liệu</div></div>';
+                    container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-inbox" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_no_data')) + '</div></div>';
                     return;
                 }
                 
@@ -1280,48 +1466,48 @@
             function loadDevices() {
                 secureFetch('/analytics/devices')
                     .then(function(data) {
-                        renderBarList('devices-chart', data || [], 'device', formatDevice, 'fa-solid fa-mobile-screen', 'Chưa có dữ liệu thiết bị');
+                        renderBarList('devices-chart', data || [], 'device', formatDevice, 'fa-solid fa-mobile-screen', (currentLang === 'en' ? 'No device data yet' : 'Chưa có dữ liệu thiết bị'));
                     })
                     .catch(function(err) {
                         console.error('Failed to load devices:', err.message);
-                        showToast('Không thể tải thống kê thiết bị.');
-                        renderBarList('devices-chart', [], 'device', formatDevice, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                        showToast(t('toast_failed_devices'));
+                        renderBarList('devices-chart', [], 'device', formatDevice, 'fa-solid fa-triangle-exclamation', t('empty_cant_load'));
                     });
             }
 
             function loadHours() {
                 secureFetch('/analytics/hours')
                     .then(function(data) {
-                        renderBarList('hours-chart', data || [], 'hour', formatHour, 'fa-solid fa-clock', 'Chưa có dữ liệu khung giờ');
+                        renderBarList('hours-chart', data || [], 'hour', formatHour, 'fa-solid fa-clock', (currentLang === 'en' ? 'No hour data yet' : 'Chưa có dữ liệu khung giờ'));
                     })
                     .catch(function(err) {
                         console.error('Failed to load hours:', err.message);
-                        showToast('Không thể tải thống kê khung giờ.');
-                        renderBarList('hours-chart', [], 'hour', formatHour, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                        showToast(t('toast_failed_hours'));
+                        renderBarList('hours-chart', [], 'hour', formatHour, 'fa-solid fa-triangle-exclamation', t('empty_cant_load'));
                     });
             }
 
             function loadQrTypes() {
                 secureFetch('/analytics/qr-types')
                     .then(function(data) {
-                        renderBarList('qrtypes-chart', data || [], 'qr_type', formatQrType, 'fa-solid fa-qrcode', 'Chưa có dữ liệu loại QR');
+                        renderBarList('qrtypes-chart', data || [], 'qr_type', formatQrType, 'fa-solid fa-qrcode', (currentLang === 'en' ? 'No QR type data yet' : 'Chưa có dữ liệu loại QR'));
                     })
                     .catch(function(err) {
                         console.error('Failed to load qr types:', err.message);
-                        showToast('Không thể tải thống kê loại QR.');
-                        renderBarList('qrtypes-chart', [], 'qr_type', formatQrType, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                        showToast(t('toast_failed_qrtypes'));
+                        renderBarList('qrtypes-chart', [], 'qr_type', formatQrType, 'fa-solid fa-triangle-exclamation', t('empty_cant_load'));
                     });
             }
 
             function loadSources() {
                 secureFetch('/analytics/sources')
                     .then(function(data) {
-                        renderBarList('sources-chart', data || [], 'source', formatSource, 'fa-solid fa-share-nodes', 'Chưa có dữ liệu nguồn truy cập');
+                        renderBarList('sources-chart', data || [], 'source', formatSource, 'fa-solid fa-share-nodes', (currentLang === 'en' ? 'No source data yet' : 'Chưa có dữ liệu nguồn truy cập'));
                     })
                     .catch(function(err) {
                         console.error('Failed to load sources:', err.message);
-                        showToast('Không thể tải thống kê nguồn truy cập.');
-                        renderBarList('sources-chart', [], 'source', formatSource, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
+                        showToast(t('toast_failed_sources'));
+                        renderBarList('sources-chart', [], 'source', formatSource, 'fa-solid fa-triangle-exclamation', t('empty_cant_load'));
                     });
             }
 
@@ -1331,7 +1517,7 @@
                         var container = document.getElementById('messages-list');
                         if (!container) return;
                         if (!data || !data.length) {
-                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-inbox" aria-hidden="true"></i></div><div>Chưa có tin nhắn</div></div>';
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-inbox" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_no_messages')) + '</div></div>';
                             return;
                         }
 
@@ -1392,10 +1578,10 @@
                     })
                     .catch(function(err) {
                         console.error('Failed to load messages:', err.message);
-                        showToast('Không thể tải tin nhắn.');
+                        showToast(t('toast_failed_messages'));
                         var container = document.getElementById('messages-list');
                         if (container) {
-                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_cant_load')) + '</div></div>';
                         }
                     });
             }
@@ -1409,7 +1595,7 @@
                         var container = document.getElementById('events-list');
                         
                         if (!data || !data.length) {
-                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></div><div>Chưa có sự kiện nào</div></div>';
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_no_events')) + '</div></div>';
                             return;
                         }
                         
@@ -1429,15 +1615,24 @@
                     })
                     .catch(function(err) {
                         console.error('Failed to load events:', err.message);
-                        showToast('Không thể tải sự kiện.');
+                        showToast(t('toast_failed_events'));
                         document.getElementById('events-list').innerHTML = 
-                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
+                            '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_cant_load')) + '</div></div>';
                     });
             }
             
             // ========================
             // INITIALIZE
             // ========================
+            var langSelect = document.getElementById('lang-select');
+            if (langSelect) {
+                langSelect.value = currentLang;
+                langSelect.addEventListener('change', function() {
+                    setLangInUrlAndReload(langSelect.value);
+                });
+            }
+            applyLang();
+
             loadSummary();
             loadDevices();
             loadHours();
