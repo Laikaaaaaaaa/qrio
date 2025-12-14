@@ -713,6 +713,13 @@
             border: 1px solid #3f3f46;
             border-radius: 12px;
             padding: 12px 14px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .msg-card:hover {
+            background: #3f3f46;
+            border-color: #52525b;
         }
 
         .msg-head {
@@ -752,6 +759,101 @@
             color: #e4e4e7;
             font-size: 0.9rem;
             line-height: 1.5;
+        }
+
+        .msg-body-preview {
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            color: #d4d4d8;
+        }
+
+        /* ========================
+           MESSAGE MODAL
+           ======================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: min(860px, 100%);
+            max-height: min(80vh, 720px);
+            overflow: hidden;
+            background: rgba(24, 24, 27, 0.92);
+            border: 1px solid rgba(124, 58, 237, 0.18);
+            border-radius: 16px;
+            box-shadow: 0 22px 60px rgba(0,0,0,0.55);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+        }
+
+        .modal-title {
+            font-weight: 900;
+            font-size: 1rem;
+            color: #e4e4e7;
+            line-height: 1.25;
+            min-width: 0;
+            word-break: break-word;
+        }
+
+        .modal-sub {
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: #a1a1aa;
+            line-height: 1.4;
+        }
+
+        .modal-close {
+            border: 1px solid #3f3f46;
+            background: #27272a;
+            color: #e4e4e7;
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        .modal-close:hover {
+            background: #3f3f46;
+            border-color: #52525b;
+        }
+
+        .modal-body {
+            padding: 14px 16px;
+            overflow: auto;
+        }
+
+        .modal-message {
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #e4e4e7;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -892,6 +994,23 @@
     <footer class="footer">
         <p>Qrio Admin Dashboard • Dữ liệu được tải từ server • <a href="/">← Về trang chủ</a></p>
     </footer>
+
+    <div class="modal-overlay" id="msg-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="msg-modal-title" style="display:none">
+        <div class="modal" role="document">
+            <div class="modal-head">
+                <div style="min-width:0">
+                    <div class="modal-title" id="msg-modal-title">(Không có chủ đề)</div>
+                    <div class="modal-sub" id="msg-modal-meta">...</div>
+                </div>
+                <button type="button" class="modal-close" id="msg-modal-close" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-message" id="msg-modal-message"></div>
+            </div>
+        </div>
+    </div>
     
     <script>
         /**
@@ -911,6 +1030,64 @@
             var toastEl = document.getElementById('toast');
             var toastMsgEl = document.getElementById('toast-msg');
             var toastTimer = null;
+
+            // Message modal
+            var msgModalOverlay = document.getElementById('msg-modal-overlay');
+            var msgModalTitle = document.getElementById('msg-modal-title');
+            var msgModalMeta = document.getElementById('msg-modal-meta');
+            var msgModalMessage = document.getElementById('msg-modal-message');
+            var msgModalClose = document.getElementById('msg-modal-close');
+            var messagesCache = [];
+
+            function setModalOpen(open) {
+                if (!msgModalOverlay) return;
+                if (open) {
+                    msgModalOverlay.classList.add('show');
+                    msgModalOverlay.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    msgModalOverlay.classList.remove('show');
+                    msgModalOverlay.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }
+
+            function openMessageModal(m) {
+                if (!msgModalOverlay) return;
+                var subject = String((m && m.subject) || '').trim() || '(Không có chủ đề)';
+                var name = String((m && m.name) || '').trim();
+                var email = String((m && m.email) || '').trim();
+                var timeStr = String((m && m.time) || '').trim();
+                var page = String((m && m.page) || '').trim();
+                var source = String((m && m.source) || '').trim();
+                var device = String((m && m.device) || '').trim();
+                var country = String((m && m.country) || '').trim();
+                var message = String((m && m.message) || '').trim();
+
+                if (msgModalTitle) msgModalTitle.textContent = subject;
+                if (msgModalMeta) {
+                    var metaBits = [];
+                    var who = [name, email].filter(Boolean).join(' • ');
+                    if (who) metaBits.push(who);
+                    if (timeStr) metaBits.push(timeStr);
+                    var extra = [page ? ('Trang: ' + page) : '', source ? ('Nguồn: ' + source) : '', device ? ('Thiết bị: ' + device) : '', country ? ('Quốc gia: ' + country) : ''].filter(Boolean).join(' • ');
+                    if (extra) metaBits.push(extra);
+                    msgModalMeta.textContent = metaBits.join(' — ');
+                }
+                if (msgModalMessage) msgModalMessage.textContent = message;
+                setModalOpen(true);
+            }
+
+            msgModalClose && msgModalClose.addEventListener('click', function() { setModalOpen(false); });
+            msgModalOverlay && msgModalOverlay.addEventListener('click', function(e) {
+                if (e && e.target === msgModalOverlay) setModalOpen(false);
+            });
+            document.addEventListener('keydown', function(e) {
+                if (!msgModalOverlay) return;
+                if ((e && e.key) === 'Escape' && msgModalOverlay.classList.contains('show')) {
+                    setModalOpen(false);
+                }
+            });
 
             function showToast(message) {
                 try {
@@ -962,6 +1139,15 @@
                 var div = document.createElement('div');
                 div.textContent = String(text || '');
                 return div.innerHTML;
+            }
+
+            function makePreviewText(text, maxChars) {
+                var s = String(text || '');
+                s = s.replace(/\s+/g, ' ').trim();
+                var n = parseInt(maxChars, 10);
+                if (!n || n < 40) n = 220;
+                if (s.length <= n) return s;
+                return s.slice(0, n).trim() + '…';
             }
 
             function renderBarList(containerId, data, keyName, labelFn, emptyIconClass, emptyText) {
@@ -1149,25 +1335,60 @@
                             return;
                         }
 
+                        messagesCache = data;
+
                         var html = '';
-                        data.forEach(function(m) {
+                        data.forEach(function(m, idx) {
                             var subject = String((m && m.subject) || '').trim() || '(Không có chủ đề)';
                             var name = String((m && m.name) || '').trim();
                             var email = String((m && m.email) || '').trim();
                             var meta = [name, email].filter(Boolean).join(' • ');
                             var timeStr = String((m && m.time) || '').trim();
                             var message = String((m && m.message) || '').trim();
+                            var preview = makePreviewText(message, 220);
 
-                            html += '<div class="msg-card">' +
+                            html += '<div class="msg-card" data-idx="' + idx + '" role="button" tabindex="0" aria-label="Xem tin nhắn">' +
                                 '<div class="msg-head">' +
                                     '<div class="msg-title" title="' + escapeHtml(subject) + '">' + escapeHtml(subject) + '</div>' +
                                     '<div class="msg-time">' + escapeHtml(timeStr) + '</div>' +
                                 '</div>' +
                                 (meta ? '<div class="msg-meta">' + escapeHtml(meta) + '</div>' : '') +
-                                '<div class="msg-body">' + escapeHtml(message) + '</div>' +
+                                '<div class="msg-body msg-body-preview">' + escapeHtml(preview) + '</div>' +
                             '</div>';
                         });
                         container.innerHTML = html;
+
+                        container.onclick = function(e) {
+                            try {
+                                var t = e && e.target;
+                                if (!t) return;
+                                var card = t.closest ? t.closest('.msg-card') : null;
+                                if (!card) return;
+                                var idxStr = card.getAttribute('data-idx');
+                                var i = parseInt(idxStr, 10);
+                                if (isNaN(i) || i < 0 || i >= messagesCache.length) return;
+                                openMessageModal(messagesCache[i]);
+                            } catch (err) {
+                                // ignore
+                            }
+                        };
+
+                        container.onkeydown = function(e) {
+                            try {
+                                var key = e && e.key;
+                                if (key !== 'Enter' && key !== ' ') return;
+                                var t = e.target;
+                                var card = t && t.classList && t.classList.contains('msg-card') ? t : (t && t.closest ? t.closest('.msg-card') : null);
+                                if (!card) return;
+                                e.preventDefault();
+                                var idxStr = card.getAttribute('data-idx');
+                                var i = parseInt(idxStr, 10);
+                                if (isNaN(i) || i < 0 || i >= messagesCache.length) return;
+                                openMessageModal(messagesCache[i]);
+                            } catch (err) {
+                                // ignore
+                            }
+                        };
                     })
                     .catch(function(err) {
                         console.error('Failed to load messages:', err.message);
