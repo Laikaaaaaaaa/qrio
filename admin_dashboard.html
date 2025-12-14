@@ -655,6 +655,104 @@
                 width: 60px;
             }
         }
+
+        /* ========================
+           TABS
+           ======================== */
+        .tabs {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 14px 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                padding: 12px 1rem 0;
+            }
+        }
+
+        .tabbar {
+            display: inline-flex;
+            gap: 8px;
+            padding: 6px;
+            border-radius: 12px;
+            background: rgba(24, 24, 27, 0.72);
+            border: 1px solid rgba(124, 58, 237, 0.12);
+            backdrop-filter: blur(10px);
+        }
+
+        .tabbtn {
+            border: 0;
+            background: transparent;
+            color: #a1a1aa;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tabbtn.active {
+            background: rgba(99, 102, 241, 0.18);
+            color: #e4e4e7;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .messages-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .msg-card {
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .msg-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .msg-title {
+            font-weight: 800;
+            color: #e4e4e7;
+            font-size: 0.95rem;
+            line-height: 1.2;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .msg-time {
+            font-size: 0.75rem;
+            color: #71717a;
+            white-space: nowrap;
+        }
+
+        .msg-meta {
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            margin-bottom: 8px;
+        }
+
+        .msg-body {
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #e4e4e7;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -680,6 +778,17 @@
         </div>
     </header>
 
+    <div class="tabs">
+        <div class="tabbar" role="tablist" aria-label="Admin tabs">
+            <button class="tabbtn active" id="tab-analytics" type="button" role="tab" aria-selected="true">
+                <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Analytics
+            </button>
+            <button class="tabbtn" id="tab-messages" type="button" role="tab" aria-selected="false">
+                <i class="fa-solid fa-inbox" aria-hidden="true"></i> Tin nhắn
+            </button>
+        </div>
+    </div>
+
     <div class="toast" id="toast" aria-live="polite" aria-atomic="true">
         <div class="toast-inner">
             <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
@@ -691,6 +800,7 @@
     </div>
     
     <main class="main">
+        <section id="view-analytics">
         <!-- Stats Cards -->
         <div class="section-title">Tổng quan</div>
         <div class="stats-grid" id="stats-grid">
@@ -766,6 +876,17 @@
                 <div class="loading"><span class="spinner"></span> Đang tải...</div>
             </div>
         </div>
+        </section>
+
+        <section id="view-messages" style="display:none">
+            <div class="section-title">Tin nhắn</div>
+            <div class="chart-card">
+                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-inbox"></i></span> Tin nhắn từ trang liên hệ</h3>
+                <div id="messages-list" class="messages-list">
+                    <div class="loading"><span class="spinner"></span> Đang tải...</div>
+                </div>
+            </div>
+        </section>
     </main>
     
     <footer class="footer">
@@ -1017,6 +1138,46 @@
                         renderBarList('sources-chart', [], 'source', formatSource, 'fa-solid fa-triangle-exclamation', 'Không thể tải dữ liệu');
                     });
             }
+
+            function loadMessages() {
+                secureFetch('/analytics/messages?limit=80')
+                    .then(function(data) {
+                        var container = document.getElementById('messages-list');
+                        if (!container) return;
+                        if (!data || !data.length) {
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-inbox" aria-hidden="true"></i></div><div>Chưa có tin nhắn</div></div>';
+                            return;
+                        }
+
+                        var html = '';
+                        data.forEach(function(m) {
+                            var subject = String((m && m.subject) || '').trim() || '(Không có chủ đề)';
+                            var name = String((m && m.name) || '').trim();
+                            var email = String((m && m.email) || '').trim();
+                            var meta = [name, email].filter(Boolean).join(' • ');
+                            var timeStr = String((m && m.time) || '').trim();
+                            var message = String((m && m.message) || '').trim();
+
+                            html += '<div class="msg-card">' +
+                                '<div class="msg-head">' +
+                                    '<div class="msg-title" title="' + escapeHtml(subject) + '">' + escapeHtml(subject) + '</div>' +
+                                    '<div class="msg-time">' + escapeHtml(timeStr) + '</div>' +
+                                '</div>' +
+                                (meta ? '<div class="msg-meta">' + escapeHtml(meta) + '</div>' : '') +
+                                '<div class="msg-body">' + escapeHtml(message) + '</div>' +
+                            '</div>';
+                        });
+                        container.innerHTML = html;
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to load messages:', err.message);
+                        showToast('Không thể tải tin nhắn.');
+                        var container = document.getElementById('messages-list');
+                        if (container) {
+                            container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div><div>Không thể tải dữ liệu</div></div>';
+                        }
+                    });
+            }
             
             // ========================
             // LOAD EVENTS
@@ -1062,6 +1223,35 @@
             loadQrTypes();
             loadSources();
             loadEvents();
+
+            // Tabs
+            var tabAnalyticsBtn = document.getElementById('tab-analytics');
+            var tabMessagesBtn = document.getElementById('tab-messages');
+            var viewAnalytics = document.getElementById('view-analytics');
+            var viewMessages = document.getElementById('view-messages');
+            var messagesLoaded = false;
+
+            function setTab(which) {
+                var isMessages = which === 'messages';
+                if (tabAnalyticsBtn) {
+                    tabAnalyticsBtn.classList.toggle('active', !isMessages);
+                    tabAnalyticsBtn.setAttribute('aria-selected', (!isMessages).toString());
+                }
+                if (tabMessagesBtn) {
+                    tabMessagesBtn.classList.toggle('active', isMessages);
+                    tabMessagesBtn.setAttribute('aria-selected', (isMessages).toString());
+                }
+                if (viewAnalytics) viewAnalytics.style.display = isMessages ? 'none' : '';
+                if (viewMessages) viewMessages.style.display = isMessages ? '' : 'none';
+
+                if (isMessages && !messagesLoaded) {
+                    messagesLoaded = true;
+                    loadMessages();
+                }
+            }
+
+            tabAnalyticsBtn && tabAnalyticsBtn.addEventListener('click', function() { setTab('analytics'); });
+            tabMessagesBtn && tabMessagesBtn.addEventListener('click', function() { setTab('messages'); });
             
         })();
     </script>

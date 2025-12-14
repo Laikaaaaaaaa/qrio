@@ -180,7 +180,7 @@ load_dotenv()
 # ========================
 # ADMIN DASHBOARD INTEGRATION
 # ========================
-from admin import admin_bp, analytics_bp, track_event
+from admin import admin_bp, analytics_bp, track_event, store_contact_message
 
 app.register_blueprint(admin_bp)
 app.register_blueprint(analytics_bp)
@@ -699,6 +699,43 @@ def about_html():
 def contact_html():
     """Contact page."""
     return send_from_directory('.', 'contact.html')
+
+
+_EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+
+
+@app.route('/api/contact', methods=['POST'])
+def api_contact():
+    """Public API: receive contact form and store for admin review."""
+    try:
+        payload = request.get_json(silent=True) if request.is_json else None
+        if not isinstance(payload, dict):
+            payload = request.form.to_dict(flat=True)
+
+        name = sanitize_input(payload.get('name', ''), max_length=120)
+        email = sanitize_input(payload.get('email', ''), max_length=160)
+        subject = sanitize_input(payload.get('subject', ''), max_length=200)
+        message = sanitize_input(payload.get('message', ''), max_length=5000)
+
+        if not message or len(message.strip()) < 3:
+            return jsonify({'ok': False, 'error': 'Nội dung quá ngắn.'}), 400
+        if not email or not _EMAIL_RE.match(email):
+            return jsonify({'ok': False, 'error': 'Email không hợp lệ.'}), 400
+
+        store_contact_message(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message,
+            page='/contact',
+            source=get_source_from_request(),
+            device=get_device_type(),
+            country=get_country_from_request(),
+        )
+
+        return jsonify({'ok': True})
+    except Exception:
+        return jsonify({'ok': False, 'error': 'Không thể gửi tin nhắn.'}), 500
 
 
 @app.route('/favicon.ico')

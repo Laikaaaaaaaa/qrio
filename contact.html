@@ -557,25 +557,16 @@
           </div>
           <div class="contact-info">
             <strong data-i18n="contact.info.email.title">Email</strong>
-            <span>support@qrio.vn</span>
+            <span>abc23072000@gmail.com</span>
           </div>
         </a>
-        <a href="https://facebook.com/qrio" target="_blank" rel="noopener" class="contact-item">
+        <a href="https://www.facebook.com/nhat.quang.482906" target="_blank" rel="noopener" class="contact-item">
           <div class="contact-icon">
             <i class="fa-brands fa-facebook"></i>
           </div>
           <div class="contact-info">
             <strong data-i18n="contact.info.facebook.title">Facebook</strong>
-            <span>facebook.com/qrio</span>
-          </div>
-        </a>
-        <a href="https://github.com/qrio" target="_blank" rel="noopener" class="contact-item">
-          <div class="contact-icon">
-            <i class="fa-brands fa-github"></i>
-          </div>
-          <div class="contact-info">
-            <strong data-i18n="contact.info.github.title">GitHub</strong>
-            <span>github.com/qrio</span>
+            <span>facebook.com/nhat.quang.482906</span>
           </div>
         </a>
       </div>
@@ -801,13 +792,47 @@
       e.preventDefault();
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData);
-      
-      // Show success message (in a real app, you'd send this to a server)
-      alert(getLang() === 'vi' 
-        ? 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.' 
-        : 'Thank you for contacting us! We will respond as soon as possible.');
-      
-      e.target.reset();
+
+      const isVi = getLang() === 'vi';
+      const btn = e.target.querySelector('button[type="submit"]');
+      const oldLabel = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.8';
+        btn.innerHTML = '<i class="fa-solid fa-spinner" style="animation: spin 1s linear infinite"></i> ' + (isVi ? 'Đang gửi...' : 'Sending...');
+      }
+
+      fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(async (res) => {
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json || json.ok !== true) {
+          const msg = (json && json.error) ? String(json.error) : (isVi ? 'Gửi thất bại. Vui lòng thử lại.' : 'Failed to send. Please try again.');
+          throw new Error(msg);
+        }
+
+        alert(isVi
+          ? 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.'
+          : 'Thank you for contacting us! We will respond as soon as possible.');
+
+        e.target.reset();
+      })
+      .catch((err) => {
+        alert(String(err && err.message ? err.message : (isVi ? 'Gửi thất bại. Vui lòng thử lại.' : 'Failed to send. Please try again.')));
+      })
+      .finally(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          btn.innerHTML = oldLabel || btn.innerHTML;
+        }
+      });
     });
 
     applyI18n(getLang());

@@ -38,6 +38,7 @@ LOCKOUT_DURATION = 900  # 15 minutes
 # Database
 ANALYTICS_DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'analytics.db')
 SESSION_DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'sessions.db')
+CONTACT_DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'contact.db')
 
 def _ensure_data_dir():
     os.makedirs(os.path.dirname(SESSION_DB_PATH), exist_ok=True)
@@ -317,6 +318,105 @@ def get_analytics_db():
     if not os.path.exists(ANALYTICS_DB_PATH):
         init_analytics_db()
     return sqlite3.connect(ANALYTICS_DB_PATH)
+
+
+# ========================
+# CONTACT MESSAGES (READ/WRITE via server)
+# ========================
+
+def init_contact_db():
+    """Initialize contact messages database schema."""
+    os.makedirs(os.path.dirname(CONTACT_DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(CONTACT_DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS contact_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                name TEXT,
+                email TEXT,
+                subject TEXT,
+                message TEXT NOT NULL,
+                page TEXT,
+                source TEXT,
+                device TEXT,
+                country TEXT
+            )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_contact_time ON contact_messages(time)')
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_contact_db():
+    if not os.path.exists(CONTACT_DB_PATH):
+        init_contact_db()
+    return sqlite3.connect(CONTACT_DB_PATH, timeout=5)
+
+
+def store_contact_message(name: str, email: str, subject: str, message: str, page: str = None,
+                          source: str = None, device: str = None, country: str = None) -> None:
+    """Store a contact message. Called from the public contact API in app.py."""
+    try:
+        conn = get_contact_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO contact_messages (name, email, subject, message, page, source, device, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            (
+                (name or '')[:120],
+                (email or '')[:160],
+                (subject or '')[:200],
+                (message or '')[:5000],
+                (page or '')[:120] if page else None,
+                (source or '')[:50] if source else None,
+                (device or '')[:50] if device else None,
+                (country or '')[:50] if country else None,
+            )
+        )
+        conn.commit()
+    except Exception:
+        # never break user flow
+        pass
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
+def get_contact_messages(limit: int = 50):
+    """Read latest contact messages for admin dashboard."""
+    conn = get_contact_db()
+    cursor = conn.cursor()
+    try:
+        lim = int(limit or 50)
+        lim = max(1, min(lim, 200))
+        cursor.execute('''
+            SELECT id, time, name, email, subject, message, page, source, device, country
+            FROM contact_messages
+            ORDER BY time DESC, id DESC
+            LIMIT ?
+        ''', (lim,))
+        rows = cursor.fetchall()
+        out = []
+        for r in rows:
+            out.append({
+                'id': r[0],
+                'time': r[1],
+                'name': r[2] or '',
+                'email': r[3] or '',
+                'subject': r[4] or '',
+                'message': r[5] or '',
+                'page': r[6] or '',
+                'source': r[7] or '',
+                'device': r[8] or '',
+                'country': r[9] or '',
+            })
+        return out
+    finally:
+        conn.close()
 
 
 # ========================
@@ -698,6 +798,18 @@ def api_sources():
     return jsonify(get_source_stats())
 
 
+@analytics_bp.route('/messages')
+@require_admin
+def api_messages():
+    """GET latest contact messages."""
+    limit_raw = request.args.get('limit', '')
+    try:
+        limit = int(limit_raw) if limit_raw else 50
+    except Exception:
+        limit = 50
+    return jsonify(get_contact_messages(limit=limit))
+
+
 @analytics_bp.route('/events')
 @require_admin
 def api_events():
@@ -754,3 +866,4 @@ def send_dashboard_page():
 # Initialize database on import
 init_analytics_db()
 init_session_db()
+init_contact_db()
