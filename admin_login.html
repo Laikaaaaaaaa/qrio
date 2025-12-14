@@ -103,20 +103,27 @@
         
         .login-container {
             width: 100%;
-            max-width: 400px;
             padding: 2rem;
             position: relative;
             z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .login-card {
-            background: rgba(24, 24, 27, 0.82);
-            border: 1px solid rgba(124, 58, 237, 0.18);
-            border-radius: 12px;
-            padding: 2.5rem;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+            width: min(440px, 100%);
+            background: radial-gradient(circle at top left, rgba(79,70,229,0.45), transparent 45%),
+                        rgba(12, 12, 17, 0.95);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            border-radius: 24px;
+            padding: 3rem 2.75rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 35px 85px rgba(0,0,0,0.65);
             animation: popIn 0.55s ease-out;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .login-topbar {
@@ -125,40 +132,11 @@
             margin-bottom: 10px;
         }
 
-        .lang-picker {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 0.45rem 0.65rem;
-            background: rgba(39, 39, 42, 0.7);
-            border: 1px solid rgba(124, 58, 237, 0.18);
-            border-radius: 10px;
-            color: #e4e4e7;
-            backdrop-filter: blur(10px);
-        }
-
-        .lang-picker i {
-            color: #a78bfa;
-            font-size: 0.9rem;
-        }
-
-        .lang-picker select {
-            appearance: none;
-            -webkit-appearance: none;
-            background: transparent;
-            border: 0;
-            color: #e4e4e7;
-            font-weight: 800;
-            font-size: 0.85rem;
-            outline: none;
-            cursor: pointer;
-            padding-right: 10px;
-        }
-
-        .lang-picker select option {
-            background: #18181b;
-            color: #e4e4e7;
-        }
+        /* ========================
+           LANGUAGE PICKER
+           Desktop: dropdown list
+           Mobile: modal picker
+           ======================== */
 
         @keyframes popIn {
             from { opacity: 0; transform: translateY(10px) scale(0.985); }
@@ -369,28 +347,19 @@
     <div class="bg-grid" aria-hidden="true"></div>
     <div class="login-container">
         <div class="login-card">
-            <div class="login-topbar">
-                <div class="lang-picker" title="Language">
-                    <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                    <select id="lang-select" aria-label="Language">
-                        <option value="vi">VI</option>
-                        <option value="en">EN</option>
-                    </select>
+                <div class="card-header">
+                    <div class="mark" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="logo">
+                        <h1>Admin Sign-in</h1>
+                        <span>Qrio • Read-only analytics</span>
+                    </div>
                 </div>
-            </div>
-            <div class="card-header">
-                <div class="mark" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="logo">
-                    <h1 data-i18n="title">Admin Sign-in</h1>
-                    <span data-i18n="subtitle">Qrio • Read-only analytics</span>
-                </div>
-            </div>
             
             <div class="error" id="error-message"></div>
             
             <form id="login-form" autocomplete="off">
                 <div class="form-group">
-                    <label for="password" data-i18n="password_label">Mật khẩu</label>
+                    <label for="password">Password</label>
                     <div class="input-wrap">
                         <i class="fa-solid fa-key" aria-hidden="true"></i>
                         <input
@@ -400,20 +369,19 @@
                             required
                             autocomplete="current-password"
                             autofocus
-                            placeholder="Nhập mật khẩu admin"
-                            data-i18n-placeholder="password_placeholder"
+                            placeholder="Enter admin password"
                         >
                     </div>
                 </div>
                 <button type="submit" class="btn" id="submit-btn">
-                    <span class="btn-text"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span data-i18n="login_btn">Đăng nhập</span></span>
+                    <span class="btn-text"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>Sign in</span>
                     <span class="loading"><span class="spinner"></span></span>
                 </button>
             </form>
             
             <div class="security-note">
-                <div><i class="fa-solid fa-lock" aria-hidden="true"></i><span data-i18n="note_session">Phiên đăng nhập tự động hết hạn sau 30 phút</span></div>
-                <div style="margin-top:0.35rem"><i class="fa-solid fa-shield" aria-hidden="true"></i><span data-i18n="note_lockout">Tối đa 5 lần thử sai / 15 phút</span></div>
+                <div><i class="fa-solid fa-lock" aria-hidden="true"></i><span>Session expires automatically after 30 minutes</span></div>
+                <div style="margin-top:0.35rem"><i class="fa-solid fa-shield" aria-hidden="true"></i><span>Max 5 failed attempts / 15 minutes</span></div>
             </div>
         </div>
     </div>
@@ -421,94 +389,16 @@
     <script>
         (function() {
             'use strict';
-            
+
             var form = document.getElementById('login-form');
             var passwordInput = document.getElementById('password');
             var submitBtn = document.getElementById('submit-btn');
             var errorEl = document.getElementById('error-message');
 
-            var LANG_TEXT = {
-                vi: {
-                    title: 'Đăng nhập Admin',
-                    subtitle: 'Qrio • Analytics chỉ đọc',
-                    password_label: 'Mật khẩu',
-                    password_placeholder: 'Nhập mật khẩu admin',
-                    login_btn: 'Đăng nhập',
-                    note_session: 'Phiên đăng nhập tự động hết hạn sau 30 phút',
-                    note_lockout: 'Tối đa 5 lần thử sai / 15 phút',
-                    err_enter_password: 'Vui lòng nhập mật khẩu',
-                    err_login_failed: 'Đăng nhập thất bại.',
-                    err_try_again: 'Vui lòng thử lại.'
-                },
-                en: {
-                    title: 'Admin Sign-in',
-                    subtitle: 'Qrio • Read-only analytics',
-                    password_label: 'Password',
-                    password_placeholder: 'Enter admin password',
-                    login_btn: 'Sign in',
-                    note_session: 'Session expires automatically after 30 minutes',
-                    note_lockout: 'Max 5 failed attempts / 15 minutes',
-                    err_enter_password: 'Please enter a password',
-                    err_login_failed: 'Login failed.',
-                    err_try_again: 'Please try again.'
-                }
-            };
+            var ERR_ENTER_PASSWORD = 'Please enter a password';
+            var ERR_LOGIN_FAILED = 'Login failed.';
+            var ERR_TRY_AGAIN = 'Please try again.';
 
-            function getLang() {
-                try {
-                    var params = new URLSearchParams(window.location.search || '');
-                    var q = (params.get('lang') || '').toLowerCase();
-                    if (q === 'vi' || q === 'en') return q;
-                } catch (e) {}
-                try {
-                    var nav = (navigator.language || '').toLowerCase();
-                    if (nav.indexOf('vi') === 0) return 'vi';
-                } catch (e2) {}
-                return 'en';
-            }
-
-            var currentLang = getLang();
-
-            function t(key) {
-                var dict = LANG_TEXT[currentLang] || LANG_TEXT.vi;
-                return (dict && dict[key]) ? dict[key] : (LANG_TEXT.vi[key] || key);
-            }
-
-            function applyLang() {
-                document.documentElement.setAttribute('lang', currentLang);
-                var els = document.querySelectorAll('[data-i18n]');
-                for (var i = 0; i < els.length; i++) {
-                    var k = els[i].getAttribute('data-i18n');
-                    if (!k) continue;
-                    els[i].textContent = t(k);
-                }
-                var inputs = document.querySelectorAll('[data-i18n-placeholder]');
-                for (var j = 0; j < inputs.length; j++) {
-                    var pk = inputs[j].getAttribute('data-i18n-placeholder');
-                    if (!pk) continue;
-                    inputs[j].setAttribute('placeholder', t(pk));
-                }
-            }
-
-            function setLangInUrlAndReload(lang) {
-                try {
-                    var params = new URLSearchParams(window.location.search || '');
-                    params.set('lang', (lang === 'en' ? 'en' : 'vi'));
-                    window.location.href = window.location.pathname + '?' + params.toString();
-                } catch (e) {
-                    window.location.reload();
-                }
-            }
-
-            var langSelect = document.getElementById('lang-select');
-            if (langSelect) {
-                langSelect.value = currentLang;
-                langSelect.addEventListener('change', function() {
-                    setLangInUrlAndReload(langSelect.value);
-                });
-            }
-            applyLang();
-            
             function showError(msg) {
                 errorEl.textContent = msg;
                 errorEl.classList.add('show');
@@ -517,13 +407,13 @@
                     card.classList.remove('shake');
                     void card.offsetWidth;
                     card.classList.add('shake');
-                } catch (e) {}
+                } catch (err) {}
             }
-            
+
             function hideError() {
                 errorEl.classList.remove('show');
             }
-            
+
             function setLoading(loading) {
                 if (loading) {
                     submitBtn.classList.add('loading');
@@ -533,22 +423,22 @@
                     submitBtn.disabled = false;
                 }
             }
-            
+
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 hideError();
-                
+
                 var password = passwordInput.value.trim();
                 if (!password) {
-                    showError(t('err_enter_password'));
+                    showError(ERR_ENTER_PASSWORD);
                     return;
                 }
-                
+
                 setLoading(true);
-                
+
                 var formData = new FormData();
                 formData.append('password', password);
-                
+
                 fetch('/admin/login', {
                     method: 'POST',
                     body: formData,
@@ -572,18 +462,17 @@
                         window.location.href = result.data.redirect;
                         return;
                     }
-                    var msg = (result.data && result.data.error) ? result.data.error : t('err_login_failed');
+                    var msg = (result.data && result.data.error) ? result.data.error : ERR_LOGIN_FAILED;
                     showError(msg);
                     passwordInput.value = '';
                     passwordInput.focus();
                 })
-                .catch(function(err) {
+                .catch(function() {
                     setLoading(false);
-                    showError(t('err_try_again'));
+                    showError(ERR_TRY_AGAIN);
                 });
             });
-            
-            // Clear error on input
+
             passwordInput.addEventListener('input', hideError);
         })();
     </script>

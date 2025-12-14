@@ -13,7 +13,6 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
         
         body {
@@ -145,39 +144,172 @@
             gap: 1rem;
         }
 
+        /* ========================
+           LANGUAGE PICKER
+           Desktop: dropdown list
+           Mobile: modal picker
+           ======================== */
         .lang-picker {
+            position: relative;
+            user-select: none;
+        }
+
+        .lang-current {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 0.45rem 0.65rem;
-            background: rgba(39, 39, 42, 0.7);
-            border: 1px solid rgba(124, 58, 237, 0.18);
-            border-radius: 10px;
+            gap: 10px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            background: linear-gradient(135deg, rgba(79,70,229,.18), rgba(124,58,237,.18));
+            border: 1px solid rgba(124,58,237,.28);
             color: #e4e4e7;
+            backdrop-filter: blur(10px);
+            transition: .2s;
+        }
+
+        .lang-current:hover {
+            border-color: rgba(124, 58, 237, 0.55);
+            box-shadow: 0 10px 22px rgba(124, 58, 237, 0.18);
+        }
+
+        .lang-current i {
+            color: #a78bfa;
+            font-size: 0.95rem;
+        }
+
+        .lang-current .arrow {
+            margin-left: 2px;
+            font-size: 0.75rem;
+            opacity: 0.85;
+            transition: transform .2s;
+        }
+
+        .lang-picker.open .lang-current .arrow {
+            transform: rotate(180deg);
+        }
+
+        .lang-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            list-style: none;
+            min-width: 200px;
+            border-radius: 14px;
+            background: rgba(24, 24, 27, 0.96);
+            border: 1px solid rgba(124, 58, 237, 0.16);
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: .2s;
+            z-index: 220;
             backdrop-filter: blur(10px);
         }
 
-        .lang-picker i {
-            color: #a78bfa;
-            font-size: 0.9rem;
+        .lang-picker.open .lang-dropdown {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
         }
 
-        .lang-picker select {
-            appearance: none;
-            -webkit-appearance: none;
-            background: transparent;
-            border: 0;
-            color: #e4e4e7;
-            font-weight: 800;
-            font-size: 0.85rem;
-            outline: none;
+        .lang-dropdown li {
+            padding: 12px 14px;
             cursor: pointer;
-            padding-right: 10px;
+            font-weight: 800;
+            color: #dcdcff;
+            transition: .15s;
         }
 
-        .lang-picker select option {
-            background: #18181b;
+        .lang-dropdown li:hover {
+            background: linear-gradient(135deg, rgba(124,58,237,.35), rgba(79,70,229,.25));
+            color: #fff;
+        }
+
+        .lang-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.62);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 5000;
+        }
+
+        .lang-modal-overlay.show {
+            display: flex;
+        }
+
+        .lang-modal {
+            width: 100%;
+            max-width: 380px;
+            background: rgba(24, 24, 27, 0.92);
+            border: 1px solid rgba(124, 58, 237, 0.22);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+            backdrop-filter: blur(12px);
+        }
+
+        .lang-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 14px;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+        }
+
+        .lang-modal-title {
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .lang-modal-close {
+            border: 1px solid #3f3f46;
+            background: rgba(39, 39, 42, 0.85);
             color: #e4e4e7;
+            border-radius: 12px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .lang-modal-close:hover {
+            background: #3f3f46;
+            border-color: #52525b;
+        }
+
+        .lang-modal-body {
+            padding: 10px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .lang-modal-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(124, 58, 237, 0.16);
+            background: rgba(39, 39, 42, 0.65);
+            color: #e4e4e7;
+            cursor: pointer;
+            font-weight: 900;
+            text-align: left;
+        }
+
+        .lang-modal-item:hover {
+            border-color: rgba(124, 58, 237, 0.45);
+            background: rgba(39, 39, 42, 0.85);
+        }
+
+        @media (max-width: 640px) {
+            /* On mobile, we use modal instead of dropdown */
+            .lang-dropdown { display: none; }
         }
         
         .session-info {
@@ -327,6 +459,55 @@
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
+        }
+
+        .chart-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .hours-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.8rem;
+            color: #a1a1aa;
+        }
+
+        .hours-control span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .tz-buttons {
+            display: inline-flex;
+            gap: 0.4rem;
+            background: rgba(39, 39, 42, 0.65);
+            border: 1px solid rgba(124, 58, 237, 0.12);
+            border-radius: 999px;
+            padding: 0.2rem;
+        }
+
+        .tz-btn {
+            border: 0;
+            background: transparent;
+            color: #e4e4e7;
+            padding: 0.2rem 0.8rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .tz-btn.active {
+            background: rgba(99, 102, 241, 0.18);
+            color: #c7d2fe;
         }
         
         @media (max-width: 1024px) {
@@ -920,12 +1101,16 @@
             <span class="badge" data-i18n="badge_readonly">READ-ONLY</span>
         </div>
         <div class="header-actions">
-            <div class="lang-picker" title="Language">
-                <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                <select id="lang-select" aria-label="Language">
-                    <option value="vi">VI</option>
-                    <option value="en">EN</option>
-                </select>
+            <div class="lang-picker" id="langPicker" title="Language">
+                <div class="lang-current" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+                    <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                    <span id="langLabel">English</span>
+                    <i class="fa-solid fa-chevron-down arrow" aria-hidden="true"></i>
+                </div>
+                <ul class="lang-dropdown" role="listbox" aria-label="Language">
+                    <li role="option" data-lang="vi">Tiếng Việt</li>
+                    <li role="option" data-lang="en">English</li>
+                </ul>
             </div>
             <div class="session-info">
                 <span class="session-dot"></span>
@@ -954,6 +1139,21 @@
             <div>
                 <div class="toast-title" data-i18n="toast_title">Thông báo</div>
                 <div class="toast-msg" id="toast-msg">...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lang-modal-overlay" id="langModalOverlay" aria-hidden="true">
+        <div class="lang-modal" role="dialog" aria-modal="true" aria-label="Language">
+            <div class="lang-modal-header">
+                <div class="lang-modal-title" data-i18n="lang_choose">Chọn ngôn ngữ</div>
+                <button type="button" class="lang-modal-close" id="langModalClose" aria-label="Close">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="lang-modal-body">
+                <button type="button" class="lang-modal-item" data-lang="vi">Tiếng Việt <i class="fa-solid fa-check" aria-hidden="true" style="opacity:.0" data-lang-check="vi"></i></button>
+                <button type="button" class="lang-modal-item" data-lang="en">English <i class="fa-solid fa-check" aria-hidden="true" style="opacity:.0" data-lang-check="en"></i></button>
             </div>
         </div>
     </div>
@@ -1007,7 +1207,16 @@
 
         <div class="charts-grid-secondary">
             <div class="chart-card">
-                <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-clock"></i></span> <span data-i18n="top_hours">Top khung giờ hoạt động</span></h3>
+                <div class="chart-card-header">
+                    <h3><span class="emoji" aria-hidden="true"><i class="fa-solid fa-clock"></i></span> <span data-i18n="top_hours">Top khung giờ hoạt động</span></h3>
+                    <div class="hours-control">
+                        <span data-i18n="hours_timezone">Giờ hiển thị:</span>
+                        <div class="tz-buttons" role="group" aria-label="Timezone selector">
+                            <button type="button" class="tz-btn active" data-tz="utc"><span data-i18n="tz_utc">UTC</span></button>
+                            <button type="button" class="tz-btn" data-tz="vn"><span data-i18n="tz_vn">VN (UTC+7)</span></button>
+                        </div>
+                    </div>
+                </div>
                 <div id="hours-chart" class="bar-chart">
                     <div class="loading"><span class="spinner"></span> <span data-i18n="loading">Đang tải...</span></div>
                 </div>
@@ -1118,6 +1327,10 @@
                     page: 'Trang',
                     source: 'Nguồn',
                     device: 'Thiết bị',
+                    hours_timezone: 'Giờ hiển thị:',
+                    tz_utc: 'UTC',
+                    tz_vn: 'VN (UTC+7)',
+                    lang_choose: 'Chọn ngôn ngữ',
                     toast_failed: 'Có lỗi xảy ra.',
                     toast_failed_summary: 'Không thể tải tổng quan.',
                     toast_failed_devices: 'Không thể tải thống kê thiết bị.',
@@ -1159,6 +1372,10 @@
                     page: 'Page',
                     source: 'Source',
                     device: 'Device',
+                    hours_timezone: 'Display timezone:',
+                    tz_utc: 'UTC',
+                    tz_vn: 'VN (UTC+7)',
+                    lang_choose: 'Choose language',
                     toast_failed: 'Something went wrong.',
                     toast_failed_summary: 'Failed to load overview.',
                     toast_failed_devices: 'Failed to load device stats.',
@@ -1361,6 +1578,47 @@
                 container.innerHTML = html;
             }
 
+            var hoursDataRaw = [];
+            var activeHoursTimezone = 'utc';
+            var hoursTzButtons = [];
+
+            function formatHourLabelWithTimezone(raw) {
+                var n = parseInt(raw, 10);
+                if (isNaN(n)) return t('unknown');
+                var offset = activeHoursTimezone === 'vn' ? 7 : 0;
+                var display = (n + offset + 24) % 24;
+                var hh = (display < 10 ? '0' : '') + display;
+                var suffix = activeHoursTimezone === 'vn' ? ' (UTC+7)' : ' (UTC)';
+                return hh + ':00' + suffix;
+            }
+
+            function renderHoursChart() {
+                var container = document.getElementById('hours-chart');
+                if (!container) return;
+                if (!hoursDataRaw.length) {
+                    container.innerHTML = '<div class="empty-state"><div class="emoji"><i class="fa-solid fa-clock" aria-hidden="true"></i></div><div>' + escapeHtml(t('empty_no_data')) + '</div></div>';
+                    return;
+                }
+                renderBarList('hours-chart', hoursDataRaw, 'hour', function(raw) {
+                    return formatHourLabelWithTimezone(raw);
+                }, 'fa-solid fa-clock', t('empty_no_data'));
+            }
+
+            function updateHoursTzButtons() {
+                hoursTzButtons.forEach(function(btn) {
+                    var tz = btn.getAttribute('data-tz');
+                    btn.classList.toggle('active', tz === activeHoursTimezone);
+                });
+            }
+
+            function setHoursTimezone(tz) {
+                var next = (tz === 'vn' ? 'vn' : 'utc');
+                if (next === activeHoursTimezone) return;
+                activeHoursTimezone = next;
+                updateHoursTzButtons();
+                renderHoursChart();
+            }
+
             function formatDevice(device) {
                 var d = String(device || '').trim();
                 if (!d || d.toLowerCase() === 'unknown') return t('unknown');
@@ -1368,13 +1626,6 @@
                 if (d.toLowerCase() === 'desktop') return 'Desktop';
                 if (d.toLowerCase() === 'tablet') return 'Tablet';
                 return d;
-            }
-
-            function formatHour(h) {
-                var n = parseInt(h, 10);
-                if (isNaN(n) || n < 0 || n > 23) return t('unknown');
-                var hh = (n < 10 ? '0' : '') + n;
-                return hh + ':00';
             }
 
             function formatQrType(t) {
@@ -1478,12 +1729,14 @@
             function loadHours() {
                 secureFetch('/analytics/hours')
                     .then(function(data) {
-                        renderBarList('hours-chart', data || [], 'hour', formatHour, 'fa-solid fa-clock', (currentLang === 'en' ? 'No hour data yet' : 'Chưa có dữ liệu khung giờ'));
+                        hoursDataRaw = data || [];
+                        renderHoursChart();
                     })
                     .catch(function(err) {
                         console.error('Failed to load hours:', err.message);
                         showToast(t('toast_failed_hours'));
-                        renderBarList('hours-chart', [], 'hour', formatHour, 'fa-solid fa-triangle-exclamation', t('empty_cant_load'));
+                        hoursDataRaw = [];
+                        renderHoursChart();
                     });
             }
 
@@ -1624,14 +1877,133 @@
             // ========================
             // INITIALIZE
             // ========================
-            var langSelect = document.getElementById('lang-select');
-            if (langSelect) {
-                langSelect.value = currentLang;
-                langSelect.addEventListener('change', function() {
-                    setLangInUrlAndReload(langSelect.value);
-                });
+            function langLabelText(lang) {
+                return (lang === 'vi') ? 'Tiếng Việt' : 'English';
             }
+
+            function isLangMobile() {
+                try {
+                    return window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            var langPicker = document.getElementById('langPicker');
+            var langLabel = document.getElementById('langLabel');
+            var langModalOverlay = document.getElementById('langModalOverlay');
+            var langModalClose = document.getElementById('langModalClose');
+
+            function setLangPickerLabel() {
+                if (langLabel) langLabel.textContent = langLabelText(currentLang);
+                if (!langModalOverlay) return;
+                var checks = langModalOverlay.querySelectorAll('[data-lang-check]');
+                for (var i = 0; i < checks.length; i++) {
+                    var k = checks[i].getAttribute('data-lang-check');
+                    checks[i].style.opacity = (k === currentLang) ? '1' : '0';
+                }
+            }
+
+            function closeLangDropdown() {
+                if (!langPicker) return;
+                langPicker.classList.remove('open');
+                var cur = langPicker.querySelector('.lang-current');
+                if (cur) cur.setAttribute('aria-expanded', 'false');
+            }
+
+            function toggleLangDropdown() {
+                if (!langPicker) return;
+                var next = !langPicker.classList.contains('open');
+                langPicker.classList.toggle('open', next);
+                var cur = langPicker.querySelector('.lang-current');
+                if (cur) cur.setAttribute('aria-expanded', next ? 'true' : 'false');
+            }
+
+            function openLangModal() {
+                if (!langModalOverlay) return;
+                langModalOverlay.classList.add('show');
+                langModalOverlay.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeLangModal() {
+                if (!langModalOverlay) return;
+                langModalOverlay.classList.remove('show');
+                langModalOverlay.setAttribute('aria-hidden', 'true');
+            }
+
+            if (langPicker) {
+                setLangPickerLabel();
+
+                var curBtn = langPicker.querySelector('.lang-current');
+                if (curBtn) {
+                    curBtn.addEventListener('click', function(e) {
+                        if (e) e.stopPropagation();
+                        if (isLangMobile()) {
+                            openLangModal();
+                        } else {
+                            toggleLangDropdown();
+                        }
+                    });
+                    curBtn.addEventListener('keydown', function(e) {
+                        if (!e) return;
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            if (isLangMobile()) openLangModal();
+                            else toggleLangDropdown();
+                        }
+                    });
+                }
+
+                var ddItems = langPicker.querySelectorAll('.lang-dropdown [data-lang]');
+                for (var d = 0; d < ddItems.length; d++) {
+                    ddItems[d].addEventListener('click', function(e) {
+                        if (e) e.stopPropagation();
+                        var lang = (this.getAttribute('data-lang') || '').toLowerCase();
+                        if (lang === 'vi' || lang === 'en') setLangInUrlAndReload(lang);
+                    });
+                }
+            }
+
+            if (langModalOverlay) {
+                langModalOverlay.addEventListener('click', function(e) {
+                    if (e && e.target === langModalOverlay) closeLangModal();
+                });
+                if (langModalClose) {
+                    langModalClose.addEventListener('click', function() {
+                        closeLangModal();
+                    });
+                }
+
+                var modalItems = langModalOverlay.querySelectorAll('[data-lang]');
+                for (var m = 0; m < modalItems.length; m++) {
+                    modalItems[m].addEventListener('click', function(e) {
+                        if (e) e.stopPropagation();
+                        var lang2 = (this.getAttribute('data-lang') || '').toLowerCase();
+                        if (lang2 === 'vi' || lang2 === 'en') setLangInUrlAndReload(lang2);
+                    });
+                }
+            }
+
+            window.addEventListener('click', function(e) {
+                if (langPicker && e && !langPicker.contains(e.target)) closeLangDropdown();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (!e || e.key !== 'Escape') return;
+                closeLangDropdown();
+                closeLangModal();
+            });
+
             applyLang();
+            hoursTzButtons = Array.prototype.slice.call(document.querySelectorAll('.tz-btn')) || [];
+            hoursTzButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var tz = btn.getAttribute('data-tz');
+                    if (!tz) return;
+                    setHoursTimezone(tz);
+                });
+            });
+            updateHoursTzButtons();
 
             loadSummary();
             loadDevices();
