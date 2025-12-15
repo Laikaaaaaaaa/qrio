@@ -101,28 +101,49 @@
            HEADER
            ======================== */
         .header {
-            background: rgba(24, 24, 27, 0.85);
-            border-bottom: 1px solid rgba(124, 58, 237, 0.12);
-            padding: 1rem 2rem;
+            background: rgba(24, 24, 27, 0.92);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.08);
+            padding: 0.95rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(12px);
-            gap: 0.75rem;
+            backdrop-filter: blur(18px);
+            gap: 1rem;
+            flex-wrap: wrap;
         }
         
         .header-left {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .header-left .session-info {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: rgba(226,232,240,0.65);
+        }
+
+        .header-meta {
+            width: 100%;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.65rem;
+            margin-top: 0.15rem;
+            min-width: 0;
         }
         
         .header h1 {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 600;
+            letter-spacing: -0.01em;
         }
 
         .header h1 i {
@@ -142,36 +163,112 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.65rem;
+            flex-wrap: nowrap;
+        }
+
+        .header-actions > * {
+            flex-shrink: 0;
+        }
+
+        .lang-current,
+        .logout-btn {
+            height: 40px;
+            padding: 0 12px;
+            border-radius: 10px;
         }
 
         @media (max-width: 768px) {
             .header {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 0.85rem 1rem;
+                padding: 0.65rem 0.85rem 0.5rem;
+                gap: 0.45rem;
             }
 
             .header-left {
-                width: 100%;
+                align-items: center;
                 justify-content: flex-start;
-                gap: 0.5rem;
+            }
+
+            .header h1 {
+                font-size: 0.95rem;
+                line-height: 1.15;
+                color: rgba(226,232,240,0.75);
+            }
+
+            .header h1 i {
+                margin-right: 0.4rem;
+            }
+
+            .badge {
+                font-size: 0.5rem;
+                padding: 0.12rem 0.35rem;
+                border-radius: 7px;
+                background: rgba(34,197,94,0.12);
+                border-color: rgba(34,197,94,0.35);
             }
 
             .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-                justify-content: space-between;
-                gap: 0.5rem;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 0.45rem;
+                margin-left: auto;
+            }
+
+            .header-left .session-info {
+                display: none;
+            }
+
+            .header-left .badge {
+                display: none;
+            }
+
+            .header-actions > * {
+                width: auto;
+            }
+
+            .header-meta {
+                display: flex;
             }
 
             .session-info {
-                font-size: 0.65rem;
-                gap: 0.35rem;
+                justify-content: flex-start;
+                font-size: 0.62rem;
+                color: rgba(226,232,240,0.55);
+                gap: 0.3rem;
+            }
+
+            .session-dot {
+                width: 6px;
+                height: 6px;
+                background: rgba(34,197,94,0.8);
             }
 
             .logout-btn {
-                padding: 0.4rem 0.85rem;
+                width: 40px;
+                height: 40px;
+                padding: 0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                position: relative;
+            }
+
+            .logout-btn i {
+                margin-right: 0;
+                font-size: 16px;
+            }
+
+            .logout-btn span {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
             }
         }
 
@@ -188,7 +285,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
+            padding: 0 12px;
             border-radius: 10px;
             cursor: pointer;
             background: rgba(255,255,255,0.06);
@@ -342,15 +439,18 @@
         }
         
         .logout-btn {
-            padding: 0.5rem 1rem;
+            padding: 0 12px;
             background: #27272a;
             border: 1px solid #3f3f46;
-            border-radius: 6px;
+            border-radius: 10px;
             color: #e4e4e7;
             font-size: 0.875rem;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .logout-btn i {
@@ -851,12 +951,6 @@
            RESPONSIVE
            ======================== */
         @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-            
             .main {
                 padding: 1rem;
             }
@@ -1107,6 +1201,10 @@
         <div class="header-left">
             <h1><i class="fa-solid fa-chart-simple" aria-hidden="true"></i><span data-i18n="title">Admin Dashboard</span></h1>
             <span class="badge" data-i18n="badge_readonly">READ-ONLY</span>
+            <div class="session-info">
+                <span class="session-dot"></span>
+                <span data-i18n="session_30m">Phiên: 30 phút</span>
+            </div>
         </div>
         <div class="header-actions">
             <div class="lang-picker" id="langPicker" title="Language">
@@ -1115,13 +1213,16 @@
                     <span id="langLabel" class="lang-label">English</span>
                 </div>
             </div>
+            <form method="POST" action="/admin/logout" style="margin:0">
+                <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span data-i18n="logout">Đăng xuất</span></button>
+            </form>
+        </div>
+        <div class="header-meta" aria-hidden="true">
+            <span class="badge" data-i18n="badge_readonly">READ-ONLY</span>
             <div class="session-info">
                 <span class="session-dot"></span>
                 <span data-i18n="session_30m">Phiên: 30 phút</span>
             </div>
-            <form method="POST" action="/admin/logout" style="margin:0">
-                <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span data-i18n="logout">Đăng xuất</span></button>
-            </form>
         </div>
     </header>
 
