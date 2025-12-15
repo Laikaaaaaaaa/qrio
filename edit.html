@@ -3281,16 +3281,80 @@
       'Slabo 27px','Sanchez','Antic Slab','Exo','Tourney'
     ];
 
+    const _fontLoadPromises = new Map();
+
+    function _fontToLinkId(font) {
+      return `font-${String(font || '').trim().replace(/[^a-z0-9_-]+/gi, '-')}`;
+    }
+
+    function _encodeGoogleFontFamily(font) {
+      // Google Fonts expects spaces as '+'; encode everything else safely.
+      return encodeURIComponent(String(font || '').trim()).replace(/%20/g, '+');
+    }
+
+    function ensureFontLoaded(font) {
+      const family = String(font || '').trim();
+      if (!family) return Promise.resolve(false);
+
+      if (_fontLoadPromises.has(family)) return _fontLoadPromises.get(family);
+
+      const promise = new Promise((resolve) => {
+        const finish = (ok) => {
+          // After fonts are ready, re-render so the canvas text updates.
+          try {
+            const hasTextUsingFont = (typeof elements !== 'undefined') && Array.isArray(elements) &&
+              elements.some(e => e && e.type === 'text' && (String(e.fontFamily || 'Be Vietnam Pro') === family));
+            if (hasTextUsingFont && typeof renderElements === 'function') {
+              renderElements();
+            }
+
+            const modal = document.getElementById('export-modal');
+            if (modal && modal.style.display !== 'none' && typeof updateExportPreview === 'function') {
+              // Best-effort: refresh export preview so users see the real font.
+              Promise.resolve(updateExportPreview()).catch(() => {});
+            }
+          } catch {
+            // ignore
+          }
+          resolve(!!ok);
+        };
+
+        const waitForFonts = async () => {
+          if (!document.fonts || !document.fonts.load) return;
+          try {
+            await document.fonts.load(`400 16px "${family}"`);
+            await document.fonts.load(`700 16px "${family}"`);
+            await document.fonts.ready;
+          } catch {
+            // ignore
+          }
+        };
+
+        const linkId = _fontToLinkId(family);
+        const existing = document.getElementById(linkId);
+        if (existing) {
+          waitForFonts().then(() => finish(true)).catch(() => finish(true));
+          return;
+        }
+
+        const link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${_encodeGoogleFontFamily(family)}:wght@400;600;700&display=swap`;
+        link.onload = () => {
+          waitForFonts().then(() => finish(true)).catch(() => finish(true));
+        };
+        link.onerror = () => finish(false);
+        document.head.appendChild(link);
+      });
+
+      _fontLoadPromises.set(family, promise);
+      return promise;
+    }
+
     function loadGoogleFont(font) {
-      if (!font) return;
-      const id = `font-${font.replace(/\s+/g, '-')}`;
-      if (document.getElementById(id)) return;
-      const link = document.createElement('link');
-      link.id = id;
-      link.rel = 'stylesheet';
-      const family = font.replace(/\s+/g, '+');
-      link.href = `https://fonts.googleapis.com/css2?family=${family}:wght@400;600;700&display=swap`;
-      document.head.appendChild(link);
+      // Fire-and-forget loader. Use ensureFontLoaded() when you need the font before drawing to canvas.
+      ensureFontLoaded(font).catch(() => {});
     }
 
     // Convert RGB/RGBA to hex
@@ -9050,6 +9114,14 @@
               fontInput.style.fontFamily = `'${font}'`;
               loadGoogleFont(font);
               renderElements();
+              ensureFontLoaded(font).then(() => {
+                // Ensure canvas text + export preview refresh after font is available.
+                try { renderElements(); } catch {}
+                const modal = document.getElementById('export-modal');
+                if (modal && modal.style.display !== 'none') {
+                  Promise.resolve(updateExportPreview()).catch(() => {});
+                }
+              }).catch(() => {});
               fontDropdown.classList.remove('show');
             };
           });
@@ -10600,11 +10672,28 @@
       }
     }
     
-    function updateExportPreview() {
+    async function preloadTextFontsForCanvas() {
+      try {
+        const fonts = [...new Set(
+          (elements || [])
+            .filter(e => e && e.type === 'text')
+            .map(e => String(e.fontFamily || 'Be Vietnam Pro').trim())
+            .filter(Boolean)
+        )];
+        if (!fonts.length) return;
+        await Promise.all(fonts.map(f => ensureFontLoaded(f)));
+      } catch {
+        // ignore
+      }
+    }
+
+    async function updateExportPreview() {
       const previewCanvas = document.getElementById('export-preview-canvas');
       const canvasEl = document.getElementById('canvas');
       const canvasW = parseInt(canvasEl.style.width);
       const canvasH = parseInt(canvasEl.style.height);
+
+      await preloadTextFontsForCanvas();
       
       previewCanvas.width = canvasW;
       previewCanvas.height = canvasH;
@@ -10861,6 +10950,8 @@
       const filename = filenameBase || EXPORT_FILENAME_DEFAULT;
       const canvasW = parseInt(canvasEl.style.width);
       const canvasH = parseInt(canvasEl.style.height);
+
+      await preloadTextFontsForCanvas();
       
       // Get export dimensions
       const dims = getExportDimensions();

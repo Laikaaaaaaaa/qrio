@@ -162,6 +162,45 @@ def get_module_drawer(module_style: str, dot_type: str, dot_scale: float = 1.0, 
     style = (module_style or '').lower().strip()
     dt = (dot_type or '').lower().strip()
 
+    # Frontend uses these slugs in edit.html.
+    if style in (
+        'rounded-square',
+        'rounded_square',
+        'roundedsquare',
+    ):
+        return RoundedModuleDrawer()
+
+    # Rounded bars / lines
+    if style in (
+        'rounded-bar',
+        'rounded_bar',
+        'roundedbar',
+    ):
+        return HorizontalBarsDrawer(vertical_shrink=0.9)
+
+    if style in (
+        'horizontal-bar',
+        'horizontal_bar',
+        'horizontalbar',
+    ):
+        return HorizontalBarsDrawer(vertical_shrink=0.65)
+
+    if style in (
+        'vertical-bar',
+        'vertical_bar',
+        'verticalbar',
+    ):
+        return VerticalBarsDrawer(horizontal_shrink=0.65)
+
+    # Capsule / pill look (full-height bars)
+    if style in (
+        'capsule',
+        'pill',
+        'vien-thuoc',
+        'vien_thuoc',
+    ):
+        return HorizontalBarsDrawer(vertical_shrink=1.0)
+
     if style in ('legacy', ''):
         # Keep legacy behavior driven by dot_type.
         if dt in ('circle', 'dot', 'dots'):
