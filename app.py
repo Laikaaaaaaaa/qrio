@@ -381,7 +381,7 @@ def add_security_headers(response):
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; "
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+        "font-src 'self' blob: https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
         "img-src 'self' data: blob:; "
         "connect-src 'self'; "
         "worker-src 'self' blob:; "

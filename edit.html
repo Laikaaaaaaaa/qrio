@@ -3283,6 +3283,24 @@
 
     const _fontLoadPromises = new Map();
 
+    function getSortedFontCatalog() {
+      try {
+        const uniq = Array.from(new Set((fontCatalog || []).map(f => String(f || '').trim()).filter(Boolean)));
+        return uniq.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      } catch {
+        return (fontCatalog || []).slice();
+      }
+    }
+
+    function addFontToCatalog(font) {
+      const family = String(font || '').trim();
+      if (!family) return;
+      if (!Array.isArray(fontCatalog)) return;
+      if (!fontCatalog.some(f => String(f || '').trim() === family)) {
+        fontCatalog.push(family);
+      }
+    }
+
     function _fontToLinkId(font) {
       return `font-${String(font || '').trim().replace(/[^a-z0-9_-]+/gi, '-')}`;
     }
@@ -3295,6 +3313,15 @@
     function ensureFontLoaded(font) {
       const family = String(font || '').trim();
       if (!family) return Promise.resolve(false);
+
+      // If the font is already available (e.g. uploaded via FontFace), don't inject Google Fonts.
+      try {
+        if (document.fonts && document.fonts.check && document.fonts.check(`12px "${family}"`)) {
+          return Promise.resolve(true);
+        }
+      } catch {
+        // ignore
+      }
 
       if (_fontLoadPromises.has(family)) return _fontLoadPromises.get(family);
 
@@ -3355,6 +3382,45 @@
     function loadGoogleFont(font) {
       // Fire-and-forget loader. Use ensureFontLoaded() when you need the font before drawing to canvas.
       ensureFontLoaded(font).catch(() => {});
+    }
+
+    function sanitizeFontFamilyFromFilename(filename) {
+      const base = String(filename || '')
+        .replace(/\.[a-z0-9]+$/i, '')
+        .replace(/[\r\n\t]+/g, ' ')
+        .replace(/[^\p{L}\p{N} _-]+/gu, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      return base || 'Uploaded Font';
+    }
+
+    async function registerUploadedFontFile(file) {
+      if (!file) return null;
+      const name = String(file.name || '').toLowerCase();
+      const okExt = name.endsWith('.ttf') || name.endsWith('.otf') || name.endsWith('.woff') || name.endsWith('.woff2');
+      if (!okExt) throw new Error('Chỉ hỗ trợ .ttf, .otf, .woff, .woff2');
+
+      let familyBase = sanitizeFontFamilyFromFilename(file.name);
+      let family = familyBase;
+      let i = 2;
+      const exists = (f) => Array.isArray(fontCatalog) && fontCatalog.some(x => String(x || '').trim().toLowerCase() === String(f || '').trim().toLowerCase());
+      while (exists(family)) {
+        family = `${familyBase} ${i++}`;
+      }
+
+      const url = URL.createObjectURL(file);
+      try {
+        if (!('FontFace' in window) || !document.fonts) {
+          throw new Error('Trình duyệt không hỗ trợ load font file trực tiếp');
+        }
+        const face = new FontFace(family, `url(${url})`);
+        await face.load();
+        document.fonts.add(face);
+        addFontToCatalog(family);
+        return family;
+      } finally {
+        try { URL.revokeObjectURL(url); } catch {}
+      }
     }
 
     // Convert RGB/RGBA to hex
@@ -9040,6 +9106,11 @@
               <div id="font-list"></div>
             </div>
           </div>
+          <input type="file" id="prop-font-upload" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" style="display:none" />
+          <button class="toolbar-btn" id="prop-upload-font-btn" style="width:100%;justify-content:center;margin-top:8px;">
+            <i class="fa-solid fa-upload"></i> Upload font (.ttf/.otf/.woff/.woff2)
+          </button>
+          <p style="font-size:10px;color:#888;margin-top:6px;">Font upload chỉ lưu trong phiên hiện tại (reload trang sẽ mất).</p>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -9093,9 +9164,13 @@
         const fontDropdown = document.getElementById('font-dropdown');
         const fontList = document.getElementById('font-list');
         const fontSearch = document.getElementById('font-search');
+
+        const uploadBtn = document.getElementById('prop-upload-font-btn');
+        const uploadInput = document.getElementById('prop-font-upload');
         
         function renderFontList(filter = '') {
-          const filtered = fontCatalog.filter(f => f.toLowerCase().includes(filter.toLowerCase()));
+          const sorted = getSortedFontCatalog();
+          const filtered = sorted.filter(f => f.toLowerCase().includes(filter.toLowerCase()));
           fontList.innerHTML = filtered.map(f => `
             <div class="font-picker-item ${f === el.fontFamily ? 'selected' : ''}" 
                  data-font="${f}" 
@@ -9138,13 +9213,53 @@
         
         fontSearch.oninput = () => renderFontList(fontSearch.value);
         fontSearch.onclick = (e) => e.stopPropagation();
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function closeFontDropdown(e) {
-          if (!e.target.closest('.font-picker-wrapper')) {
-            fontDropdown.classList.remove('show');
-          }
-        }, { once: false });
+
+        // Close dropdown when clicking outside (attach once)
+        if (!window.__qrioFontDropdownCloseHandlerAttached) {
+          window.__qrioFontDropdownCloseHandlerAttached = true;
+          document.addEventListener('click', (e) => {
+            try {
+              if (!e.target.closest('.font-picker-wrapper')) {
+                document.querySelectorAll('.font-picker-dropdown.show').forEach(dd => dd.classList.remove('show'));
+              }
+            } catch {
+              // ignore
+            }
+          });
+        }
+
+        // Upload local font
+        if (uploadBtn && uploadInput) {
+          uploadBtn.onclick = (e) => {
+            e.preventDefault();
+            uploadInput.click();
+          };
+          uploadInput.onchange = async () => {
+            const file = uploadInput.files && uploadInput.files[0];
+            if (!file) return;
+            try {
+              const family = await registerUploadedFontFile(file);
+              if (!family) return;
+              el.fontFamily = family;
+              fontInput.value = family;
+              fontInput.style.fontFamily = `'${family}'`;
+              renderElements();
+              ensureFontLoaded(family).then(() => {
+                try { renderElements(); } catch {}
+                const modal = document.getElementById('export-modal');
+                if (modal && modal.style.display !== 'none') {
+                  Promise.resolve(updateExportPreview()).catch(() => {});
+                }
+              }).catch(() => {});
+              showToast(`Đã thêm font: ${family}`);
+            } catch (err) {
+              showToast((typeof t === 'function') ? t('toast.uploadError', { msg: (err?.message || err) }) : ('Upload font lỗi: ' + (err?.message || err)));
+            } finally {
+              // Allow uploading the same file again
+              uploadInput.value = '';
+            }
+          };
+        }
         
         document.getElementById('prop-fontsize').oninput = (e) => { el.fontSize = parseInt(e.target.value); el.height = el.fontSize + 10; renderElements(); };
         document.getElementById('prop-color').oninput = (e) => { el.color = e.target.value; renderElements(); };
