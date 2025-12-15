@@ -1010,9 +1010,9 @@ def api_generate():
     try:
         # Sanitize and validate all inputs
         qr_type = sanitize_input(request.form.get('qr_type', ''), max_length=30).lower()
-        data = sanitize_qr_data(request.form.get('data', 'https://qrio.vn'), max_length=4000)
+        data = sanitize_qr_data(request.form.get('data', 'https://qrio.site'), max_length=4000)
         if not data:
-            data = 'https://qrio.vn'
+            data = 'https://qrio.site'
 
         # VietQR: generate a bank-compatible payload via official public API.
         if qr_type == 'vietqr':
@@ -1155,7 +1155,7 @@ def api_download():
     """API tải QR dưới dạng file (có thể kèm tiêu đề)"""
     try:
         qr_type = sanitize_input(request.form.get('qr_type', ''), max_length=30).lower()
-        data = sanitize_qr_data(request.form.get('data', 'https://qrio.vn'), max_length=4000)
+        data = sanitize_qr_data(request.form.get('data', 'https://qrio.site'), max_length=4000)
         qr_color = validate_hex_color(request.form.get('qr_color', '#0c6c3b'))
         bg_color = validate_hex_color(request.form.get('bg_color', '#ffffff'))
         box_size = validate_int(request.form.get('box_size', 10), default=10, min_val=1, max_val=50)

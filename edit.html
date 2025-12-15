@@ -6720,7 +6720,7 @@
     // Get QR data
     function getQRData() {
       switch (currentQRType) {
-        case 'url': return document.getElementById('input-url').value || 'https://qrio.vn';
+        case 'url': return document.getElementById('input-url').value || 'https:/qrio.site';
         case 'text': return document.getElementById('input-text').value || 'Hello';
         case 'phone':
           const p = document.getElementById('input-phone').value;
@@ -6765,7 +6765,7 @@
           if (directUrl) return directUrl;
           if (uploadedFileUrl) return uploadedFileUrl;
           return window.location.origin;
-        default: return 'https://qrio.vn';
+        default: return 'https://qrio.site';
       }
     }
 
@@ -6931,7 +6931,7 @@
       const amount = document.getElementById('crypto-amount').value || '';
       const label = document.getElementById('crypto-label').value || '';
       
-      if (!address) return 'https://qrio.vn';
+      if (!address) return 'https://qrio.site';
       
       let uri = `${type}:${address}`;
       const params = [];
