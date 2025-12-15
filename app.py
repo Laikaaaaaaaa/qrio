@@ -1267,6 +1267,31 @@ def api_download():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/track-download', methods=['POST'])
+@limiter.limit("60 per minute")
+def api_track_download():
+    """Track client-side export downloads (PNG/JPG/SVG/PDF) for analytics."""
+    try:
+        payload = request.get_json(silent=True) if request.is_json else None
+        if not isinstance(payload, dict):
+            payload = request.form.to_dict(flat=True)
+
+        qr_type = sanitize_input(payload.get('qr_type', ''), max_length=30).lower() or None
+
+        track_event(
+            '/api/track-download',
+            'download_qr',
+            get_country_from_request(),
+            get_device_type(),
+            qr_type=qr_type,
+            source=get_source_from_request(),
+        )
+
+        return jsonify({'ok': True})
+    except Exception:
+        return jsonify({'ok': False}), 200
+
+
 @app.route('/api/file/upload', methods=['POST'])
 @limiter.limit("10 per minute")
 def api_file_upload():

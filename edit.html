@@ -7133,7 +7133,12 @@
 
       // Add logo if available (backend will also carve quiet area under it)
       if (qrLogoData) {
-        const logoBlob = await fetch(qrLogoData).then(r => r.blob());
+        const logoBlob = dataUrlToBlob(qrLogoData);
+        if (logoBlob && logoBlob.size > 2 * 1024 * 1024) {
+          showToast((typeof t === 'function') ? t('toast.logoTooLarge2mb') : 'Logo quá lớn (tối đa 2MB). Vui lòng chọn ảnh nhỏ hơn.');
+          content.innerHTML = '<span class="qr-loading" style="color:#f43f5e">❌</span>';
+          return;
+        }
         formData.append('logo', logoBlob, 'logo.png');
       }
 
@@ -7171,6 +7176,27 @@
       } catch (err) {
         console.error('Fetch error:', err);
         content.innerHTML = '<span class="qr-loading" style="color:#f43f5e">❌</span>';
+      }
+    }
+
+    function dataUrlToBlob(dataUrl) {
+      try {
+        const s = String(dataUrl || '');
+        const comma = s.indexOf(',');
+        if (comma < 0) return null;
+
+        const header = s.slice(0, comma);
+        const b64 = s.slice(comma + 1);
+        const mimeMatch = header.match(/^data:([^;]+);base64$/i);
+        const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+
+        const binStr = atob(b64);
+        const len = binStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) bytes[i] = binStr.charCodeAt(i);
+        return new Blob([bytes], { type: mime });
+      } catch {
+        return null;
       }
     }
 
@@ -10882,10 +10908,12 @@
         link.download = filename + '.png';
         link.href = cvs.toDataURL('image/png');
         link.click();
+        trackDownloadEvent();
       } else if (exportFormat === 'jpg') {
         link.download = filename + '.jpg';
         link.href = cvs.toDataURL('image/jpeg', exportQuality / 100);
         link.click();
+        trackDownloadEvent();
       } else if (exportFormat === 'svg') {
         // Create SVG (simplified - just embed the PNG)
         const dataUrl = cvs.toDataURL('image/png');
@@ -10897,6 +10925,7 @@
         link.download = filename + '.svg';
         link.href = URL.createObjectURL(blob);
         link.click();
+        trackDownloadEvent();
       } else if (exportFormat === 'pdf') {
         const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
         if (!jsPDFCtor) {
@@ -10904,6 +10933,7 @@
           link.download = filename + '.png';
           link.href = cvs.toDataURL('image/png');
           link.click();
+          trackDownloadEvent();
         } else {
           const ptPerPx = 72 / 96;
           const pdfW = dims.width * ptPerPx;
@@ -10913,10 +10943,35 @@
           const dataUrl = cvs.toDataURL('image/png');
           doc.addImage(dataUrl, 'PNG', 0, 0, pdfW, pdfH, undefined, 'FAST');
           doc.save(filename + '.pdf');
+          trackDownloadEvent();
         }
       }
       
       closeExportModal();
+    }
+
+    function trackDownloadEvent() {
+      try {
+        const payload = new Blob([
+          JSON.stringify({
+            qr_type: currentQRType || 'url'
+          })
+        ], { type: 'application/json' });
+
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/track-download', payload);
+          return;
+        }
+
+        fetch('/api/track-download', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ qr_type: currentQRType || 'url' }),
+          keepalive: true,
+        }).catch(() => {});
+      } catch {
+        // ignore
+      }
     }
 
     // Download image (legacy - now opens modal)
