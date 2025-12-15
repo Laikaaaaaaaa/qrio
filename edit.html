@@ -4086,6 +4086,8 @@
             'props.text.shadow': 'Đổ bóng',
             'props.text.color': 'Màu chữ',
             'props.text.background': 'Nền chữ',
+            'props.text.uploadFontButton': 'Tải font lên',
+            'props.text.uploadFontHint': 'Font upload chỉ lưu trong phiên hiện tại (reload trang sẽ mất).',
 
             // Shapes (basic + Phosphor)
             'shape.rect': 'Vuông',
@@ -4458,6 +4460,8 @@
             'props.text.shadow': 'Shadow',
             'props.text.color': 'Text color',
             'props.text.background': 'Text background',
+            'props.text.uploadFontButton': 'Upload font',
+            'props.text.uploadFontHint': 'Uploaded fonts stay available only for this session (reload clears them).',
 
             // Shapes (basic + Phosphor)
             'shape.rect': 'Square',
@@ -4824,6 +4828,8 @@
             'props.text.shadow': '阴影',
             'props.text.color': '文字颜色',
             'props.text.background': '文字背景',
+            'props.text.uploadFontButton': '上传字体',
+            'props.text.uploadFontHint': '上传的字体仅在当前会话中可用（刷新后会丢失）。',
 
             'alert.imageProcessFail': '无法处理图片，请尝试其他图片。',
             'toast.logoMax': '在 ECC {ecc} 下，Logo 最大 {max}%',
@@ -5128,6 +5134,8 @@
             'props.text.shadow': 'छाया',
             'props.text.color': 'टेक्स्ट रंग',
             'props.text.background': 'टेक्स्ट पृष्ठभूमि',
+            'props.text.uploadFontButton': 'फ़ॉन्ट अपलोड करें',
+            'props.text.uploadFontHint': 'अपलोड किया गया फ़ॉन्ट केवल वर्तमान सत्र के लिए रहता है (रिफ्रेश करने पर हट जाएगा)।',
 
             'alert.imageProcessFail': 'छवि को प्रोसेस नहीं किया जा सका। कृपया दूसरी छवि आज़माएँ।',
             'toast.logoMax': 'ECC {ecc} के साथ लोगो अधिकतम {max}%',
@@ -5285,6 +5293,8 @@
             'props.text.shadow': 'Sombra',
             'props.text.color': 'Color del texto',
             'props.text.background': 'Fondo del texto',
+            'props.text.uploadFontButton': 'Subir fuente',
+            'props.text.uploadFontHint': 'La fuente subida solo permanece en esta sesión (se pierde al recargar).',
 
             'alert.imageProcessFail': 'No se puede procesar la imagen. Prueba con otra.',
             'toast.logoMax': 'Logo máximo {max}% con ECC {ecc}',
@@ -5442,6 +5452,8 @@
             'props.text.shadow': 'Ombre',
             'props.text.color': 'Couleur du texte',
             'props.text.background': 'Fond du texte',
+            'props.text.uploadFontButton': 'Téléverser la police',
+            'props.text.uploadFontHint': 'La police importée reste disponible uniquement durant cette session (rechargement la supprime).',
 
             'alert.imageProcessFail': 'Impossible de traiter l’image. Essayez une autre.',
             'toast.logoMax': 'Logo max {max}% avec ECC {ecc}',
@@ -5599,6 +5611,8 @@
             'props.text.shadow': 'ظل',
             'props.text.color': 'لون النص',
             'props.text.background': 'خلفية النص',
+            'props.text.uploadFontButton': 'رفع الخط',
+            'props.text.uploadFontHint': 'يظل الخط المرفوع في الجلسة الحالية فقط (يُفقد عند إعادة التحميل).',
 
             'alert.imageProcessFail': 'تعذّر معالجة الصورة. جرّب صورة أخرى.',
             'toast.logoMax': 'الحد الأقصى للشعار {max}% مع ECC {ecc}',
@@ -5756,6 +5770,8 @@
             'props.text.shadow': 'Sombra',
             'props.text.color': 'Cor do texto',
             'props.text.background': 'Fundo do texto',
+            'props.text.uploadFontButton': 'Enviar fonte',
+            'props.text.uploadFontHint': 'A fonte enviada permanece apenas nesta sessão (recarregar a página a remove).',
 
             'alert.imageProcessFail': 'Não foi possível processar a imagem. Tente outra.',
             'toast.logoMax': 'Logo máximo {max}% com ECC {ecc}',
@@ -5913,6 +5929,8 @@
             'props.text.shadow': 'Тень',
             'props.text.color': 'Цвет текста',
             'props.text.background': 'Фон текста',
+            'props.text.uploadFontButton': 'Загрузить шрифт',
+            'props.text.uploadFontHint': 'Загруженный шрифт доступен только в текущей сессии (после перезагрузки пропадёт).',
 
             'alert.imageProcessFail': 'Не удалось обработать изображение. Попробуйте другое.',
             'toast.logoMax': 'Макс. логотип {max}% при ECC {ecc}',
@@ -6070,6 +6088,8 @@
             'props.text.shadow': 'Bayangan',
             'props.text.color': 'Warna teks',
             'props.text.background': 'Latar teks',
+            'props.text.uploadFontButton': 'Unggah font',
+            'props.text.uploadFontHint': 'Font yang diunggah hanya tersimpan selama sesi ini (muat ulang akan menghapusnya).',
 
             'alert.imageProcessFail': 'Tidak dapat memproses gambar. Coba gambar lain.',
             'toast.logoMax': 'Logo maksimum {max}% dengan ECC {ecc}',
@@ -9108,9 +9128,9 @@
           </div>
           <input type="file" id="prop-font-upload" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" style="display:none" />
           <button class="toolbar-btn" id="prop-upload-font-btn" style="width:100%;justify-content:center;margin-top:8px;">
-            <i class="fa-solid fa-upload"></i> Upload font
+            <i class="fa-solid fa-upload"></i> ${tr('props.text.uploadFontButton')}
           </button>
-          <p style="font-size:10px;color:#888;margin-top:6px;">Font upload chỉ lưu trong phiên hiện tại (reload trang sẽ mất).</p>
+          <p style="font-size:10px;color:#888;margin-top:6px;">${tr('props.text.uploadFontHint')}</p>
         </div>
         <div class="form-row">
           <div class="form-group">
