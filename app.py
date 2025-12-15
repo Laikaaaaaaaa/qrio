@@ -25,8 +25,34 @@ import json
 import requests
 import time
 from urllib.parse import urlparse
+import logging
+import sys
 
 import re
+
+# ========================
+# PRODUCTION LOGGING SETUP
+# ========================
+def setup_logging():
+    """Configure structured logging for production."""
+    log_level = logging.DEBUG if os.environ.get('FLASK_ENV') == 'development' else logging.INFO
+    log_format = '%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+    
+    # Root logger
+    logging.basicConfig(
+        level=log_level,
+        format=log_format,
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+    
+    # Suppress noisy libraries in production
+    if os.environ.get('FLASK_ENV') != 'development':
+        logging.getLogger('werkzeug').setLevel(logging.WARNING)
+        logging.getLogger('urllib3').setLevel(logging.WARNING)
+    
+    return logging.getLogger('qrio')
+
+logger = setup_logging()
 
 
 _CONTROL_CHARS_RE = re.compile(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]')
@@ -178,12 +204,134 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ========================
+# RATE LIMITING (Production)
+# ========================
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+def get_real_ip():
+    """Get real client IP behind proxies."""
+    if os.environ.get('FLASK_ENV') == 'production':
+        # Trust proxy headers in production
+        forwarded = request.headers.get('X-Forwarded-For', '')
+        if forwarded:
+            return forwarded.split(',')[0].strip()
+        cf_ip = request.headers.get('CF-Connecting-IP', '')
+        if cf_ip:
+            return cf_ip.strip()
+    return get_remote_address()
+
+limiter = Limiter(
+    key_func=get_real_ip,
+    app=app,
+    default_limits=["10 per second", "100 per minute", "1000 per hour", "10000 per day"],
+    storage_uri="memory://",
+    strategy="fixed-window",
+)
+
+# Exempt static files from rate limiting
+@limiter.request_filter
+def _skip_static():
+    return request.path.startswith('/static/')
+
+# ========================
 # ADMIN DASHBOARD INTEGRATION
 # ========================
 from admin import admin_bp, analytics_bp, track_event, store_contact_message
 
 app.register_blueprint(admin_bp)
 app.register_blueprint(analytics_bp)
+
+
+def _read_text_file(path: Path) -> str:
+    return path.read_text(encoding='utf-8')
+
+
+def _build_edit_landing_html(*, canonical_url: str, title: str, description: str) -> str:
+    """Return edit.html with landing-specific SEO tags (no UI changes)."""
+    edit_path = Path(__file__).resolve().parent / 'edit.html'
+    html = _read_text_file(edit_path)
+
+    # Canonical & social URLs
+    html = html.replace(
+        '<link rel="canonical" href="https://qrio.site/edit.html" />',
+        f'<link rel="canonical" href="{canonical_url}" />',
+        1,
+    )
+    html = html.replace(
+        '<meta property="og:url" content="https://qrio.site/edit.html" />',
+        f'<meta property="og:url" content="{canonical_url}" />',
+        1,
+    )
+    html = html.replace(
+        '<meta name="twitter:url" content="https://qrio.site/edit.html" />',
+        f'<meta name="twitter:url" content="{canonical_url}" />',
+        1,
+    )
+
+    # Title (remove data-i18n to prevent later JS from overwriting landing-specific SEO title)
+    if '<title data-i18n="meta.title">' in html:
+        html = html.replace(
+            '<title data-i18n="meta.title">Qrio - Trình chỉnh sửa mã QR miễn phí</title>',
+            f'<title>{title}</title>',
+            1,
+        )
+
+    # Description
+    html = html.replace(
+        '<meta name="description" content="Thiết kế mã QR chuyên nghiệp với trình chỉnh sửa mạnh mẽ. Tùy chỉnh màu sắc, kiểu dáng, thêm logo và xuất ảnh HD." />',
+        f'<meta name="description" content="{description}" />',
+        1,
+    )
+
+    # Social titles/descriptions
+    html = html.replace(
+        '<meta property="og:title" content="Qrio - Trình chỉnh sửa mã QR" />',
+        f'<meta property="og:title" content="{title}" />',
+        1,
+    )
+    html = html.replace(
+        '<meta property="og:description" content="Thiết kế mã QR chuyên nghiệp với trình chỉnh sửa mạnh mẽ." />',
+        f'<meta property="og:description" content="{description}" />',
+        1,
+    )
+    html = html.replace(
+        '<meta name="twitter:title" content="Qrio Editor" />',
+        f'<meta name="twitter:title" content="{title}" />',
+        1,
+    )
+    html = html.replace(
+        '<meta name="twitter:description" content="Thiết kế mã QR chuyên nghiệp." />',
+        f'<meta name="twitter:description" content="{description}" />',
+        1,
+    )
+
+    # JSON-LD: replace the first WebPage block we added earlier
+    json_ld_old = (
+        '<script type="application/ld+json">\n'
+        '    {\n'
+        '      "@context": "https://schema.org",\n'
+        '      "@type": "WebPage",\n'
+        '      "name": "Qrio - Trình chỉnh sửa mã QR",\n'
+        '      "url": "https://qrio.site/edit.html",\n'
+        '      "inLanguage": "vi"\n'
+        '    }\n'
+        '  </script>'
+    )
+    json_ld_new = (
+        '<script type="application/ld+json">\n'
+        '    {\n'
+        '      "@context": "https://schema.org",\n'
+        '      "@type": "WebPage",\n'
+        f'      "name": {json.dumps(title)},\n'
+        f'      "url": {json.dumps(canonical_url)},\n'
+        '      "inLanguage": "vi"\n'
+        '    }\n'
+        '  </script>'
+    )
+    html = html.replace(json_ld_old, json_ld_new, 1)
+
+    return html
 
 
 # Security headers - CSP, XSS protection, cache
@@ -211,6 +359,53 @@ def add_security_headers(response):
         response.headers['Cache-Control'] = 'public, max-age=31536000'  # 1 year
 
     return response
+
+
+# ========================
+# HEALTH CHECK ENDPOINT
+# ========================
+@app.route('/healthz')
+@limiter.exempt
+def healthz():
+    """Health check for load balancers and monitoring."""
+    checks = {
+        'status': 'healthy',
+        'timestamp': time.time(),
+        'checks': {}
+    }
+    
+    # Check analytics DB
+    try:
+        from admin import ANALYTICS_DB_PATH
+        import sqlite3
+        conn = sqlite3.connect(ANALYTICS_DB_PATH, timeout=2)
+        conn.execute('SELECT 1')
+        conn.close()
+        checks['checks']['analytics_db'] = 'ok'
+    except Exception as e:
+        checks['checks']['analytics_db'] = f'error: {e}'
+        checks['status'] = 'degraded'
+    
+    # Check session DB
+    try:
+        from admin import SESSION_DB_PATH
+        conn = sqlite3.connect(SESSION_DB_PATH, timeout=2)
+        conn.execute('SELECT 1')
+        conn.close()
+        checks['checks']['session_db'] = 'ok'
+    except Exception as e:
+        checks['checks']['session_db'] = f'error: {e}'
+        checks['status'] = 'degraded'
+    
+    status_code = 200 if checks['status'] == 'healthy' else 503
+    return jsonify(checks), status_code
+
+
+@app.route('/ready')
+@limiter.exempt
+def ready():
+    """Readiness probe - returns 200 when app can serve traffic."""
+    return jsonify({'ready': True}), 200
 
 
 def draw_finder_pattern(draw, x, y, module_size, front_color, back_color, eye_style, eye_thickness=1.0):
@@ -450,7 +645,7 @@ def generate_qr(
 
         return img
     except Exception as e:
-        print(f"Lỗi tạo QR: {e}")
+        logger.error(f"Lỗi tạo QR: {e}")
         return None
 
 
@@ -653,11 +848,64 @@ def home_html():
 
 
 @app.route('/edit')
+def edit_redirect():
+    """Canonicalize old /edit to /edit.html (avoid duplicate indexing)."""
+    return redirect('/edit.html', code=301)
+
+
 @app.route('/edit.html')
 def edit_html():
     """Trang chỉnh sửa (tên cũ: index)."""
     track_event('/edit', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'edit.html')
+
+
+@app.route('/generate')
+def generate_root():
+    """SEO-friendly entrypoint for generator deep links."""
+    return redirect('/edit.html', code=302)
+
+
+@app.route('/generate/<slug>')
+def generate_landing(slug: str):
+    """Landing pages that map common search intents to specific QR types in the editor.
+
+    Example:
+      - /generate/vcard -> vCard tab
+      - /generate/appointment -> Event tab
+    """
+    slug_norm = (slug or '').strip().lower()
+
+    # Map slugs (English URLs) to existing editor types.
+    type_map = {
+        'vcard': 'vcard',
+        'vcf': 'vcard',
+        'appointment': 'event',
+        'schedule': 'event',
+        'calendar': 'event',
+        'event': 'event',
+    }
+
+    qr_type = type_map.get(slug_norm)
+    if not qr_type:
+        return redirect('/edit.html', code=302)
+
+    canonical_url = f'https://qrio.site/generate/{slug_norm}'
+    if slug_norm == 'vcard':
+        title = 'Qrio - Tạo mã QR vCard miễn phí'
+        description = 'Tạo mã QR vCard (danh thiếp) miễn phí: họ tên, số điện thoại, email, công ty. Tùy chỉnh màu sắc, thêm logo và tải ảnh HD.'
+    else:
+        title = 'Qrio - Tạo mã QR đặt lịch (Event) miễn phí'
+        description = 'Tạo mã QR đặt lịch/sự kiện miễn phí: tiêu đề, địa điểm, thời gian bắt đầu/kết thúc. Tùy chỉnh đẹp mắt, thêm logo và tải ảnh HD.'
+
+    html = _build_edit_landing_html(canonical_url=canonical_url, title=title, description=description)
+    # Ensure correct tab is selected even for direct visits without query params.
+    html = html.replace(
+        '</head>',
+        f'  <script>window.__QRIO_INITIAL_QR_TYPE = {json.dumps(qr_type)};</script>\n</head>',
+        1,
+    )
+    return Response(html, mimetype='text/html')
 
 
 @app.route('/index.html')
@@ -705,6 +953,7 @@ _EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 
 @app.route('/api/contact', methods=['POST'])
+@limiter.limit("5 per minute")
 def api_contact():
     """Public API: receive contact form and store for admin review."""
     try:
@@ -755,6 +1004,7 @@ def robots():
 
 
 @app.route('/api/generate', methods=['POST'])
+@limiter.limit("10 per second; 100 per minute; 1000 per hour; 10000 per day")
 def api_generate():
     """API tạo QR preview"""
     try:
@@ -895,11 +1145,12 @@ def api_generate():
         
         return jsonify(payload)
     except Exception as e:
-        print(f"Error in api_generate: {e}")
+        logger.error(f"Error in api_generate: {e}")
         return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/download', methods=['POST'])
+@limiter.limit("100 per hour; 500 per day")
 def api_download():
     """API tải QR dưới dạng file (có thể kèm tiêu đề)"""
     try:
@@ -1017,6 +1268,7 @@ def api_download():
 
 
 @app.route('/api/file/upload', methods=['POST'])
+@limiter.limit("10 per minute")
 def api_file_upload():
     """Upload a file and return a download URL (used by File QR).
 
@@ -1253,7 +1505,7 @@ def add_titles_to_qr(qr_img, title_top, title_bottom, title_color, top_size, bot
         
         return new_img
     except Exception as e:
-        print(f"Lỗi thêm tiêu đề: {e}")
+        logger.error(f"Lỗi thêm tiêu đề: {e}")
         return qr_img
 
 
@@ -1262,7 +1514,18 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
     host = '0.0.0.0' if not debug else 'localhost'
-    print(f"✓ Qrio đang chạy tại http://localhost:{port}")
-    print("✓ Mở trình duyệt và truy cập")
-    print("✓ Bấn Ctrl+C để dừng server")
+    
+    # Production startup checks
+    if not debug:
+        # Verify critical env vars are set
+        if not os.environ.get('ADMIN_PASSWORD_HASH'):
+            logger.warning("⚠️  ADMIN_PASSWORD_HASH not set - admin login disabled!")
+        if os.environ.get('SESSION_SECRET_KEY', '').startswith('dev-'):
+            logger.warning("⚠️  Using development SESSION_SECRET_KEY in production!")
+        
+        # (No automatic admin cleanup)
+    
+    logger.info(f"✓ Qrio đang chạy tại http://localhost:{port}")
+    logger.info("✓ Mở trình duyệt và truy cập")
+    logger.info("✓ Bấn Ctrl+C để dừng server")
     app.run(debug=debug, host=host, port=port)

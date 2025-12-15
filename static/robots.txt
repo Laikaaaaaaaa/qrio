@@ -5,4 +5,4 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /analytics/
 
-Sitemap: https://qrio.vn/sitemap.xml
+Sitemap: https://qrio.site/sitemap.xml
