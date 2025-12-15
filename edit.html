@@ -9161,13 +9161,6 @@
               <input type="color" id="prop-shape-fill" value="${el.fill || '#2563eb'}" />
             </div>
           </div>
-          <div class="form-group">
-            <label>${tr('props.stroke')}</label>
-            <div class="color-input-wrap" style="position:relative">
-              <input type="color" id="prop-shape-stroke" value="${el.stroke || '#000000'}" />
-              ${el.stroke ? '<span id="clear-stroke" style="position:absolute;top:-5px;right:-5px;background:#dc2626;color:#fff;border-radius:50%;width:14px;height:14px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</span>' : ''}
-            </div>
-          </div>
         </div>
         ${canRoundCorners ? `
         <div class="form-group">
@@ -9195,10 +9188,6 @@
         document.getElementById('prop-shape-w').oninput = (e) => { el.width = parseInt(e.target.value); renderElements(); };
         document.getElementById('prop-shape-h').oninput = (e) => { el.height = parseInt(e.target.value); renderElements(); };
         document.getElementById('prop-shape-fill').oninput = (e) => { el.fill = e.target.value; renderElements(); };
-        document.getElementById('prop-shape-stroke').oninput = (e) => { el.stroke = e.target.value; showElementProps(); renderElements(); };
-        
-        const clearStroke = document.getElementById('clear-stroke');
-        if (clearStroke) clearStroke.onclick = () => { el.stroke = ''; showElementProps(); renderElements(); };
         
         if (canRoundCorners) {
           const radiusSlider = document.getElementById('prop-shape-radius');
