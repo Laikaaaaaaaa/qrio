@@ -819,13 +819,12 @@
     };
 
     function normalizeLang(raw) {
-      if (!raw) return 'vi';
+      if (!raw) return 'en';
       return raw.toLowerCase() === 'vi' ? 'vi' : 'en';
     }
 
     function detectDefaultLang() {
-      const raw = (navigator.language || '').toLowerCase();
-      return raw.startsWith('en') ? 'en' : 'vi';
+      return 'en';
     }
 
     function getLang() {
