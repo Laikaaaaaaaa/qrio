@@ -781,8 +781,8 @@
       });
     }
 
-    function t(key, vars) {
-      const lang = getLang();
+    function t(key, vars, langOverride) {
+      const lang = normalizeLang(langOverride || getLang());
       const dict = I18N[lang] || I18N.vi;
       const fallback = I18N.vi || {};
       const value = dict[key] ?? fallback[key] ?? key;
@@ -792,22 +792,22 @@
     function applyI18n(lang) {
       const normalized = normalizeLang(lang);
       document.documentElement.lang = normalized;
-      document.title = String(t('doc.title'));
+      document.title = String(t('doc.title', undefined, normalized));
 
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        const value = t(key);
+        const value = t(key, undefined, normalized);
         if (typeof value === 'string') el.innerHTML = value;
       });
 
       document.querySelectorAll('[data-i18n-title]').forEach(el => {
         const key = el.getAttribute('data-i18n-title');
-        el.setAttribute('title', String(t(key)));
+        el.setAttribute('title', String(t(key, undefined, normalized)));
       });
 
       document.querySelectorAll('[data-i18n-aria]').forEach(el => {
         const key = el.getAttribute('data-i18n-aria');
-        el.setAttribute('aria-label', String(t(key)));
+        el.setAttribute('aria-label', String(t(key, undefined, normalized)));
       });
 
       const select = document.getElementById('lang-select');

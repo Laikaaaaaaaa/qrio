@@ -3086,6 +3086,8 @@
         'projects.title': 'Proyek Anda',
         'projects.deleteSelected': 'Hapus yang dipilih',
         'projects.newProject': 'Buat proyek baru',
+        'projects.emptyState': 'Belum ada proyek',
+        'projects.emptyStateDesc': 'Klik "Baru" untuk memulai',
         'projects.copy': 'Duplikat',
         'common.cancel': 'Batal',
         'confirm.deleteSelected': 'Hapus {count} proyek yang dipilih?',
@@ -3179,8 +3181,8 @@
       });
     }
 
-    function t(key, vars) {
-      const lang = getLang();
+    function t(key, vars, langOverride) {
+      const lang = langOverride || getLang();
       const dict = I18N[lang] || I18N.vi;
       const fallback = I18N.vi || {};
       const value = dict[key] ?? fallback[key] ?? key;
@@ -3190,27 +3192,27 @@
 
     function applyI18n(lang) {
       document.documentElement.lang = lang;
-      document.title = String(t('doc.title'));
+      document.title = String(t('doc.title', undefined, lang));
 
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        const value = t(key);
+        const value = t(key, undefined, lang);
         if (typeof value === 'string') el.innerHTML = value;
       });
 
       document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
         const key = el.getAttribute('data-i18n-placeholder');
-        el.setAttribute('placeholder', t(key));
+        el.setAttribute('placeholder', t(key, undefined, lang));
       });
 
       document.querySelectorAll('[data-i18n-title]').forEach(el => {
         const key = el.getAttribute('data-i18n-title');
-        el.setAttribute('title', t(key));
+        el.setAttribute('title', t(key, undefined, lang));
       });
 
       document.querySelectorAll('[data-i18n-aria]').forEach(el => {
         const key = el.getAttribute('data-i18n-aria');
-        el.setAttribute('aria-label', t(key));
+        el.setAttribute('aria-label', t(key, undefined, lang));
       });
 
       // Update the language selector UI (if present)
