@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title data-i18n="meta.title">Qrio - Trình chỉnh sửa mã QR miễn phí</title>
+  <title data-i18n="meta.title">Qrio - Free QR editor</title>
   <meta name="description" content="Thiết kế mã QR chuyên nghiệp với trình chỉnh sửa mạnh mẽ. Tùy chỉnh màu sắc, kiểu dáng, thêm logo và xuất ảnh HD." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://qrio.site/edit.html" />
@@ -3973,16 +3973,6 @@
       // Apply language from home page selection
       const LANG_KEY = 'qr_lang';
       const detectDefaultLang = () => {
-        const raw = (navigator.language || '').toLowerCase();
-        if (raw.startsWith('vi')) return 'vi';
-        if (raw.startsWith('zh')) return 'zh';
-        if (raw.startsWith('hi')) return 'hi';
-        if (raw.startsWith('es')) return 'es';
-        if (raw.startsWith('fr')) return 'fr';
-        if (raw.startsWith('ar')) return 'ar';
-        if (raw.startsWith('pt')) return 'pt';
-        if (raw.startsWith('ru')) return 'ru';
-        if (raw.startsWith('id') || raw.startsWith('in')) return 'id';
         return 'en';
       };
 
