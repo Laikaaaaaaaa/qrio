@@ -29,6 +29,7 @@ import logging
 import sys
 
 import re
+import sqlite3
 
 # ========================
 # PRODUCTION LOGGING SETUP
@@ -241,6 +242,111 @@ app = Flask(
 # Load environment variables
 from dotenv import load_dotenv
 load_dotenv()
+
+
+# ========================
+# TICKET SYSTEM (SePay)
+# ========================
+
+TICKETS_DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'tickets.db')
+
+
+def _ensure_data_dir(path: str):
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    except Exception:
+        pass
+
+
+def init_tickets_db():
+    _ensure_data_dir(TICKETS_DB_PATH)
+    conn = sqlite3.connect(TICKETS_DB_PATH, timeout=5)
+    try:
+        cur = conn.cursor()
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS ticket_events (
+                event_id TEXT PRIMARY KEY,
+                event_name TEXT NOT NULL,
+                description TEXT,
+                price_per_ticket INTEGER NOT NULL,
+                max_tickets INTEGER NOT NULL,
+                bank_code TEXT NOT NULL,
+                bank_name TEXT NOT NULL,
+                account_number TEXT NOT NULL,
+                account_name TEXT NOT NULL,
+                start_date TEXT,
+                end_date TEXT,
+                sepay_api_key TEXT,
+                created_at REAL NOT NULL
+            )
+        ''')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_events_created_at ON ticket_events(created_at)')
+
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS ticket_orders (
+                order_id TEXT PRIMARY KEY,
+                event_id TEXT NOT NULL,
+                buyer_name TEXT NOT NULL,
+                buyer_email TEXT,
+                buyer_phone TEXT,
+                quantity INTEGER NOT NULL,
+                total_amount INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                created_at REAL NOT NULL,
+                paid_at REAL,
+                sepay_transaction_id INTEGER,
+                sepay_reference_code TEXT,
+                FOREIGN KEY(event_id) REFERENCES ticket_events(event_id)
+            )
+        ''')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_event_id ON ticket_orders(event_id)')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_status ON ticket_orders(status)')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_created_at ON ticket_orders(created_at)')
+
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS sepay_webhook_dedupe (
+                sepay_id INTEGER PRIMARY KEY,
+                received_at REAL NOT NULL
+            )
+        ''')
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_tickets_db():
+    if not os.path.exists(TICKETS_DB_PATH):
+        init_tickets_db()
+    conn = sqlite3.connect(TICKETS_DB_PATH, timeout=5)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def _new_event_id() -> str:
+    # Short but random enough for public URLs.
+    return 'EV' + uuid.uuid4().hex[:10].upper()
+
+
+def _new_order_id() -> str:
+    return 'TK' + uuid.uuid4().hex[:10].upper()
+
+
+def _get_base_url() -> str:
+    # request.host_url ends with '/'
+    return request.host_url.rstrip('/')
+
+
+def _parse_sepay_apikey_header(auth_header: str) -> str:
+    if not auth_header:
+        return ''
+    # Expected format: "Apikey <API_KEY>"
+    parts = auth_header.strip().split(None, 1)
+    if len(parts) != 2:
+        return ''
+    scheme, token = parts[0].strip(), parts[1].strip()
+    if scheme.lower() != 'apikey':
+        return ''
+    return token
 
 # ========================
 # RATE LIMITING (Production)
@@ -886,6 +992,58 @@ def home_html():
     return send_from_directory('.', 'home.html')
 
 
+# ========================
+# ELECTRONIC TICKET SYSTEM
+# ========================
+
+@app.route('/ticket-create')
+@app.route('/ticket-create.html')
+def ticket_create_html():
+    """Page to create electronic tickets."""
+    track_event('/ticket-create', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'ticket-create.html')
+
+
+@app.route('/buy-ticket')
+@app.route('/buy-ticket.html')
+def buy_ticket_html():
+    """Page for customers to buy tickets."""
+    track_event('/buy-ticket', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'buy-ticket.html')
+
+
+@app.route('/ticket')
+@app.route('/ticket.html')
+def ticket_html():
+    """Page to view electronic ticket."""
+    track_event('/ticket', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'ticket.html')
+
+
+@app.route('/scan')
+@app.route('/scan.html')
+def scan_html():
+    """Page for staff to scan ticket QR codes."""
+    track_event('/scan', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'scan.html')
+
+
+@app.route('/information')
+@app.route('/information.html')
+def information_html():
+    """Page showing ticket information after scanning."""
+    track_event('/information', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'information.html')
+
+
+@app.route('/sepay-webhook-guide')
+@app.route('/sepay-webhook-guide.html')
+def sepay_webhook_guide_html():
+    """Guide for shop owners to set up SePay WebHooks."""
+    track_event('/sepay-webhook-guide', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'sepay-webhook-guide.html')
+
+
 @app.route('/edit')
 def edit_redirect():
     """Canonicalize old /edit to /edit.html (avoid duplicate indexing)."""
@@ -1186,6 +1344,358 @@ def api_generate():
     except Exception as e:
         logger.error(f"Error in api_generate: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/verify-payment', methods=['POST'])
+@limiter.limit("2 per second; 30 per minute")
+def api_verify_payment():
+    """Verify payment status for an order.
+
+    This checks server-side state that is updated by SePay WebHooks.
+    """
+    try:
+        payload = request.get_json(silent=True) if request.is_json else None
+        if not isinstance(payload, dict):
+            payload = {}
+
+        order_id = sanitize_input(payload.get('orderId', ''), max_length=80)
+
+        if not order_id:
+            return jsonify({'ok': False, 'verified': False, 'error': 'Thiếu orderId'}), 400
+
+        try:
+            conn = get_tickets_db()
+            cur = conn.cursor()
+            cur.execute('SELECT status, total_amount, paid_at FROM ticket_orders WHERE order_id = ?', (order_id,))
+            row = cur.fetchone()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        if not row:
+            return jsonify({'ok': True, 'verified': False, 'reason': 'order_not_found', 'message': 'Không tìm thấy đơn hàng.'}), 200
+
+        status = (row['status'] or '').lower()
+        if status == 'paid':
+            return jsonify({'ok': True, 'verified': True, 'orderId': order_id}), 200
+
+        return jsonify({
+            'ok': True,
+            'verified': False,
+            'reason': 'not_paid_yet',
+            'message': 'Chưa nhận được xác nhận thanh toán từ SePay. Vui lòng đợi 10-60 giây và thử lại.',
+        }), 200
+    except Exception:
+        return jsonify({'ok': False, 'verified': False, 'error': 'Không thể kiểm tra thanh toán. Vui lòng thử lại.'}), 500
+
+
+@app.route('/api/ticket/events', methods=['POST'])
+@limiter.limit("4 per second; 60 per minute")
+def api_ticket_create_event():
+    try:
+        payload = request.get_json(silent=True) if request.is_json else None
+        if not isinstance(payload, dict):
+            payload = {}
+
+        event_name = sanitize_input(payload.get('eventName', ''), max_length=120)
+        description = sanitize_input(payload.get('description', ''), max_length=400)
+        price_per_ticket = validate_int(payload.get('pricePerTicket'), default=0, min_val=0, max_val=10**9)
+        max_tickets = validate_int(payload.get('maxTickets'), default=10, min_val=1, max_val=10**4)
+        bank_code = sanitize_input(payload.get('bankCode', ''), max_length=16)
+        bank_name = sanitize_input(payload.get('bankName', ''), max_length=64)
+        account_number = re.sub(r'[^0-9]', '', sanitize_input(payload.get('accountNumber', ''), max_length=32))
+        account_name = sanitize_input(payload.get('accountName', ''), max_length=80).upper()
+        start_date = sanitize_input(payload.get('startDate', ''), max_length=20)
+        end_date = sanitize_input(payload.get('endDate', ''), max_length=20)
+        sepay_api_key = sanitize_input(payload.get('sepayApiKey', ''), max_length=200)
+
+        if not event_name:
+            return jsonify({'error': 'Vui lòng nhập tên sự kiện/sản phẩm'}), 400
+        if price_per_ticket < 1000:
+            return jsonify({'error': 'Giá vé tối thiểu 1,000 VND'}), 400
+        if not bank_code or not bank_name:
+            return jsonify({'error': 'Vui lòng chọn ngân hàng'}), 400
+        if not account_number:
+            return jsonify({'error': 'Vui lòng nhập số tài khoản (chỉ gồm chữ số)'}), 400
+        if not account_name:
+            return jsonify({'error': 'Vui lòng nhập tên chủ tài khoản'}), 400
+        if not sepay_api_key:
+            return jsonify({'error': 'Vui lòng nhập SePay API Key'}), 400
+
+        event_id = _new_event_id()
+        now = time.time()
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('''
+                INSERT INTO ticket_events (
+                    event_id, event_name, description, price_per_ticket, max_tickets,
+                    bank_code, bank_name, account_number, account_name,
+                    start_date, end_date, sepay_api_key, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                event_id, event_name, description, int(price_per_ticket), int(max_tickets),
+                bank_code, bank_name, account_number, account_name,
+                start_date or None, end_date or None, sepay_api_key, now
+            ))
+            conn.commit()
+        finally:
+            conn.close()
+
+        buy_link = f"{_get_base_url()}/buy-ticket.html?event={event_id}"
+        webhook_url = f"{_get_base_url()}/api/sepay/webhook/{event_id}"
+
+        return jsonify({
+            'eventId': event_id,
+            'buyLink': buy_link,
+            'webhookUrl': webhook_url,
+        }), 201
+    except Exception as e:
+        logger.error(f"Error in api_ticket_create_event: {e}")
+        return jsonify({'error': 'Không thể tạo sự kiện. Vui lòng thử lại.'}), 500
+
+
+@app.route('/api/ticket/events/<event_id>', methods=['GET'])
+@limiter.limit("10 per second; 120 per minute")
+def api_ticket_get_event(event_id):
+    try:
+        event_id = sanitize_input(event_id, max_length=40)
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('''
+                SELECT event_id, event_name, description, price_per_ticket, max_tickets,
+                       bank_code, bank_name, account_number, account_name, start_date, end_date
+                FROM ticket_events WHERE event_id = ?
+            ''', (event_id,))
+            row = cur.fetchone()
+        finally:
+            conn.close()
+
+        if not row:
+            return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+
+        return jsonify({
+            'eventId': row['event_id'],
+            'eventName': row['event_name'],
+            'description': row['description'] or '',
+            'pricePerTicket': int(row['price_per_ticket']),
+            'maxTickets': int(row['max_tickets']),
+            'bankCode': row['bank_code'],
+            'bankName': row['bank_name'],
+            'accountNumber': row['account_number'],
+            'accountName': row['account_name'],
+            'startDate': row['start_date'] or '',
+            'endDate': row['end_date'] or '',
+        }), 200
+    except Exception:
+        return jsonify({'error': 'Không thể tải thông tin sự kiện'}), 500
+
+
+@app.route('/api/ticket/orders', methods=['POST'])
+@limiter.limit("4 per second; 60 per minute")
+def api_ticket_create_order():
+    try:
+        payload = request.get_json(silent=True) if request.is_json else None
+        if not isinstance(payload, dict):
+            payload = {}
+
+        event_id = sanitize_input(payload.get('eventId', ''), max_length=40)
+        buyer_name = sanitize_input(payload.get('buyerName', ''), max_length=120)
+        buyer_email = sanitize_input(payload.get('buyerEmail', ''), max_length=120)
+        buyer_phone = sanitize_input(payload.get('buyerPhone', ''), max_length=40)
+        quantity = validate_int(payload.get('quantity'), default=1, min_val=1, max_val=10**4)
+
+        if not event_id:
+            return jsonify({'error': 'Thiếu eventId'}), 400
+        if not buyer_name:
+            return jsonify({'error': 'Vui lòng nhập họ tên'}), 400
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT price_per_ticket, max_tickets, bank_code, bank_name, account_number, account_name FROM ticket_events WHERE event_id = ?', (event_id,))
+            event_row = cur.fetchone()
+            if not event_row:
+                return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+
+            max_tickets = int(event_row['max_tickets'])
+            if quantity < 1 or quantity > max_tickets:
+                return jsonify({'error': f'Số lượng vé tối đa là {max_tickets}'}), 400
+
+            price_per_ticket = int(event_row['price_per_ticket'])
+            total_amount = int(price_per_ticket * quantity)
+            order_id = _new_order_id()
+            now = time.time()
+
+            cur.execute('''
+                INSERT INTO ticket_orders (
+                    order_id, event_id, buyer_name, buyer_email, buyer_phone,
+                    quantity, total_amount, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                order_id, event_id, buyer_name, buyer_email or None, buyer_phone or None,
+                int(quantity), int(total_amount), 'pending', now
+            ))
+            conn.commit()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return jsonify({
+            'orderId': order_id,
+            'eventId': event_id,
+            'quantity': int(quantity),
+            'pricePerTicket': int(price_per_ticket),
+            'totalAmount': int(total_amount),
+            'memo': order_id,
+            'bankCode': event_row['bank_code'],
+            'bankName': event_row['bank_name'],
+            'accountNumber': event_row['account_number'],
+            'accountName': event_row['account_name'],
+        }), 201
+    except Exception as e:
+        logger.error(f"Error in api_ticket_create_order: {e}")
+        return jsonify({'error': 'Không thể tạo đơn hàng. Vui lòng thử lại.'}), 500
+
+
+@app.route('/api/ticket/orders/<order_id>', methods=['GET'])
+@limiter.limit("10 per second; 120 per minute")
+def api_ticket_get_order(order_id):
+    try:
+        order_id = sanitize_input(order_id, max_length=80)
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT order_id, event_id, status, total_amount, quantity, created_at, paid_at FROM ticket_orders WHERE order_id = ?', (order_id,))
+            row = cur.fetchone()
+        finally:
+            conn.close()
+
+        if not row:
+            return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+        return jsonify({
+            'orderId': row['order_id'],
+            'eventId': row['event_id'],
+            'status': row['status'],
+            'totalAmount': int(row['total_amount']),
+            'quantity': int(row['quantity']),
+            'createdAt': row['created_at'],
+            'paidAt': row['paid_at'],
+        }), 200
+    except Exception:
+        return jsonify({'error': 'Không thể tải đơn hàng'}), 500
+
+
+@app.route('/api/sepay/webhook/<event_id>', methods=['POST'])
+@limiter.exempt
+def api_sepay_webhook(event_id):
+    """Receive SePay WebHook transaction notification.
+
+    SePay docs: Authorization header is "Apikey <API_KEY>" (API Key auth).
+    We validate against the event's configured sepay_api_key.
+    """
+    try:
+        event_id = sanitize_input(event_id, max_length=40)
+        auth_key = _parse_sepay_apikey_header(request.headers.get('Authorization', ''))
+
+        payload = request.get_json(silent=True)
+        if not isinstance(payload, dict):
+            # Some setups may use form-encoded; try to parse basic fields.
+            payload = {}
+
+        # Fetch expected key
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT sepay_api_key FROM ticket_events WHERE event_id = ?', (event_id,))
+            ev = cur.fetchone()
+            if not ev:
+                return jsonify({'success': True, 'matched': False, 'reason': 'event_not_found'}), 200
+
+            expected_key = (ev['sepay_api_key'] or '').strip()
+            if not expected_key:
+                return jsonify({'success': False, 'error': 'Event is not configured'}), 400
+            if auth_key != expected_key:
+                return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+            # Dedupe by SePay transaction id
+            sepay_id = payload.get('id')
+            try:
+                sepay_id_int = int(sepay_id) if sepay_id is not None else None
+            except (TypeError, ValueError):
+                sepay_id_int = None
+
+            if sepay_id_int is not None:
+                try:
+                    cur.execute('INSERT INTO sepay_webhook_dedupe (sepay_id, received_at) VALUES (?, ?)', (sepay_id_int, time.time()))
+                    conn.commit()
+                except sqlite3.IntegrityError:
+                    # Duplicate delivery
+                    return jsonify({'success': True, 'matched': True, 'duplicate': True}), 200
+
+            transfer_type = sanitize_input(payload.get('transferType', ''), max_length=10).lower()
+            if transfer_type and transfer_type != 'in':
+                return jsonify({'success': True, 'matched': False, 'reason': 'not_incoming'}), 200
+
+            content = sanitize_input(payload.get('content', ''), max_length=300)
+            code = sanitize_input(payload.get('code', ''), max_length=120)
+            ref_code = sanitize_input(payload.get('referenceCode', ''), max_length=120)
+
+            # Try to resolve orderId
+            order_id = ''
+            if code:
+                order_id = code
+            if not order_id and content:
+                m = re.search(r'(TK[0-9A-Z]{6,})', content.upper())
+                if m:
+                    order_id = m.group(1)
+
+            if not order_id:
+                return jsonify({'success': True, 'matched': False, 'reason': 'no_order_id'}), 200
+
+            try:
+                amt = payload.get('transferAmount')
+                amount_int = int(float(amt)) if amt is not None else None
+            except (TypeError, ValueError):
+                amount_int = None
+
+            cur.execute('SELECT status, total_amount FROM ticket_orders WHERE order_id = ? AND event_id = ?', (order_id, event_id))
+            order = cur.fetchone()
+            if not order:
+                return jsonify({'success': True, 'matched': False, 'reason': 'order_not_found'}), 200
+
+            expected_amount = int(order['total_amount'])
+            if amount_int is not None and amount_int != expected_amount:
+                return jsonify({'success': True, 'matched': False, 'reason': 'amount_mismatch'}), 200
+
+            status = (order['status'] or '').lower()
+            if status == 'paid':
+                return jsonify({'success': True, 'matched': True, 'already_paid': True}), 200
+
+            cur.execute('''
+                UPDATE ticket_orders
+                SET status = 'paid', paid_at = ?, sepay_transaction_id = ?, sepay_reference_code = ?
+                WHERE order_id = ?
+            ''', (time.time(), sepay_id_int, ref_code or None, order_id))
+            conn.commit()
+
+            return jsonify({'success': True, 'matched': True, 'orderId': order_id}), 200
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+    except Exception as e:
+        logger.error(f"Error in api_sepay_webhook: {e}")
+        # Return 200 with success=false to avoid SePay retry storm on server errors.
+        return jsonify({'success': False, 'error': 'server_error'}), 200
 
 
 @app.route('/api/download', methods=['POST'])

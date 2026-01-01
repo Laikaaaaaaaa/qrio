@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRIO - Hướng dẫn tạo Webhook SePay</title>
+  <meta name="description" content="Hướng dẫn tạo Webhook SePay để xác nhận chuyển khoản tự động trên nền tảng QRIO." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://qrio.site/sepay-webhook-guide.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://qrio.site/sepay-webhook-guide.html" />
+  <meta property="og:title" content="QRIO - Hướng dẫn tạo Webhook SePay" />
+  <meta property="og:description" content="Dùng để xác nhận chuyển khoản tự động trên nền tảng QRIO" />
+  <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
+
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -100px;
+      right: -100px;
+    }
+
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -5s;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 26px;
+      backdrop-filter: blur(12px);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 900;
+      margin: 18px 0 10px;
+      color: #fff;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 900;
+      margin: 14px 0 8px;
+      color: #fff;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    p, li {
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    ul, ol { padding-left: 18px; margin-top: 8px; }
+    li { margin: 6px 0; }
+
+    .box {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: #e2e8f0;
+      font-size: 13px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="header">
+    <div class="header-left">
+      <a class="logo-box" href="/home.html" aria-label="QRIO Home">
+        <img src="/static/logo/logo.png" alt="QRIO" />
+      </a>
+      <h1>Hướng dẫn Webhook SePay</h1>
+    </div>
+    <div class="header-right">
+      <a class="btn btn-secondary" href="/ticket-create.html"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="title">HƯỚNG DẪN TẠO WEBHOOK SEPAY</div>
+      <div class="subtitle">Dùng để xác nhận chuyển khoản tự động trên nền tảng QRIO</div>
+
+      <p>Tài liệu này hướng dẫn chi tiết cách cấu hình Webhook trên SePay để hệ thống QRIO có thể tự động xác nhận giao dịch chuyển khoản và kích hoạt vé điện tử cho khách hàng.</p>
+
+      <h2>I. MỤC ĐÍCH SỬ DỤNG</h2>
+      <p>Sau khi cấu hình thành công:</p>
+      <ul>
+        <li>Khi khách hàng chuyển khoản vào tài khoản ngân hàng của bạn</li>
+        <li>SePay sẽ tự động gửi thông tin giao dịch về hệ thống QRIO</li>
+        <li>QRIO xác nhận thanh toán và kích hoạt vé điện tử</li>
+        <li>Nhân viên chỉ cần quét mã QR để kiểm tra vé, không cần kiểm tra chuyển khoản thủ công</li>
+      </ul>
+
+      <h2>II. ĐIỀU KIỆN TRƯỚC KHI CẤU HÌNH</h2>
+      <p>Trước khi thực hiện, bạn cần đảm bảo:</p>
+      <ul>
+        <li>Có tài khoản SePay đang hoạt động</li>
+        <li>Đã liên kết ít nhất một tài khoản ngân hàng với SePay</li>
+        <li>Đã có đường dẫn Webhook do QRIO cung cấp</li>
+      </ul>
+      <p>Ví dụ đường dẫn Webhook:</p>
+      <div class="box"><div class="code">https://qrio.site/webhook/sepay</div></div>
+
+      <h2>III. CÁCH TẠO WEBHOOK TRÊN SEPAY</h2>
+      <h3>Bước 1: Truy cập trang quản lý Webhook</h3>
+      <ul>
+        <li>Đăng nhập vào SePay</li>
+        <li>Trên menu bên trái, chọn Tích hợp &amp; Thông báo</li>
+        <li>Chọn Webhooks</li>
+        <li>Nhấn Thêm Webhook</li>
+      </ul>
+
+      <h2>IV. CẤU HÌNH CHI TIẾT WEBHOOK</h2>
+      <p>Thực hiện đúng theo từng mục dưới đây.</p>
+
+      <h3>1. Đặt tên Webhook</h3>
+      <p>Nhập tên để dễ quản lý, ví dụ:</p>
+      <div class="box"><div class="code">Xác nhận thanh toán QRIO</div></div>
+      <p>Tên này chỉ mang tính nội bộ, không ảnh hưởng đến hệ thống.</p>
+
+      <h3>2. Chọn sự kiện</h3>
+      <p>Tại mục “Bắn Webhooks khi”, chọn:</p>
+      <div class="box"><div class="code">Có tiền vào</div></div>
+      <p>Thiết lập này đảm bảo mỗi khi tài khoản ngân hàng nhận tiền, SePay sẽ gửi thông tin giao dịch về QRIO.</p>
+
+      <h3>3. Chọn điều kiện</h3>
+      <p><b>Khi tài khoản ngân hàng là</b></p>
+      <p>Chọn đúng tài khoản ngân hàng bạn dùng để nhận tiền bán vé.</p>
+      <p>Ví dụ:</p>
+      <div class="box"><div class="code">MBBank – 2307xxxxxx – Tên chủ tài khoản</div></div>
+      <p>Nếu chọn sai tài khoản, hệ thống sẽ không nhận được giao dịch.</p>
+
+      <p style="margin-top:10px;"><b>Bỏ qua nếu nội dung giao dịch không có Code thanh toán?</b></p>
+      <p>Chọn:</p>
+      <div class="box"><div class="code">KHÔNG</div></div>
+      <p><b>Lưu ý quan trọng:</b></p>
+      <ul>
+        <li>Không bật tính năng bỏ qua giao dịch</li>
+        <li>QRIO sẽ tự xử lý và kiểm tra mã thanh toán</li>
+        <li>Việc bật tùy chọn này có thể khiến giao dịch hợp lệ không được ghi nhận</li>
+      </ul>
+
+      <h3>4. Thuộc tính Webhook</h3>
+      <p><b>Gọi đến URL</b></p>
+      <p>Dán chính xác đường dẫn Webhook do QRIO cung cấp.</p>
+      <p>Ví dụ:</p>
+      <div class="box"><div class="code">https://qrio.site/webhook/sepay</div></div>
+      <ul>
+        <li>Không thêm ký tự, không thêm dấu “/” phía sau, không chỉnh sửa nội dung URL.</li>
+      </ul>
+
+      <p style="margin-top:10px;"><b>Là Webhooks xác thực thanh toán?</b></p>
+      <p>Chọn:</p>
+      <div class="box"><div class="code">ĐÚNG</div></div>
+      <p>Thiết lập này giúp SePay hiểu đây là Webhook dùng để xác nhận thanh toán, đảm bảo gửi dữ liệu đầy đủ và chính xác.</p>
+
+      <p style="margin-top:10px;"><b>Gọi lại Webhooks khi</b></p>
+      <p>Giữ nguyên thiết lập mặc định:</p>
+      <div class="box"><div class="code">HTTP Status Code không nằm trong phạm vi từ 200 đến 299</div></div>
+      <p>Điều này cho phép SePay tự động gửi lại dữ liệu nếu hệ thống QRIO tạm thời gặp lỗi.</p>
+
+      <h3>5. Cấu hình chứng thực Webhook</h3>
+      <p><b>Kiểu chứng thực</b></p>
+      <p>Chọn:</p>
+      <div class="box"><div class="code">Không cần chứng thực</div></div>
+      <p>QRIO đã có cơ chế xác thực riêng, người dùng không cần cấu hình thêm.</p>
+
+      <p style="margin-top:10px;"><b>Request Content Type</b></p>
+      <p>Chọn:</p>
+      <div class="box"><div class="code">application/json</div></div>
+
+      <h3>6. Trạng thái Webhook</h3>
+      <p>Chọn:</p>
+      <div class="box"><div class="code">Kích hoạt</div></div>
+      <p>Webhook chỉ hoạt động khi được kích hoạt.</p>
+
+      <h2>V. SAU KHI CẤU HÌNH XONG, HỆ THỐNG HOẠT ĐỘNG NHƯ SAU</h2>
+      <ul>
+        <li>Khách hàng nhận vé QRIO và mã QR chuyển khoản</li>
+        <li>Khách chuyển khoản đúng số tiền theo vé</li>
+        <li>SePay ghi nhận giao dịch thành công</li>
+        <li>SePay gửi dữ liệu giao dịch về hệ thống QRIO</li>
+        <li>QRIO xác nhận thanh toán và kích hoạt vé</li>
+        <li>Nhân viên quét mã QR tại quầy để kiểm tra vé</li>
+      </ul>
+
+      <h2>VI. NHỮNG THIẾT LẬP KHÔNG CẦN THỰC HIỆN</h2>
+      <p>Người dùng không cần:</p>
+      <ul>
+        <li>Tạo tài khoản ảo (VA)</li>
+        <li>Sử dụng ví trung gian</li>
+        <li>Kiểm tra chuyển khoản thủ công</li>
+        <li>Yêu cầu khách gửi ảnh chuyển khoản</li>
+      </ul>
+      <p>Chỉ cần một tài khoản ngân hàng và Webhook SePay là đủ.</p>
+
+      <h2>VII. KIỂM TRA VÀ KHẮC PHỤC SỰ CỐ</h2>
+      <p>Nếu không nhận được xác nhận thanh toán, hãy kiểm tra:</p>
+      <ul>
+        <li>Webhook đã được kích hoạt chưa</li>
+        <li>Đã chọn đúng tài khoản ngân hàng chưa</li>
+        <li>URL Webhook có chính xác không</li>
+        <li>Khách hàng có chuyển đúng số tiền không</li>
+      </ul>
+    </div>
+  </div>
+</body>
+
+</html>

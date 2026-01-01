@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Tạo Vé Điện Tử</title>
+  <meta name="description" content="Tạo mã QR vé điện tử để bán vé và quản lý thanh toán tự động." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://qrio.site/ticket-create.html" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://qrio.site/ticket-create.html" />
+  <meta property="og:title" content="Qrio - Tạo Vé Điện Tử QR" />
+  <meta property="og:description" content="Tạo mã QR vé điện tử để bán vé và quản lý thanh toán." />
+  <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
+  
+  <meta name="theme-color" content="#7c3aed" />
+  
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ANIMATED BACKGROUND */
+    .bg-effects {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+    
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -5s;
+    }
+    
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.1));
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 999px;
+      font-size: 13px;
+      color: #a78bfa;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-subtitle {
+      color: #94a3b8;
+      font-size: 15px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 800px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: #a78bfa;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: rgba(124, 58, 237, 0.5);
+      background: rgba(124, 58, 237, 0.05);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #64748b;
+    }
+
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .form-group select {
+      cursor: pointer;
+    }
+
+    .form-group select option {
+      background: #1e1e2e;
+      color: #e2e8f0;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 500px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* QR PREVIEW */
+    .qr-preview-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .qr-preview {
+      width: 260px;
+      height: 260px;
+      background: #fff;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .qr-preview img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .qr-preview .placeholder {
+      color: #64748b;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .qr-preview .placeholder i {
+      font-size: 56px;
+      margin-bottom: 16px;
+      color: #7c3aed;
+      opacity: 0.5;
+    }
+
+    .qr-preview .placeholder p {
+      font-size: 13px;
+    }
+
+    /* TICKET SUMMARY */
+    .ticket-summary {
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-row .label {
+      color: #94a3b8;
+    }
+
+    .summary-row .value {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .summary-row.total {
+      font-size: 16px;
+      padding-top: 16px;
+      margin-top: 8px;
+      border-top: 1px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .summary-row.total .value {
+      color: #22c55e;
+    }
+
+    /* INFO BOX */
+    .info-box {
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .info-box h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #a78bfa;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box p, .info-box ol {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.8;
+    }
+
+    .info-box ol {
+      padding-left: 20px;
+    }
+
+    /* LINK DISPLAY */
+    .link-display {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .link-display input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #a78bfa;
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+    }
+
+    .link-display button {
+      padding: 8px 12px;
+      background: rgba(124, 58, 237, 0.2);
+      border: none;
+      border-radius: 8px;
+      color: #a78bfa;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .link-display button:hover {
+      background: rgba(124, 58, 237, 0.4);
+    }
+
+    /* BUTTONS */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .action-buttons .btn {
+      flex: 1;
+    }
+
+    /* SUCCESS STATE */
+    .success-state {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+    }
+
+    .success-state h3 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .success-state p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="scan.html" class="btn btn-secondary">
+        <i class="fa-solid fa-qrcode"></i>
+        <span>Quét vé</span>
+      </a>
+      <a href="home.html" class="btn btn-primary">
+        <i class="fa-solid fa-house"></i>
+        <span>Trang chủ</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="page-badge"><i class="fa-solid fa-ticket"></i> Dành cho chủ quán</div>
+      <h1 class="page-title">Tạo Vé Điện Tử</h1>
+      <p class="page-subtitle">Tạo mã QR để khách hàng quét và mua vé. Tải mã QR về và in hoặc hiển thị tại quầy.</p>
+    </div>
+
+    <div class="main-content">
+      <!-- Form tạo vé -->
+      <div class="card" id="create-form">
+        <div class="card-title">
+          <i class="fa-solid fa-edit"></i>
+          Thông tin vé
+        </div>
+        
+        <div class="form-group">
+          <label>Tên sự kiện / Sản phẩm *</label>
+          <input type="text" id="event-name" placeholder="VD: Vé xem phim, Vé vào cổng, Buffet..." />
+        </div>
+
+        <div class="form-group">
+          <label>Mô tả chi tiết</label>
+          <textarea id="event-desc" placeholder="Mô tả thêm về vé này (thời gian, địa điểm, điều kiện...)"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Giá mỗi vé (VND) *</label>
+            <input type="number" id="ticket-price" placeholder="100000" min="1000" />
+          </div>
+          <div class="form-group">
+            <label>Số vé tối đa / lần mua</label>
+            <input type="number" id="max-tickets" value="10" min="1" max="100" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Ngân hàng nhận tiền *</label>
+          <select id="bank-select">
+            <option value="970436">Vietcombank (VCB)</option>
+            <option value="970418">BIDV</option>
+            <option value="970415">Vietinbank</option>
+            <option value="970405">Agribank</option>
+            <option value="970422">MB Bank</option>
+            <option value="970407">Techcombank</option>
+            <option value="970416">ACB</option>
+            <option value="970432">VPBank</option>
+            <option value="970423">TPBank</option>
+            <option value="970437">HDBank</option>
+            <option value="970448">OCB</option>
+            <option value="970403">Sacombank</option>
+            <option value="970426">MSB</option>
+            <option value="970441">VIB</option>
+            <option value="970443">SHB</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Số tài khoản *</label>
+          <input type="text" id="account-number" placeholder="0123456789" />
+        </div>
+
+        <div class="form-group">
+          <label>Tên chủ tài khoản</label>
+          <input type="text" id="account-name" placeholder="NGUYEN VAN A" style="text-transform: uppercase;" />
+        </div>
+
+        <div class="form-group">
+          <label>SePay Webhook *</label>
+          <input type="password" id="sepay-api-key" placeholder="Nhập SePay API Key" autocomplete="off" required />
+          <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
+            Xem <a href="/sepay-webhook-guide.html" style="color:#a78bfa; text-decoration:none;">hướng dẫn tạo WebHook SePay</a>.
+          </p>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ngày bắt đầu bán</label>
+            <input type="date" id="start-date" />
+          </div>
+          <div class="form-group">
+            <label>Ngày kết thúc bán</label>
+            <input type="date" id="end-date" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="generate-btn" onclick="generateTicketQR()" style="width: 100%; margin-top: 8px;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          Tạo mã QR bán vé
+        </button>
+      </div>
+
+      <!-- Preview QR -->
+      <div class="card qr-preview-card">
+        <div class="card-title" style="width: 100%;">
+          <i class="fa-solid fa-qrcode"></i>
+          Mã QR bán vé
+        </div>
+        
+        <div class="qr-preview" id="qr-preview">
+          <div class="placeholder">
+            <i class="fa-solid fa-qrcode"></i>
+            <p>Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé</p>
+          </div>
+        </div>
+
+        <div id="qr-result" class="hidden" style="width: 100%;">
+          <div class="ticket-summary">
+            <div class="summary-row">
+              <span class="label">Sự kiện:</span>
+              <span class="value" id="summary-event">-</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Giá vé:</span>
+              <span class="value" id="summary-price">-</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Ngân hàng:</span>
+              <span class="value" id="summary-bank">-</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">STK:</span>
+              <span class="value" id="summary-account">-</span>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <h4><i class="fa-solid fa-link"></i> Link mua vé</h4>
+            <div class="link-display">
+              <input type="text" id="buy-link" readonly />
+              <button onclick="copyLink()"><i class="fa-solid fa-copy"></i></button>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">Khách hàng quét mã QR hoặc truy cập link này để mua vé</p>
+          </div>
+
+          <div class="info-box" style="margin-top: 12px;">
+            <h4><i class="fa-solid fa-plug"></i> Webhook URL (SePay)</h4>
+            <div class="link-display">
+              <input type="text" id="webhook-url" readonly />
+              <button onclick="copyWebhookUrl()"><i class="fa-solid fa-copy"></i></button>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">Dán URL này vào SePay → WebHooks → Gọi đến URL</p>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-success" onclick="downloadQR()">
+              <i class="fa-solid fa-download"></i>
+              Tải mã QR
+            </button>
+            <button class="btn btn-secondary" onclick="resetForm()">
+              <i class="fa-solid fa-plus"></i>
+              Tạo mới
+            </button>
+          </div>
+        </div>
+
+        <div class="info-box" id="info-guide">
+          <h4><i class="fa-solid fa-lightbulb"></i> Hướng dẫn sử dụng</h4>
+          <ol>
+            <li>Điền thông tin vé và ngân hàng nhận tiền</li>
+            <li>Nhấn "Tạo mã QR" để tạo mã bán vé</li>
+            <li>Tải mã QR về và in ra hoặc hiển thị tại quầy</li>
+            <li>Khách hàng quét mã → Nhập thông tin → Thanh toán</li>
+            <li>Hệ thống tự động tạo vé điện tử cho khách</li>
+            <li>Vào trang "Quét vé" để kiểm tra vé của khách</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentEventData = null;
+
+    // Format currency
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+    }
+
+    // Event IDs are generated server-side.
+
+    // Get bank name
+    function getBankName(code) {
+      const banks = {
+        '970436': 'Vietcombank',
+        '970418': 'BIDV',
+        '970415': 'Vietinbank',
+        '970405': 'Agribank',
+        '970422': 'MB Bank',
+        '970407': 'Techcombank',
+        '970416': 'ACB',
+        '970432': 'VPBank',
+        '970423': 'TPBank',
+        '970437': 'HDBank',
+        '970448': 'OCB',
+        '970403': 'Sacombank',
+        '970426': 'MSB',
+        '970441': 'VIB',
+        '970443': 'SHB'
+      };
+      return banks[code] || code;
+    }
+
+    // Generate QR code for ticket sales
+    async function generateTicketQR() {
+      const eventName = document.getElementById('event-name').value.trim();
+      const eventDesc = document.getElementById('event-desc').value.trim();
+      const price = parseInt(document.getElementById('ticket-price').value) || 0;
+      const maxTickets = parseInt(document.getElementById('max-tickets').value) || 10;
+      const bankCode = document.getElementById('bank-select').value;
+      const accountNumberRaw = document.getElementById('account-number').value.trim();
+      const accountNumber = accountNumberRaw.replace(/[^0-9]/g, '');
+      const accountName = document.getElementById('account-name').value.trim().toUpperCase();
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      const sepayApiKey = document.getElementById('sepay-api-key').value.trim();
+
+      // Validation
+      if (!eventName) {
+        alert('Vui lòng nhập tên sự kiện/sản phẩm');
+        return;
+      }
+      if (!price || price < 1000) {
+        alert('Vui lòng nhập giá vé (tối thiểu 1,000 VND)');
+        return;
+      }
+      if (!accountNumber) {
+        alert('Vui lòng nhập số tài khoản (chỉ gồm chữ số)');
+        return;
+      }
+      if (accountNumber !== accountNumberRaw.replace(/\s+/g, '')) {
+        // User typed spaces or non-digits; keep UX simple: just warn.
+        const ok = confirm('Số tài khoản có ký tự không hợp lệ. Hệ thống sẽ tự động loại bỏ ký tự lạ và dùng số: ' + accountNumber + '\n\nNhấn OK để tiếp tục.');
+        if (!ok) return;
+      }
+
+      if (!sepayApiKey) {
+        alert('Vui lòng nhập SePay API Key');
+        return;
+      }
+
+      let eventId = '';
+      let buyLink = '';
+      let webhookUrl = '';
+
+      // Generate QR code for the buy link
+      const formData = new FormData();
+      formData.append('data', buyLink);
+      formData.append('qr_color', '#4f46e5');
+      formData.append('bg_color', '#ffffff');
+      formData.append('ecc_level', 'H');
+      formData.append('module_style', 'rounded-square');
+
+      try {
+        document.getElementById('generate-btn').disabled = true;
+        document.getElementById('generate-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo...';
+
+        // Create event server-side (stores bank + price + SePay API key)
+        const createResp = await fetch('/api/ticket/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventName: eventName,
+            description: eventDesc,
+            pricePerTicket: price,
+            maxTickets: maxTickets,
+            bankCode: bankCode,
+            bankName: getBankName(bankCode),
+            accountNumber: accountNumber,
+            accountName: accountName,
+            startDate: startDate,
+            endDate: endDate,
+            sepayApiKey: sepayApiKey
+          })
+        });
+        const createJson = await createResp.json().catch(() => ({}));
+        if (!createResp.ok || createJson.error) {
+          throw new Error(createJson.error || 'Không thể tạo sự kiện');
+        }
+
+        eventId = createJson.eventId;
+        buyLink = createJson.buyLink;
+        webhookUrl = createJson.webhookUrl;
+
+        currentEventData = {
+          eventId: eventId,
+          eventName: eventName,
+          description: eventDesc,
+          pricePerTicket: price,
+          maxTickets: maxTickets,
+          bankCode: bankCode,
+          bankName: getBankName(bankCode),
+          accountNumber: accountNumber,
+          accountName: accountName,
+          startDate: startDate,
+          endDate: endDate,
+          createdAt: new Date().toISOString(),
+          webhookUrl: webhookUrl
+        };
+
+        // Generate QR for buy link
+        const formData = new FormData();
+        formData.append('data', buyLink);
+        formData.append('qr_color', '#4f46e5');
+        formData.append('bg_color', '#ffffff');
+        formData.append('ecc_level', 'H');
+        formData.append('module_style', 'rounded-square');
+
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Show QR
+        document.getElementById('qr-preview').innerHTML = `<img src="${result.image}" alt="QR Buy Ticket" id="qr-image" />`;
+        
+        // Show result section
+        document.getElementById('qr-result').classList.remove('hidden');
+        document.getElementById('info-guide').classList.add('hidden');
+        
+        // Fill in summary
+        document.getElementById('summary-event').textContent = eventName;
+        document.getElementById('summary-price').textContent = formatCurrency(price);
+        document.getElementById('summary-bank').textContent = getBankName(bankCode);
+        document.getElementById('summary-account').textContent = accountNumber;
+        document.getElementById('buy-link').value = buyLink;
+        document.getElementById('webhook-url').value = webhookUrl;
+
+      } catch (error) {
+        alert('Lỗi tạo mã QR: ' + error.message);
+      } finally {
+        document.getElementById('generate-btn').disabled = false;
+        document.getElementById('generate-btn').innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Tạo mã QR bán vé';
+      }
+    }
+
+    // Copy link
+    function copyLink() {
+      const linkInput = document.getElementById('buy-link');
+      linkInput.select();
+      document.execCommand('copy');
+      
+      const btn = linkInput.nextElementSibling;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 2000);
+    }
+
+    function copyWebhookUrl() {
+      const linkInput = document.getElementById('webhook-url');
+      linkInput.select();
+      document.execCommand('copy');
+
+      const btn = linkInput.nextElementSibling;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 2000);
+    }
+
+    // Download QR
+    function downloadQR() {
+      const img = document.getElementById('qr-image');
+      if (!img) return;
+
+      const link = document.createElement('a');
+      link.download = `qr-ve-${currentEventData.eventId}.png`;
+      link.href = img.src;
+      link.click();
+    }
+
+    // Reset form
+    function resetForm() {
+      document.getElementById('event-name').value = '';
+      document.getElementById('event-desc').value = '';
+      document.getElementById('ticket-price').value = '';
+      document.getElementById('max-tickets').value = '10';
+      document.getElementById('account-number').value = '';
+      document.getElementById('account-name').value = '';
+      document.getElementById('sepay-api-key').value = '';
+      
+      document.getElementById('qr-preview').innerHTML = `
+        <div class="placeholder">
+          <i class="fa-solid fa-qrcode"></i>
+          <p>Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé</p>
+        </div>
+      `;
+      
+      document.getElementById('qr-result').classList.add('hidden');
+      document.getElementById('info-guide').classList.remove('hidden');
+      
+      currentEventData = null;
+    }
+
+    // Set default dates
+    const today = new Date();
+    document.getElementById('start-date').value = today.toISOString().split('T')[0];
+    const endDefault = new Date();
+    endDefault.setMonth(endDefault.getMonth() + 1);
+    document.getElementById('end-date').value = endDefault.toISOString().split('T')[0];
+  </script>
+</body>
+</html>

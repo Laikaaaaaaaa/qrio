@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Vé Điện Tử</title>
+  <meta name="description" content="Vé điện tử QR - Quét mã để check-in nhanh chóng." />
+  <meta name="robots" content="noindex, nofollow" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Qrio - Vé Điện Tử" />
+  <meta property="og:description" content="Vé điện tử QR - Quét mã để check-in." />
+  <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
+  
+  <meta name="theme-color" content="#7c3aed" />
+  
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ANIMATED BACKGROUND */
+    .bg-effects {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+    
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -5s;
+    }
+    
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* TICKET CARD */
+    .ticket-card {
+      background: linear-gradient(180deg, #1a1a2e 0%, #16162a 100%);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .ticket-header {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .ticket-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .ticket-event-name {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .ticket-subtitle {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    /* Cutout effect */
+    .ticket-cutout {
+      height: 24px;
+      position: relative;
+      background: #0f0f1a;
+    }
+
+    .ticket-cutout::before,
+    .ticket-cutout::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #0f0f1a;
+      border-radius: 50%;
+      top: -12px;
+    }
+
+    .ticket-cutout::before {
+      left: -12px;
+    }
+
+    .ticket-cutout::after {
+      right: -12px;
+    }
+
+    .ticket-cutout-line {
+      position: absolute;
+      top: 50%;
+      left: 24px;
+      right: 24px;
+      border-top: 2px dashed rgba(255,255,255,0.15);
+    }
+
+    .ticket-body {
+      padding: 24px;
+    }
+
+    /* QR Section */
+    .qr-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .qr-wrapper {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 16px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .qr-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .ticket-id {
+      font-family: monospace;
+      font-size: 14px;
+      color: #a78bfa;
+      letter-spacing: 2px;
+    }
+
+    /* Info Grid */
+    .ticket-info {
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #94a3b8;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-label i {
+      width: 16px;
+      color: #7c3aed;
+    }
+
+    .info-value {
+      font-weight: 600;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    /* Status */
+    .ticket-status {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .status-valid {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #22c55e;
+    }
+
+    .status-used {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .status-icon {
+      font-size: 20px;
+      margin-right: 8px;
+    }
+
+    /* Action Buttons */
+    .ticket-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .ticket-actions .btn {
+      flex: 1;
+    }
+
+    /* Error State */
+    .error-box {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+    }
+
+    .error-box h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .error-box p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    /* Loading */
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(124, 58, 237, 0.2);
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 60px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 24px 16px;
+      }
+
+      .ticket-event-name {
+        font-size: 18px;
+      }
+
+      .qr-wrapper {
+        width: 180px;
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="home.html" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-house"></i>
+        <span>Trang chủ</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Loading -->
+    <div id="loading">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box hidden" id="error-section">
+      <div class="error-icon"><i class="fa-solid fa-ticket-xmark"></i></div>
+      <h2>Không tìm thấy vé</h2>
+      <p id="error-message">Link không hợp lệ hoặc vé không tồn tại.</p>
+      <a href="home.html" class="btn btn-primary">
+        <i class="fa-solid fa-house"></i>
+        Về trang chủ
+      </a>
+    </div>
+
+    <!-- Ticket Card -->
+    <div class="ticket-card hidden" id="ticket-section">
+      <div class="ticket-header">
+        <div class="ticket-badge">
+          <i class="fa-solid fa-ticket"></i>
+          VÉ ĐIỆN TỬ
+        </div>
+        <h1 class="ticket-event-name" id="event-name">-</h1>
+        <p class="ticket-subtitle" id="event-desc">-</p>
+      </div>
+
+      <div class="ticket-cutout">
+        <div class="ticket-cutout-line"></div>
+      </div>
+
+      <div class="ticket-body">
+        <div class="qr-section">
+          <div class="qr-wrapper" id="ticket-qr">
+            <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0;"></div>
+          </div>
+          <div class="ticket-id" id="ticket-id">-</div>
+        </div>
+
+        <div class="ticket-info">
+          <div class="info-row">
+            <span class="info-label"><i class="fa-solid fa-user"></i> Họ tên</span>
+            <span class="info-value" id="buyer-name">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fa-solid fa-ticket"></i> Số vé</span>
+            <span class="info-value" id="ticket-number">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fa-solid fa-calendar"></i> Ngày mua</span>
+            <span class="info-value" id="purchase-date">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label"><i class="fa-solid fa-money-bill"></i> Giá vé</span>
+            <span class="info-value" id="ticket-price">-</span>
+          </div>
+        </div>
+
+        <div class="ticket-status status-valid" id="ticket-status">
+          <i class="fa-solid fa-circle-check status-icon"></i>
+          <span id="status-text">VÉ HỢP LỆ</span>
+        </div>
+
+        <div class="ticket-actions">
+          <button class="btn btn-success" onclick="saveTicket()">
+            <i class="fa-solid fa-download"></i>
+            Lưu vé
+          </button>
+          <button class="btn btn-secondary" onclick="window.print()">
+            <i class="fa-solid fa-print"></i>
+            In vé
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ticketData = null;
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+    }
+
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get('id');
+
+      if (!ticketId) {
+        showError('Link không hợp lệ.');
+        return;
+      }
+
+      // Get ticket from localStorage
+      const stored = localStorage.getItem('ticket_' + ticketId);
+      
+      if (!stored) {
+        showError('Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.');
+        return;
+      }
+
+      try {
+        ticketData = JSON.parse(stored);
+      } catch (e) {
+        showError('Dữ liệu vé không hợp lệ.');
+        return;
+      }
+
+      // Display ticket
+      displayTicket();
+    }
+
+    function showError(message) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error-message').textContent = message;
+      document.getElementById('error-section').classList.remove('hidden');
+    }
+
+    async function displayTicket() {
+      // Basic info
+      document.getElementById('event-name').textContent = ticketData.eventName;
+      document.getElementById('event-desc').textContent = ticketData.description || 'Vé điện tử';
+      document.getElementById('ticket-id').textContent = ticketData.ticketId;
+      document.getElementById('buyer-name').textContent = ticketData.buyerName;
+      document.getElementById('ticket-number').textContent = `${ticketData.ticketNumber} / ${ticketData.totalTickets}`;
+      document.getElementById('purchase-date').textContent = formatDate(ticketData.issuedAt);
+      document.getElementById('ticket-price').textContent = formatCurrency(ticketData.price);
+
+      // Status
+      const statusEl = document.getElementById('ticket-status');
+      const statusTextEl = document.getElementById('status-text');
+      
+      if (ticketData.status === 'used') {
+        statusEl.className = 'ticket-status status-used';
+        statusTextEl.innerHTML = '<i class="fa-solid fa-circle-xmark status-icon"></i> ĐÃ SỬ DỤNG';
+      } else {
+        statusEl.className = 'ticket-status status-valid';
+        statusTextEl.innerHTML = '<i class="fa-solid fa-circle-check status-icon"></i> VÉ HỢP LỆ';
+      }
+
+      // Generate QR code
+      await generateTicketQR();
+
+      // Show ticket
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('ticket-section').classList.remove('hidden');
+    }
+
+    async function generateTicketQR() {
+      const qrData = JSON.stringify({
+        type: 'QRIO_TICKET',
+        ticketId: ticketData.ticketId,
+        eventName: ticketData.eventName,
+        buyerName: ticketData.buyerName
+      });
+
+      const formData = new FormData();
+      formData.append('data', qrData);
+      formData.append('qr_color', '#4f46e5');
+      formData.append('bg_color', '#ffffff');
+      formData.append('ecc_level', 'H');
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.image) {
+          document.getElementById('ticket-qr').innerHTML = `<img src="${result.image}" alt="Ticket QR" />`;
+        }
+      } catch (error) {
+        console.error('Error generating QR:', error);
+        document.getElementById('ticket-qr').innerHTML = '<p style="color: #ef4444; font-size: 12px;">Lỗi tạo mã QR</p>';
+      }
+    }
+
+    async function saveTicket() {
+      const ticketCard = document.querySelector('.ticket-card');
+      
+      try {
+        const canvas = await html2canvas(ticketCard, {
+          backgroundColor: '#1a1a2e',
+          scale: 2
+        });
+
+        const link = document.createElement('a');
+        link.download = `ve-${ticketData.ticketId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (error) {
+        alert('Không thể lưu vé. Vui lòng chụp màn hình.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

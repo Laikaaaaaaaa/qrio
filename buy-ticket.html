@@ -1,0 +1,1465 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Mua Vé Điện Tử</title>
+  <meta name="description" content="Mua vé điện tử nhanh chóng với thanh toán QR." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://qrio.site/buy-ticket.html" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://qrio.site/buy-ticket.html" />
+  <meta property="og:title" content="Qrio - Mua Vé Điện Tử" />
+  <meta property="og:description" content="Mua vé điện tử nhanh chóng với thanh toán QR." />
+  <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
+  
+  <meta name="theme-color" content="#7c3aed" />
+  
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ANIMATED BACKGROUND */
+    .bg-effects {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+    
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -5s;
+    }
+    
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #fff;
+    }
+
+    .btn-warning:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* STEPS */
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.1);
+      color: #64748b;
+      transition: all 0.3s;
+    }
+
+    .step.active {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-color: #7c3aed;
+      color: #fff;
+    }
+
+    .step.completed {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      border-color: #22c55e;
+      color: #fff;
+    }
+
+    .step-line {
+      width: 40px;
+      height: 2px;
+      background: rgba(255,255,255,0.1);
+      align-self: center;
+    }
+
+    .step-line.active {
+      background: linear-gradient(90deg, #7c3aed, #22c55e);
+    }
+
+    /* CARD */
+    .card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: #a78bfa;
+    }
+
+    /* EVENT INFO */
+    .event-header {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 24px;
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.1));
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #a78bfa;
+      margin-bottom: 16px;
+    }
+
+    .event-title {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .event-desc {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .event-price {
+      margin-top: 16px;
+      font-size: 28px;
+      font-weight: 800;
+      color: #22c55e;
+    }
+
+    .event-price span {
+      font-size: 14px;
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    /* FORM */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: rgba(124, 58, 237, 0.5);
+      background: rgba(124, 58, 237, 0.05);
+    }
+
+    .form-group input::placeholder {
+      color: #64748b;
+    }
+
+    /* QUANTITY SELECTOR */
+    .quantity-selector {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .qty-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(124, 58, 237, 0.2);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      color: #a78bfa;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .qty-btn:hover {
+      background: rgba(124, 58, 237, 0.4);
+    }
+
+    .qty-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .qty-value {
+      font-size: 24px;
+      font-weight: 700;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* ORDER SUMMARY */
+    .order-summary {
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-row .label {
+      color: #94a3b8;
+    }
+
+    .summary-row .value {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .summary-row.total {
+      font-size: 18px;
+      padding-top: 16px;
+      margin-top: 8px;
+      border-top: 2px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .summary-row.total .value {
+      color: #22c55e;
+      font-size: 20px;
+    }
+
+    /* PAYMENT */
+    .payment-qr-box {
+      text-align: center;
+      padding: 24px;
+    }
+
+    .qr-wrapper {
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 24px;
+      background: #fff;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .qr-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .transfer-info {
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .transfer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .transfer-row:last-child {
+      border-bottom: none;
+    }
+
+    .transfer-label {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .transfer-value {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-btn {
+      padding: 4px 8px;
+      background: rgba(124, 58, 237, 0.2);
+      border: none;
+      border-radius: 6px;
+      color: #a78bfa;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: rgba(124, 58, 237, 0.4);
+    }
+
+    .transfer-code {
+      font-size: 18px;
+      font-weight: 800;
+      color: #f59e0b;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+
+    /* WARNING */
+    .warning-box {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .warning-box i {
+      color: #f59e0b;
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .warning-box p {
+      color: #fcd34d;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* TIMER */
+    .timer-box {
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 999px;
+    }
+
+    .timer i {
+      color: #ef4444;
+    }
+
+    .timer-text {
+      color: #fca5a5;
+      font-size: 14px;
+    }
+
+    .timer-value {
+      color: #ef4444;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    /* ACTION BUTTONS */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .action-buttons .btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 15px;
+    }
+
+    .secondary-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .secondary-actions .btn {
+      flex: 1;
+    }
+
+    /* SUCCESS STATE */
+    .success-box {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 48px;
+      animation: successPop 0.5s ease;
+    }
+
+    @keyframes successPop {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .success-box h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #22c55e;
+    }
+
+    .success-box p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    /* ERROR STATE */
+    .error-box {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+    }
+
+    .error-box h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .error-box p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+
+    /* LOADING */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 15, 26, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-content {
+      text-align: center;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(124, 58, 237, 0.2);
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-content p {
+      color: #94a3b8;
+    }
+
+    /* HIDDEN */
+    .hidden {
+      display: none !important;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal {
+      background: #1e1e2e;
+      border-radius: 20px;
+      max-width: 400px;
+      width: 100%;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .modal h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .modal p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 24px 16px;
+      }
+
+      .event-title {
+        font-size: 22px;
+      }
+
+      .qr-wrapper {
+        width: 240px;
+        height: 240px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="home.html" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-house"></i>
+        <span>Trang chủ</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- LOADING STATE -->
+  <div class="loading-overlay" id="loading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Đang tải thông tin vé...</p>
+    </div>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div class="container hidden" id="error-section">
+    <div class="card">
+      <div class="error-box">
+        <div class="error-icon"><i class="fa-solid fa-exclamation"></i></div>
+        <h2>Không tìm thấy vé</h2>
+        <p id="error-message">Link không hợp lệ hoặc sự kiện đã kết thúc.</p>
+        <a href="home.html" class="btn btn-primary">
+          <i class="fa-solid fa-house"></i>
+          Về trang chủ
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hidden" id="main-content">
+    <!-- STEPS INDICATOR -->
+    <div class="steps">
+      <div class="step active" id="step-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step" id="step-2">2</div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step" id="step-3">3</div>
+    </div>
+
+    <!-- STEP 1: Customer Info -->
+    <div id="section-info" class="card">
+      <div class="event-header">
+        <div class="event-badge"><i class="fa-solid fa-ticket"></i> Vé điện tử</div>
+        <h1 class="event-title" id="event-name">-</h1>
+        <p class="event-desc" id="event-desc">-</p>
+        <div class="event-price"><span id="price-per-ticket">-</span></div>
+      </div>
+
+      <div class="card-title"><i class="fa-solid fa-user"></i> Thông tin đặt vé</div>
+
+      <div class="form-group">
+        <label>Họ và tên người mua *</label>
+        <input type="text" id="buyer-name" placeholder="Nhập họ tên của bạn" />
+      </div>
+
+      <div class="form-group">
+        <label>Email (để nhận vé)</label>
+        <input type="email" id="buyer-email" placeholder="email@example.com" />
+      </div>
+
+      <div class="form-group">
+        <label>Số điện thoại</label>
+        <input type="tel" id="buyer-phone" placeholder="0912345678" />
+      </div>
+
+      <div class="form-group">
+        <label>Số lượng vé</label>
+        <div class="quantity-selector">
+          <button class="qty-btn" onclick="changeQty(-1)" id="qty-minus">−</button>
+          <div class="qty-value" id="qty-value">1</div>
+          <button class="qty-btn" onclick="changeQty(1)" id="qty-plus">+</button>
+        </div>
+      </div>
+
+      <div class="order-summary">
+        <div class="summary-row">
+          <span class="label">Đơn giá:</span>
+          <span class="value" id="summary-price">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Số lượng:</span>
+          <span class="value" id="summary-qty">1 vé</span>
+        </div>
+        <div class="summary-row total">
+          <span class="label">Tổng tiền:</span>
+          <span class="value" id="summary-total">-</span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-success" onclick="proceedToPayment()">
+          <i class="fa-solid fa-credit-card"></i>
+          Tiếp tục thanh toán
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Payment -->
+    <div id="section-payment" class="card hidden">
+      <div class="card-title"><i class="fa-solid fa-qrcode"></i> Thanh toán QR</div>
+      
+      <div class="timer-box">
+        <div class="timer">
+          <i class="fa-solid fa-clock"></i>
+          <span class="timer-text">Thời gian còn lại:</span>
+          <span class="timer-value" id="countdown">15:00</span>
+        </div>
+      </div>
+
+      <div class="payment-qr-box">
+        <div class="qr-wrapper" id="payment-qr">
+          <div class="loading-spinner"></div>
+        </div>
+        
+        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">
+          Quét mã QR bằng app ngân hàng để thanh toán
+        </p>
+      </div>
+
+      <div class="transfer-info">
+        <div class="transfer-row">
+          <span class="transfer-label">Ngân hàng:</span>
+          <span class="transfer-value" id="pay-bank">-</span>
+        </div>
+        <div class="transfer-row">
+          <span class="transfer-label">Số tài khoản:</span>
+          <span class="transfer-value">
+            <span id="pay-account">-</span>
+            <button class="copy-btn" onclick="copyText('pay-account')"><i class="fa-solid fa-copy"></i></button>
+          </span>
+        </div>
+        <div class="transfer-row">
+          <span class="transfer-label">Chủ TK:</span>
+          <span class="transfer-value" id="pay-name">-</span>
+        </div>
+        <div class="transfer-row">
+          <span class="transfer-label">Số tiền:</span>
+          <span class="transfer-value" style="color: #22c55e; font-size: 18px;" id="pay-amount">-</span>
+        </div>
+        <div class="transfer-row">
+          <span class="transfer-label">Nội dung CK:</span>
+          <span class="transfer-value">
+            <span class="transfer-code" id="pay-code">-</span>
+            <button class="copy-btn" onclick="copyText('pay-code')"><i class="fa-solid fa-copy"></i></button>
+          </span>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p><strong>QUAN TRỌNG:</strong> Vui lòng nhập đúng nội dung chuyển khoản để hệ thống tự động xác nhận thanh toán. Không thay đổi nội dung chuyển khoản.</p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-success" onclick="confirmPayment()" id="confirm-btn">
+          <i class="fa-solid fa-check-circle"></i>
+          Xác nhận đã chuyển khoản
+        </button>
+        <div class="secondary-actions">
+          <button class="btn btn-danger" onclick="showCancelModal()">
+            <i class="fa-solid fa-times"></i>
+            Hủy đơn
+          </button>
+          <button class="btn btn-warning" onclick="showComplaintModal()">
+            <i class="fa-solid fa-headset"></i>
+            Khiếu nại
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Success / Ticket -->
+    <div id="section-success" class="card hidden">
+      <div class="success-box">
+        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+        <h2>Thanh toán thành công!</h2>
+        <p>Vé điện tử của bạn đã được tạo. Bạn có thể xem và lưu vé ngay bây giờ.</p>
+        
+        <div style="margin: 24px 0;">
+          <div class="order-summary">
+            <div class="summary-row">
+              <span class="label">Mã vé:</span>
+              <span class="value" id="ticket-code" style="font-family: monospace;">-</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Sự kiện:</span>
+              <span class="value" id="success-event">-</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Họ tên:</span>
+              <span class="value" id="success-name">-</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Số lượng:</span>
+              <span class="value" id="success-qty">-</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="viewTicket()" style="width: 100%;">
+          <i class="fa-solid fa-ticket"></i>
+          Xem vé điện tử
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCEL MODAL -->
+  <div class="modal-overlay hidden" id="cancel-modal">
+    <div class="modal">
+      <h3><i class="fa-solid fa-times-circle" style="color: #ef4444;"></i> Hủy đơn hàng?</h3>
+      <p>Bạn có chắc muốn hủy đơn đặt vé này? Thao tác này không thể hoàn tác.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="hideModal('cancel-modal')">Quay lại</button>
+        <button class="btn btn-danger" onclick="cancelOrder()">Xác nhận hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLAINT MODAL -->
+  <div class="modal-overlay hidden" id="complaint-modal">
+    <div class="modal">
+      <h3><i class="fa-solid fa-headset" style="color: #f59e0b;"></i> Khiếu nại</h3>
+      <p>Nếu bạn đã thanh toán nhưng chưa nhận được vé, vui lòng liên hệ hỗ trợ qua:</p>
+      <div style="text-align: left; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <p style="margin-bottom: 8px;"><i class="fa-solid fa-envelope" style="width: 20px; color: #a78bfa;"></i> support@qrio.site</p>
+        <p style="margin-bottom: 8px;"><i class="fa-brands fa-facebook" style="width: 20px; color: #a78bfa;"></i> fb.com/qrio.support</p>
+        <p><i class="fa-solid fa-phone" style="width: 20px; color: #a78bfa;"></i> Hotline: 1900xxxx</p>
+      </div>
+      <p style="font-size: 12px;">Mã đơn: <span id="complaint-order-id" style="font-family: monospace; color: #f59e0b;"></span></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="hideModal('complaint-modal')" style="width: 100%;">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERIFYING MODAL -->
+  <div class="modal-overlay hidden" id="verifying-modal">
+    <div class="modal">
+      <div class="loading-spinner"></div>
+      <h3>Đang kiểm tra thanh toán...</h3>
+      <p>Vui lòng đợi trong giây lát. Hệ thống đang xác minh giao dịch của bạn.</p>
+    </div>
+  </div>
+
+  <script>
+    // ===== GLOBAL STATE =====
+    let eventData = null;
+    let orderData = null;
+    let quantity = 1;
+    let countdownTimer = null;
+    let timeRemaining = 15 * 60; // 15 minutes
+
+    // ===== UTILITIES =====
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+    }
+
+    function generateOrderId() {
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).substring(2, 6);
+      return `TK${timestamp}${random}`.toUpperCase();
+    }
+
+    function generateTicketId() {
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).substring(2, 8);
+      return `VE${timestamp}${random}`.toUpperCase();
+    }
+
+    // ===== INITIALIZATION =====
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const eventId = urlParams.get('event');
+
+      if (!eventId) {
+        showError('Link không hợp lệ. Vui lòng quét lại mã QR.');
+        return;
+      }
+
+      // Load event from server (authoritative price/bank for payment verification)
+      try {
+        const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}`);
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.error) {
+          throw new Error(data.error || 'Không tìm thấy thông tin sự kiện');
+        }
+        eventData = data;
+      } catch (e) {
+        showError('Không tìm thấy thông tin sự kiện. Có thể sự kiện đã hết hạn hoặc link không hợp lệ.');
+        return;
+      }
+
+      // Check date validity
+      const now = new Date();
+      if (eventData.endDate) {
+        const endDate = new Date(eventData.endDate + 'T23:59:59');
+        if (now > endDate) {
+          showError('Sự kiện đã kết thúc bán vé.');
+          return;
+        }
+      }
+      if (eventData.startDate) {
+        const startDate = new Date(eventData.startDate + 'T00:00:00');
+        if (now < startDate) {
+          showError('Sự kiện chưa bắt đầu bán vé.');
+          return;
+        }
+      }
+
+      // Display event info
+      displayEventInfo();
+
+      // Hide loading, show main content
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('main-content').classList.remove('hidden');
+    }
+
+    function showError(message) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('error-message').textContent = message;
+      document.getElementById('error-section').classList.remove('hidden');
+    }
+
+    function displayEventInfo() {
+      document.getElementById('event-name').textContent = eventData.eventName;
+      document.getElementById('event-desc').textContent = eventData.description || 'Vé điện tử';
+      document.getElementById('price-per-ticket').textContent = formatCurrency(eventData.pricePerTicket) + ' / vé';
+      document.getElementById('summary-price').textContent = formatCurrency(eventData.pricePerTicket);
+      updateTotal();
+    }
+
+    // ===== QUANTITY =====
+    function changeQty(delta) {
+      const newQty = quantity + delta;
+      const max = eventData.maxTickets || 10;
+      
+      if (newQty >= 1 && newQty <= max) {
+        quantity = newQty;
+        document.getElementById('qty-value').textContent = quantity;
+        document.getElementById('qty-minus').disabled = quantity <= 1;
+        document.getElementById('qty-plus').disabled = quantity >= max;
+        updateTotal();
+      }
+    }
+
+    function updateTotal() {
+      const total = eventData.pricePerTicket * quantity;
+      document.getElementById('summary-qty').textContent = quantity + ' vé';
+      document.getElementById('summary-total').textContent = formatCurrency(total);
+    }
+
+    // ===== STEP 1 -> STEP 2: Proceed to Payment =====
+    async function proceedToPayment() {
+      const name = document.getElementById('buyer-name').value.trim();
+      const email = document.getElementById('buyer-email').value.trim();
+      const phone = document.getElementById('buyer-phone').value.trim();
+
+      if (!name) {
+        alert('Vui lòng nhập họ tên');
+        return;
+      }
+
+      // Create order server-side (locks amount + status)
+      let createJson = null;
+      try {
+        const resp = await fetch('/api/ticket/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventId: eventData.eventId,
+            buyerName: name,
+            buyerEmail: email,
+            buyerPhone: phone,
+            quantity: quantity
+          })
+        });
+        createJson = await resp.json().catch(() => ({}));
+        if (!resp.ok || createJson.error) {
+          throw new Error(createJson.error || 'Không thể tạo đơn hàng');
+        }
+      } catch (e) {
+        alert('Không thể tạo đơn hàng: ' + String(e.message || e));
+        return;
+      }
+
+      orderData = {
+        orderId: createJson.orderId,
+        eventId: createJson.eventId,
+        eventName: eventData.eventName,
+        buyerName: name,
+        buyerEmail: email,
+        buyerPhone: phone,
+        quantity: createJson.quantity,
+        pricePerTicket: createJson.pricePerTicket,
+        totalAmount: createJson.totalAmount,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      // Optional local cache for UI resume only
+      localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
+
+      // Generate VietQR payment
+      await generatePaymentQR();
+
+      // Update UI
+      document.getElementById('section-info').classList.add('hidden');
+      document.getElementById('section-payment').classList.remove('hidden');
+      
+      // Update steps
+      document.getElementById('step-1').classList.remove('active');
+      document.getElementById('step-1').classList.add('completed');
+      document.getElementById('step-1').innerHTML = '<i class="fa-solid fa-check"></i>';
+      document.getElementById('step-2').classList.add('active');
+      document.getElementById('line-1').classList.add('active');
+
+      // Start countdown
+      startCountdown();
+
+      // Set complaint order ID
+      document.getElementById('complaint-order-id').textContent = orderId;
+    }
+
+    async function generatePaymentQR() {
+      const bankCode = eventData.bankCode;
+      const accountNumber = String(eventData.accountNumber || '').replace(/[^0-9]/g, '');
+      const accountName = eventData.accountName || 'CHUA XAC DINH';
+      const amount = orderData.totalAmount;
+      const transferContent = orderData.orderId; // Use order ID as transfer content
+
+      // IMPORTANT: This site uses a strict CSP (img-src 'self' data: blob:),
+      // so embedding external images like https://img.vietqr.io will be blocked.
+      // We generate the VietQR payload server-side via /api/generate (qr_type=vietqr)
+      // and return a data:image/png;base64,... that is allowed by CSP.
+      const qrBox = document.getElementById('payment-qr');
+      qrBox.innerHTML = '<div class="loading-spinner"></div>';
+
+      if (!accountNumber) {
+        throw new Error('Số tài khoản không hợp lệ. Vui lòng nhập đúng số tài khoản (chỉ gồm chữ số).');
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('qr_type', 'vietqr');
+        formData.append('vietqr_bank', String(bankCode || ''));
+        formData.append('vietqr_account', accountNumber);
+        formData.append('vietqr_name', accountName);
+        formData.append('vietqr_amount', String(amount));
+        formData.append('vietqr_memo', transferContent);
+
+        // Styling options (used if backend generates QR from EMV text)
+        formData.append('qr_color', '#4f46e5');
+        formData.append('bg_color', '#ffffff');
+        formData.append('ecc_level', 'H');
+        formData.append('module_style', 'rounded-square');
+
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (!response.ok || result.error) {
+          throw new Error(result.error || 'Không thể tạo QR thanh toán');
+        }
+        if (!result.image) {
+          throw new Error('Không nhận được ảnh QR từ server');
+        }
+        qrBox.innerHTML = `<img src="${result.image}" alt="Payment QR" />`;
+      } catch (error) {
+        // Fallback: allow user to open VietQR image in a new tab
+        const fallbackUrl = `https://img.vietqr.io/image/${encodeURIComponent(String(bankCode || ''))}-${encodeURIComponent(accountNumber)}-compact2.jpg?amount=${encodeURIComponent(String(amount))}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accountName)}`;
+        qrBox.innerHTML = `
+          <div style="padding: 14px; text-align: center;">
+            <p style="color:#ef4444; font-size: 13px; margin-bottom: 10px;">Không tạo được QR thanh toán: ${String(error.message || error)}</p>
+            <a class="btn btn-secondary btn-sm" href="${fallbackUrl}" target="_blank" rel="noopener">
+              <i class="fa-solid fa-up-right-from-square"></i>
+              Mở QR ở tab mới
+            </a>
+          </div>
+        `;
+      }
+      
+      // Fill transfer info
+      document.getElementById('pay-bank').textContent = eventData.bankName;
+      document.getElementById('pay-account').textContent = accountNumber;
+      document.getElementById('pay-name').textContent = accountName;
+      document.getElementById('pay-amount').textContent = formatCurrency(amount);
+      document.getElementById('pay-code').textContent = transferContent;
+    }
+
+    // ===== COUNTDOWN =====
+    function startCountdown() {
+      timeRemaining = 15 * 60;
+      updateCountdownDisplay();
+      
+      countdownTimer = setInterval(() => {
+        timeRemaining--;
+        updateCountdownDisplay();
+        
+        if (timeRemaining <= 0) {
+          clearInterval(countdownTimer);
+          handleTimeout();
+        }
+      }, 1000);
+    }
+
+    function updateCountdownDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      document.getElementById('countdown').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function handleTimeout() {
+      orderData.status = 'expired';
+      localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
+      alert('Đã hết thời gian thanh toán. Vui lòng thử lại.');
+      window.location.reload();
+    }
+
+    // ===== CONFIRM PAYMENT =====
+    async function confirmPayment() {
+      const modal = document.getElementById('verifying-modal');
+      const btn = document.getElementById('confirm-btn');
+
+      if (!orderData || !eventData) {
+        alert('Không tìm thấy thông tin đơn hàng. Vui lòng tải lại trang và thử lại.');
+        return;
+      }
+
+      modal.classList.remove('hidden');
+      btn.disabled = true;
+
+      try {
+        const payload = { orderId: orderData.orderId };
+
+        const response = await fetch('/api/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(result.error || result.message || 'Không thể kiểm tra thanh toán');
+        }
+
+        if (result && result.verified === true) {
+          handlePaymentSuccess();
+          return;
+        }
+
+        modal.classList.add('hidden');
+        const msg = (result && (result.message || result.error))
+          ? String(result.message || result.error)
+          : 'Chưa xác nhận được thanh toán. Vui lòng đợi 1-3 phút và nhấn kiểm tra lại.';
+        alert(msg);
+      } catch (err) {
+        modal.classList.add('hidden');
+        alert('Lỗi kiểm tra thanh toán: ' + String(err.message || err));
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function handlePaymentSuccess() {
+      clearInterval(countdownTimer);
+      document.getElementById('verifying-modal').classList.add('hidden');
+
+      // Generate ticket(s)
+      const tickets = [];
+      for (let i = 0; i < orderData.quantity; i++) {
+        const ticketId = generateTicketId();
+        const ticket = {
+          ticketId: ticketId,
+          orderId: orderData.orderId,
+          eventId: eventData.eventId,
+          eventName: eventData.eventName,
+          buyerName: orderData.buyerName,
+          buyerEmail: orderData.buyerEmail,
+          buyerPhone: orderData.buyerPhone,
+          ticketNumber: i + 1,
+          totalTickets: orderData.quantity,
+          price: eventData.pricePerTicket,
+          status: 'valid',
+          issuedAt: new Date().toISOString()
+        };
+        tickets.push(ticket);
+        localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
+      }
+
+      // Update order status
+      orderData.status = 'paid';
+      orderData.tickets = tickets.map(t => t.ticketId);
+      orderData.paidAt = new Date().toISOString();
+      localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
+
+      // Show success
+      document.getElementById('section-payment').classList.add('hidden');
+      document.getElementById('section-success').classList.remove('hidden');
+
+      // Update steps
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('step-2').classList.add('completed');
+      document.getElementById('step-2').innerHTML = '<i class="fa-solid fa-check"></i>';
+      document.getElementById('step-3').classList.add('active');
+      document.getElementById('line-2').classList.add('active');
+
+      // Fill success info
+      document.getElementById('ticket-code').textContent = tickets[0].ticketId;
+      document.getElementById('success-event').textContent = eventData.eventName;
+      document.getElementById('success-name').textContent = orderData.buyerName;
+      document.getElementById('success-qty').textContent = orderData.quantity + ' vé';
+    }
+
+    function viewTicket() {
+      if (orderData && orderData.tickets && orderData.tickets.length > 0) {
+        window.location.href = `ticket.html?id=${orderData.tickets[0]}`;
+      }
+    }
+
+    // ===== MODALS =====
+    function showCancelModal() {
+      document.getElementById('cancel-modal').classList.remove('hidden');
+    }
+
+    function showComplaintModal() {
+      document.getElementById('complaint-modal').classList.remove('hidden');
+    }
+
+    function hideModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function cancelOrder() {
+      if (orderData) {
+        orderData.status = 'cancelled';
+        localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
+      }
+      clearInterval(countdownTimer);
+      window.location.reload();
+    }
+
+    // ===== COPY =====
+    function copyText(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector(`#${elementId}`).nextElementSibling;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+        }, 2000);
+      });
+    }
+
+    // ===== START =====
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

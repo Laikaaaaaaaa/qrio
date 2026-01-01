@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Quét Vé</title>
+  <meta name="description" content="Quét mã QR vé điện tử để kiểm tra và xác nhận vé." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://qrio.site/scan.html" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://qrio.site/scan.html" />
+  <meta property="og:title" content="Qrio - Quét Vé Điện Tử" />
+  <meta property="og:description" content="Quét mã QR vé điện tử để kiểm tra và xác nhận vé." />
+  <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
+  
+  <meta name="theme-color" content="#7c3aed" />
+  
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ANIMATED BACKGROUND */
+    .bg-effects {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+    
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -5s;
+    }
+    
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.1));
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 999px;
+      font-size: 13px;
+      color: #a78bfa;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    /* CARD */
+    .card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: #a78bfa;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab:hover {
+      background: rgba(124, 58, 237, 0.1);
+      border-color: rgba(124, 58, 237, 0.2);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.1));
+      border-color: rgba(124, 58, 237, 0.4);
+      color: #fff;
+    }
+
+    .tab.active i {
+      color: #a78bfa;
+    }
+
+    /* SCANNER */
+    .scanner-container {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 1;
+      max-height: 350px;
+      margin: 0 auto;
+    }
+
+    #scanner-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .scanner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .scanner-frame {
+      width: 200px;
+      height: 200px;
+      border: 3px solid #7c3aed;
+      border-radius: 20px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .scanner-frame::before,
+    .scanner-frame::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-color: #22c55e;
+      border-style: solid;
+    }
+
+    .scanner-frame::before {
+      top: -3px;
+      left: -3px;
+      border-width: 4px 0 0 4px;
+      border-radius: 10px 0 0 0;
+    }
+
+    .scanner-frame::after {
+      bottom: -3px;
+      right: -3px;
+      border-width: 0 4px 4px 0;
+      border-radius: 0 0 10px 0;
+    }
+
+    .scanner-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: #fff;
+      font-size: 13px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* FILE UPLOAD */
+    .file-upload-area {
+      border: 2px dashed rgba(124, 58, 237, 0.4);
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-upload-area:hover {
+      border-color: #7c3aed;
+      background: rgba(124, 58, 237, 0.05);
+    }
+
+    .file-upload-area.dragover {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .upload-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.1));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 28px;
+      color: #a78bfa;
+    }
+
+    .file-upload-area h4 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .file-upload-area p {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    /* MANUAL INPUT */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: rgba(124, 58, 237, 0.5);
+      background: rgba(124, 58, 237, 0.05);
+    }
+
+    .form-group input::placeholder {
+      color: #64748b;
+    }
+
+    /* RESULT */
+    .result-box {
+      text-align: center;
+      padding: 24px;
+    }
+
+    .result-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+
+    .result-icon.success {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+    }
+
+    .result-icon.error {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .result-icon.warning {
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+    }
+
+    .result-box h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .result-box p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* LOADING */
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(124, 58, 237, 0.2);
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 40px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* RECENT SCANS */
+    .recent-scans {
+      margin-top: 24px;
+    }
+
+    .recent-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recent-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .recent-item:hover {
+      background: rgba(124, 58, 237, 0.1);
+      border-color: rgba(124, 58, 237, 0.2);
+    }
+
+    .recent-item-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .recent-item-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(34, 197, 94, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22c55e;
+    }
+
+    .recent-item-icon.used {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .recent-item-text h5 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .recent-item-text p {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .recent-item-time {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 24px 16px;
+      }
+
+      .tabs {
+        flex-direction: column;
+      }
+
+      .scanner-frame {
+        width: 160px;
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="ticket-create.html" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-plus"></i>
+        <span>Tạo vé</span>
+      </a>
+      <a href="home.html" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-house"></i>
+        <span>Trang chủ</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="page-badge"><i class="fa-solid fa-qrcode"></i> Dành cho nhân viên</div>
+      <h1 class="page-title">Quét Vé Điện Tử</h1>
+      <p class="page-subtitle">Quét mã QR trên vé điện tử để kiểm tra và xác nhận</p>
+    </div>
+
+    <div class="card">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('camera')">
+          <i class="fa-solid fa-camera"></i>
+          Camera
+        </button>
+        <button class="tab" onclick="switchTab('upload')">
+          <i class="fa-solid fa-image"></i>
+          Tải ảnh
+        </button>
+        <button class="tab" onclick="switchTab('manual')">
+          <i class="fa-solid fa-keyboard"></i>
+          Nhập mã
+        </button>
+      </div>
+
+      <!-- Camera Scanner -->
+      <div id="tab-camera">
+        <div class="scanner-container">
+          <video id="scanner-video" autoplay playsinline></video>
+          <canvas id="scanner-canvas" style="display: none;"></canvas>
+          <div class="scanner-overlay">
+            <div class="scanner-frame"></div>
+          </div>
+          <div class="scanner-hint">Đưa mã QR vào khung hình</div>
+        </div>
+        <div style="text-align: center; margin-top: 16px;">
+          <button class="btn btn-secondary" id="toggle-camera" onclick="toggleCamera()">
+            <i class="fa-solid fa-video-slash"></i>
+            Tắt camera
+          </button>
+        </div>
+      </div>
+
+      <!-- File Upload -->
+      <div id="tab-upload" class="hidden">
+        <div class="file-upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <div class="upload-icon"><i class="fa-solid fa-cloud-upload-alt"></i></div>
+          <h4>Tải ảnh mã QR</h4>
+          <p>Kéo thả hoặc nhấn để chọn ảnh</p>
+        </div>
+        <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)" />
+      </div>
+
+      <!-- Manual Input -->
+      <div id="tab-manual" class="hidden">
+        <div class="form-group">
+          <label>Nhập mã vé</label>
+          <input type="text" id="manual-code" placeholder="VD: VEM1ABC123XYZ" style="text-transform: uppercase;" />
+        </div>
+        <button class="btn btn-primary" onclick="checkManualCode()" style="width: 100%;">
+          <i class="fa-solid fa-search"></i>
+          Kiểm tra vé
+        </button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="card hidden" id="result-section">
+      <div class="result-box" id="result-content">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+
+    <!-- Recent Scans -->
+    <div class="card" id="recent-section">
+      <div class="recent-scans">
+        <div class="recent-title">
+          <i class="fa-solid fa-history"></i>
+          Quét gần đây
+        </div>
+        <div class="recent-list" id="recent-list">
+          <p style="color: #64748b; font-size: 13px; text-align: center; padding: 20px;">Chưa có lịch sử quét</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let videoStream = null;
+    let scannerActive = false;
+    let currentTab = 'camera';
+
+    // ===== TAB SWITCHING =====
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.closest('.tab').classList.add('active');
+
+      // Show/hide content
+      document.getElementById('tab-camera').classList.toggle('hidden', tab !== 'camera');
+      document.getElementById('tab-upload').classList.toggle('hidden', tab !== 'upload');
+      document.getElementById('tab-manual').classList.toggle('hidden', tab !== 'manual');
+
+      // Manage camera
+      if (tab === 'camera') {
+        startScanner();
+      } else {
+        stopScanner();
+      }
+
+      // Hide result
+      document.getElementById('result-section').classList.add('hidden');
+    }
+
+    // ===== CAMERA SCANNER =====
+    async function startScanner() {
+      try {
+        const video = document.getElementById('scanner-video');
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }
+        });
+        video.srcObject = videoStream;
+        scannerActive = true;
+        requestAnimationFrame(scanFrame);
+        
+        document.getElementById('toggle-camera').innerHTML = '<i class="fa-solid fa-video-slash"></i> Tắt camera';
+      } catch (error) {
+        console.error('Camera error:', error);
+        alert('Không thể truy cập camera. Vui lòng cho phép quyền truy cập hoặc sử dụng tải ảnh.');
+      }
+    }
+
+    function stopScanner() {
+      scannerActive = false;
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+      }
+      document.getElementById('toggle-camera').innerHTML = '<i class="fa-solid fa-video"></i> Bật camera';
+    }
+
+    function toggleCamera() {
+      if (scannerActive) {
+        stopScanner();
+      } else {
+        startScanner();
+      }
+    }
+
+    function scanFrame() {
+      if (!scannerActive) return;
+
+      const video = document.getElementById('scanner-video');
+      const canvas = document.getElementById('scanner-canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+        if (code) {
+          scannerActive = false;
+          processQRData(code.data);
+          return;
+        }
+      }
+
+      requestAnimationFrame(scanFrame);
+    }
+
+    // ===== FILE UPLOAD =====
+    const dropZone = document.getElementById('drop-zone');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        processImageFile(file);
+      }
+    });
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processImageFile(file);
+      }
+    }
+
+    function processImageFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, canvas.width, canvas.height);
+          
+          if (code) {
+            processQRData(code.data);
+          } else {
+            showResult('error', 'Không tìm thấy mã QR', 'Vui lòng chọn ảnh có chứa mã QR rõ ràng.');
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ===== MANUAL INPUT =====
+    function checkManualCode() {
+      const code = document.getElementById('manual-code').value.trim().toUpperCase();
+      if (!code) {
+        alert('Vui lòng nhập mã vé');
+        return;
+      }
+
+      // Try to find ticket
+      const ticket = localStorage.getItem('ticket_' + code);
+      if (ticket) {
+        processQRData(JSON.stringify({ type: 'QRIO_TICKET', ticketId: code }));
+      } else {
+        showResult('error', 'Không tìm thấy vé', `Mã vé "${code}" không tồn tại trong hệ thống.`);
+      }
+    }
+
+    // ===== PROCESS QR DATA =====
+    function processQRData(data) {
+      try {
+        const parsed = JSON.parse(data);
+        
+        if (parsed.type === 'QRIO_TICKET' && parsed.ticketId) {
+          // Valid ticket QR
+          checkTicket(parsed.ticketId);
+        } else {
+          showResult('error', 'Mã QR không hợp lệ', 'Đây không phải là mã QR vé điện tử Qrio.');
+        }
+      } catch (e) {
+        showResult('error', 'Mã QR không hợp lệ', 'Không thể đọc dữ liệu từ mã QR này.');
+      }
+    }
+
+    function checkTicket(ticketId) {
+      const stored = localStorage.getItem('ticket_' + ticketId);
+      
+      if (!stored) {
+        showResult('error', 'Vé không tồn tại', `Không tìm thấy vé với mã ${ticketId}`);
+        return;
+      }
+
+      const ticket = JSON.parse(stored);
+      
+      // Add to recent scans
+      addToRecentScans(ticket);
+
+      if (ticket.status === 'used') {
+        showResult('warning', 'Vé đã sử dụng', `Vé "${ticketId}" đã được sử dụng trước đó.`, ticket);
+      } else {
+        showResult('success', 'Vé hợp lệ', `Vé "${ticketId}" hợp lệ và sẵn sàng sử dụng.`, ticket);
+      }
+    }
+
+    function showResult(type, title, message, ticket = null) {
+      const resultSection = document.getElementById('result-section');
+      const resultContent = document.getElementById('result-content');
+
+      let iconClass = type;
+      let icon = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-times' : 'fa-exclamation');
+
+      let html = `
+        <div class="result-icon ${iconClass}"><i class="fa-solid ${icon}"></i></div>
+        <h3>${title}</h3>
+        <p>${message}</p>
+      `;
+
+      if (ticket) {
+        html += `
+          <div class="result-actions">
+            <button class="btn btn-primary" onclick="viewTicketInfo('${ticket.ticketId}')">
+              <i class="fa-solid fa-eye"></i>
+              Xem chi tiết
+            </button>
+            ${ticket.status !== 'used' ? `
+              <button class="btn btn-success" onclick="markAsUsed('${ticket.ticketId}')">
+                <i class="fa-solid fa-check"></i>
+                Đánh dấu đã dùng
+              </button>
+            ` : ''}
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="result-actions">
+            <button class="btn btn-secondary" onclick="resetScanner()">
+              <i class="fa-solid fa-redo"></i>
+              Quét lại
+            </button>
+          </div>
+        `;
+      }
+
+      resultContent.innerHTML = html;
+      resultSection.classList.remove('hidden');
+    }
+
+    function viewTicketInfo(ticketId) {
+      window.location.href = `information.html?id=${ticketId}`;
+    }
+
+    function markAsUsed(ticketId) {
+      const stored = localStorage.getItem('ticket_' + ticketId);
+      if (stored) {
+        const ticket = JSON.parse(stored);
+        ticket.status = 'used';
+        ticket.usedAt = new Date().toISOString();
+        localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
+        
+        showResult('success', 'Đã xác nhận', `Vé "${ticketId}" đã được đánh dấu là đã sử dụng.`);
+        updateRecentScans();
+      }
+    }
+
+    function resetScanner() {
+      document.getElementById('result-section').classList.add('hidden');
+      if (currentTab === 'camera') {
+        scannerActive = true;
+        requestAnimationFrame(scanFrame);
+      }
+    }
+
+    // ===== RECENT SCANS =====
+    function addToRecentScans(ticket) {
+      let recent = JSON.parse(localStorage.getItem('recent_scans') || '[]');
+      
+      // Remove if exists
+      recent = recent.filter(r => r.ticketId !== ticket.ticketId);
+      
+      // Add to front
+      recent.unshift({
+        ticketId: ticket.ticketId,
+        eventName: ticket.eventName,
+        buyerName: ticket.buyerName,
+        status: ticket.status,
+        scannedAt: new Date().toISOString()
+      });
+      
+      // Keep only last 10
+      recent = recent.slice(0, 10);
+      
+      localStorage.setItem('recent_scans', JSON.stringify(recent));
+      updateRecentScans();
+    }
+
+    function updateRecentScans() {
+      const recent = JSON.parse(localStorage.getItem('recent_scans') || '[]');
+      const listEl = document.getElementById('recent-list');
+
+      if (recent.length === 0) {
+        listEl.innerHTML = '<p style="color: #64748b; font-size: 13px; text-align: center; padding: 20px;">Chưa có lịch sử quét</p>';
+        return;
+      }
+
+      listEl.innerHTML = recent.map(item => {
+        const time = new Date(item.scannedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const isUsed = item.status === 'used';
+        
+        return `
+          <div class="recent-item" onclick="viewTicketInfo('${item.ticketId}')">
+            <div class="recent-item-info">
+              <div class="recent-item-icon ${isUsed ? 'used' : ''}">
+                <i class="fa-solid ${isUsed ? 'fa-times' : 'fa-check'}"></i>
+              </div>
+              <div class="recent-item-text">
+                <h5>${item.ticketId}</h5>
+                <p>${item.buyerName} - ${item.eventName}</p>
+              </div>
+            </div>
+            <span class="recent-item-time">${time}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      updateRecentScans();
+      startScanner();
+    });
+  </script>
+</body>
+</html>
