@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Xác Nhận Chuyển Khoản</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-orb { position: absolute; border-radius: 50%; filter: blur(56px); opacity: 0.28; animation: floatOrb 28s ease-in-out infinite; }
+    .bg-orb-1 { width: 400px; height: 400px; background: linear-gradient(135deg, #4f46e5, #7c3aed); top: -100px; right: -100px; }
+    .bg-orb-2 { width: 300px; height: 300px; background: linear-gradient(135deg, #06b6d4, #3b82f6); bottom: 100px; left: -100px; animation-delay: -5s; }
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: 0; }
+
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .logo-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .header h1 { font-size: 18px; font-weight: 700; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+    .btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(124, 58, 237, 0.3); }
+
+    .container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 28px 24px 56px; }
+
+    .card {
+      background: rgba(24, 24, 27, 0.8);
+      border: 1px solid rgba(124, 58, 237, 0.15);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+    .subtitle { color: #94a3b8; margin-bottom: 14px; font-size: 14px; line-height: 1.5; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+    }
+
+    .status-ok { border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.10); color: #bbf7d0; }
+    .status-wait { border-color: rgba(251, 191, 36, 0.35); background: rgba(251, 191, 36, 0.10); color: #fde68a; }
+
+    .kv { display: grid; gap: 10px; margin-top: 12px; }
+    .kv-row { display: flex; justify-content: space-between; gap: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .kv-row .k { color: #94a3b8; font-size: 12px; }
+    .kv-row .v { font-weight: 700; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+
+    .hidden { display: none !important; }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #94a3b8;
+      padding: 22px;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.16);
+      border-top-color: rgba(124, 58, 237, 0.9);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-box {
+      text-align: center;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      background: rgba(34, 197, 94, 0.10);
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34, 197, 94, 0.16);
+      border: 1px solid rgba(34, 197, 94, 0.28);
+      color: #bbf7d0;
+      font-size: 26px;
+    }
+
+    .warning-box {
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      background: rgba(251, 191, 36, 0.10);
+      color: #fde68a;
+      border-radius: 16px;
+      padding: 14px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a id="back-link" href="transfer.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i><span>Quay lại</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="title"><i class="fa-solid fa-circle-check" style="color:#a78bfa;"></i> Xác nhận chuyển khoản</div>
+          <div class="subtitle">Hệ thống sẽ kiểm tra thanh toán và cập nhật trạng thái vé ngay khi có xác nhận.</div>
+        </div>
+        <div id="status" class="status status-wait"><i class="fa-solid fa-clock"></i> Đang kiểm tra</div>
+      </div>
+
+      <div class="kv">
+        <div class="kv-row"><div class="k">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
+        <div class="kv-row"><div class="k">Sự kiện</div><div class="v" id="event-name">-</div></div>
+      </div>
+    </div>
+
+    <div id="loading" class="card">
+      <div class="loading"><span class="spinner"></span> Đang kiểm tra thanh toán...</div>
+    </div>
+
+    <div id="not-paid" class="card hidden">
+      <div class="warning-box">
+        <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-clock"></i> Chưa nhận được xác nhận</div>
+        <div id="not-paid-msg">Vui lòng đợi 10-60 giây và thử lại.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px;">
+        <button class="btn btn-primary" onclick="checkNow()"><i class="fa-solid fa-rotate"></i> Kiểm tra lại</button>
+        <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> Xem lịch sử</a>
+      </div>
+    </div>
+
+    <div id="pending" class="card hidden">
+      <div class="warning-box">
+        <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-hourglass-half"></i> Đang chờ duyệt</div>
+        Ảnh xác nhận đã được gửi. Chủ sự kiện sẽ duyệt trong thời gian sớm nhất.
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px;">
+        <a id="view-ticket-pending" class="btn btn-primary" href="#"><i class="fa-solid fa-ticket"></i> Xem vé</a>
+        <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-history"></i> Xem lịch sử</a>
+      </div>
+    </div>
+
+    <div id="success" class="card hidden">
+      <div class="success-box">
+        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+        <div style="font-weight: 900; font-size: 20px; margin-bottom: 6px;">Thanh toán thành công!</div>
+        <div style="color:#bbf7d0; margin-bottom: 14px;">Vé đã được kích hoạt. Bạn có thể xem vé ngay.</div>
+        <div class="kv" style="max-width: 520px; margin: 0 auto;">
+          <div class="kv-row"><div class="k">Mã vé</div><div class="v mono" id="ticket-id">-</div></div>
+        </div>
+        <div style="margin-top: 14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <a id="view-ticket" class="btn btn-primary" href="#"><i class="fa-solid fa-ticket"></i> Xem vé</a>
+          <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> Lịch sử</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let orderId = '';
+    let orderData = null;
+    let eventData = null;
+    let pollTimer = null;
+
+    function generateTicketId() {
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).substring(2, 8);
+      return `VE${timestamp}${random}`.toUpperCase();
+    }
+
+    function setStatus(text, ok) {
+      const el = document.getElementById('status');
+      if (ok) {
+        el.className = 'status status-ok';
+        el.innerHTML = '<i class="fa-solid fa-check"></i> ' + text;
+      } else {
+        el.className = 'status status-wait';
+        el.innerHTML = '<i class="fa-solid fa-clock"></i> ' + text;
+      }
+    }
+
+    function showOnly(id) {
+      for (const elId of ['loading', 'not-paid', 'pending', 'success']) {
+        document.getElementById(elId).classList.toggle('hidden', elId !== id);
+      }
+    }
+
+    function persistOrderStatus(status, ticketIds, paidAt) {
+      try {
+        const cacheKey = 'order_' + orderId;
+        const cached = localStorage.getItem(cacheKey);
+        const o = cached ? JSON.parse(cached) : {};
+        o.orderId = orderId;
+        o.eventId = (orderData && orderData.eventId) || o.eventId;
+        o.eventName = (orderData && orderData.eventName) || o.eventName;
+        o.buyerName = (orderData && orderData.buyerName) || o.buyerName;
+        o.buyerEmail = (orderData && orderData.buyerEmail) || o.buyerEmail;
+        o.buyerPhone = (orderData && orderData.buyerPhone) || o.buyerPhone;
+        o.quantity = (orderData && orderData.quantity) || o.quantity;
+        o.pricePerTicket = o.pricePerTicket || 0;
+        o.totalAmount = (orderData && orderData.totalAmount) || o.totalAmount;
+        o.status = status;
+        if (ticketIds && ticketIds.length) o.tickets = ticketIds;
+        if (paidAt) o.paidAt = paidAt;
+        localStorage.setItem(cacheKey, JSON.stringify(o));
+      } catch {
+        // ignore
+      }
+    }
+
+    function persistTickets(status) {
+      const ticketIds = [];
+      const qty = Math.max(1, parseInt((orderData && orderData.quantity) || 1, 10) || 1);
+      for (let i = 0; i < qty; i++) {
+        const tid = generateTicketId();
+        ticketIds.push(tid);
+        const ticket = {
+          ticketId: tid,
+          orderId,
+          eventId: orderData.eventId,
+          eventName: orderData.eventName,
+          buyerName: orderData.buyerName,
+          buyerEmail: orderData.buyerEmail,
+          buyerPhone: orderData.buyerPhone,
+          ticketNumber: i + 1,
+          totalTickets: qty,
+          price: Math.floor((orderData.totalAmount || 0) / qty),
+          status,
+          issuedAt: new Date().toISOString()
+        };
+        localStorage.setItem('ticket_' + tid, JSON.stringify(ticket));
+      }
+      return ticketIds;
+    }
+
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      orderId = urlParams.get('order') || '';
+      if (!orderId) {
+        alert('Thiếu mã đơn hàng');
+        window.location.href = 'home.html';
+        return;
+      }
+
+      document.getElementById('order-id').textContent = orderId;
+      document.getElementById('back-link').href = `transfer.html?order=${encodeURIComponent(orderId)}`;
+      document.getElementById('view-ticket-pending').href = `ticket.html?order=${encodeURIComponent(orderId)}`;
+
+      try {
+        const orderResp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}`);
+        const orderJson = await orderResp.json().catch(() => ({}));
+        if (!orderResp.ok || orderJson.error) throw new Error(orderJson.error || 'Không thể tải đơn hàng');
+        orderData = orderJson;
+        document.getElementById('event-name').textContent = orderJson.eventName || '-';
+
+        const eventResp = await fetch(`/api/ticket/events/${encodeURIComponent(orderJson.eventId)}`);
+        const eventJson = await eventResp.json().catch(() => ({}));
+        if (!eventResp.ok || eventJson.error) throw new Error(eventJson.error || 'Không thể tải sự kiện');
+        eventData = eventJson;
+
+        await checkNow(true);
+        pollTimer = setInterval(() => checkNow(false), 5000);
+      } catch (e) {
+        alert(String(e.message || e));
+        window.location.href = 'home.html';
+      }
+    }
+
+    async function checkNow(firstRun) {
+      if (firstRun) {
+        setStatus('Đang kiểm tra', false);
+        showOnly('loading');
+      }
+
+      const method = (eventData && eventData.paymentMethod) || 'bank_api';
+
+      // Manual: upload proof and move to pending immediately
+      if (method === 'manual') {
+        const proof = localStorage.getItem('proof_' + orderId) || '';
+        if (!proof) {
+          setStatus('Cần ảnh xác nhận', false);
+          showOnly('not-paid');
+          document.getElementById('not-paid-msg').textContent = 'Vui lòng quay lại và tải lên ảnh xác nhận trước khi gửi duyệt.';
+          return;
+        }
+
+        try {
+          const uploadResp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}/upload-proof`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: proof })
+          });
+          const uploadJson = await uploadResp.json().catch(() => ({}));
+          if (!uploadResp.ok || uploadJson.error) throw new Error(uploadJson.error || 'Không thể tải ảnh');
+
+          // Create local pending tickets immediately
+          const ticketIds = persistTickets('pending_verification');
+          persistOrderStatus('pending_verification', ticketIds);
+
+          setStatus('Đã gửi ảnh - chờ duyệt', false);
+          showOnly('pending');
+
+          // Redirect user to ticket page to see status and re-upload proof if needed
+          setTimeout(() => {
+            window.location.href = `ticket.html?order=${encodeURIComponent(orderId)}`;
+          }, 600);
+          return;
+        } catch (e) {
+          setStatus('Lỗi tải ảnh', false);
+          showOnly('not-paid');
+          document.getElementById('not-paid-msg').textContent = String(e.message || e);
+          return;
+        }
+      }
+
+      // Auto methods
+      try {
+        const resp = await fetch('/api/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId })
+        });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(json.error || json.message || 'Không thể kiểm tra thanh toán');
+
+        if (json && json.verified === true) {
+          const ticketIds = persistTickets('valid');
+          persistOrderStatus('paid', ticketIds, new Date().toISOString());
+
+          setStatus('Đã thanh toán', true);
+          showOnly('success');
+
+          document.getElementById('ticket-id').textContent = ticketIds[0];
+          document.getElementById('view-ticket').href = `ticket.html?id=${encodeURIComponent(ticketIds[0])}`;
+          try { if (pollTimer) clearInterval(pollTimer); } catch {}
+
+          // Redirect to ticket page (order view) so buyer sees status + proof section
+          setTimeout(() => {
+            window.location.href = `ticket.html?order=${encodeURIComponent(orderId)}`;
+          }, 600);
+          return;
+        }
+
+        setStatus('Chưa xác nhận', false);
+        showOnly('not-paid');
+        document.getElementById('not-paid-msg').textContent = (json && (json.message || json.error))
+          ? String(json.message || json.error)
+          : 'Vui lòng đợi 10-60 giây và thử lại.';
+      } catch (e) {
+        setStatus('Lỗi kiểm tra', false);
+        showOnly('not-paid');
+        document.getElementById('not-paid-msg').textContent = String(e.message || e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('beforeunload', () => {
+      try { if (pollTimer) clearInterval(pollTimer); } catch {}
+    });
+  </script>
+</body>
+</html>

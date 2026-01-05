@@ -58,7 +58,7 @@
       opacity: 0.28;
       animation: floatOrb 28s ease-in-out infinite;
     }
-    
+
     .bg-orb-1 {
       width: 400px;
       height: 400px;
@@ -70,8 +70,8 @@
     .bg-orb-2 {
       width: 300px;
       height: 300px;
-      background: linear-gradient(135deg, #06b6d4, #3b82f6);
-      bottom: 100px;
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      bottom: -100px;
       left: -100px;
       animation-delay: -5s;
     }
@@ -89,12 +89,13 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: 
-        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
-      background-size: 50px 50px;
       pointer-events: none;
       z-index: 0;
+      opacity: 0.12;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
     }
 
     /* HEADER */
@@ -370,6 +371,18 @@
       color: #22c55e;
     }
 
+    .status-pending {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      color: #fbbf24;
+    }
+
+    .status-cancelled {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #ef4444;
+    }
+
     .status-used {
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid rgba(239, 68, 68, 0.3);
@@ -379,6 +392,47 @@
     .status-icon {
       font-size: 20px;
       margin-right: 8px;
+    }
+
+    .proof-box {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .proof-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .proof-sub {
+      color: #94a3b8;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .proof-preview {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      display: none;
+      max-height: 360px;
+      object-fit: contain;
+    }
+
+    .proof-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
     }
 
     /* Action Buttons */
@@ -451,6 +505,61 @@
       .qr-wrapper {
         width: 180px;
         height: 180px;
+      }
+    }
+
+    @media print {
+      @page { size: auto; margin: 12mm; }
+      body {
+        background: #fff;
+        color: #111;
+      }
+      .bg-effects, .bg-grid, .header, .ticket-actions, .proof-box, #order-section {
+        display: none !important;
+      }
+      .container {
+        padding: 0;
+        max-width: 760px;
+      }
+      .ticket-card {
+        margin: 0;
+        box-shadow: none;
+        background: #fff;
+        color: #111;
+      }
+      .ticket-header {
+        background: #f3f4f6;
+        color: #0f172a;
+      }
+      .ticket-body {
+        padding: 18px;
+      }
+      .ticket-info {
+        background: rgba(0,0,0,0.04);
+      }
+      .ticket-status {
+        border: 1px solid rgba(0,0,0,0.1);
+        background: rgba(255,255,255,0.8);
+      }
+      .qr-wrapper {
+        background: #fff;
+        width: 260px;
+        height: 260px;
+        margin: 0 auto 16px;
+        padding: 18px;
+      }
+      .qr-wrapper img {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+      }
+      .ticket-card, .ticket-card * {
+        color: inherit;
+      }
+      .ticket-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
     }
   </style>
@@ -550,12 +659,45 @@
             In vé
           </button>
         </div>
+
+        <div class="proof-box hidden" id="order-section">
+          <div class="proof-title"><i class="fa-solid fa-receipt" style="color:#a78bfa;"></i> Đơn hàng & xác nhận</div>
+          <div class="proof-sub" id="order-subtitle">-</div>
+
+          <div class="ticket-info" style="margin-bottom: 12px;">
+            <div class="info-row">
+              <span class="info-label"><i class="fa-solid fa-hashtag"></i> Mã đơn</span>
+              <span class="info-value" id="order-id">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fa-solid fa-circle-info"></i> Trạng thái thanh toán</span>
+              <span class="info-value" id="order-status">-</span>
+            </div>
+          </div>
+
+          <img id="proof-preview" class="proof-preview" alt="Ảnh xác nhận" />
+
+          <div class="proof-row">
+            <input id="proof-file" type="file" accept="image/*" class="btn btn-secondary" style="padding: 10px 14px;" />
+            <button id="btn-upload-proof" class="btn btn-success" onclick="uploadProof()" disabled>
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              Gửi ảnh xác nhận
+            </button>
+            <button id="btn-clear-proof" class="btn btn-secondary" onclick="clearProof()" disabled>
+              <i class="fa-solid fa-trash"></i>
+              Xoá ảnh
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     let ticketData = null;
+    let currentOrderId = '';
+    let currentOrder = null;
+    let proofDataUrl = '';
 
     function formatCurrency(amount) {
       return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
@@ -574,7 +716,24 @@
 
     async function init() {
       const urlParams = new URLSearchParams(window.location.search);
-      const ticketId = urlParams.get('id');
+      const orderIdParam = (urlParams.get('order') || '').trim();
+      let ticketId = (urlParams.get('id') || '').trim();
+
+      if (orderIdParam) {
+        currentOrderId = orderIdParam;
+        // Resolve ticketId from cached order if possible
+        if (!ticketId) {
+          try {
+            const cached = localStorage.getItem('order_' + currentOrderId);
+            const o = cached ? JSON.parse(cached) : null;
+            if (o && Array.isArray(o.tickets) && o.tickets.length) {
+              ticketId = o.tickets[0];
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
 
       if (!ticketId) {
         showError('Link không hợp lệ.');
@@ -594,6 +753,15 @@
       } catch (e) {
         showError('Dữ liệu vé không hợp lệ.');
         return;
+      }
+
+      // Prefer orderId stored in ticket
+      if (ticketData && ticketData.orderId) {
+        currentOrderId = ticketData.orderId;
+      }
+
+      if (currentOrderId) {
+        await fetchOrder();
       }
 
       // Display ticket
@@ -618,22 +786,207 @@
 
       // Status
       const statusEl = document.getElementById('ticket-status');
+      const statusIconEl = statusEl ? statusEl.querySelector('.status-icon') : null;
       const statusTextEl = document.getElementById('status-text');
       
       if (ticketData.status === 'used') {
         statusEl.className = 'ticket-status status-used';
-        statusTextEl.innerHTML = '<i class="fa-solid fa-circle-xmark status-icon"></i> ĐÃ SỬ DỤNG';
+        if (statusIconEl) statusIconEl.className = 'fa-solid fa-circle-xmark status-icon';
+        statusTextEl.textContent = 'ĐÃ SỬ DỤNG';
       } else {
-        statusEl.className = 'ticket-status status-valid';
-        statusTextEl.innerHTML = '<i class="fa-solid fa-circle-check status-icon"></i> VÉ HỢP LỆ';
+        const os = (currentOrder && currentOrder.status) ? String(currentOrder.status).toLowerCase() : '';
+        if (os === 'cancelled') {
+          statusEl.className = 'ticket-status status-cancelled';
+          if (statusIconEl) statusIconEl.className = 'fa-solid fa-circle-xmark status-icon';
+          statusTextEl.textContent = 'ĐƠN ĐÃ HUỶ';
+        } else if (os === 'pending_verification') {
+          statusEl.className = 'ticket-status status-pending';
+          if (statusIconEl) statusIconEl.className = 'fa-solid fa-hourglass-half status-icon';
+          statusTextEl.textContent = 'CHỜ DUYỆT';
+        } else if (os === 'pending') {
+          statusEl.className = 'ticket-status status-pending';
+          if (statusIconEl) statusIconEl.className = 'fa-solid fa-clock status-icon';
+          statusTextEl.textContent = 'CHỜ THANH TOÁN';
+        } else {
+          statusEl.className = 'ticket-status status-valid';
+          if (statusIconEl) statusIconEl.className = 'fa-solid fa-circle-check status-icon';
+          statusTextEl.textContent = 'VÉ HỢP LỆ';
+        }
       }
 
       // Generate QR code
       await generateTicketQR();
 
+      // Order/proof section
+      await initOrderSection();
+
       // Show ticket
       document.getElementById('loading').classList.add('hidden');
       document.getElementById('ticket-section').classList.remove('hidden');
+    }
+
+    async function fetchOrder() {
+      try {
+        const resp = await fetch(`/api/ticket/orders/${encodeURIComponent(currentOrderId)}`);
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || !json || json.error) return;
+        currentOrder = json;
+
+        // Update local cache (keep existing ticket list if any)
+        try {
+          const cacheKey = 'order_' + currentOrderId;
+          const cached = localStorage.getItem(cacheKey);
+          const o = cached ? JSON.parse(cached) : {};
+          o.orderId = currentOrderId;
+          o.status = json.status;
+          o.paymentProofImage = json.paymentProofImage || o.paymentProofImage;
+          if (json.paidAt) o.paidAt = json.paidAt;
+          localStorage.setItem(cacheKey, JSON.stringify(o));
+        } catch {
+          // ignore
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    function humanOrderStatus(status) {
+      const s = String(status || '').toLowerCase();
+      if (s === 'paid') return 'ĐÃ THANH TOÁN';
+      if (s === 'pending_verification') return 'CHỜ DUYỆT';
+      if (s === 'pending') return 'CHỜ THANH TOÁN';
+      if (s === 'cancelled') return 'ĐÃ HUỶ';
+      return status || '-';
+    }
+
+    async function initOrderSection() {
+      const oid = currentOrderId || (ticketData && ticketData.orderId) || '';
+      if (!oid) return;
+      currentOrderId = oid;
+
+      document.getElementById('order-section').classList.remove('hidden');
+      document.getElementById('order-id').textContent = currentOrderId;
+
+      // Ensure we have freshest data
+      if (!currentOrder) {
+        await fetchOrder();
+      }
+
+      let effectiveStatus = (currentOrder && currentOrder.status) || '';
+      let proof = (currentOrder && currentOrder.paymentProofImage) || '';
+
+      // Fallbacks from cache
+      try {
+        const cached = localStorage.getItem('order_' + currentOrderId);
+        if (cached) {
+          const o = JSON.parse(cached);
+          effectiveStatus = effectiveStatus || o.status || '';
+          proof = proof || o.paymentProofImage || '';
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        proof = proof || localStorage.getItem('proof_' + currentOrderId) || '';
+      } catch {
+        // ignore
+      }
+
+      document.getElementById('order-status').textContent = humanOrderStatus(effectiveStatus);
+
+      const canUpload = ['pending', 'pending_verification'].includes(String(effectiveStatus || '').toLowerCase());
+      document.getElementById('order-subtitle').textContent = canUpload
+        ? 'Bạn có thể gửi lại ảnh xác nhận để chủ sự kiện duyệt.'
+        : 'Đơn hàng đã được cập nhật. Ảnh xác nhận (nếu có) sẽ hiển thị tại đây.';
+
+      const proofEl = document.getElementById('proof-preview');
+      if (proof) {
+        proofEl.src = proof;
+        proofEl.style.display = 'block';
+        document.getElementById('btn-clear-proof').disabled = false;
+      }
+
+      const fileInput = document.getElementById('proof-file');
+      const btnUpload = document.getElementById('btn-upload-proof');
+
+      fileInput.disabled = !canUpload;
+      btnUpload.disabled = !canUpload;
+
+      if (!fileInput.dataset.bound) {
+        fileInput.dataset.bound = '1';
+        fileInput.addEventListener('change', async () => {
+          const f = fileInput.files && fileInput.files[0];
+          if (!f) return;
+          if (f.size > 5 * 1024 * 1024) {
+            alert('File ảnh quá lớn (tối đa 5MB)');
+            fileInput.value = '';
+            return;
+          }
+          proofDataUrl = await readFileAsDataURL(f);
+          if (proofDataUrl) {
+            proofEl.src = proofDataUrl;
+            proofEl.style.display = 'block';
+            document.getElementById('btn-clear-proof').disabled = false;
+            btnUpload.disabled = !canUpload;
+          }
+        });
+      }
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result || ''));
+        r.onerror = () => resolve('');
+        r.readAsDataURL(file);
+      });
+    }
+
+    async function uploadProof() {
+      if (!currentOrderId) return;
+      const img = proofDataUrl || (document.getElementById('proof-preview').src || '');
+      if (!img) {
+        alert('Vui lòng chọn ảnh trước');
+        return;
+      }
+
+      const btn = document.getElementById('btn-upload-proof');
+      const old = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+
+      try {
+        const resp = await fetch(`/api/ticket/orders/${encodeURIComponent(currentOrderId)}/upload-proof`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: img })
+        });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || (json && json.error)) throw new Error((json && json.error) || 'Không thể tải lên ảnh');
+
+        try { localStorage.setItem('proof_' + currentOrderId, img); } catch {}
+
+        currentOrder = null;
+        await fetchOrder();
+        await displayTicket();
+      } catch (e) {
+        alert(String(e.message || e));
+      } finally {
+        btn.innerHTML = old;
+        btn.disabled = false;
+      }
+    }
+
+    function clearProof() {
+      proofDataUrl = '';
+      try { if (currentOrderId) localStorage.removeItem('proof_' + currentOrderId); } catch {}
+      const proofEl = document.getElementById('proof-preview');
+      proofEl.src = '';
+      proofEl.style.display = 'none';
+      const fileInput = document.getElementById('proof-file');
+      if (fileInput) fileInput.value = '';
+      document.getElementById('btn-clear-proof').disabled = true;
     }
 
     async function generateTicketQR() {
@@ -673,7 +1026,17 @@
       try {
         const canvas = await html2canvas(ticketCard, {
           backgroundColor: '#1a1a2e',
-          scale: 2
+          scale: 2,
+          onclone: (doc) => {
+            const card = doc.querySelector('.ticket-card');
+            if (!card) return;
+
+            // Only export the ticket itself (no buttons, no proof/order section)
+            const actions = card.querySelector('.ticket-actions');
+            if (actions) actions.style.display = 'none';
+            const orderSection = card.querySelector('#order-section');
+            if (orderSection) orderSection.style.display = 'none';
+          }
         });
 
         const link = document.createElement('a');

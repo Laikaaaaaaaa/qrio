@@ -610,6 +610,130 @@
       color: #64748b;
     }
 
+    /* PAYMENT STATUS BADGES */
+    .payment-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .payment-status.paid {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .payment-status.pending {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+    }
+
+    .payment-status.pending_verification {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+
+    .payment-status.pending_payment {
+      background: rgba(249, 115, 22, 0.2);
+      color: #f97316;
+    }
+
+    /* TICKET DETAILS IN RESULT */
+    .ticket-details {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: left;
+    }
+
+    .ticket-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13px;
+    }
+
+    .ticket-detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .ticket-detail-row span:first-child {
+      color: #94a3b8;
+    }
+
+    .ticket-detail-row span:last-child {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* PROOF IMAGE */
+    .proof-section {
+      margin: 16px 0;
+      text-align: center;
+    }
+
+    .proof-section h4 {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    .proof-image-container {
+      max-width: 300px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .proof-image-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* ACTION BUTTONS */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn-confirm {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-cancel {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+    }
+
+    .btn-cancel:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-back-scan {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
     @media (max-width: 500px) {
       .container {
         padding: 24px 16px;
@@ -925,18 +1049,42 @@
       // Add to recent scans
       addToRecentScans(ticket);
 
+      // Check ticket status
       if (ticket.status === 'used') {
-        showResult('warning', 'Vé đã sử dụng', `Vé "${ticketId}" đã được sử dụng trước đó.`, ticket);
+        showResult('warning', 'Vé đã sử dụng', `Vé này đã được sử dụng trước đó.`, ticket);
+      } else if (ticket.status === 'pending_verification') {
+        showResult('pending', 'Chờ xác nhận thanh toán', `Vé này đang chờ xác nhận thanh toán từ chủ sự kiện.`, ticket);
+      } else if (ticket.status === 'pending_payment') {
+        showResult('cash_pending', 'Chờ thanh toán tiền mặt', `Vé này đang chờ thanh toán tiền mặt.`, ticket);
       } else {
-        showResult('success', 'Vé hợp lệ', `Vé "${ticketId}" hợp lệ và sẵn sàng sử dụng.`, ticket);
+        showResult('success', 'Vé hợp lệ', `Vé hợp lệ và sẵn sàng sử dụng.`, ticket);
       }
     }
 
-    function showResult(type, title, message, ticket = null) {
+    async function fetchOrderData(orderId) {
+      try {
+        // Try to get from localStorage first
+        const stored = localStorage.getItem('order_' + orderId);
+        if (stored) {
+          return JSON.parse(stored);
+        }
+        
+        // Try to fetch from API
+        const resp = await fetch(`/api/ticket/orders/${orderId}`);
+        if (resp.ok) {
+          return await resp.json();
+        }
+      } catch (e) {
+        console.log('Could not fetch order data', e);
+      }
+      return null;
+    }
+
+    async function showResult(type, title, message, ticket = null) {
       const resultSection = document.getElementById('result-section');
       const resultContent = document.getElementById('result-content');
 
-      let iconClass = type;
+      let iconClass = type === 'pending' || type === 'cash_pending' ? 'warning' : type;
       let icon = type === 'success' ? 'fa-check' : (type === 'error' ? 'fa-times' : 'fa-exclamation');
 
       let html = `
@@ -946,24 +1094,118 @@
       `;
 
       if (ticket) {
+        // Payment status badge
+        let statusBadge = '';
+        if (ticket.status === 'valid' || ticket.status === 'paid') {
+          statusBadge = '<div class="payment-status paid"><i class="fa-solid fa-check-circle"></i> Đã thanh toán</div>';
+        } else if (ticket.status === 'pending_verification') {
+          statusBadge = '<div class="payment-status pending_verification"><i class="fa-solid fa-clock"></i> Chờ xác nhận</div>';
+        } else if (ticket.status === 'pending_payment') {
+          statusBadge = '<div class="payment-status pending_payment"><i class="fa-solid fa-money-bill"></i> Chờ thanh toán tiền mặt</div>';
+        } else if (ticket.status === 'used') {
+          statusBadge = '<div class="payment-status pending"><i class="fa-solid fa-check-double"></i> Đã sử dụng</div>';
+        }
+
+        // Ticket details
         html += `
-          <div class="result-actions">
-            <button class="btn btn-primary" onclick="viewTicketInfo('${ticket.ticketId}')">
+          ${statusBadge}
+          <div class="ticket-details">
+            <div class="ticket-detail-row">
+              <span>Mã vé</span>
+              <span>${ticket.ticketId}</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span>Sự kiện</span>
+              <span>${ticket.eventName || 'N/A'}</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span>Người mua</span>
+              <span>${ticket.buyerName || 'N/A'}</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span>Email</span>
+              <span>${ticket.buyerEmail || 'N/A'}</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span>Số điện thoại</span>
+              <span>${ticket.buyerPhone || 'N/A'}</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span>Giá vé</span>
+              <span>${formatCurrency(ticket.price)}</span>
+            </div>
+            ${ticket.paymentType === 'cash' ? `
+            <div class="ticket-detail-row">
+              <span>Loại thanh toán</span>
+              <span><i class="fa-solid fa-money-bill" style="color: #22c55e;"></i> Tiền mặt</span>
+            </div>
+            <div class="ticket-detail-row">
+              <span>Thời điểm thanh toán</span>
+              <span>${ticket.cashPaymentTime || 'N/A'}</span>
+            </div>
+            ` : ''}
+          </div>
+        `;
+
+        // Try to get proof image from order
+        let proofImage = null;
+        if (ticket.orderId) {
+          const order = await fetchOrderData(ticket.orderId);
+          if (order && order.proofImage) {
+            proofImage = order.proofImage;
+          }
+        }
+
+        // Show proof image if available
+        if (proofImage) {
+          html += `
+            <div class="proof-section">
+              <h4><i class="fa-solid fa-image"></i> Ảnh xác nhận thanh toán</h4>
+              <div class="proof-image-container">
+                <img src="${proofImage}" alt="Ảnh xác nhận" />
+              </div>
+            </div>
+          `;
+        }
+
+        // Action buttons based on status
+        html += '<div class="action-buttons">';
+        
+        if (ticket.status === 'pending_verification' || ticket.status === 'pending_payment') {
+          html += `
+            <button class="btn btn-confirm" onclick="confirmTicketPayment('${ticket.ticketId}')">
+              <i class="fa-solid fa-check"></i>
+              Xác nhận thanh toán
+            </button>
+            <button class="btn btn-cancel" onclick="cancelTicket('${ticket.ticketId}')">
+              <i class="fa-solid fa-times"></i>
+              Hủy vé
+            </button>
+          `;
+        } else if (ticket.status !== 'used') {
+          html += `
+            <button class="btn btn-success" onclick="markAsUsed('${ticket.ticketId}')">
+              <i class="fa-solid fa-check"></i>
+              Đánh dấu đã dùng
+            </button>
+          `;
+        }
+
+        html += `
+            <button class="btn btn-secondary" onclick="viewTicketInfo('${ticket.ticketId}')">
               <i class="fa-solid fa-eye"></i>
               Xem chi tiết
             </button>
-            ${ticket.status !== 'used' ? `
-              <button class="btn btn-success" onclick="markAsUsed('${ticket.ticketId}')">
-                <i class="fa-solid fa-check"></i>
-                Đánh dấu đã dùng
-              </button>
-            ` : ''}
+            <button class="btn btn-back-scan" onclick="resetScanner()">
+              <i class="fa-solid fa-qrcode"></i>
+              Quét tiếp
+            </button>
           </div>
         `;
       } else {
         html += `
-          <div class="result-actions">
-            <button class="btn btn-secondary" onclick="resetScanner()">
+          <div class="action-buttons">
+            <button class="btn btn-back-scan" onclick="resetScanner()">
               <i class="fa-solid fa-redo"></i>
               Quét lại
             </button>
@@ -973,6 +1215,78 @@
 
       resultContent.innerHTML = html;
       resultSection.classList.remove('hidden');
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount || 0) + ' đ';
+    }
+
+    async function confirmTicketPayment(ticketId) {
+      const stored = localStorage.getItem('ticket_' + ticketId);
+      if (!stored) return;
+
+      const ticket = JSON.parse(stored);
+      
+      // Update ticket status
+      ticket.status = 'valid';
+      ticket.confirmedAt = new Date().toISOString();
+      localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
+
+      // Update order status
+      if (ticket.orderId) {
+        const orderStored = localStorage.getItem('order_' + ticket.orderId);
+        if (orderStored) {
+          const order = JSON.parse(orderStored);
+          order.status = 'paid';
+          order.paidAt = new Date().toISOString();
+          localStorage.setItem('order_' + ticket.orderId, JSON.stringify(order));
+        }
+
+        // Try to confirm via API
+        try {
+          await fetch(`/api/ticket/orders/${ticket.orderId}/confirm`, { method: 'POST' });
+        } catch (e) {
+          console.log('API confirm failed, local update done');
+        }
+      }
+
+      showResult('success', 'Đã xác nhận thanh toán', `Vé "${ticketId}" đã được xác nhận thanh toán thành công.`);
+      updateRecentScans();
+    }
+
+    async function cancelTicket(ticketId) {
+      if (!confirm('Bạn có chắc muốn hủy vé này?')) return;
+
+      const stored = localStorage.getItem('ticket_' + ticketId);
+      if (!stored) return;
+
+      const ticket = JSON.parse(stored);
+      
+      // Update ticket status
+      ticket.status = 'cancelled';
+      ticket.cancelledAt = new Date().toISOString();
+      localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
+
+      // Update order status
+      if (ticket.orderId) {
+        const orderStored = localStorage.getItem('order_' + ticket.orderId);
+        if (orderStored) {
+          const order = JSON.parse(orderStored);
+          order.status = 'cancelled';
+          order.cancelledAt = new Date().toISOString();
+          localStorage.setItem('order_' + ticket.orderId, JSON.stringify(order));
+        }
+
+        // Try to cancel via API
+        try {
+          await fetch(`/api/ticket/orders/${ticket.orderId}/cancel`, { method: 'POST' });
+        } catch (e) {
+          console.log('API cancel failed, local update done');
+        }
+      }
+
+      showResult('error', 'Đã hủy vé', `Vé "${ticketId}" đã bị hủy.`);
+      updateRecentScans();
     }
 
     function viewTicketInfo(ticketId) {

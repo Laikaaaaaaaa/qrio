@@ -28,6 +28,9 @@ from urllib.parse import urlparse
 import logging
 import sys
 
+import hashlib
+import hmac
+
 import re
 import sqlite3
 
@@ -250,6 +253,20 @@ load_dotenv()
 
 TICKETS_DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'tickets.db')
 
+_TICKETS_DB_INITIALIZED = False
+
+
+def _hash_owner_password(event_id: str, password: str) -> str:
+    """Hash owner password (scoped to event_id).
+
+    This is not meant to be a full auth system; it is a lightweight gate
+    to prevent casual access to the manage-orders page.
+    """
+    event_id = sanitize_input(event_id or '', max_length=80)
+    password = sanitize_input(password or '', max_length=400)
+    blob = (event_id + ':' + password).encode('utf-8', errors='ignore')
+    return hashlib.sha256(blob).hexdigest()
+
 
 def _ensure_data_dir(path: str):
     try:
@@ -276,11 +293,32 @@ def init_tickets_db():
                 account_name TEXT NOT NULL,
                 start_date TEXT,
                 end_date TEXT,
+                payment_method TEXT DEFAULT 'bank_api',
+                bank_api_key TEXT,
                 sepay_api_key TEXT,
+                owner_password_hash TEXT,
                 created_at REAL NOT NULL
             )
         ''')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_events_created_at ON ticket_events(created_at)')
+
+        # Add new columns to existing table if missing
+        try:
+            cur.execute('ALTER TABLE ticket_events ADD COLUMN payment_method TEXT DEFAULT "bank_api"')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_events ADD COLUMN bank_api_key TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_events ADD COLUMN sepay_api_key TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_events ADD COLUMN owner_password_hash TEXT')
+        except sqlite3.OperationalError:
+            pass
 
         cur.execute('''
             CREATE TABLE IF NOT EXISTS ticket_orders (
@@ -292,6 +330,10 @@ def init_tickets_db():
                 quantity INTEGER NOT NULL,
                 total_amount INTEGER NOT NULL,
                 status TEXT NOT NULL,
+                payment_type TEXT DEFAULT 'transfer',
+                payment_proof_image TEXT,
+                cash_payer_name TEXT,
+                cash_payment_time TEXT,
                 created_at REAL NOT NULL,
                 paid_at REAL,
                 sepay_transaction_id INTEGER,
@@ -302,6 +344,24 @@ def init_tickets_db():
         cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_event_id ON ticket_orders(event_id)')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_status ON ticket_orders(status)')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_created_at ON ticket_orders(created_at)')
+
+        # Add new columns to existing table if missing
+        try:
+            cur.execute('ALTER TABLE ticket_orders ADD COLUMN payment_type TEXT DEFAULT "transfer"')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_orders ADD COLUMN payment_proof_image TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_orders ADD COLUMN cash_payer_name TEXT')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_orders ADD COLUMN cash_payment_time TEXT')
+        except sqlite3.OperationalError:
+            pass
 
         cur.execute('''
             CREATE TABLE IF NOT EXISTS sepay_webhook_dedupe (
@@ -315,8 +375,11 @@ def init_tickets_db():
 
 
 def get_tickets_db():
-    if not os.path.exists(TICKETS_DB_PATH):
+    global _TICKETS_DB_INITIALIZED
+    # Always run migrations once per process even if the DB file already exists.
+    if not _TICKETS_DB_INITIALIZED:
         init_tickets_db()
+        _TICKETS_DB_INITIALIZED = True
     conn = sqlite3.connect(TICKETS_DB_PATH, timeout=5)
     conn.row_factory = sqlite3.Row
     return conn
@@ -1004,12 +1067,37 @@ def ticket_create_html():
     return send_from_directory('.', 'ticket-create.html')
 
 
+@app.route('/ticket-create/c/<event_id>')
+@app.route('/ticket-create.html/c/<event_id>')
+def ticket_create_owner_link(event_id):
+    """Owner deep-link that preselects the event and forwards to owner page."""
+    event_id = sanitize_input(event_id, max_length=40)
+    track_event('/ticket-create/c', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return redirect(f"/owner-ticket.html?event={event_id}", code=302)
+
+
 @app.route('/buy-ticket')
 @app.route('/buy-ticket.html')
 def buy_ticket_html():
     """Page for customers to buy tickets."""
     track_event('/buy-ticket', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'buy-ticket.html')
+
+
+@app.route('/transfer')
+@app.route('/transfer.html')
+def transfer_html():
+    """Page for customers to pay via bank transfer."""
+    track_event('/transfer', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'transfer.html')
+
+
+@app.route('/transfer-confirm')
+@app.route('/transfer-confirm.html')
+def transfer_confirm_html():
+    """Page for customers to confirm/verify a bank transfer."""
+    track_event('/transfer-confirm', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'transfer-confirm.html')
 
 
 @app.route('/ticket')
@@ -1026,6 +1114,30 @@ def scan_html():
     """Page for staff to scan ticket QR codes."""
     track_event('/scan', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'scan.html')
+
+
+@app.route('/manage-orders')
+@app.route('/manage-orders.html')
+def manage_orders_html():
+    """Page for event owners to manage orders."""
+    track_event('/manage-orders', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'manage-orders.html')
+
+
+@app.route('/owner-ticket')
+@app.route('/owner-ticket.html')
+def owner_ticket_html():
+    """Owner landing page for a specific event."""
+    track_event('/owner-ticket', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'owner-ticket.html')
+
+
+@app.route('/order-history')
+@app.route('/order-history.html')
+def order_history_html():
+    """Page for event owners to view order history."""
+    track_event('/order-history', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'order-history.html')
 
 
 @app.route('/information')
@@ -1409,7 +1521,14 @@ def api_ticket_create_event():
         account_name = sanitize_input(payload.get('accountName', ''), max_length=80).upper()
         start_date = sanitize_input(payload.get('startDate', ''), max_length=20)
         end_date = sanitize_input(payload.get('endDate', ''), max_length=20)
+        payment_method = sanitize_input(payload.get('paymentMethod', 'bank_api'), max_length=32)
+        bank_api_key = sanitize_input(payload.get('bankApiKey', ''), max_length=200)
         sepay_api_key = sanitize_input(payload.get('sepayApiKey', ''), max_length=200)
+        owner_password = sanitize_input(payload.get('ownerPassword', ''), max_length=200)
+
+        # Validate payment method
+        if payment_method not in ('bank_api', 'sepay_webhook', 'manual'):
+            payment_method = 'bank_api'
 
         if not event_name:
             return jsonify({'error': 'Vui lòng nhập tên sự kiện/sản phẩm'}), 400
@@ -1421,11 +1540,20 @@ def api_ticket_create_event():
             return jsonify({'error': 'Vui lòng nhập số tài khoản (chỉ gồm chữ số)'}), 400
         if not account_name:
             return jsonify({'error': 'Vui lòng nhập tên chủ tài khoản'}), 400
-        if not sepay_api_key:
+        
+        # Validate API keys based on payment method
+        if payment_method == 'bank_api' and not bank_api_key:
+            return jsonify({'error': 'Vui lòng nhập API Key ngân hàng'}), 400
+        if payment_method == 'sepay_webhook' and not sepay_api_key:
             return jsonify({'error': 'Vui lòng nhập SePay API Key'}), 400
+
+        # Owner password gate for manage-orders
+        if not owner_password or len(owner_password) < 4:
+            return jsonify({'error': 'Vui lòng nhập mật khẩu quản lý (tối thiểu 4 ký tự)'}), 400
 
         event_id = _new_event_id()
         now = time.time()
+        owner_password_hash = _hash_owner_password(event_id, owner_password)
 
         conn = get_tickets_db()
         try:
@@ -1434,24 +1562,27 @@ def api_ticket_create_event():
                 INSERT INTO ticket_events (
                     event_id, event_name, description, price_per_ticket, max_tickets,
                     bank_code, bank_name, account_number, account_name,
-                    start_date, end_date, sepay_api_key, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    start_date, end_date, payment_method, bank_api_key, sepay_api_key, owner_password_hash, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 event_id, event_name, description, int(price_per_ticket), int(max_tickets),
                 bank_code, bank_name, account_number, account_name,
-                start_date or None, end_date or None, sepay_api_key, now
+                start_date or None, end_date or None, payment_method, bank_api_key or None, sepay_api_key or None, owner_password_hash, now
             ))
             conn.commit()
         finally:
             conn.close()
 
         buy_link = f"{_get_base_url()}/buy-ticket.html?event={event_id}"
-        webhook_url = f"{_get_base_url()}/api/sepay/webhook/{event_id}"
+        webhook_url = f"{_get_base_url()}/api/sepay/webhook/{event_id}" if payment_method == 'sepay_webhook' else ''
+        manage_url = f"{_get_base_url()}/manage-orders.html?event={event_id}"
 
         return jsonify({
             'eventId': event_id,
             'buyLink': buy_link,
             'webhookUrl': webhook_url,
+            'manageUrl': manage_url,
+            'paymentMethod': payment_method,
         }), 201
     except Exception as e:
         logger.error(f"Error in api_ticket_create_event: {e}")
@@ -1468,7 +1599,7 @@ def api_ticket_get_event(event_id):
             cur = conn.cursor()
             cur.execute('''
                 SELECT event_id, event_name, description, price_per_ticket, max_tickets,
-                       bank_code, bank_name, account_number, account_name, start_date, end_date
+                       bank_code, bank_name, account_number, account_name, start_date, end_date, payment_method
                 FROM ticket_events WHERE event_id = ?
             ''', (event_id,))
             row = cur.fetchone()
@@ -1490,9 +1621,66 @@ def api_ticket_get_event(event_id):
             'accountName': row['account_name'],
             'startDate': row['start_date'] or '',
             'endDate': row['end_date'] or '',
+            'paymentMethod': row['payment_method'] or 'bank_api',
         }), 200
     except Exception:
         return jsonify({'error': 'Không thể tải thông tin sự kiện'}), 500
+
+
+@app.route('/api/ticket/events/<event_id>/owner', methods=['GET'])
+@limiter.limit("10 per second; 120 per minute")
+def api_ticket_get_event_owner(event_id):
+    """Owner-only view for an event (password-gated)."""
+    try:
+        event_id = sanitize_input(event_id, max_length=40)
+        owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('''
+                SELECT event_id, event_name, description, price_per_ticket, max_tickets,
+                       bank_code, bank_name, account_number, account_name,
+                       start_date, end_date, payment_method, owner_password_hash
+                FROM ticket_events WHERE event_id = ?
+            ''', (event_id,))
+            row = cur.fetchone()
+        finally:
+            conn.close()
+
+        if not row:
+            return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+
+        stored_hash = (row['owner_password_hash'] or '').strip()
+        # Backward compatible: if no password was set, allow access.
+        if stored_hash:
+            if not owner_password:
+                return jsonify({'error': 'Vui lòng nhập mật khẩu chủ vé'}), 401
+            provided_hash = _hash_owner_password(event_id, owner_password)
+            if not hmac.compare_digest(stored_hash, provided_hash):
+                return jsonify({'error': 'Mật khẩu không đúng'}), 401
+
+        buy_link = f"{_get_base_url()}/buy-ticket.html?event={event_id}"
+        owner_link = f"{_get_base_url()}/ticket-create.html/c/{event_id}"
+
+        return jsonify({
+            'eventId': row['event_id'],
+            'eventName': row['event_name'],
+            'description': row['description'] or '',
+            'pricePerTicket': int(row['price_per_ticket']),
+            'maxTickets': int(row['max_tickets']),
+            'bankCode': row['bank_code'],
+            'bankName': row['bank_name'],
+            'accountNumber': row['account_number'],
+            'accountName': row['account_name'],
+            'startDate': row['start_date'] or '',
+            'endDate': row['end_date'] or '',
+            'paymentMethod': row['payment_method'] or 'bank_api',
+            'buyLink': buy_link,
+            'ownerLink': owner_link,
+        }), 200
+    except Exception:
+        return jsonify({'error': 'Không thể tải trang chủ vé'}), 500
 
 
 @app.route('/api/ticket/orders', methods=['POST'])
@@ -1508,6 +1696,13 @@ def api_ticket_create_order():
         buyer_email = sanitize_input(payload.get('buyerEmail', ''), max_length=120)
         buyer_phone = sanitize_input(payload.get('buyerPhone', ''), max_length=40)
         quantity = validate_int(payload.get('quantity'), default=1, min_val=1, max_val=10**4)
+        payment_type = sanitize_input(payload.get('paymentType', 'transfer'), max_length=32)
+        cash_payer_name = sanitize_input(payload.get('cashPayerName', ''), max_length=120)
+        cash_payment_time = sanitize_input(payload.get('cashPaymentTime', ''), max_length=64)
+
+        # Validate payment type
+        if payment_type not in ('transfer', 'cash'):
+            payment_type = 'transfer'
 
         if not event_id:
             return jsonify({'error': 'Thiếu eventId'}), 400
@@ -1517,7 +1712,7 @@ def api_ticket_create_order():
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT price_per_ticket, max_tickets, bank_code, bank_name, account_number, account_name FROM ticket_events WHERE event_id = ?', (event_id,))
+            cur.execute('SELECT price_per_ticket, max_tickets, bank_code, bank_name, account_number, account_name, payment_method FROM ticket_events WHERE event_id = ?', (event_id,))
             event_row = cur.fetchone()
             if not event_row:
                 return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
@@ -1534,11 +1729,12 @@ def api_ticket_create_order():
             cur.execute('''
                 INSERT INTO ticket_orders (
                     order_id, event_id, buyer_name, buyer_email, buyer_phone,
-                    quantity, total_amount, status, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    quantity, total_amount, status, payment_type, cash_payer_name, cash_payment_time, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 order_id, event_id, buyer_name, buyer_email or None, buyer_phone or None,
-                int(quantity), int(total_amount), 'pending', now
+                int(quantity), int(total_amount), 'pending', payment_type, 
+                cash_payer_name or None, cash_payment_time or None, now
             ))
             conn.commit()
         finally:
@@ -1558,6 +1754,8 @@ def api_ticket_create_order():
             'bankName': event_row['bank_name'],
             'accountNumber': event_row['account_number'],
             'accountName': event_row['account_name'],
+            'paymentType': payment_type,
+            'paymentMethod': event_row['payment_method'] or 'bank_api',
         }), 201
     except Exception as e:
         logger.error(f"Error in api_ticket_create_order: {e}")
@@ -1572,7 +1770,15 @@ def api_ticket_get_order(order_id):
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT order_id, event_id, status, total_amount, quantity, created_at, paid_at FROM ticket_orders WHERE order_id = ?', (order_id,))
+            cur.execute('''
+                SELECT o.order_id, o.event_id, o.buyer_name, o.buyer_email, o.buyer_phone,
+                       o.status, o.total_amount, o.quantity, o.created_at, o.paid_at,
+                       o.payment_type, o.payment_proof_image, o.cash_payer_name, o.cash_payment_time,
+                       e.event_name, e.payment_method
+                FROM ticket_orders o
+                JOIN ticket_events e ON o.event_id = e.event_id
+                WHERE o.order_id = ?
+            ''', (order_id,))
             row = cur.fetchone()
         finally:
             conn.close()
@@ -1583,14 +1789,204 @@ def api_ticket_get_order(order_id):
         return jsonify({
             'orderId': row['order_id'],
             'eventId': row['event_id'],
+            'eventName': row['event_name'],
+            'buyerName': row['buyer_name'],
+            'buyerEmail': row['buyer_email'],
+            'buyerPhone': row['buyer_phone'],
             'status': row['status'],
             'totalAmount': int(row['total_amount']),
             'quantity': int(row['quantity']),
             'createdAt': row['created_at'],
             'paidAt': row['paid_at'],
+            'paymentType': row['payment_type'] or 'transfer',
+            'paymentProofImage': row['payment_proof_image'],
+            'cashPayerName': row['cash_payer_name'],
+            'cashPaymentTime': row['cash_payment_time'],
+            'paymentMethod': row['payment_method'] or 'bank_api',
         }), 200
     except Exception:
         return jsonify({'error': 'Không thể tải đơn hàng'}), 500
+
+
+@app.route('/api/ticket/events/<event_id>/orders', methods=['GET'])
+@limiter.limit("10 per second; 120 per minute")
+def api_ticket_list_orders(event_id):
+    """List all orders for an event (for event owner to manage)."""
+    try:
+        event_id = sanitize_input(event_id, max_length=40)
+        owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            # Check if event exists
+            cur.execute('SELECT event_id, event_name, payment_method, owner_password_hash FROM ticket_events WHERE event_id = ?', (event_id,))
+            event_row = cur.fetchone()
+            if not event_row:
+                return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+
+            stored_hash = (event_row['owner_password_hash'] or '').strip()
+            # Backward compatible: if no password was set, allow access.
+            if stored_hash:
+                if not owner_password:
+                    return jsonify({'error': 'Vui lòng nhập mật khẩu quản lý'}), 401
+                provided_hash = _hash_owner_password(event_id, owner_password)
+                if not hmac.compare_digest(stored_hash, provided_hash):
+                    return jsonify({'error': 'Mật khẩu không đúng'}), 401
+
+            cur.execute('''
+                SELECT order_id, buyer_name, buyer_email, buyer_phone, quantity, total_amount, 
+                       status, payment_type, payment_proof_image, cash_payer_name, cash_payment_time,
+                       created_at, paid_at
+                FROM ticket_orders WHERE event_id = ?
+                ORDER BY created_at DESC
+            ''', (event_id,))
+            rows = cur.fetchall()
+        finally:
+            conn.close()
+
+        orders = []
+        for row in rows:
+            orders.append({
+                'orderId': row['order_id'],
+                'buyerName': row['buyer_name'],
+                'buyerEmail': row['buyer_email'],
+                'buyerPhone': row['buyer_phone'],
+                'quantity': int(row['quantity']),
+                'totalAmount': int(row['total_amount']),
+                'status': row['status'],
+                'paymentType': row['payment_type'] or 'transfer',
+                'paymentProofImage': row['payment_proof_image'],
+                'cashPayerName': row['cash_payer_name'],
+                'cashPaymentTime': row['cash_payment_time'],
+                'createdAt': row['created_at'],
+                'paidAt': row['paid_at'],
+            })
+
+        return jsonify({
+            'eventId': event_row['event_id'],
+            'eventName': event_row['event_name'],
+            'paymentMethod': event_row['payment_method'] or 'bank_api',
+            'orders': orders,
+        }), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_list_orders: {e}")
+        return jsonify({'error': 'Không thể tải danh sách đơn hàng'}), 500
+
+
+@app.route('/api/ticket/orders/<order_id>/confirm', methods=['POST'])
+@limiter.limit("4 per second; 60 per minute")
+def api_ticket_confirm_order(order_id):
+    """Manually confirm an order as paid (for manual verification)."""
+    try:
+        order_id = sanitize_input(order_id, max_length=80)
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT status FROM ticket_orders WHERE order_id = ?', (order_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+            if row['status'] == 'paid':
+                return jsonify({'ok': True, 'message': 'Đơn hàng đã được xác nhận trước đó'}), 200
+
+            cur.execute('''
+                UPDATE ticket_orders SET status = 'paid', paid_at = ? WHERE order_id = ?
+            ''', (time.time(), order_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+        return jsonify({'ok': True, 'message': 'Đã xác nhận thanh toán thành công'}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_confirm_order: {e}")
+        return jsonify({'error': 'Không thể xác nhận đơn hàng'}), 500
+
+
+@app.route('/api/ticket/orders/<order_id>/cancel', methods=['POST'])
+@limiter.limit("4 per second; 60 per minute")
+def api_ticket_cancel_order(order_id):
+    """Cancel an order."""
+    try:
+        order_id = sanitize_input(order_id, max_length=80)
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT status FROM ticket_orders WHERE order_id = ?', (order_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+            cur.execute('''
+                UPDATE ticket_orders SET status = 'cancelled' WHERE order_id = ?
+            ''', (order_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
+        return jsonify({'ok': True, 'message': 'Đã hủy đơn hàng'}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_cancel_order: {e}")
+        return jsonify({'error': 'Không thể hủy đơn hàng'}), 500
+
+
+@app.route('/api/ticket/orders/<order_id>/upload-proof', methods=['POST'])
+@limiter.limit("4 per second; 30 per minute")
+def api_ticket_upload_proof(order_id):
+    """Upload payment proof image for manual verification."""
+    try:
+        order_id = sanitize_input(order_id, max_length=80)
+        
+        # Get image from request
+        if 'image' not in request.files and 'image' not in (request.form or {}):
+            # Try JSON body with base64
+            payload = request.get_json(silent=True) if request.is_json else None
+            if payload and payload.get('image'):
+                image_data = payload.get('image', '')
+            else:
+                return jsonify({'error': 'Vui lòng tải lên ảnh xác nhận'}), 400
+        else:
+            if 'image' in request.files:
+                file = request.files['image']
+                if file.filename == '':
+                    return jsonify({'error': 'Vui lòng chọn file ảnh'}), 400
+                # Read and encode to base64
+                image_bytes = file.read()
+                if len(image_bytes) > 5 * 1024 * 1024:  # 5MB limit
+                    return jsonify({'error': 'File ảnh quá lớn (tối đa 5MB)'}), 400
+                image_data = f"data:{file.content_type};base64,{base64.b64encode(image_bytes).decode()}"
+            else:
+                image_data = request.form.get('image', '')
+
+        if not image_data:
+            return jsonify({'error': 'Vui lòng tải lên ảnh xác nhận'}), 400
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT order_id, status FROM ticket_orders WHERE order_id = ?', (order_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+            status = (row['status'] or '').lower()
+            new_status = status
+            if status not in ('paid', 'cancelled'):
+                new_status = 'pending_verification'
+
+            cur.execute('''
+                UPDATE ticket_orders
+                SET payment_proof_image = ?, status = ?
+                WHERE order_id = ?
+            ''', (image_data, new_status, order_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+        return jsonify({'ok': True, 'message': 'Đã tải lên ảnh xác nhận'}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_upload_proof: {e}")
+        return jsonify({'error': 'Không thể tải lên ảnh'}), 500
 
 
 @app.route('/api/sepay/webhook/<event_id>', methods=['POST'])

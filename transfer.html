@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Thanh Toán Chuyển Khoản</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-orb { position: absolute; border-radius: 50%; filter: blur(56px); opacity: 0.28; animation: floatOrb 28s ease-in-out infinite; }
+    .bg-orb-1 { width: 400px; height: 400px; background: linear-gradient(135deg, #4f46e5, #7c3aed); top: -100px; right: -100px; }
+    .bg-orb-2 { width: 300px; height: 300px; background: linear-gradient(135deg, #06b6d4, #3b82f6); bottom: 100px; left: -100px; animation-delay: -5s; }
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: 0; }
+
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .logo-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .header h1 { font-size: 18px; font-weight: 700; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+
+    .btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); }
+
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(124, 58, 237, 0.3); }
+
+    .btn-danger { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); color: #fecaca; }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.18); }
+
+    .container { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 24px 56px; }
+
+    .card {
+      background: rgba(24, 24, 27, 0.8);
+      border: 1px solid rgba(124, 58, 237, 0.15);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .page-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+    .page-subtitle { color: #94a3b8; margin-bottom: 18px; font-size: 14px; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: #e2e8f0;
+    }
+
+    .status-ok { border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.10); color: #bbf7d0; }
+    .status-wait { border-color: rgba(251, 191, 36, 0.35); background: rgba(251, 191, 36, 0.10); color: #fde68a; }
+
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .qr-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.18);
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 280px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .qr-box img { max-width: 280px; width: 100%; height: auto; border-radius: 10px; background: #fff; padding: 10px; }
+
+    .kv { display: grid; gap: 10px; margin-top: 12px; }
+    .kv-row { display: flex; justify-content: space-between; gap: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .kv-row .k { color: #94a3b8; font-size: 12px; }
+    .kv-row .v { font-weight: 700; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+
+    .proof-area {
+      border: 1px dashed rgba(124, 58, 237, 0.35);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(124, 58, 237, 0.06);
+    }
+
+    .proof-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+
+    .proof-input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+
+    .proof-preview {
+      position: relative;
+      margin-top: 12px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+    }
+
+    .proof-preview img { width: 100%; display: block; max-height: 360px; object-fit: contain; }
+
+    .proof-remove {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.18);
+      color: #fee2e2;
+      cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #94a3b8;
+      padding: 22px;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.16);
+      border-top-color: rgba(124, 58, 237, 0.9);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="order-history.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-history"></i><span>Lịch sử</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div>
+          <div class="page-title"><i class="fa-solid fa-building-columns" style="color:#a78bfa;"></i> Thanh toán chuyển khoản</div>
+          <div class="page-subtitle">Quét QR để chuyển khoản đúng số tiền và nội dung chuyển khoản.</div>
+        </div>
+        <div id="status-pill" class="status-pill status-wait"><i class="fa-solid fa-clock"></i> Đang chờ thanh toán</div>
+      </div>
+      <div class="kv">
+        <div class="kv-row"><div class="k">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
+        <div class="kv-row"><div class="k">Sự kiện</div><div class="v" id="event-name">-</div></div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
+          <div style="font-weight:800;"><i class="fa-solid fa-qrcode" style="color:#a78bfa;"></i> QR thanh toán</div>
+          <div style="color:#94a3b8; font-size: 13px;">Hệ thống sẽ cập nhật trạng thái tự động</div>
+        </div>
+        <div id="qr-box" class="qr-box">
+          <div class="loading"><span class="spinner"></span> Đang tạo QR...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; margin-bottom: 10px;"><i class="fa-solid fa-receipt" style="color:#a78bfa;"></i> Thông tin chuyển khoản</div>
+        <div class="kv">
+          <div class="kv-row"><div class="k">Ngân hàng</div><div class="v" id="bank-name">-</div></div>
+          <div class="kv-row"><div class="k">Số tài khoản</div><div class="v mono" id="account-number">-</div></div>
+          <div class="kv-row"><div class="k">Chủ tài khoản</div><div class="v" id="account-name">-</div></div>
+          <div class="kv-row"><div class="k">Số tiền</div><div class="v" id="amount">-</div></div>
+          <div class="kv-row"><div class="k">Nội dung</div><div class="v mono" id="memo">-</div></div>
+        </div>
+
+        <div id="proof-section" class="proof-area hidden" style="margin-top: 14px;">
+          <div style="font-weight:800; margin-bottom: 8px;"><i class="fa-solid fa-image" style="color:#fbbf24;"></i> Ảnh xác nhận (check thủ công)</div>
+          <div style="color:#94a3b8; font-size: 13px; line-height: 1.5;">Tải ảnh (biên lai/ảnh giao dịch) để chủ sự kiện duyệt.</div>
+          <input class="proof-input" type="file" id="proof-input" accept="image/*" onchange="handleProofUpload(this)" />
+          <div id="proof-preview" class="proof-preview hidden">
+            <button class="proof-remove" onclick="removeProof()" title="Xóa ảnh">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+            <img id="proof-image" alt="Proof" />
+          </div>
+        </div>
+
+        <div class="proof-actions" style="margin-top: 14px;">
+          <a id="confirm-link" class="btn btn-primary" href="#"><i class="fa-solid fa-circle-check"></i> Tôi đã chuyển khoản</a>
+          <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> Xem lịch sử</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let orderId = '';
+    let orderData = null;
+    let eventData = null;
+    let proofImageData = null;
+    let pollTimer = null;
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+    }
+
+    function setStatus(verified) {
+      const el = document.getElementById('status-pill');
+      if (verified) {
+        el.className = 'status-pill status-ok';
+        el.innerHTML = '<i class="fa-solid fa-check"></i> Đã nhận thanh toán';
+      } else {
+        el.className = 'status-pill status-wait';
+        el.innerHTML = '<i class="fa-solid fa-clock"></i> Đang chờ thanh toán';
+      }
+    }
+
+    function handleProofUpload(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File ảnh quá lớn (tối đa 5MB)');
+        input.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        proofImageData = e.target.result;
+        localStorage.setItem('proof_' + orderId, proofImageData);
+        document.getElementById('proof-image').src = proofImageData;
+        document.getElementById('proof-preview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeProof() {
+      proofImageData = null;
+      localStorage.removeItem('proof_' + orderId);
+      document.getElementById('proof-input').value = '';
+      document.getElementById('proof-preview').classList.add('hidden');
+      document.getElementById('proof-image').src = '';
+    }
+
+    async function loadData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      orderId = urlParams.get('order') || '';
+      if (!orderId) {
+        alert('Thiếu mã đơn hàng');
+        window.location.href = 'home.html';
+        return;
+      }
+
+      document.getElementById('order-id').textContent = orderId;
+      document.getElementById('memo').textContent = orderId;
+      document.getElementById('confirm-link').href = `transfer-confirm.html?order=${encodeURIComponent(orderId)}`;
+
+      try {
+        const orderResp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}`);
+        const orderJson = await orderResp.json().catch(() => ({}));
+        if (!orderResp.ok || orderJson.error) throw new Error(orderJson.error || 'Không thể tải đơn hàng');
+
+        orderData = orderJson;
+        document.getElementById('event-name').textContent = orderJson.eventName || '-';
+
+        const eventResp = await fetch(`/api/ticket/events/${encodeURIComponent(orderJson.eventId)}`);
+        const eventJson = await eventResp.json().catch(() => ({}));
+        if (!eventResp.ok || eventJson.error) throw new Error(eventJson.error || 'Không thể tải sự kiện');
+
+        eventData = eventJson;
+
+        // Fill transfer info
+        document.getElementById('bank-name').textContent = eventJson.bankName || '-';
+        document.getElementById('account-number').textContent = String(eventJson.accountNumber || '').replace(/[^0-9]/g, '');
+        document.getElementById('account-name').textContent = eventJson.accountName || '-';
+        document.getElementById('amount').textContent = formatCurrency(orderJson.totalAmount || 0);
+
+        // Manual proof section
+        if ((eventJson.paymentMethod || '') === 'manual') {
+          document.getElementById('proof-section').classList.remove('hidden');
+          const cached = localStorage.getItem('proof_' + orderId);
+          if (cached) {
+            proofImageData = cached;
+            document.getElementById('proof-image').src = cached;
+            document.getElementById('proof-preview').classList.remove('hidden');
+          }
+        }
+
+        await generateQR();
+
+        // Start polling status
+        pollTimer = setInterval(checkPayment, 5000);
+        await checkPayment();
+      } catch (e) {
+        alert(String(e.message || e));
+        window.location.href = 'home.html';
+      }
+    }
+
+    async function generateQR() {
+      const bankCode = eventData.bankCode;
+      const accountNumber = String(eventData.accountNumber || '').replace(/[^0-9]/g, '');
+      const accountName = eventData.accountName || 'CHUA XAC DINH';
+      const amount = orderData.totalAmount;
+
+      const qrBox = document.getElementById('qr-box');
+      qrBox.innerHTML = '<div class="loading"><span class="spinner"></span> Đang tạo QR...</div>';
+
+      try {
+        const formData = new FormData();
+        formData.append('qr_type', 'vietqr');
+        formData.append('vietqr_bank', String(bankCode || ''));
+        formData.append('vietqr_account', accountNumber);
+        formData.append('vietqr_name', accountName);
+        formData.append('vietqr_amount', String(amount));
+        formData.append('vietqr_memo', orderId);
+        formData.append('qr_color', '#4f46e5');
+        formData.append('bg_color', '#ffffff');
+        formData.append('ecc_level', 'H');
+        formData.append('module_style', 'rounded-square');
+
+        const resp = await fetch('/api/generate', { method: 'POST', body: formData });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || json.error || !json.image) throw new Error(json.error || 'Không thể tạo QR');
+        qrBox.innerHTML = `<img src="${json.image}" alt="QR thanh toán" />`;
+      } catch (e) {
+        const fallbackUrl = `https://img.vietqr.io/image/${encodeURIComponent(String(eventData.bankCode || ''))}-${encodeURIComponent(String(eventData.accountNumber || ''))}-compact2.jpg?amount=${encodeURIComponent(String(orderData.totalAmount || 0))}&addInfo=${encodeURIComponent(orderId)}&accountName=${encodeURIComponent(eventData.accountName || '')}`;
+        qrBox.innerHTML = `
+          <div style="padding: 14px; text-align: center;">
+            <p style="color:#ef4444; font-size: 13px; margin-bottom: 10px;">Không tạo được QR: ${String(e.message || e)}</p>
+            <a class="btn btn-secondary btn-sm" href="${fallbackUrl}" target="_blank" rel="noopener">
+              <i class="fa-solid fa-up-right-from-square"></i> Mở QR ở tab mới
+            </a>
+          </div>
+        `;
+      }
+    }
+
+    async function checkPayment() {
+      try {
+        const resp = await fetch('/api/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId })
+        });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok) return;
+        setStatus(json && json.verified === true);
+      } catch {
+        // ignore
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadData);
+    window.addEventListener('beforeunload', () => {
+      try { if (pollTimer) clearInterval(pollTimer); } catch {}
+    });
+  </script>
+</body>
+</html>

@@ -33,6 +33,23 @@
             left: 0;
             right: 0;
             bottom: 0;
+                .logo-box {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    overflow: hidden;
+                    text-decoration: none;
+                }
+
+                .logo-box img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    display: block;
+                }
             pointer-events: none;
             z-index: 0;
             overflow: hidden;
@@ -350,6 +367,9 @@
                 <div class="card-header">
                     <div class="mark" aria-hidden="true"><i class="fa-solid fa-shield-halved"></i></div>
                     <div class="logo">
+                        <a class="logo-box" href="home.html" aria-label="Qrio Home">
+                            <img src="/static/logo/logo.png" alt="Qrio" />
+                        </a>
                         <h1>Admin Sign-in</h1>
                         <span>Qrio • Read-only analytics</span>
                     </div>

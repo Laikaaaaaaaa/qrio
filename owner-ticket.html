@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Trang Chủ Vé</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .bg-effects { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-orb { position: absolute; border-radius: 50%; filter: blur(56px); opacity: 0.28; animation: floatOrb 28s ease-in-out infinite; }
+    .bg-orb-1 { width: 400px; height: 400px; background: linear-gradient(135deg, #4f46e5, #7c3aed); top: -100px; right: -100px; }
+    .bg-orb-2 { width: 300px; height: 300px; background: linear-gradient(135deg, #06b6d4, #3b82f6); bottom: 100px; left: -100px; animation-delay: -5s; }
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px); background-size: 50px 50px; pointer-events: none; z-index: 0; }
+
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .logo-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .header h1 { font-size: 18px; font-weight: 700; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+    .btn-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(124, 58, 237, 0.3); }
+
+    .container { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 24px 56px; }
+
+    .card {
+      background: rgba(24, 24, 27, 0.8);
+      border: 1px solid rgba(124, 58, 237, 0.15);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .title { font-size: 1.4rem; font-weight: 900; margin-bottom: 6px; }
+    .subtitle { color: #94a3b8; margin-bottom: 14px; font-size: 14px; line-height: 1.5; }
+
+    .kv { display: grid; gap: 10px; margin-top: 12px; }
+    .kv-row { display: flex; justify-content: space-between; gap: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .kv-row .k { color: #94a3b8; font-size: 12px; }
+    .kv-row .v { font-weight: 800; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+
+    .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    @media (max-width: 720px) { .auth-grid { grid-template-columns: 1fr; } }
+
+    .auth-label { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 6px; display: block; }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      outline: none;
+    }
+
+    .auth-input:focus {
+      border-color: rgba(124, 58, 237, 0.5);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+    }
+
+    select.auth-input option {
+      background: #0f0f1a;
+      color: #fff;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="ticket-create.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i><span>Tạo vé</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="title"><i class="fa-solid fa-user-shield" style="color:#a78bfa;"></i> Trang chủ vé</div>
+      <div class="subtitle">Link này đã gắn sẵn mã sự kiện. Nhập mật khẩu để xem vé, tải xuống QR và tuỳ chỉnh.</div>
+
+      <div class="kv">
+        <div class="kv-row"><div class="k">Mã sự kiện</div><div class="v mono" id="event-id">-</div></div>
+        <div class="kv-row"><div class="k">Tên sự kiện</div><div class="v" id="event-name">-</div></div>
+      </div>
+
+      <div class="auth-grid" style="margin-top: 14px;">
+        <div>
+          <label class="auth-label" for="owner-password">Mật khẩu chủ vé</label>
+          <input class="auth-input" id="owner-password" type="password" placeholder="Nhập mật khẩu đã tạo" autocomplete="current-password" />
+        </div>
+        <div>
+          <label class="auth-label" for="owner-actions">Hành động</label>
+          <div id="owner-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="unlockOwner()"><i class="fa-solid fa-lock-open"></i> Mở trang chủ vé</button>
+            <a id="buy-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-link"></i> Link mua vé</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="owner-panel">
+      <div class="title" style="font-size:1.15rem;"><i class="fa-solid fa-ticket" style="color:#93c5fd;"></i> Vé & QR</div>
+      <div class="subtitle" id="owner-subtitle">Bạn có thể tải QR và tuỳ chỉnh nhanh.</div>
+
+      <div class="kv" style="margin-bottom: 12px;">
+        <div class="kv-row"><div class="k">Link mua vé</div><div class="v mono" id="buy-link-text">-</div></div>
+        <div class="kv-row"><div class="k">Link chủ vé</div><div class="v mono" id="owner-link-text">-</div></div>
+      </div>
+
+      <div class="auth-grid" style="margin-top: 8px;">
+        <div>
+          <label class="auth-label" for="qr-color">Màu QR</label>
+          <input class="auth-input" id="qr-color" type="color" value="#0c6c3b" style="height: 46px; padding: 6px 10px;" />
+        </div>
+        <div>
+          <label class="auth-label" for="bg-color">Màu nền</label>
+          <input class="auth-input" id="bg-color" type="color" value="#ffffff" style="height: 46px; padding: 6px 10px;" />
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <label class="auth-label" for="module-style">Kiểu module</label>
+        <select class="auth-input" id="module-style">
+          <option value="legacy">Mặc định</option>
+          <option value="dots">Chấm</option>
+          <option value="rounded">Bo tròn</option>
+        </select>
+      </div>
+
+      <div style="margin-top: 14px; display:flex; gap:12px; flex-wrap: wrap; align-items: center;">
+        <button class="btn btn-secondary" onclick="copyText(document.getElementById('buy-link-text').textContent)"><i class="fa-solid fa-copy"></i> Copy link mua vé</button>
+        <button class="btn btn-primary" onclick="downloadQr()"><i class="fa-solid fa-download"></i> Tải QR</button>
+      </div>
+
+      <div style="margin-top: 14px; display:flex; justify-content:center;">
+        <img id="qr-preview" alt="QR" style="width: 280px; height: 280px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04);" />
+      </div>
+
+      <form id="download-form" method="POST" action="/api/download" class="hidden">
+        <input type="hidden" name="qr_type" value="url" />
+        <input type="hidden" name="data" id="dl-data" />
+        <input type="hidden" name="qr_color" id="dl-qr-color" />
+        <input type="hidden" name="bg_color" id="dl-bg-color" />
+        <input type="hidden" name="module_style" id="dl-module-style" />
+        <input type="hidden" name="filename" id="dl-filename" />
+        <input type="hidden" name="title_top" id="dl-title-top" />
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let eventId = '';
+    let ownerData = null;
+
+    function safeText(s) {
+      return (s || '').toString();
+    }
+
+    function getPassKey() {
+      return `owner_ticket_pass_${eventId}`;
+    }
+
+    function sanitizeFilename(name) {
+      return safeText(name)
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_\-]/g, '')
+        .slice(0, 60) || 'qr_code';
+    }
+
+    async function generatePreview() {
+      if (!ownerData || !ownerData.buyLink) return;
+      const qrColor = document.getElementById('qr-color').value || '#0c6c3b';
+      const bgColor = document.getElementById('bg-color').value || '#ffffff';
+      const moduleStyle = document.getElementById('module-style').value || 'legacy';
+
+      const fd = new FormData();
+      fd.append('qr_type', 'url');
+      fd.append('data', ownerData.buyLink);
+      fd.append('qr_color', qrColor);
+      fd.append('bg_color', bgColor);
+      fd.append('module_style', moduleStyle);
+
+      const img = document.getElementById('qr-preview');
+      img.style.opacity = '0.8';
+      try {
+        const resp = await fetch('/api/generate', { method: 'POST', body: fd });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.image) throw new Error(data.error || 'Không thể tạo QR');
+        img.src = data.image;
+      } catch {
+        // keep last preview
+      } finally {
+        img.style.opacity = '1';
+      }
+    }
+
+    function debounce(fn, ms) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    const generatePreviewDebounced = debounce(generatePreview, 200);
+
+    async function unlockOwner() {
+      const pass = (document.getElementById('owner-password').value || '').trim();
+      if (!pass) {
+        alert('Vui lòng nhập mật khẩu chủ vé');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}/owner`, {
+          headers: { 'X-Owner-Password': pass }
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.error) throw new Error(data.error || 'Không thể mở trang chủ vé');
+        ownerData = data;
+
+        sessionStorage.setItem(getPassKey(), pass);
+
+        document.getElementById('event-name').textContent = safeText(data.eventName) || '-';
+        document.getElementById('buy-link-text').textContent = safeText(data.buyLink) || '-';
+        document.getElementById('owner-link-text').textContent = safeText(data.ownerLink) || '-';
+        document.getElementById('owner-panel').classList.remove('hidden');
+
+        await generatePreview();
+      } catch (e) {
+        alert(e?.message || 'Mật khẩu không đúng');
+      }
+    }
+
+    function downloadQr() {
+      if (!ownerData || !ownerData.buyLink) {
+        alert('Vui lòng mở trang chủ vé trước');
+        return;
+      }
+
+      const qrColor = document.getElementById('qr-color').value || '#0c6c3b';
+      const bgColor = document.getElementById('bg-color').value || '#ffffff';
+      const moduleStyle = document.getElementById('module-style').value || 'legacy';
+      const filename = sanitizeFilename(ownerData.eventName || `event_${eventId}`);
+
+      document.getElementById('dl-data').value = ownerData.buyLink;
+      document.getElementById('dl-qr-color').value = qrColor;
+      document.getElementById('dl-bg-color').value = bgColor;
+      document.getElementById('dl-module-style').value = moduleStyle;
+      document.getElementById('dl-filename').value = filename;
+      document.getElementById('dl-title-top').value = safeText(ownerData.eventName || '');
+
+      document.getElementById('download-form').submit();
+    }
+
+    async function copyText(text) {
+      const t = (text || '').trim();
+      if (!t || t === '-') return;
+      try {
+        await navigator.clipboard.writeText(t);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = t;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      alert('Đã copy');
+    }
+
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      eventId = (urlParams.get('event') || '').trim();
+
+      if (!eventId) {
+        alert('Thiếu mã sự kiện');
+        window.location.href = 'ticket-create.html';
+        return;
+      }
+
+      document.getElementById('event-id').textContent = eventId;
+      document.getElementById('buy-link').href = `buy-ticket.html?event=${encodeURIComponent(eventId)}`;
+
+      try {
+        const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}`);
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.error) throw new Error(data.error || 'Không thể tải thông tin sự kiện');
+        document.getElementById('event-name').textContent = data.eventName || '-';
+      } catch {
+        document.getElementById('event-name').textContent = '-';
+      }
+
+      // Prefill password from session if present
+      const savedPass = sessionStorage.getItem(getPassKey()) || '';
+      if (savedPass) {
+        document.getElementById('owner-password').value = savedPass;
+      }
+
+      document.getElementById('qr-color').addEventListener('input', generatePreviewDebounced);
+      document.getElementById('bg-color').addEventListener('input', generatePreviewDebounced);
+      document.getElementById('module-style').addEventListener('change', generatePreviewDebounced);
+
+      const passInput = document.getElementById('owner-password');
+      passInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          unlockOwner();
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

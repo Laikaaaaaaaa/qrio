@@ -1188,6 +1188,25 @@
             font-size: 0.95rem;
             line-height: 1.6;
         }
+
+        .logo-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-decoration: none;
+            flex: 0 0 auto;
+        }
+
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -1199,6 +1218,7 @@
     <div class="bg-grid" aria-hidden="true"></div>
     <header class="header">
         <div class="header-left">
+            <a href="home.html" class="logo-box" aria-label="Qrio Home"><img src="/static/logo/logo.png" alt="Qrio"></a>
             <h1><i class="fa-solid fa-chart-simple" aria-hidden="true"></i><span data-i18n="title">Admin Dashboard</span></h1>
             <span class="badge" data-i18n="badge_readonly">READ-ONLY</span>
             <div class="session-info">

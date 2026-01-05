@@ -35,17 +35,18 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      background: rgba(30, 30, 46, 0.92);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #3a3a50;
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
     .sticky-inner {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 10px 20px;
       display: flex;
-      justify-content: center;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 32px;
     }
 
     .sticky-brand {
@@ -59,8 +60,8 @@
     }
 
     .sticky-brand .logo-box {
-      width: 34px;
-      height: 34px;
+      width: 48px;
+      height: 48px;
       border-radius: 10px;
       overflow: hidden;
       display: grid;
@@ -72,6 +73,54 @@
       height: 100%;
       object-fit: contain;
       display: block;
+    }
+
+    .sticky-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
     }
 
     .bg-effects {
@@ -625,10 +674,13 @@
 <body>
   <div class="sticky-header">
     <div class="sticky-inner">
-      <a class="sticky-brand" href="/">
+      <a class="sticky-brand" href="home.html">
         <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
         <span>Qrio</span>
       </a>
+      <div class="sticky-actions">
+        <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+      </div>
     </div>
   </div>
   <div class="bg-effects">
@@ -640,7 +692,7 @@
 
   <main class="page">
     <div class="topbar">
-      <a class="home-btn" href="/" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
+      <a class="home-btn" href="home.html" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
       <div class="topbar-right">
         <button type="button" class="lang-picker" id="lang-btn" data-i18n-aria="aria.language" aria-haspopup="dialog" aria-expanded="false">
           <i class="fa-solid fa-globe"></i>

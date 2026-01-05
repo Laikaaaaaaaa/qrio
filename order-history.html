@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qrio - Lịch sử mua vé</title>
+  <meta name="description" content="Xem lịch sử mua vé điện tử của bạn." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://qrio.site/order-history.html" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://qrio.site/order-history.html" />
+  <meta property="og:title" content="Qrio - Lịch sử mua vé" />
+  <meta property="og:description" content="Xem lịch sử mua vé điện tử của bạn." />
+  <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
+  
+  <meta name="theme-color" content="#7c3aed" />
+  
+  <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ANIMATED BACKGROUND */
+    .bg-effects {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(56px);
+      opacity: 0.28;
+      animation: floatOrb 28s ease-in-out infinite;
+    }
+    
+    .bg-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      top: -100px;
+      right: -100px;
+    }
+    
+    .bg-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      bottom: 100px;
+      left: -100px;
+      animation-delay: -5s;
+    }
+    
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(30px, -30px) scale(1.05); }
+      50% { transform: translate(-20px, 20px) scale(0.95); }
+      75% { transform: translate(-30px, -20px) scale(1.02); }
+    }
+    
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* HEADER */
+    .header {
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(79, 70, 229, 0.1));
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 999px;
+      font-size: 13px;
+      color: #a78bfa;
+      margin-bottom: 16px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    /* SEARCH BOX */
+    .search-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .search-input-wrapper {
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-input-wrapper input {
+      flex: 1;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    .search-input-wrapper input:focus {
+      outline: none;
+      border-color: rgba(124, 58, 237, 0.5);
+      background: rgba(124, 58, 237, 0.05);
+    }
+
+    .search-input-wrapper input::placeholder {
+      color: #64748b;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-card i {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card.total i { color: #a78bfa; }
+    .stat-card.paid i { color: #22c55e; }
+    .stat-card.pending i { color: #fbbf24; }
+    .stat-card.cancelled i { color: #ef4444; }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* ORDERS LIST */
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .order-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .order-card:hover {
+      border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .order-header:hover {
+      background: rgba(124, 58, 237, 0.05);
+    }
+
+    .order-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .order-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .order-icon.paid {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .order-icon.pending {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+    }
+
+    .order-icon.cancelled {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .order-details h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .order-details p {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .order-meta {
+      text-align: right;
+    }
+
+    .order-amount {
+      font-size: 16px;
+      font-weight: 700;
+      color: #22c55e;
+      margin-bottom: 4px;
+    }
+
+    .order-date {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .order-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .order-status.paid {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .order-status.pending {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+    }
+
+    .order-status.pending_verification {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+
+    .order-status.cancelled {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .order-body {
+      padding: 0 20px 20px;
+      display: none;
+    }
+
+    .order-body.open {
+      display: block;
+    }
+
+    .order-body-content {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ticket-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .ticket-item-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ticket-item-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(124, 58, 237, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a78bfa;
+      font-size: 14px;
+    }
+
+    .ticket-item-text h5 {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .ticket-item-text p {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .ticket-item-status {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .ticket-item-status.valid {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .ticket-item-status.used {
+      background: rgba(148, 163, 184, 0.2);
+      color: #94a3b8;
+    }
+
+    .ticket-item-status.pending {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(124, 58, 237, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      color: #a78bfa;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .header-right span {
+        display: none;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 24px 16px;
+      }
+
+      .search-input-wrapper {
+        flex-direction: column;
+      }
+
+      .order-header {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+
+      .order-meta {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="home.html" class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></a>
+      <h1>Qrio</h1>
+    </div>
+    <div class="header-right">
+      <a href="ticket-create.html" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-plus"></i>
+        <span>Tạo vé</span>
+      </a>
+      <a href="home.html" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-house"></i>
+        <span>Trang chủ</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="page-header">
+      <div class="page-badge"><i class="fa-solid fa-history"></i> Lịch sử giao dịch</div>
+      <h1 class="page-title">Lịch Sử Mua Vé</h1>
+      <p class="page-subtitle">Xem lại tất cả các đơn hàng và vé bạn đã mua</p>
+    </div>
+
+    <!-- Search -->
+    <div class="search-box">
+      <div class="search-input-wrapper">
+        <input type="text" id="search-input" placeholder="Tìm kiếm theo tên sự kiện, mã đơn, email..." oninput="filterOrders()" />
+        <button class="btn btn-primary" onclick="filterOrders()">
+          <i class="fa-solid fa-search"></i>
+          Tìm kiếm
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <i class="fa-solid fa-receipt"></i>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Tổng đơn hàng</div>
+      </div>
+      <div class="stat-card paid">
+        <i class="fa-solid fa-check-circle"></i>
+        <div class="stat-value" id="stat-paid">0</div>
+        <div class="stat-label">Đã thanh toán</div>
+      </div>
+      <div class="stat-card pending">
+        <i class="fa-solid fa-clock"></i>
+        <div class="stat-value" id="stat-pending">0</div>
+        <div class="stat-label">Đang chờ</div>
+      </div>
+      <div class="stat-card cancelled">
+        <i class="fa-solid fa-times-circle"></i>
+        <div class="stat-value" id="stat-cancelled">0</div>
+        <div class="stat-label">Đã hủy</div>
+      </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="orders-list" id="orders-list">
+      <!-- Will be populated by JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state hidden" id="empty-state">
+      <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+      <h3>Chưa có đơn hàng nào</h3>
+      <p>Bạn chưa mua vé nào. Hãy khám phá các sự kiện thú vị!</p>
+      <a href="home.html" class="btn btn-primary">
+        <i class="fa-solid fa-search"></i>
+        Khám phá sự kiện
+      </a>
+    </div>
+  </div>
+
+  <script>
+    let allOrders = [];
+    let allTickets = [];
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOrderHistory();
+    });
+
+    function loadOrderHistory() {
+      // Get all orders from localStorage
+      allOrders = [];
+      allTickets = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        
+        if (key && key.startsWith('order_')) {
+          try {
+            const order = JSON.parse(localStorage.getItem(key));
+            if (order && order.orderId) {
+              allOrders.push(order);
+            }
+          } catch (e) {}
+        }
+
+        if (key && key.startsWith('ticket_')) {
+          try {
+            const ticket = JSON.parse(localStorage.getItem(key));
+            if (ticket && ticket.ticketId) {
+              allTickets.push(ticket);
+            }
+          } catch (e) {}
+        }
+      }
+
+      // Sort by date (newest first)
+      allOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+      updateStats();
+      renderOrders(allOrders);
+    }
+
+    function updateStats() {
+      const total = allOrders.length;
+      const paid = allOrders.filter(o => o.status === 'paid').length;
+      const pending = allOrders.filter(o => ['pending', 'pending_verification', 'pending_payment'].includes(o.status)).length;
+      const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-paid').textContent = paid;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-cancelled').textContent = cancelled;
+    }
+
+    function filterOrders() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      if (!query) {
+        renderOrders(allOrders);
+        return;
+      }
+
+      const filtered = allOrders.filter(order => {
+        return (
+          (order.orderId && order.orderId.toLowerCase().includes(query)) ||
+          (order.eventName && order.eventName.toLowerCase().includes(query)) ||
+          (order.buyerName && order.buyerName.toLowerCase().includes(query)) ||
+          (order.buyerEmail && order.buyerEmail.toLowerCase().includes(query)) ||
+          (order.buyerPhone && order.buyerPhone.includes(query))
+        );
+      });
+
+      renderOrders(filtered);
+    }
+
+    function renderOrders(orders) {
+      const listEl = document.getElementById('orders-list');
+      const emptyEl = document.getElementById('empty-state');
+
+      if (orders.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+
+      listEl.innerHTML = orders.map(order => {
+        const statusInfo = getStatusInfo(order.status);
+        const orderTickets = getOrderTickets(order);
+        const date = formatDate(order.createdAt);
+
+        return `
+          <div class="order-card" data-order-id="${order.orderId}">
+            <div class="order-header" onclick="toggleOrderBody('${order.orderId}')">
+              <div class="order-info">
+                <div class="order-icon ${statusInfo.class}">
+                  <i class="fa-solid ${statusInfo.icon}"></i>
+                </div>
+                <div class="order-details">
+                  <h3>${order.eventName || 'Sự kiện không xác định'}</h3>
+                  <p>${order.buyerName} - ${order.quantity || 1} vé</p>
+                </div>
+              </div>
+              <div class="order-meta">
+                <div class="order-amount">${formatCurrency(order.totalAmount)}</div>
+                <div class="order-date">${date}</div>
+                <div class="order-status ${statusInfo.class}">
+                  <i class="fa-solid ${statusInfo.icon}"></i>
+                  ${statusInfo.label}
+                </div>
+              </div>
+            </div>
+            <div class="order-body" id="order-body-${order.orderId}">
+              <div class="order-body-content">
+                <div style="margin-bottom: 16px;">
+                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">Mã đơn hàng</p>
+                  <p style="font-size: 14px; font-weight: 600;">${order.orderId}</p>
+                </div>
+                <div style="margin-bottom: 16px;">
+                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">Thông tin người mua</p>
+                  <p style="font-size: 14px;">${order.buyerName} - ${order.buyerEmail} - ${order.buyerPhone || 'N/A'}</p>
+                </div>
+                ${order.paymentType === 'cash' ? `
+                <div style="margin-bottom: 16px;">
+                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">Loại thanh toán</p>
+                  <p style="font-size: 14px;"><i class="fa-solid fa-money-bill" style="color: #22c55e;"></i> Tiền mặt - ${order.cashPaymentTime || 'N/A'}</p>
+                </div>
+                ` : ''}
+                <div style="margin-bottom: 8px;">
+                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Danh sách vé (${orderTickets.length})</p>
+                </div>
+                <div class="ticket-list">
+                  ${orderTickets.length > 0 ? orderTickets.map(ticket => {
+                    const ticketStatus = getTicketStatusInfo(ticket.status);
+                    return `
+                      <div class="ticket-item" onclick="viewTicket('${ticket.ticketId}')">
+                        <div class="ticket-item-info">
+                          <div class="ticket-item-icon">
+                            <i class="fa-solid fa-ticket"></i>
+                          </div>
+                          <div class="ticket-item-text">
+                            <h5>${ticket.ticketId}</h5>
+                            <p>Vé #${ticket.ticketNumber || 1}</p>
+                          </div>
+                        </div>
+                        <span class="ticket-item-status ${ticketStatus.class}">${ticketStatus.label}</span>
+                      </div>
+                    `;
+                  }).join('') : '<p style="font-size: 13px; color: #64748b; text-align: center; padding: 12px;">Không tìm thấy vé</p>'}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleOrderBody(orderId) {
+      const body = document.getElementById('order-body-' + orderId);
+      body.classList.toggle('open');
+    }
+
+    function getOrderTickets(order) {
+      if (order.tickets && Array.isArray(order.tickets)) {
+        return order.tickets.map(ticketId => {
+          const stored = localStorage.getItem('ticket_' + ticketId);
+          if (stored) {
+            return JSON.parse(stored);
+          }
+          return { ticketId: ticketId, status: 'unknown' };
+        });
+      }
+      
+      // Fallback: find tickets by orderId
+      return allTickets.filter(t => t.orderId === order.orderId);
+    }
+
+    function getStatusInfo(status) {
+      const statusMap = {
+        'paid': { label: 'Đã thanh toán', icon: 'fa-check-circle', class: 'paid' },
+        'pending': { label: 'Đang chờ', icon: 'fa-clock', class: 'pending' },
+        'pending_verification': { label: 'Chờ xác nhận', icon: 'fa-clock', class: 'pending_verification' },
+        'pending_payment': { label: 'Chờ thanh toán', icon: 'fa-money-bill', class: 'pending' },
+        'cancelled': { label: 'Đã hủy', icon: 'fa-times-circle', class: 'cancelled' }
+      };
+      return statusMap[status] || { label: 'Không xác định', icon: 'fa-question-circle', class: 'pending' };
+    }
+
+    function getTicketStatusInfo(status) {
+      const statusMap = {
+        'valid': { label: 'Hợp lệ', class: 'valid' },
+        'used': { label: 'Đã sử dụng', class: 'used' },
+        'pending': { label: 'Đang chờ', class: 'pending' },
+        'pending_verification': { label: 'Chờ xác nhận', class: 'pending' },
+        'pending_payment': { label: 'Chờ thanh toán', class: 'pending' },
+        'cancelled': { label: 'Đã hủy', class: 'used' }
+      };
+      return statusMap[status] || { label: 'N/A', class: 'pending' };
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount || 0) + ' đ';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function viewTicket(ticketId) {
+      window.location.href = `ticket.html?id=${ticketId}`;
+    }
+  </script>
+</body>
+</html>

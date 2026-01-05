@@ -560,7 +560,7 @@
 
   <div class="container">
     <div class="page-header">
-      <div class="page-badge"><i class="fa-solid fa-ticket"></i> Dành cho chủ quán</div>
+      <div class="page-badge"><i class="fa-solid fa-ticket"></i> Dành cho chủ sở hữu</div>
       <h1 class="page-title">Tạo Vé Điện Tử</h1>
       <p class="page-subtitle">Tạo mã QR để khách hàng quét và mua vé. Tải mã QR về và in hoặc hiển thị tại quầy.</p>
     </div>
@@ -626,10 +626,46 @@
         </div>
 
         <div class="form-group">
-          <label>SePay Webhook *</label>
-          <input type="password" id="sepay-api-key" placeholder="Nhập SePay API Key" autocomplete="off" required />
+          <label>Phương thức xác nhận thanh toán *</label>
+          <select id="payment-method">
+            <option value="bank_api" selected>API ngân hàng (khuyến nghị)</option>
+            <option value="sepay_webhook">Webhooks (SePay)</option>
+            <option value="manual">Check thủ công</option>
+          </select>
           <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
-            Xem <a href="/sepay-webhook-guide.html" style="color:#a78bfa; text-decoration:none;">hướng dẫn tạo WebHook SePay</a>.
+            Chọn cách hệ thống xác nhận giao dịch. <strong style="color:#a78bfa;">Khuyến nghị dùng API ngân hàng</strong> để tự động xác nhận nhanh chóng.
+          </p>
+
+          <div id="bank-api-config" style="margin-top: 12px;">
+            <label style="margin-top: 0;">API Key ngân hàng *</label>
+            <input type="password" id="bank-api-key" placeholder="Nhập API Key từ ngân hàng" autocomplete="off" />
+            <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
+              Lấy API Key từ trang quản lý ngân hàng của bạn hoặc liên hệ ngân hàng để được cấp.
+            </p>
+          </div>
+
+          <div id="sepay-config" style="margin-top: 12px; display: none;">
+            <label style="margin-top: 0;">SePay API Key *</label>
+            <input type="password" id="sepay-api-key" placeholder="Nhập SePay API Key" autocomplete="off" />
+            <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
+              Xem <a href="/sepay-webhook-guide.html" style="color:#a78bfa; text-decoration:none;">hướng dẫn tạo WebHook SePay</a>.
+            </p>
+          </div>
+
+          <div id="manual-config" style="margin-top: 12px; display: none;">
+            <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 12px;">
+              <p style="font-size: 13px; color: #fbbf24; margin: 0;">
+                <i class="fa-solid fa-info-circle"></i> <strong>Check thủ công:</strong> Khách hàng sẽ upload ảnh xác nhận chuyển khoản. Bạn cần vào trang <a href="/manage-orders.html" style="color:#a78bfa;">Quản lý đơn hàng</a> để duyệt thủ công.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label>Mật khẩu quản lý đơn hàng *</label>
+          <input type="password" id="owner-password" placeholder="VD: qrio@2026" autocomplete="new-password" />
+          <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
+            Dùng để vào trang <strong style="color:#a78bfa;">Quản lý đơn hàng</strong>. Hãy lưu lại (không có cách khôi phục).
           </p>
         </div>
 
@@ -671,6 +707,10 @@
               <span class="value" id="summary-event">-</span>
             </div>
             <div class="summary-row">
+              <span class="label">Mã sự kiện:</span>
+              <span class="value" id="summary-event-id" style="font-family: monospace; color: #a78bfa;">-</span>
+            </div>
+            <div class="summary-row">
               <span class="label">Giá vé:</span>
               <span class="value" id="summary-price">-</span>
             </div>
@@ -693,13 +733,25 @@
             <p style="font-size: 12px; color: #64748b;">Khách hàng quét mã QR hoặc truy cập link này để mua vé</p>
           </div>
 
-          <div class="info-box" style="margin-top: 12px;">
+          <div class="info-box" id="webhook-info-box" style="margin-top: 12px;">
             <h4><i class="fa-solid fa-plug"></i> Webhook URL (SePay)</h4>
             <div class="link-display">
               <input type="text" id="webhook-url" readonly />
               <button onclick="copyWebhookUrl()"><i class="fa-solid fa-copy"></i></button>
             </div>
             <p style="font-size: 12px; color: #64748b;">Dán URL này vào SePay → WebHooks → Gọi đến URL</p>
+          </div>
+
+          <div class="info-box" id="manage-orders-box" style="margin-top: 12px;">
+            <h4><i class="fa-solid fa-user-shield"></i> Link chủ vé</h4>
+            <div class="link-display">
+              <input type="text" id="owner-link" readonly />
+              <button onclick="copyOwnerLink()"><i class="fa-solid fa-copy"></i></button>
+            </div>
+            <a href="#" id="manage-orders-link" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; margin-top: 10px;">
+              <i class="fa-solid fa-clipboard-list"></i> Mở trang chủ vé
+            </a>
+            <p style="font-size: 12px; color: #64748b; margin-top: 8px;">Link dạng <span style="font-family: monospace; color:#a78bfa;">/ticket-create.html/c/EVCODE</span></p>
           </div>
 
           <div class="action-buttons">
@@ -731,6 +783,29 @@
 
   <script>
     let currentEventData = null;
+
+    function updatePaymentMethodUI() {
+      const methodEl = document.getElementById('payment-method');
+      const method = methodEl ? methodEl.value : 'bank_api';
+      
+      const bankApiBox = document.getElementById('bank-api-config');
+      const sepayBox = document.getElementById('sepay-config');
+      const manualBox = document.getElementById('manual-config');
+      const webhookInfoBox = document.getElementById('webhook-info-box');
+
+      if (bankApiBox) {
+        bankApiBox.style.display = (method === 'bank_api') ? '' : 'none';
+      }
+      if (sepayBox) {
+        sepayBox.style.display = (method === 'sepay_webhook') ? '' : 'none';
+      }
+      if (manualBox) {
+        manualBox.style.display = (method === 'manual') ? '' : 'none';
+      }
+      if (webhookInfoBox) {
+        webhookInfoBox.style.display = (method === 'sepay_webhook') ? '' : 'none';
+      }
+    }
 
     // Format currency
     function formatCurrency(amount) {
@@ -773,7 +848,9 @@
       const accountName = document.getElementById('account-name').value.trim().toUpperCase();
       const startDate = document.getElementById('start-date').value;
       const endDate = document.getElementById('end-date').value;
+      const paymentMethod = document.getElementById('payment-method').value;
       const sepayApiKey = document.getElementById('sepay-api-key').value.trim();
+      const ownerPassword = document.getElementById('owner-password').value.trim();
 
       // Validation
       if (!eventName) {
@@ -794,8 +871,20 @@
         if (!ok) return;
       }
 
-      if (!sepayApiKey) {
+      const bankApiKey = document.getElementById('bank-api-key').value.trim();
+
+      // Validate based on payment method
+      if (paymentMethod === 'bank_api' && !bankApiKey) {
+        alert('Vui lòng nhập API Key ngân hàng');
+        return;
+      }
+      if (paymentMethod === 'sepay_webhook' && !sepayApiKey) {
         alert('Vui lòng nhập SePay API Key');
+        return;
+      }
+
+      if (!ownerPassword || ownerPassword.length < 4) {
+        alert('Vui lòng nhập mật khẩu quản lý (tối thiểu 4 ký tự)');
         return;
       }
 
@@ -830,7 +919,10 @@
             accountName: accountName,
             startDate: startDate,
             endDate: endDate,
-            sepayApiKey: sepayApiKey
+            paymentMethod: paymentMethod,
+            bankApiKey: bankApiKey,
+            sepayApiKey: sepayApiKey,
+            ownerPassword: ownerPassword
           })
         });
         const createJson = await createResp.json().catch(() => ({}));
@@ -841,6 +933,8 @@
         eventId = createJson.eventId;
         buyLink = createJson.buyLink;
         webhookUrl = createJson.webhookUrl;
+
+        const ownerLink = `${window.location.origin}/ticket-create.html/c/${eventId}`;
 
         currentEventData = {
           eventId: eventId,
@@ -854,9 +948,14 @@
           accountName: accountName,
           startDate: startDate,
           endDate: endDate,
+          paymentMethod: paymentMethod,
           createdAt: new Date().toISOString(),
           webhookUrl: webhookUrl
         };
+
+        // Update manage orders link
+        document.getElementById('owner-link').value = ownerLink;
+        document.getElementById('manage-orders-link').href = ownerLink;
 
         // Generate QR for buy link
         const formData = new FormData();
@@ -886,11 +985,14 @@
         
         // Fill in summary
         document.getElementById('summary-event').textContent = eventName;
+        document.getElementById('summary-event-id').textContent = eventId;
         document.getElementById('summary-price').textContent = formatCurrency(price);
         document.getElementById('summary-bank').textContent = getBankName(bankCode);
         document.getElementById('summary-account').textContent = accountNumber;
         document.getElementById('buy-link').value = buyLink;
         document.getElementById('webhook-url').value = webhookUrl;
+
+        updatePaymentMethodUI();
 
       } catch (error) {
         alert('Lỗi tạo mã QR: ' + error.message);
@@ -925,6 +1027,19 @@
       }, 2000);
     }
 
+    function copyOwnerLink() {
+      const linkInput = document.getElementById('owner-link');
+      if (!linkInput) return;
+      linkInput.select();
+      document.execCommand('copy');
+
+      const btn = linkInput.nextElementSibling;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+      }, 2000);
+    }
+
     // Download QR
     function downloadQR() {
       const img = document.getElementById('qr-image');
@@ -944,6 +1059,8 @@
       document.getElementById('max-tickets').value = '10';
       document.getElementById('account-number').value = '';
       document.getElementById('account-name').value = '';
+      document.getElementById('payment-method').value = 'bank_api';
+      document.getElementById('bank-api-key').value = '';
       document.getElementById('sepay-api-key').value = '';
       
       document.getElementById('qr-preview').innerHTML = `
@@ -957,6 +1074,8 @@
       document.getElementById('info-guide').classList.remove('hidden');
       
       currentEventData = null;
+
+      updatePaymentMethodUI();
     }
 
     // Set default dates
@@ -965,6 +1084,14 @@
     const endDefault = new Date();
     endDefault.setMonth(endDefault.getMonth() + 1);
     document.getElementById('end-date').value = endDefault.toISOString().split('T')[0];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const methodEl = document.getElementById('payment-method');
+      if (methodEl) {
+        methodEl.addEventListener('change', updatePaymentMethodUI);
+      }
+      updatePaymentMethodUI();
+    });
   </script>
 </body>
 </html>
