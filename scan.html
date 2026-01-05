@@ -785,15 +785,15 @@
     <div class="card">
       <!-- Tabs -->
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('camera')">
+        <button class="tab active" onclick="switchTab(event, 'camera')">
           <i class="fa-solid fa-camera"></i>
           Camera
         </button>
-        <button class="tab" onclick="switchTab('upload')">
+        <button class="tab" onclick="switchTab(event, 'upload')">
           <i class="fa-solid fa-image"></i>
           Tải ảnh
         </button>
-        <button class="tab" onclick="switchTab('manual')">
+        <button class="tab" onclick="switchTab(event, 'manual')">
           <i class="fa-solid fa-keyboard"></i>
           Nhập mã
         </button>
@@ -802,7 +802,7 @@
       <!-- Camera Scanner -->
       <div id="tab-camera">
         <div class="scanner-container">
-          <video id="scanner-video" autoplay playsinline></video>
+          <video id="scanner-video" autoplay playsinline muted></video>
           <canvas id="scanner-canvas" style="display: none;"></canvas>
           <div class="scanner-overlay">
             <div class="scanner-frame"></div>
@@ -811,8 +811,8 @@
         </div>
         <div style="text-align: center; margin-top: 16px;">
           <button class="btn btn-secondary" id="toggle-camera" onclick="toggleCamera()">
-            <i class="fa-solid fa-video-slash"></i>
-            Tắt camera
+            <i class="fa-solid fa-video"></i>
+            Bật camera
           </button>
         </div>
       </div>
@@ -865,14 +865,18 @@
     let videoStream = null;
     let scannerActive = false;
     let currentTab = 'camera';
+    let lastCameraErrorShown = false;
 
     // ===== TAB SWITCHING =====
-    function switchTab(tab) {
+    function switchTab(evt, tab) {
       currentTab = tab;
       
       // Update tab buttons
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      event.target.closest('.tab').classList.add('active');
+      if (evt && evt.target) {
+        const btn = evt.target.closest('.tab');
+        if (btn) btn.classList.add('active');
+      }
 
       // Show/hide content
       document.getElementById('tab-camera').classList.toggle('hidden', tab !== 'camera');
@@ -881,6 +885,7 @@
 
       // Manage camera
       if (tab === 'camera') {
+        // Only start camera on user gesture (tab click)
         startScanner();
       } else {
         stopScanner();
@@ -893,18 +898,54 @@
     // ===== CAMERA SCANNER =====
     async function startScanner() {
       try {
+        if (videoStream && scannerActive) {
+          return;
+        }
+
+        const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        const isSecure = window.isSecureContext || location.protocol === 'https:' || isLocalhost;
+        if (!isSecure) {
+          stopScanner();
+          showResult('error', 'Không thể mở camera', 'Trình duyệt chỉ cho phép mở camera trên HTTPS. Vui lòng mở website bằng https:// hoặc dùng chế độ “Tải ảnh / Nhập mã”.');
+          return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          stopScanner();
+          showResult('error', 'Không hỗ trợ camera', 'Thiết bị/trình duyệt của bạn không hỗ trợ camera. Vui lòng dùng “Tải ảnh” hoặc “Nhập mã”.');
+          return;
+        }
+
         const video = document.getElementById('scanner-video');
+        video.muted = true;
         videoStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' }
         });
         video.srcObject = videoStream;
+
+        // iOS/Safari sometimes needs explicit play()
+        try { await video.play(); } catch (e) { /* ignore */ }
+
         scannerActive = true;
+        lastCameraErrorShown = false;
         requestAnimationFrame(scanFrame);
         
         document.getElementById('toggle-camera').innerHTML = '<i class="fa-solid fa-video-slash"></i> Tắt camera';
       } catch (error) {
         console.error('Camera error:', error);
-        alert('Không thể truy cập camera. Vui lòng cho phép quyền truy cập hoặc sử dụng tải ảnh.');
+        stopScanner();
+
+        if (lastCameraErrorShown) return;
+        lastCameraErrorShown = true;
+
+        let msg = 'Không thể truy cập camera. Vui lòng cho phép quyền truy cập hoặc sử dụng “Tải ảnh”.';
+        if (error && (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError')) {
+          msg = 'Bạn đã từ chối quyền camera. Hãy vào cài đặt trình duyệt để bật lại quyền camera cho website, hoặc dùng “Tải ảnh / Nhập mã”.';
+        } else if (error && (error.name === 'NotFoundError' || error.name === 'OverconstrainedError')) {
+          msg = 'Không tìm thấy camera phù hợp trên thiết bị. Vui lòng dùng “Tải ảnh / Nhập mã”.';
+        }
+
+        showResult('error', 'Không thể mở camera', msg);
       }
     }
 
@@ -913,6 +954,11 @@
       if (videoStream) {
         videoStream.getTracks().forEach(track => track.stop());
         videoStream = null;
+      }
+      const video = document.getElementById('scanner-video');
+      if (video) {
+        try { video.pause(); } catch (e) { /* ignore */ }
+        video.srcObject = null;
       }
       document.getElementById('toggle-camera').innerHTML = '<i class="fa-solid fa-video"></i> Bật camera';
     }
@@ -983,20 +1029,30 @@
       reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, canvas.width, canvas.height);
-          
-          if (code) {
-            processQRData(code.data);
-          } else {
-            showResult('error', 'Không tìm thấy mã QR', 'Vui lòng chọn ảnh có chứa mã QR rõ ràng.');
+          const tryDecodeAtMaxSize = (maxSize) => {
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+            canvas.width = Math.max(1, Math.floor(img.width * scale));
+            canvas.height = Math.max(1, Math.floor(img.height * scale));
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            return jsQR(imageData.data, canvas.width, canvas.height);
+          };
+
+          const sizes = [1600, 1200, 900, 600, 420];
+          let code = null;
+          for (const s of sizes) {
+            code = tryDecodeAtMaxSize(s);
+            if (code) break;
           }
+
+          if (code && code.data) {
+            processQRData(code.data);
+            return;
+          }
+
+          showResult('error', 'Không tìm thấy mã QR', 'Vui lòng chọn ảnh có chứa mã QR rõ ràng (ảnh nét, đủ sáng, không bị lóa).');
         };
         img.src = e.target.result;
       };
@@ -1022,18 +1078,45 @@
 
     // ===== PROCESS QR DATA =====
     function processQRData(data) {
+      const raw = String(data || '').trim();
+      if (!raw) {
+        showResult('error', 'Mã QR không hợp lệ', 'Không thể đọc dữ liệu từ mã QR này.');
+        return;
+      }
+
+      // 1) JSON payload
       try {
-        const parsed = JSON.parse(data);
-        
-        if (parsed.type === 'QRIO_TICKET' && parsed.ticketId) {
-          // Valid ticket QR
-          checkTicket(parsed.ticketId);
-        } else {
-          showResult('error', 'Mã QR không hợp lệ', 'Đây không phải là mã QR vé điện tử Qrio.');
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.type === 'QRIO_TICKET' && parsed.ticketId) {
+          checkTicket(String(parsed.ticketId).trim().toUpperCase());
+          return;
         }
       } catch (e) {
-        showResult('error', 'Mã QR không hợp lệ', 'Không thể đọc dữ liệu từ mã QR này.');
+        // ignore
       }
+
+      // 2) URL payload (optional)
+      try {
+        if (/^https?:\/\//i.test(raw)) {
+          const url = new URL(raw);
+          const maybeId = url.searchParams.get('id') || url.searchParams.get('ticketId') || url.searchParams.get('code');
+          if (maybeId) {
+            checkTicket(String(maybeId).trim().toUpperCase());
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // 3) Plain ticket code
+      const candidate = raw.replace(/\s+/g, '').toUpperCase();
+      if (/^[A-Z0-9_-]{6,}$/.test(candidate)) {
+        checkTicket(candidate);
+        return;
+      }
+
+      showResult('error', 'Mã QR không hợp lệ', 'Đây không phải là mã QR vé điện tử Qrio.');
     }
 
     function checkTicket(ticketId) {
@@ -1321,8 +1404,12 @@
     function resetScanner() {
       document.getElementById('result-section').classList.add('hidden');
       if (currentTab === 'camera') {
-        scannerActive = true;
-        requestAnimationFrame(scanFrame);
+        if (videoStream) {
+          scannerActive = true;
+          requestAnimationFrame(scanFrame);
+        } else {
+          startScanner();
+        }
       }
     }
 
@@ -1382,7 +1469,8 @@
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       updateRecentScans();
-      startScanner();
+      // Do not auto-start camera on load.
+      // Camera permission prompts are more reliable when triggered by a user action.
     });
   </script>
 </body>
