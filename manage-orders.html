@@ -797,6 +797,15 @@
       return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
     }
 
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     // Format date
     function formatDate(timestamp) {
       if (!timestamp) return '-';
@@ -991,6 +1000,12 @@
                 <span class="detail-label">Email</span>
                 <span class="detail-value">${order.buyerEmail || '-'}</span>
               </div>
+              ${order.buyerNote ? `
+              <div class="detail-item" style="grid-column: 1 / -1;">
+                <span class="detail-label">Ghi chú</span>
+                <span class="detail-value">${escapeHtml(String(order.buyerNote))}</span>
+              </div>
+              ` : ''}
               <div class="detail-item">
                 <span class="detail-label">Loại thanh toán</span>
                 <span class="detail-value">${order.paymentType === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'}</span>

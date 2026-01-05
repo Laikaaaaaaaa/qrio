@@ -248,6 +248,7 @@
       <div class="kv">
         <div class="kv-row"><div class="k">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
         <div class="kv-row"><div class="k">Sự kiện</div><div class="v" id="event-name">-</div></div>
+        <div class="kv-row hidden" id="note-row"><div class="k">Ghi chú</div><div class="v" id="buyer-note">-</div></div>
       </div>
     </div>
 
@@ -361,6 +362,19 @@
 
         orderData = orderJson;
         document.getElementById('event-name').textContent = orderJson.eventName || '-';
+
+        const note = (orderJson && typeof orderJson.buyerNote === 'string') ? orderJson.buyerNote.trim() : '';
+        const noteRow = document.getElementById('note-row');
+        const noteEl = document.getElementById('buyer-note');
+        if (noteRow && noteEl) {
+          if (note) {
+            noteEl.textContent = note;
+            noteRow.classList.remove('hidden');
+          } else {
+            noteEl.textContent = '-';
+            noteRow.classList.add('hidden');
+          }
+        }
 
         const eventResp = await fetch(`/api/ticket/events/${encodeURIComponent(orderJson.eventId)}`);
         const eventJson = await eventResp.json().catch(() => ({}));

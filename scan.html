@@ -1094,6 +1094,17 @@
       `;
 
       if (ticket) {
+        let order = null;
+        if (ticket.orderId) {
+          order = await fetchOrderData(ticket.orderId);
+        }
+
+        const totalTickets = Math.max(1, parseInt(ticket.totalTickets || (order && order.quantity) || 1, 10) || 1);
+        const perTicket = Number(ticket.price || 0) || 0;
+        const totalAmount = (order && typeof order.totalAmount === 'number')
+          ? Number(order.totalAmount || 0)
+          : (perTicket * totalTickets);
+
         // Payment status badge
         let statusBadge = '';
         if (ticket.status === 'valid' || ticket.status === 'paid') {
@@ -1131,8 +1142,12 @@
               <span>${ticket.buyerPhone || 'N/A'}</span>
             </div>
             <div class="ticket-detail-row">
+              <span>Số vé</span>
+              <span>${totalTickets} / ${totalTickets}</span>
+            </div>
+            <div class="ticket-detail-row">
               <span>Giá vé</span>
-              <span>${formatCurrency(ticket.price)}</span>
+              <span>${formatCurrency(totalAmount)}</span>
             </div>
             ${ticket.paymentType === 'cash' ? `
             <div class="ticket-detail-row">
@@ -1149,11 +1164,8 @@
 
         // Try to get proof image from order
         let proofImage = null;
-        if (ticket.orderId) {
-          const order = await fetchOrderData(ticket.orderId);
-          if (order && order.proofImage) {
-            proofImage = order.proofImage;
-          }
+        if (order && order.proofImage) {
+          proofImage = order.proofImage;
         }
 
         // Show proof image if available

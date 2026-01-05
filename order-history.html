@@ -779,6 +779,12 @@
                   <p style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">Thông tin người mua</p>
                   <p style="font-size: 14px;">${order.buyerName} - ${order.buyerEmail} - ${order.buyerPhone || 'N/A'}</p>
                 </div>
+                ${order.buyerNote ? `
+                <div style="margin-bottom: 16px;">
+                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">Ghi chú</p>
+                  <p style="font-size: 14px; white-space: pre-wrap;">${escapeHtml(String(order.buyerNote))}</p>
+                </div>
+                ` : ''}
                 ${order.paymentType === 'cash' ? `
                 <div style="margin-bottom: 16px;">
                   <p style="font-size: 12px; color: #94a3b8; margin-bottom: 4px;">Loại thanh toán</p>
@@ -855,6 +861,15 @@
         'cancelled': { label: 'Đã hủy', class: 'used' }
       };
       return statusMap[status] || { label: 'N/A', class: 'pending' };
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function formatCurrency(amount) {

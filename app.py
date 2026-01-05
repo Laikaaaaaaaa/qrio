@@ -327,6 +327,7 @@ def init_tickets_db():
                 buyer_name TEXT NOT NULL,
                 buyer_email TEXT,
                 buyer_phone TEXT,
+                buyer_note TEXT,
                 quantity INTEGER NOT NULL,
                 total_amount INTEGER NOT NULL,
                 status TEXT NOT NULL,
@@ -360,6 +361,11 @@ def init_tickets_db():
             pass
         try:
             cur.execute('ALTER TABLE ticket_orders ADD COLUMN cash_payment_time TEXT')
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cur.execute('ALTER TABLE ticket_orders ADD COLUMN buyer_note TEXT')
         except sqlite3.OperationalError:
             pass
 
@@ -1695,6 +1701,7 @@ def api_ticket_create_order():
         buyer_name = sanitize_input(payload.get('buyerName', ''), max_length=120)
         buyer_email = sanitize_input(payload.get('buyerEmail', ''), max_length=120)
         buyer_phone = sanitize_input(payload.get('buyerPhone', ''), max_length=40)
+        buyer_note = sanitize_input(payload.get('buyerNote', ''), max_length=800)
         quantity = validate_int(payload.get('quantity'), default=1, min_val=1, max_val=10**4)
         payment_type = sanitize_input(payload.get('paymentType', 'transfer'), max_length=32)
         cash_payer_name = sanitize_input(payload.get('cashPayerName', ''), max_length=120)
@@ -1729,11 +1736,13 @@ def api_ticket_create_order():
             cur.execute('''
                 INSERT INTO ticket_orders (
                     order_id, event_id, buyer_name, buyer_email, buyer_phone,
+                    buyer_note,
                     quantity, total_amount, status, payment_type, cash_payer_name, cash_payment_time, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 order_id, event_id, buyer_name, buyer_email or None, buyer_phone or None,
-                int(quantity), int(total_amount), 'pending', payment_type, 
+                buyer_note or None,
+                int(quantity), int(total_amount), 'pending', payment_type,
                 cash_payer_name or None, cash_payment_time or None, now
             ))
             conn.commit()
@@ -1755,6 +1764,7 @@ def api_ticket_create_order():
             'accountNumber': event_row['account_number'],
             'accountName': event_row['account_name'],
             'paymentType': payment_type,
+            'buyerNote': buyer_note,
             'paymentMethod': event_row['payment_method'] or 'bank_api',
         }), 201
     except Exception as e:
@@ -1774,6 +1784,7 @@ def api_ticket_get_order(order_id):
                 SELECT o.order_id, o.event_id, o.buyer_name, o.buyer_email, o.buyer_phone,
                        o.status, o.total_amount, o.quantity, o.created_at, o.paid_at,
                        o.payment_type, o.payment_proof_image, o.cash_payer_name, o.cash_payment_time,
+                       o.buyer_note,
                        e.event_name, e.payment_method
                 FROM ticket_orders o
                 JOIN ticket_events e ON o.event_id = e.event_id
@@ -1793,6 +1804,7 @@ def api_ticket_get_order(order_id):
             'buyerName': row['buyer_name'],
             'buyerEmail': row['buyer_email'],
             'buyerPhone': row['buyer_phone'],
+            'buyerNote': row['buyer_note'] or '',
             'status': row['status'],
             'totalAmount': int(row['total_amount']),
             'quantity': int(row['quantity']),
@@ -1835,7 +1847,7 @@ def api_ticket_list_orders(event_id):
 
             cur.execute('''
                 SELECT order_id, buyer_name, buyer_email, buyer_phone, quantity, total_amount, 
-                       status, payment_type, payment_proof_image, cash_payer_name, cash_payment_time,
+                       status, payment_type, payment_proof_image, cash_payer_name, cash_payment_time, buyer_note,
                        created_at, paid_at
                 FROM ticket_orders WHERE event_id = ?
                 ORDER BY created_at DESC
@@ -1851,6 +1863,7 @@ def api_ticket_list_orders(event_id):
                 'buyerName': row['buyer_name'],
                 'buyerEmail': row['buyer_email'],
                 'buyerPhone': row['buyer_phone'],
+                'buyerNote': row['buyer_note'] or '',
                 'quantity': int(row['quantity']),
                 'totalAmount': int(row['total_amount']),
                 'status': row['status'],

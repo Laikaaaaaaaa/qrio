@@ -265,6 +265,14 @@
     let orderData = null;
     let eventData = null;
     let pollTimer = null;
+    let redirectTimer = null;
+
+    function scheduleRedirectToTicket() {
+      if (redirectTimer) return;
+      redirectTimer = setTimeout(() => {
+        window.location.href = `ticket.html?order=${encodeURIComponent(orderId)}`;
+      }, 1000);
+    }
 
     function generateTicketId() {
       const timestamp = Date.now().toString(36);
@@ -300,6 +308,7 @@
         o.buyerName = (orderData && orderData.buyerName) || o.buyerName;
         o.buyerEmail = (orderData && orderData.buyerEmail) || o.buyerEmail;
         o.buyerPhone = (orderData && orderData.buyerPhone) || o.buyerPhone;
+        o.buyerNote = (orderData && orderData.buyerNote) || o.buyerNote;
         o.quantity = (orderData && orderData.quantity) || o.quantity;
         o.pricePerTicket = o.pricePerTicket || 0;
         o.totalAmount = (orderData && orderData.totalAmount) || o.totalAmount;
@@ -326,6 +335,7 @@
           buyerName: orderData.buyerName,
           buyerEmail: orderData.buyerEmail,
           buyerPhone: orderData.buyerPhone,
+          buyerNote: orderData.buyerNote,
           ticketNumber: i + 1,
           totalTickets: qty,
           price: Math.floor((orderData.totalAmount || 0) / qty),
@@ -376,6 +386,37 @@
         showOnly('loading');
       }
 
+      // Cash orders: no bank verification and no proof upload
+      const paymentType = String((orderData && orderData.paymentType) || '').toLowerCase();
+      if (paymentType === 'cash') {
+        // Create local pending tickets if needed (for the current device)
+        try {
+          const cached = localStorage.getItem('order_' + orderId);
+          const o = cached ? JSON.parse(cached) : {};
+          if (!Array.isArray(o.tickets) || o.tickets.length === 0) {
+            const ticketIds = persistTickets('pending_payment');
+            persistOrderStatus('pending_payment', ticketIds);
+          } else {
+            persistOrderStatus('pending_payment', o.tickets);
+          }
+        } catch {
+          // ignore
+        }
+
+        setStatus('Chờ thanh toán tiền mặt', false);
+        showOnly('pending');
+        const box = document.querySelector('#pending .warning-box');
+        if (box) {
+          box.innerHTML = `
+            <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-money-bill"></i> Chờ thanh toán tiền mặt</div>
+            Vé đã được tạo và đang ở trạng thái <b>Chờ thanh toán</b>. Bạn có thể mở vé để xem mã vé.
+          `;
+        }
+        document.getElementById('view-ticket-pending').href = `ticket.html?order=${encodeURIComponent(orderId)}`;
+        scheduleRedirectToTicket();
+        return;
+      }
+
       const method = (eventData && eventData.paymentMethod) || 'bank_api';
 
       // Manual: upload proof and move to pending immediately
@@ -404,10 +445,7 @@
           setStatus('Đã gửi ảnh - chờ duyệt', false);
           showOnly('pending');
 
-          // Redirect user to ticket page to see status and re-upload proof if needed
-          setTimeout(() => {
-            window.location.href = `ticket.html?order=${encodeURIComponent(orderId)}`;
-          }, 600);
+          scheduleRedirectToTicket();
           return;
         } catch (e) {
           setStatus('Lỗi tải ảnh', false);
@@ -438,10 +476,7 @@
           document.getElementById('view-ticket').href = `ticket.html?id=${encodeURIComponent(ticketIds[0])}`;
           try { if (pollTimer) clearInterval(pollTimer); } catch {}
 
-          // Redirect to ticket page (order view) so buyer sees status + proof section
-          setTimeout(() => {
-            window.location.href = `ticket.html?order=${encodeURIComponent(orderId)}`;
-          }, 600);
+          scheduleRedirectToTicket();
           return;
         }
 

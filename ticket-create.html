@@ -784,6 +784,41 @@
   <script>
     let currentEventData = null;
 
+    const HOME_PROJECTS_KEY = 'qr_studio_projects';
+
+    function loadHomeProjects() {
+      try { return JSON.parse(localStorage.getItem(HOME_PROJECTS_KEY) || '[]'); } catch { return []; }
+    }
+
+    function saveHomeProjects(projects) {
+      try { localStorage.setItem(HOME_PROJECTS_KEY, JSON.stringify(projects)); } catch {}
+    }
+
+    function upsertTicketProjectToHome(payload) {
+      if (!payload || !payload.eventId) return;
+      const projects = loadHomeProjects();
+      const id = 'ticket-' + String(payload.eventId);
+      const nowIso = new Date().toISOString();
+      const existingIndex = projects.findIndex(p => p && p.id === id);
+      const base = {
+        id,
+        type: 'ticket',
+        eventId: String(payload.eventId),
+        name: String(payload.eventName || 'Ticket Event'),
+        createdAt: payload.createdAt || nowIso,
+        updatedAt: nowIso,
+        thumbnail: payload.thumbnail || '',
+        ownerLink: payload.ownerLink || '',
+        buyLink: payload.buyLink || ''
+      };
+      if (existingIndex >= 0) {
+        projects[existingIndex] = { ...projects[existingIndex], ...base };
+      } else {
+        projects.unshift(base);
+      }
+      saveHomeProjects(projects);
+    }
+
     function updatePaymentMethodUI() {
       const methodEl = document.getElementById('payment-method');
       const method = methodEl ? methodEl.value : 'bank_api';
@@ -978,6 +1013,18 @@
 
         // Show QR
         document.getElementById('qr-preview').innerHTML = `<img src="${result.image}" alt="QR Buy Ticket" id="qr-image" />`;
+
+        // Save to Home projects (so Home can open owner-ticket later)
+        try {
+          upsertTicketProjectToHome({
+            eventId,
+            eventName,
+            createdAt: currentEventData && currentEventData.createdAt,
+            thumbnail: result.image,
+            ownerLink,
+            buyLink
+          });
+        } catch {}
         
         // Show result section
         document.getElementById('qr-result').classList.remove('hidden');

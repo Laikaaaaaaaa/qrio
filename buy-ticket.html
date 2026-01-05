@@ -1006,6 +1006,11 @@
       </div>
 
       <div class="form-group">
+        <label>Ghi chú</label>
+        <input type="text" id="buyer-note" placeholder="Ví dụ: Check-in lúc 18:00, ghi nhận tên nhóm..." />
+      </div>
+
+      <div class="form-group">
         <label>Số lượng vé</label>
         <div class="quantity-selector">
           <button class="qty-btn" onclick="changeQty(-1)" id="qty-minus">−</button>
@@ -1073,141 +1078,11 @@
       <div class="action-buttons">
         <button class="btn btn-success" onclick="proceedToPayment()">
           <i class="fa-solid fa-credit-card"></i>
-          Tiếp tục thanh toán
+          Tiếp tục đặt vé
         </button>
       </div>
     </div>
 
-    <!-- STEP 2: Payment -->
-    <div id="section-payment" class="card hidden">
-      <div class="card-title"><i class="fa-solid fa-qrcode"></i> Thanh toán QR</div>
-      
-      <div class="timer-box">
-        <div class="timer">
-          <i class="fa-solid fa-clock"></i>
-          <span class="timer-text">Thời gian còn lại:</span>
-          <span class="timer-value" id="countdown">15:00</span>
-        </div>
-      </div>
-
-      <div class="payment-qr-box">
-        <div class="qr-wrapper" id="payment-qr">
-          <div class="loading-spinner"></div>
-        </div>
-        
-        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">
-          Quét mã QR bằng app ngân hàng để thanh toán
-        </p>
-      </div>
-
-      <div class="transfer-info">
-        <div class="transfer-row">
-          <span class="transfer-label">Ngân hàng:</span>
-          <span class="transfer-value" id="pay-bank">-</span>
-        </div>
-        <div class="transfer-row">
-          <span class="transfer-label">Số tài khoản:</span>
-          <span class="transfer-value">
-            <span id="pay-account">-</span>
-            <button class="copy-btn" onclick="copyText('pay-account')"><i class="fa-solid fa-copy"></i></button>
-          </span>
-        </div>
-        <div class="transfer-row">
-          <span class="transfer-label">Chủ TK:</span>
-          <span class="transfer-value" id="pay-name">-</span>
-        </div>
-        <div class="transfer-row">
-          <span class="transfer-label">Số tiền:</span>
-          <span class="transfer-value" style="color: #22c55e; font-size: 18px;" id="pay-amount">-</span>
-        </div>
-        <div class="transfer-row">
-          <span class="transfer-label">Nội dung CK:</span>
-          <span class="transfer-value">
-            <span class="transfer-code" id="pay-code">-</span>
-            <button class="copy-btn" onclick="copyText('pay-code')"><i class="fa-solid fa-copy"></i></button>
-          </span>
-        </div>
-      </div>
-
-      <div class="warning-box">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <p><strong>QUAN TRỌNG:</strong> Vui lòng nhập đúng nội dung chuyển khoản để hệ thống tự động xác nhận thanh toán. Không thay đổi nội dung chuyển khoản.</p>
-      </div>
-
-      <!-- Proof Upload Section (for manual verification) -->
-      <div class="proof-upload-section hidden" id="proof-upload-section">
-        <div class="proof-upload-title">
-          <i class="fa-solid fa-camera"></i> Tải ảnh xác nhận chuyển khoản
-        </div>
-        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
-          Sau khi chuyển khoản, hãy chụp ảnh màn hình xác nhận và tải lên để được duyệt nhanh hơn.
-        </p>
-        <div class="proof-upload-area" onclick="document.getElementById('proof-input').click()">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <p>Nhấn để chọn ảnh hoặc kéo thả vào đây</p>
-        </div>
-        <input type="file" id="proof-input" accept="image/*" style="display: none;" onchange="handleProofUpload(this)" />
-        <div class="proof-preview hidden" id="proof-preview">
-          <img id="proof-image" src="" alt="Ảnh xác nhận" />
-          <button class="btn btn-secondary btn-sm" style="margin-top: 8px;" onclick="removeProof()">
-            <i class="fa-solid fa-times"></i> Xóa ảnh
-          </button>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-success" onclick="confirmPayment()" id="confirm-btn">
-          <i class="fa-solid fa-check-circle"></i>
-          Xác nhận đã chuyển khoản
-        </button>
-        <div class="secondary-actions">
-          <button class="btn btn-danger" onclick="showCancelModal()">
-            <i class="fa-solid fa-times"></i>
-            Hủy đơn
-          </button>
-          <button class="btn btn-warning" onclick="showComplaintModal()">
-            <i class="fa-solid fa-headset"></i>
-            Khiếu nại
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 3: Success / Ticket -->
-    <div id="section-success" class="card hidden">
-      <div class="success-box">
-        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
-        <h2>Thanh toán thành công!</h2>
-        <p>Vé điện tử của bạn đã được tạo. Bạn có thể xem và lưu vé ngay bây giờ.</p>
-        
-        <div style="margin: 24px 0;">
-          <div class="order-summary">
-            <div class="summary-row">
-              <span class="label">Mã vé:</span>
-              <span class="value" id="ticket-code" style="font-family: monospace;">-</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Sự kiện:</span>
-              <span class="value" id="success-event">-</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Họ tên:</span>
-              <span class="value" id="success-name">-</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Số lượng:</span>
-              <span class="value" id="success-qty">-</span>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="viewTicket()" style="width: 100%;">
-          <i class="fa-solid fa-ticket"></i>
-          Xem vé điện tử
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- CANCEL MODAL -->
   <div class="modal-overlay hidden" id="cancel-modal">
@@ -1397,6 +1272,7 @@
       const name = document.getElementById('buyer-name').value.trim();
       const email = document.getElementById('buyer-email').value.trim();
       const phone = document.getElementById('buyer-phone').value.trim();
+      const note = document.getElementById('buyer-note').value.trim();
       const cashPayerName = document.getElementById('cash-payer-name').value.trim();
       const cashPaymentTime = document.getElementById('cash-payment-time').value;
 
@@ -1407,7 +1283,7 @@
 
       // Handle cash payment - skip to success directly
       if (paymentType === 'cash') {
-        await createCashOrder(name, email, phone, cashPayerName, cashPaymentTime);
+        await createCashOrder(name, email, phone, note, cashPayerName, cashPaymentTime);
         return;
       }
 
@@ -1422,6 +1298,7 @@
             buyerName: name,
             buyerEmail: email,
             buyerPhone: phone,
+            buyerNote: note,
             quantity: quantity,
             paymentType: paymentType,
             cashPayerName: cashPayerName,
@@ -1444,6 +1321,7 @@
         buyerName: name,
         buyerEmail: email,
         buyerPhone: phone,
+        buyerNote: createJson.buyerNote || note,
         quantity: createJson.quantity,
         pricePerTicket: createJson.pricePerTicket,
         totalAmount: createJson.totalAmount,
@@ -1531,7 +1409,7 @@
     }
 
     // ===== CREATE CASH ORDER =====
-    async function createCashOrder(name, email, phone, cashPayerName, cashPaymentTime) {
+    async function createCashOrder(name, email, phone, note, cashPayerName, cashPaymentTime) {
       try {
         const resp = await fetch('/api/ticket/orders', {
           method: 'POST',
@@ -1541,6 +1419,7 @@
             buyerName: name,
             buyerEmail: email,
             buyerPhone: phone,
+            buyerNote: note,
             quantity: quantity,
             paymentType: 'cash',
             cashPayerName: cashPayerName || name,
@@ -1559,6 +1438,7 @@
           buyerName: name,
           buyerEmail: email,
           buyerPhone: phone,
+          buyerNote: createJson.buyerNote || note,
           quantity: createJson.quantity,
           pricePerTicket: createJson.pricePerTicket,
           totalAmount: createJson.totalAmount,
@@ -1582,6 +1462,7 @@
             buyerName: orderData.buyerName,
             buyerEmail: orderData.buyerEmail,
             buyerPhone: orderData.buyerPhone,
+            buyerNote: orderData.buyerNote,
             ticketNumber: i + 1,
             totalTickets: orderData.quantity,
             price: eventData.pricePerTicket,
@@ -1597,8 +1478,9 @@
         orderData.tickets = tickets.map(t => t.ticketId);
         localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
-        // Show success directly
-        showCashSuccess(tickets[0].ticketId, getCashPaymentTimeLabel(cashPaymentTime));
+        // Go to order status page (cash doesn't require proof upload)
+        window.location.href = `transfer-confirm.html?order=${encodeURIComponent(orderData.orderId)}`;
+        return;
 
       } catch (e) {
         alert('Không thể tạo đơn hàng: ' + String(e.message || e));
@@ -1616,33 +1498,53 @@
 
     function showCashSuccess(ticketId, paymentTimeLabel) {
       // Skip to step 3
-      document.getElementById('section-info').classList.add('hidden');
-      document.getElementById('section-payment').classList.add('hidden');
-      document.getElementById('section-success').classList.remove('hidden');
+      const sectionInfo = document.getElementById('section-info');
+      if (sectionInfo) sectionInfo.classList.add('hidden');
+      const sectionPayment = document.getElementById('section-payment');
+      if (sectionPayment) sectionPayment.classList.add('hidden');
+      const sectionSuccess = document.getElementById('section-success');
+      if (sectionSuccess) sectionSuccess.classList.remove('hidden');
 
       // Update steps
-      document.getElementById('step-1').classList.remove('active');
-      document.getElementById('step-1').classList.add('completed');
-      document.getElementById('step-1').innerHTML = '<i class="fa-solid fa-check"></i>';
-      document.getElementById('step-2').classList.remove('active');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').innerHTML = '<i class="fa-solid fa-check"></i>';
-      document.getElementById('step-3').classList.add('active');
-      document.getElementById('line-1').classList.add('active');
-      document.getElementById('line-2').classList.add('active');
+      const step1 = document.getElementById('step-1');
+      if (step1) {
+        step1.classList.remove('active');
+        step1.classList.add('completed');
+      }
+      const s1 = document.getElementById('step-1');
+      if (s1) s1.innerHTML = '<i class="fa-solid fa-check"></i>';
+      const step2 = document.getElementById('step-2');
+      if (step2) {
+        step2.classList.remove('active');
+        step2.classList.add('completed');
+      }
+      const s2 = document.getElementById('step-2');
+      if (s2) s2.innerHTML = '<i class="fa-solid fa-check"></i>';
+      const step3 = document.getElementById('step-3');
+      if (step3) step3.classList.add('active');
+      const line1 = document.getElementById('line-1');
+      if (line1) line1.classList.add('active');
+      const line2 = document.getElementById('line-2');
+      if (line2) line2.classList.add('active');
 
       // Update success message for cash
-      document.querySelector('#section-success .success-box h2').textContent = 'Đặt vé thành công!';
-      document.querySelector('#section-success .success-box > p').innerHTML = `
+      const h2 = document.querySelector('#section-success .success-box h2');
+      if (h2) h2.textContent = 'Đặt vé thành công!';
+      const p = document.querySelector('#section-success .success-box > p');
+      if (p) p.innerHTML = `
         Vé điện tử của bạn đã được tạo.<br>
         <span style="color: #fbbf24; font-weight: 600;"><i class="fa-solid fa-money-bill"></i> ${paymentTimeLabel}</span>
       `;
 
       // Fill success info
-      document.getElementById('ticket-code').textContent = ticketId;
-      document.getElementById('success-event').textContent = eventData.eventName;
-      document.getElementById('success-name').textContent = orderData.buyerName;
-      document.getElementById('success-qty').textContent = orderData.quantity + ' vé';
+      const ticketCodeEl = document.getElementById('ticket-code');
+      if (ticketCodeEl) ticketCodeEl.textContent = ticketId;
+      const successEventEl = document.getElementById('success-event');
+      if (successEventEl) successEventEl.textContent = eventData.eventName;
+      const successNameEl = document.getElementById('success-name');
+      if (successNameEl) successNameEl.textContent = orderData.buyerName;
+      const successQtyEl = document.getElementById('success-qty');
+      if (successQtyEl) successQtyEl.textContent = orderData.quantity + ' vé';
     }
 
     // ===== COUNTDOWN =====
@@ -1785,33 +1687,48 @@
       localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
       // Show success with pending message
-      document.getElementById('section-payment').classList.add('hidden');
-      document.getElementById('section-success').classList.remove('hidden');
+      const sectionPayment = document.getElementById('section-payment');
+      if (sectionPayment) sectionPayment.classList.add('hidden');
+      const sectionSuccess = document.getElementById('section-success');
+      if (sectionSuccess) sectionSuccess.classList.remove('hidden');
 
       // Update steps
-      document.getElementById('step-2').classList.remove('active');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').innerHTML = '<i class="fa-solid fa-check"></i>';
-      document.getElementById('step-3').classList.add('active');
-      document.getElementById('line-2').classList.add('active');
+      const step2 = document.getElementById('step-2');
+      if (step2) {
+        step2.classList.remove('active');
+        step2.classList.add('completed');
+      }
+      const s2 = document.getElementById('step-2');
+      if (s2) s2.innerHTML = '<i class="fa-solid fa-check"></i>';
+      const step3 = document.getElementById('step-3');
+      if (step3) step3.classList.add('active');
+      const line2 = document.getElementById('line-2');
+      if (line2) line2.classList.add('active');
 
       // Update success message for pending verification
-      document.querySelector('#section-success .success-box h2').textContent = 'Đã gửi yêu cầu xác nhận!';
-      document.querySelector('#section-success .success-box > p').innerHTML = `
+      const h2 = document.querySelector('#section-success .success-box h2');
+      if (h2) h2.textContent = 'Đã gửi yêu cầu xác nhận!';
+      const p = document.querySelector('#section-success .success-box > p');
+      if (p) p.innerHTML = `
         Ảnh xác nhận thanh toán đã được gửi đến chủ sự kiện.<br>
         <span style="color: #fbbf24; font-weight: 600;"><i class="fa-solid fa-clock"></i> Đang chờ xác nhận</span>
       `;
 
       // Fill success info
-      document.getElementById('ticket-code').textContent = tickets[0].ticketId;
-      document.getElementById('success-event').textContent = eventData.eventName;
-      document.getElementById('success-name').textContent = orderData.buyerName;
-      document.getElementById('success-qty').textContent = orderData.quantity + ' vé';
+      const ticketCodeEl = document.getElementById('ticket-code');
+      if (ticketCodeEl) ticketCodeEl.textContent = tickets[0].ticketId;
+      const successEventEl = document.getElementById('success-event');
+      if (successEventEl) successEventEl.textContent = eventData.eventName;
+      const successNameEl = document.getElementById('success-name');
+      if (successNameEl) successNameEl.textContent = orderData.buyerName;
+      const successQtyEl = document.getElementById('success-qty');
+      if (successQtyEl) successQtyEl.textContent = orderData.quantity + ' vé';
     }
 
     function handlePaymentSuccess() {
       clearInterval(countdownTimer);
-      document.getElementById('verifying-modal').classList.add('hidden');
+      const verifyingModal = document.getElementById('verifying-modal');
+      if (verifyingModal) verifyingModal.classList.add('hidden');
 
       // Generate ticket(s)
       const tickets = [];
@@ -1842,21 +1759,33 @@
       localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
       // Show success
-      document.getElementById('section-payment').classList.add('hidden');
-      document.getElementById('section-success').classList.remove('hidden');
+      const sectionPayment = document.getElementById('section-payment');
+      if (sectionPayment) sectionPayment.classList.add('hidden');
+      const sectionSuccess = document.getElementById('section-success');
+      if (sectionSuccess) sectionSuccess.classList.remove('hidden');
 
       // Update steps
-      document.getElementById('step-2').classList.remove('active');
-      document.getElementById('step-2').classList.add('completed');
-      document.getElementById('step-2').innerHTML = '<i class="fa-solid fa-check"></i>';
-      document.getElementById('step-3').classList.add('active');
-      document.getElementById('line-2').classList.add('active');
+      const step2 = document.getElementById('step-2');
+      if (step2) {
+        step2.classList.remove('active');
+        step2.classList.add('completed');
+      }
+      const s2 = document.getElementById('step-2');
+      if (s2) s2.innerHTML = '<i class="fa-solid fa-check"></i>';
+      const step3 = document.getElementById('step-3');
+      if (step3) step3.classList.add('active');
+      const line2 = document.getElementById('line-2');
+      if (line2) line2.classList.add('active');
 
       // Fill success info
-      document.getElementById('ticket-code').textContent = tickets[0].ticketId;
-      document.getElementById('success-event').textContent = eventData.eventName;
-      document.getElementById('success-name').textContent = orderData.buyerName;
-      document.getElementById('success-qty').textContent = orderData.quantity + ' vé';
+      const ticketCodeEl = document.getElementById('ticket-code');
+      if (ticketCodeEl) ticketCodeEl.textContent = tickets[0].ticketId;
+      const successEventEl = document.getElementById('success-event');
+      if (successEventEl) successEventEl.textContent = eventData.eventName;
+      const successNameEl = document.getElementById('success-name');
+      if (successNameEl) successNameEl.textContent = orderData.buyerName;
+      const successQtyEl = document.getElementById('success-qty');
+      if (successQtyEl) successQtyEl.textContent = orderData.quantity + ' vé';
     }
 
     function viewTicket() {

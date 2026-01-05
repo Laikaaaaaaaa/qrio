@@ -197,6 +197,16 @@
       box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
     }
 
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.35);
+    }
+
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -658,6 +668,10 @@
             <i class="fa-solid fa-print"></i>
             In vé
           </button>
+          <button class="btn btn-danger" id="btn-cancel-order" onclick="cancelMyOrder()" style="display:none;">
+            <i class="fa-solid fa-ban"></i>
+            Hủy vé
+          </button>
         </div>
 
         <div class="proof-box hidden" id="order-section">
@@ -672,6 +686,10 @@
             <div class="info-row">
               <span class="info-label"><i class="fa-solid fa-circle-info"></i> Trạng thái thanh toán</span>
               <span class="info-value" id="order-status">-</span>
+            </div>
+            <div class="info-row" id="order-note-row" style="display:none;">
+              <span class="info-label"><i class="fa-solid fa-note-sticky"></i> Ghi chú</span>
+              <span class="info-value" id="order-note">-</span>
             </div>
           </div>
 
@@ -780,9 +798,14 @@
       document.getElementById('event-desc').textContent = ticketData.description || 'Vé điện tử';
       document.getElementById('ticket-id').textContent = ticketData.ticketId;
       document.getElementById('buyer-name').textContent = ticketData.buyerName;
-      document.getElementById('ticket-number').textContent = `${ticketData.ticketNumber} / ${ticketData.totalTickets}`;
+      document.getElementById('ticket-number').textContent = `${ticketData.totalTickets} / ${ticketData.totalTickets}`;
       document.getElementById('purchase-date').textContent = formatDate(ticketData.issuedAt);
-      document.getElementById('ticket-price').textContent = formatCurrency(ticketData.price);
+      const totalTickets = Math.max(1, parseInt(ticketData.totalTickets || 1, 10) || 1);
+      const perTicket = Number(ticketData.price || 0) || 0;
+      const totalAmount = (currentOrder && typeof currentOrder.totalAmount === 'number')
+        ? Number(currentOrder.totalAmount || 0)
+        : (perTicket * totalTickets);
+      document.getElementById('ticket-price').textContent = formatCurrency(totalAmount);
 
       // Status
       const statusEl = document.getElementById('ticket-status');
@@ -803,7 +826,7 @@
           statusEl.className = 'ticket-status status-pending';
           if (statusIconEl) statusIconEl.className = 'fa-solid fa-hourglass-half status-icon';
           statusTextEl.textContent = 'CHỜ DUYỆT';
-        } else if (os === 'pending') {
+        } else if (os === 'pending' || os === 'pending_payment') {
           statusEl.className = 'ticket-status status-pending';
           if (statusIconEl) statusIconEl.className = 'fa-solid fa-clock status-icon';
           statusTextEl.textContent = 'CHỜ THANH TOÁN';
@@ -839,7 +862,9 @@
           const o = cached ? JSON.parse(cached) : {};
           o.orderId = currentOrderId;
           o.status = json.status;
+          o.paymentType = json.paymentType || o.paymentType;
           o.paymentProofImage = json.paymentProofImage || o.paymentProofImage;
+          if (typeof json.buyerNote === 'string') o.buyerNote = json.buyerNote;
           if (json.paidAt) o.paidAt = json.paidAt;
           localStorage.setItem(cacheKey, JSON.stringify(o));
         } catch {
@@ -855,6 +880,7 @@
       if (s === 'paid') return 'ĐÃ THANH TOÁN';
       if (s === 'pending_verification') return 'CHỜ DUYỆT';
       if (s === 'pending') return 'CHỜ THANH TOÁN';
+      if (s === 'pending_payment') return 'CHỜ THANH TOÁN TIỀN MẶT';
       if (s === 'cancelled') return 'ĐÃ HUỶ';
       return status || '-';
     }
@@ -874,6 +900,8 @@
 
       let effectiveStatus = (currentOrder && currentOrder.status) || '';
       let proof = (currentOrder && currentOrder.paymentProofImage) || '';
+      let paymentType = (currentOrder && currentOrder.paymentType) || '';
+      let buyerNote = (currentOrder && currentOrder.buyerNote) || '';
 
       // Fallbacks from cache
       try {
@@ -882,6 +910,8 @@
           const o = JSON.parse(cached);
           effectiveStatus = effectiveStatus || o.status || '';
           proof = proof || o.paymentProofImage || '';
+          paymentType = paymentType || o.paymentType || '';
+          buyerNote = buyerNote || o.buyerNote || '';
         }
       } catch {
         // ignore
@@ -895,20 +925,50 @@
 
       document.getElementById('order-status').textContent = humanOrderStatus(effectiveStatus);
 
-      const canUpload = ['pending', 'pending_verification'].includes(String(effectiveStatus || '').toLowerCase());
-      document.getElementById('order-subtitle').textContent = canUpload
-        ? 'Bạn có thể gửi lại ảnh xác nhận để chủ sự kiện duyệt.'
-        : 'Đơn hàng đã được cập nhật. Ảnh xác nhận (nếu có) sẽ hiển thị tại đây.';
+      const noteRow = document.getElementById('order-note-row');
+      const noteEl = document.getElementById('order-note');
+      const hasNote = String(buyerNote || '').trim().length > 0;
+      if (noteRow) noteRow.style.display = hasNote ? '' : 'none';
+      if (noteEl) noteEl.textContent = hasNote ? String(buyerNote).trim() : '-';
+
+      const pt = String(paymentType || '').toLowerCase();
+      const isCash = pt === 'cash';
+      const canUpload = !isCash && ['pending', 'pending_verification'].includes(String(effectiveStatus || '').toLowerCase());
+
+      // Cancel button
+      const btnCancel = document.getElementById('btn-cancel-order');
+      const cancellableStatuses = ['pending', 'pending_verification', 'pending_payment'];
+      const isCancelled = String(effectiveStatus || '').toLowerCase() === 'cancelled';
+      const isPaid = String(effectiveStatus || '').toLowerCase() === 'paid';
+      const isUsed = (ticketData && ticketData.status) === 'used';
+      const canCancel = !isUsed && !isCancelled && !isPaid && cancellableStatuses.includes(String(effectiveStatus || '').toLowerCase());
+      if (btnCancel) btnCancel.style.display = canCancel ? '' : 'none';
+
+      document.getElementById('order-subtitle').textContent = isCash
+        ? 'Thanh toán tiền mặt: không cần gửi ảnh xác nhận.'
+        : (canUpload
+          ? 'Bạn có thể gửi lại ảnh xác nhận để chủ sự kiện duyệt.'
+          : 'Đơn hàng đã được cập nhật. Ảnh xác nhận (nếu có) sẽ hiển thị tại đây.');
 
       const proofEl = document.getElementById('proof-preview');
       if (proof) {
         proofEl.src = proof;
         proofEl.style.display = 'block';
         document.getElementById('btn-clear-proof').disabled = false;
+      } else {
+        proofEl.removeAttribute('src');
+        proofEl.style.display = 'none';
       }
 
       const fileInput = document.getElementById('proof-file');
       const btnUpload = document.getElementById('btn-upload-proof');
+      const proofRow = document.querySelector('#order-section .proof-row');
+
+      if (isCash) {
+        if (proofRow) proofRow.style.display = 'none';
+      } else {
+        if (proofRow) proofRow.style.display = '';
+      }
 
       fileInput.disabled = !canUpload;
       btnUpload.disabled = !canUpload;
@@ -931,6 +991,57 @@
             btnUpload.disabled = !canUpload;
           }
         });
+      }
+    }
+
+    async function cancelMyOrder() {
+      if (!currentOrderId) {
+        alert('Không tìm thấy mã đơn để hủy.');
+        return;
+      }
+
+      const ok = confirm('Bạn có chắc muốn hủy vé/đơn hàng này? Thao tác này không thể hoàn tác.');
+      if (!ok) return;
+
+      const btn = document.getElementById('btn-cancel-order');
+      const old = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang hủy...';
+      }
+
+      try {
+        const resp = await fetch(`/api/ticket/orders/${encodeURIComponent(currentOrderId)}/cancel`, {
+          method: 'POST'
+        });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || (json && json.error)) {
+          throw new Error((json && json.error) || 'Không thể hủy đơn hàng');
+        }
+
+        // Update local cache
+        try {
+          const cacheKey = 'order_' + currentOrderId;
+          const cached = localStorage.getItem(cacheKey);
+          const o = cached ? JSON.parse(cached) : {};
+          o.orderId = currentOrderId;
+          o.status = 'cancelled';
+          localStorage.setItem(cacheKey, JSON.stringify(o));
+        } catch {
+          // ignore
+        }
+
+        currentOrder = null;
+        await fetchOrder();
+        await displayTicket();
+        alert('Đã hủy đơn hàng.');
+      } catch (e) {
+        alert(String(e.message || e));
+      } finally {
+        if (btn) {
+          btn.innerHTML = old;
+          btn.disabled = false;
+        }
       }
     }
 

@@ -566,6 +566,28 @@
       box-shadow: 0 30px 90px rgba(0,0,0,0.55);
     }
 
+    /* Project modal (bigger + animated) */
+    #project-modal .lang-modal {
+      max-width: 620px;
+      border-color: rgba(124, 58, 237, 0.35);
+      transform: translateY(16px) scale(0.98);
+      opacity: 0;
+      transition: transform 220ms cubic-bezier(0.175, 0.885, 0.32, 1.2), opacity 220ms ease;
+      will-change: transform, opacity;
+    }
+
+    #project-modal.show .lang-modal {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    #project-modal {
+      background:
+        radial-gradient(900px 500px at 30% 20%, rgba(124, 58, 237, 0.20), transparent 65%),
+        radial-gradient(800px 500px at 70% 80%, rgba(79, 70, 229, 0.14), transparent 60%),
+        rgba(0,0,0,0.62);
+    }
+
     .lang-modal-header {
       display: flex;
       align-items: center;
@@ -621,6 +643,101 @@
     .lang-modal-item.active {
       border-color: rgba(124, 58, 237, 0.75);
       background: rgba(124, 58, 237, 0.20);
+    }
+
+    .project-choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .project-choice i {
+      width: 18px;
+      text-align: center;
+      color: #a78bfa;
+    }
+
+    .project-modal-hero {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 6px 4px 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .project-modal-copy {
+      padding: 6px 10px 6px 0;
+    }
+
+    .project-modal-sub {
+      font-weight: 900;
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .project-modal-hint {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    .project-modal-qr {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(124,58,237,0.20);
+      box-shadow: 0 18px 50px rgba(124,58,237,0.16);
+      overflow: hidden;
+    }
+
+    .project-modal-qr-svg {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      z-index: 1;
+      transform-origin: center;
+      animation: projectQrFloat 3.6s ease-in-out infinite;
+    }
+
+    .project-modal-qr-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(circle, rgba(124,58,237,0.22), transparent 60%);
+      filter: blur(12px);
+      animation: projectGlowPulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes projectQrFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-4px) scale(1.01); }
+    }
+
+    @keyframes projectGlowPulse {
+      0%, 100% { opacity: 0.65; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    @media (max-width: 520px) {
+      .project-modal-hero {
+        grid-template-columns: 1fr;
+      }
+      .project-modal-qr {
+        width: 100%;
+        height: 220px;
+      }
+      .project-modal-copy {
+        padding: 0 8px 6px;
+      }
     }
 
     .lang-picker {
@@ -2273,6 +2390,48 @@
     </div>
   </div>
 
+  <div class="lang-modal-overlay" id="project-modal" aria-hidden="true">
+    <div class="lang-modal project-modal" role="dialog" aria-modal="true">
+      <div class="lang-modal-header">
+        <div class="lang-modal-title" data-i18n="projectType.title">Tạo dự án mới</div>
+        <button type="button" class="lang-modal-close" id="project-modal-close" aria-label="Close">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="lang-modal-body">
+        <div class="project-modal-hero" aria-hidden="true">
+          <div class="project-modal-qr">
+            <svg viewBox="0 0 220 220" class="project-modal-qr-svg">
+              <rect x="10" y="10" width="200" height="200" rx="26" fill="#0f0f1a" />
+              <rect x="28" y="28" width="54" height="54" rx="12" fill="#7c3aed" opacity="0.95" />
+              <rect x="138" y="28" width="54" height="54" rx="12" fill="#4f46e5" opacity="0.9" />
+              <rect x="28" y="138" width="54" height="54" rx="12" fill="#7c3aed" opacity="0.9" />
+              <rect x="98" y="96" width="24" height="24" rx="6" fill="#ffffff" opacity="0.9" />
+              <rect x="130" y="96" width="18" height="18" rx="5" fill="#a78bfa" opacity="0.9" />
+              <rect x="98" y="130" width="18" height="18" rx="5" fill="#a78bfa" opacity="0.75" />
+              <rect x="130" y="130" width="24" height="24" rx="6" fill="#ffffff" opacity="0.75" />
+              <text x="110" y="116" text-anchor="middle" fill="#0f0f1a" font-size="12" font-weight="900">QR</text>
+            </svg>
+            <div class="project-modal-qr-glow"></div>
+          </div>
+          <div class="project-modal-copy">
+            <div class="project-modal-sub" data-i18n="projectType.subtitle">Chọn loại dự án bạn muốn tạo</div>
+            <div class="project-modal-hint" data-i18n="projectType.hint">Bạn có thể tạo vé bán hàng hoặc tạo QR tuỳ chỉnh.</div>
+          </div>
+        </div>
+
+        <button type="button" class="lang-modal-item project-choice" id="project-choice-ticket">
+          <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+          <span data-i18n="projectType.ticket">Tạo vé</span>
+        </button>
+        <button type="button" class="lang-modal-item project-choice" id="project-choice-qr">
+          <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
+          <span data-i18n="projectType.qr">Tạo QR tuỳ chỉnh</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- HERO SECTION -->
   <section class="hero-section">
     <div class="hero-content">
@@ -2466,6 +2625,11 @@
       vi: {
         'doc.title': 'Qrio - Tạo mã QR miễn phí, đẹp mắt',
         'home.createNew': 'Tạo mới',
+        'projectType.title': 'Tạo dự án mới',
+        'projectType.subtitle': 'Chọn loại dự án bạn muốn tạo',
+        'projectType.hint': 'Bạn có thể tạo vé bán hàng hoặc tạo QR tuỳ chỉnh.',
+        'projectType.ticket': 'Tạo vé',
+        'projectType.qr': 'Tạo QR tuỳ chỉnh',
         'home.badge': '✨ Miễn phí mãi mãi',
         'home.titlePrefix': 'Tạo mã',
         'home.subtitle': 'Thiết kế mã QR chuyên nghiệp với 100+ kiểu dáng, 150+ font chữ và xuất ảnh chất lượng cao.',
@@ -2534,6 +2698,11 @@
       en: {
         'doc.title': 'Qrio - Free QR Code Generator',
         'home.createNew': 'New',
+        'projectType.title': 'Create new project',
+        'projectType.subtitle': 'Choose what you want to create',
+        'projectType.hint': 'Create tickets to sell, or design a custom QR.',
+        'projectType.ticket': 'Create tickets',
+        'projectType.qr': 'Custom QR',
         'home.badge': '✨ Free forever',
         'home.titlePrefix': 'Create',
         'home.subtitle': 'Design professional QR codes with 100+ styles, 150+ fonts, and high-quality exports.',
@@ -3289,7 +3458,11 @@
     }
 
     function createNewProject(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
+      try { openProjectTypeModal(); } catch { createQrProjectAndGo(); }
+    }
+
+    function createQrProjectAndGo() {
       const projectId = 'project-' + Date.now();
       const projects = loadProjects();
       projects.unshift({
@@ -3318,6 +3491,7 @@
       const projects = loadProjects();
       const project = projects.find(p => p.id === id);
       if (!project) return;
+      if (project.type === 'ticket') return;
       const newProject = {
         ...JSON.parse(JSON.stringify(project)),
         id: 'project-' + Date.now(),
@@ -3373,12 +3547,17 @@
         const card = document.createElement('div');
         const isSelected = selectedProjects.has(project.id);
         const safeName = escapeHtml(project.name);
+        const projectType = project.type || 'qr';
         card.className = 'project-card' + (isSelected ? ' selected' : '');
         card.onclick = (e) => {
           if (selectMode) {
             toggleProjectSelection(project.id, e);
           } else {
-            window.location.href = `edit.html?project=${project.id}`;
+            if (projectType === 'ticket' && project.eventId) {
+              window.location.href = `owner-ticket.html?event=${encodeURIComponent(project.eventId)}`;
+            } else {
+              window.location.href = `edit.html?project=${project.id}`;
+            }
           }
         };
         card.innerHTML = `
@@ -3388,7 +3567,7 @@
           <div class="project-preview">
             ${project.thumbnail 
               ? `<img src="${project.thumbnail}" alt="" />`
-              : `<i class="fa-solid fa-qrcode placeholder"></i>`
+              : (projectType === 'ticket' ? `<i class="fa-solid fa-ticket placeholder"></i>` : `<i class="fa-solid fa-qrcode placeholder"></i>`)
             }
           </div>
           <div class="project-info">
@@ -3402,9 +3581,11 @@
             </div>
           </div>
           <div class="project-actions">
+            ${projectType === 'ticket' ? '' : `
             <button class="project-action-btn" onclick="duplicateProject('${project.id}', event)">
               <i class="fa-solid fa-clone"></i> ${t('projects.copy')}
             </button>
+            `}
             <button class="project-action-btn delete" onclick="deleteProject('${project.id}', event)">
               <i class="fa-solid fa-trash"></i>
             </button>
@@ -3443,6 +3624,7 @@
       const projects = loadProjects();
       const project = projects.find(p => p.id === projectId);
       if (!project) return;
+      if ((project.type || 'qr') === 'ticket') return;
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -3559,6 +3741,57 @@
         });
         document.addEventListener('keydown', (e) => {
           if (e && e.key === 'Escape') close();
+        });
+      })();
+
+      // Project type modal (ticket vs custom QR)
+      (function initProjectTypeModal() {
+        const overlay = document.getElementById('project-modal');
+        const closeBtn = document.getElementById('project-modal-close');
+        const ticketBtn = document.getElementById('project-choice-ticket');
+        const qrBtn = document.getElementById('project-choice-qr');
+        if (!overlay || !closeBtn || !ticketBtn || !qrBtn) return;
+
+        let lastActiveEl = null;
+
+        function open() {
+          lastActiveEl = document.activeElement;
+          overlay.classList.add('show');
+          overlay.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+          setTimeout(() => ticketBtn.focus(), 0);
+        }
+
+        function close() {
+          overlay.classList.remove('show');
+          overlay.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+          if (lastActiveEl && typeof lastActiveEl.focus === 'function') {
+            try { lastActiveEl.focus(); } catch {}
+          }
+        }
+
+        window.openProjectTypeModal = open;
+
+        closeBtn.addEventListener('click', close);
+        overlay.addEventListener('click', (e) => {
+          if (e && e.target === overlay) close();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (!e || e.key !== 'Escape') return;
+          if (!overlay.classList.contains('show')) return;
+          e.preventDefault();
+          close();
+        });
+
+        ticketBtn.addEventListener('click', () => {
+          close();
+          window.location.href = 'ticket-create.html';
+        });
+
+        qrBtn.addEventListener('click', () => {
+          close();
+          createQrProjectAndGo();
         });
       })();
 
