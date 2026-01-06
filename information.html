@@ -685,19 +685,42 @@
         return;
       }
 
-      // Get ticket from localStorage
-      const stored = localStorage.getItem('ticket_' + ticketId);
-      
-      if (!stored) {
-        showError('Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.');
-        return;
-      }
-
+      // Prefer server-side ticket registry
       try {
-        ticketData = JSON.parse(stored);
+        const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}`);
+        const json = await resp.json().catch(() => ({}));
+        if (resp.ok && json && !json.error) {
+          ticketData = {
+            ticketId: json.ticketId,
+            orderId: json.orderId,
+            eventId: json.eventId,
+            eventName: json.eventName,
+            buyerName: json.buyerName,
+            buyerEmail: json.buyerEmail,
+            buyerPhone: json.buyerPhone,
+            ticketNumber: json.ticketNumber || 1,
+            totalTickets: json.totalTickets || json.quantity || 1,
+            price: json.totalAmount || (json.pricePerTicket || 0),
+            status: (json.ticketStatus || '').toLowerCase() || 'valid',
+            issuedAt: json.createdAt ? new Date(json.createdAt * 1000).toISOString() : new Date().toISOString(),
+            usedAt: json.usedAt ? new Date(json.usedAt * 1000).toISOString() : ''
+          };
+        } else {
+          throw new Error((json && json.error) || 'Không tìm thấy vé');
+        }
       } catch (e) {
-        showError('Dữ liệu vé không hợp lệ.');
-        return;
+        // Fallback: local storage (legacy)
+        const stored = localStorage.getItem('ticket_' + ticketId);
+        if (!stored) {
+          showError('Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.');
+          return;
+        }
+        try {
+          ticketData = JSON.parse(stored);
+        } catch (e2) {
+          showError('Dữ liệu vé không hợp lệ.');
+          return;
+        }
       }
 
       displayTicketInfo();
@@ -785,12 +808,24 @@
     }
 
     function markAsUsed() {
-      ticketData.status = 'used';
-      ticketData.usedAt = new Date().toISOString();
-      localStorage.setItem('ticket_' + ticketData.ticketId, JSON.stringify(ticketData));
-      
-      document.getElementById('confirm-modal').classList.add('hidden');
-      document.getElementById('success-modal').classList.remove('hidden');
+      (async () => {
+        try {
+          const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketData.ticketId)}/use`, { method: 'POST' });
+          const json = await resp.json().catch(() => ({}));
+          if (!resp.ok || (json && json.error)) throw new Error((json && json.error) || 'Không thể cập nhật vé');
+
+          ticketData.status = 'used';
+          ticketData.usedAt = new Date().toISOString();
+        } catch {
+          // Fallback legacy
+          ticketData.status = 'used';
+          ticketData.usedAt = new Date().toISOString();
+          try { localStorage.setItem('ticket_' + ticketData.ticketId, JSON.stringify(ticketData)); } catch {}
+        }
+
+        document.getElementById('confirm-modal').classList.add('hidden');
+        document.getElementById('success-modal').classList.remove('hidden');
+      })();
     }
 
     document.addEventListener('DOMContentLoaded', init);

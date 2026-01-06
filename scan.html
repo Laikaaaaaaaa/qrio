@@ -1067,13 +1067,8 @@
         return;
       }
 
-      // Try to find ticket
-      const ticket = localStorage.getItem('ticket_' + code);
-      if (ticket) {
-        processQRData(JSON.stringify({ type: 'QRIO_TICKET', ticketId: code }));
-      } else {
-        showResult('error', 'Không tìm thấy vé', `Mã vé "${code}" không tồn tại trong hệ thống.`);
-      }
+      // Always validate via the same pipeline (server-first)
+      processQRData(code);
     }
 
     // ===== PROCESS QR DATA =====
@@ -1120,28 +1115,76 @@
     }
 
     function checkTicket(ticketId) {
-      const stored = localStorage.getItem('ticket_' + ticketId);
-      
-      if (!stored) {
-        showResult('error', 'Vé không tồn tại', `Không tìm thấy vé với mã ${ticketId}`);
-        return;
-      }
+      (async () => {
+        // Prefer server-side ticket registry
+        try {
+          const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}`);
+          const json = await resp.json().catch(() => ({}));
+          if (resp.ok && json && !json.error) {
+            const mapped = {
+              ticketId: json.ticketId,
+              orderId: json.orderId,
+              eventId: json.eventId,
+              eventName: json.eventName,
+              description: json.description,
+              buyerName: json.buyerName,
+              buyerEmail: json.buyerEmail,
+              buyerPhone: json.buyerPhone,
+              buyerNote: json.buyerNote,
+              ticketNumber: json.ticketNumber || 1,
+              totalTickets: json.totalTickets || json.quantity || 1,
+              price: json.pricePerTicket || 0,
+              paymentType: json.paymentType || 'transfer',
+              cashPaymentTime: json.cashPaymentTime || '',
+              status: (json.ticketStatus || '').toLowerCase() || 'valid',
+              issuedAt: json.createdAt ? new Date(json.createdAt * 1000).toISOString() : new Date().toISOString()
+            };
 
-      const ticket = JSON.parse(stored);
-      
-      // Add to recent scans
-      addToRecentScans(ticket);
+            // Cache recent scans only
+            addToRecentScans(mapped);
 
-      // Check ticket status
-      if (ticket.status === 'used') {
-        showResult('warning', 'Vé đã sử dụng', `Vé này đã được sử dụng trước đó.`, ticket);
-      } else if (ticket.status === 'pending_verification') {
-        showResult('pending', 'Chờ xác nhận thanh toán', `Vé này đang chờ xác nhận thanh toán từ chủ sự kiện.`, ticket);
-      } else if (ticket.status === 'pending_payment') {
-        showResult('cash_pending', 'Chờ thanh toán tiền mặt', `Vé này đang chờ thanh toán tiền mặt.`, ticket);
-      } else {
-        showResult('success', 'Vé hợp lệ', `Vé hợp lệ và sẵn sàng sử dụng.`, ticket);
-      }
+            const st = mapped.status;
+            if (st === 'used') {
+              showResult('warning', 'Vé đã sử dụng', `Vé này đã được sử dụng trước đó.`, mapped);
+            } else if (st === 'cancelled') {
+              showResult('error', 'Vé đã bị huỷ', `Vé này đã bị huỷ.`, mapped);
+            } else if (st === 'pending_verification') {
+              showResult('pending', 'Chờ xác nhận thanh toán', `Vé này đang chờ xác nhận thanh toán từ chủ sự kiện.`, mapped);
+            } else if (st === 'pending_payment') {
+              showResult('cash_pending', 'Chờ thanh toán tiền mặt', `Vé này đang chờ thanh toán tiền mặt.`, mapped);
+            } else if (st === 'pending') {
+              showResult('pending', 'Chờ thanh toán', `Vé này đang chờ thanh toán.`, mapped);
+            } else {
+              showResult('success', 'Vé hợp lệ', `Vé hợp lệ và sẵn sàng sử dụng.`, mapped);
+            }
+            return;
+          }
+        } catch (e) {
+          // ignore and fall back
+        }
+
+        // Fallback: old localStorage behavior (for offline/dev)
+        try {
+          const stored = localStorage.getItem('ticket_' + ticketId);
+          if (!stored) {
+            showResult('error', 'Vé không tồn tại', `Không tìm thấy vé với mã ${ticketId}`);
+            return;
+          }
+          const ticket = JSON.parse(stored);
+          addToRecentScans(ticket);
+          if (ticket.status === 'used') {
+            showResult('warning', 'Vé đã sử dụng', `Vé này đã được sử dụng trước đó.`, ticket);
+          } else if (ticket.status === 'pending_verification') {
+            showResult('pending', 'Chờ xác nhận thanh toán', `Vé này đang chờ xác nhận thanh toán từ chủ sự kiện.`, ticket);
+          } else if (ticket.status === 'pending_payment') {
+            showResult('cash_pending', 'Chờ thanh toán tiền mặt', `Vé này đang chờ thanh toán tiền mặt.`, ticket);
+          } else {
+            showResult('success', 'Vé hợp lệ', `Vé hợp lệ và sẵn sàng sử dụng.`, ticket);
+          }
+        } catch {
+          showResult('error', 'Vé không tồn tại', `Không tìm thấy vé với mã ${ticketId}`);
+        }
+      })();
     }
 
     async function fetchOrderData(orderId) {
@@ -1317,71 +1360,41 @@
     }
 
     async function confirmTicketPayment(ticketId) {
-      const stored = localStorage.getItem('ticket_' + ticketId);
-      if (!stored) return;
-
-      const ticket = JSON.parse(stored);
-      
-      // Update ticket status
-      ticket.status = 'valid';
-      ticket.confirmedAt = new Date().toISOString();
-      localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
-
-      // Update order status
-      if (ticket.orderId) {
-        const orderStored = localStorage.getItem('order_' + ticket.orderId);
-        if (orderStored) {
-          const order = JSON.parse(orderStored);
-          order.status = 'paid';
-          order.paidAt = new Date().toISOString();
-          localStorage.setItem('order_' + ticket.orderId, JSON.stringify(order));
-        }
-
-        // Try to confirm via API
+      try {
+        // For server tickets, confirming payment is an order-level action.
+        // Try to resolve orderId from server first.
+        let orderId = '';
         try {
-          await fetch(`/api/ticket/orders/${ticket.orderId}/confirm`, { method: 'POST' });
-        } catch (e) {
-          console.log('API confirm failed, local update done');
-        }
-      }
+          const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}`);
+          const json = await resp.json().catch(() => ({}));
+          if (resp.ok && json && json.orderId) orderId = json.orderId;
+        } catch {}
 
-      showResult('success', 'Đã xác nhận thanh toán', `Vé "${ticketId}" đã được xác nhận thanh toán thành công.`);
-      updateRecentScans();
+        if (orderId) {
+          await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}/confirm`, { method: 'POST' });
+        }
+
+        showResult('success', 'Đã xác nhận thanh toán', `Vé "${ticketId}" đã được xác nhận thanh toán thành công.`);
+        updateRecentScans();
+      } catch (e) {
+        showResult('error', 'Không thể xác nhận', String(e.message || e));
+      }
     }
 
     async function cancelTicket(ticketId) {
       if (!confirm('Bạn có chắc muốn hủy vé này?')) return;
 
-      const stored = localStorage.getItem('ticket_' + ticketId);
-      if (!stored) return;
+      try {
+        // Prefer server-side cancel (ticket-level)
+        const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}/cancel`, { method: 'POST' });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || (json && json.error)) throw new Error((json && json.error) || 'Không thể hủy vé');
 
-      const ticket = JSON.parse(stored);
-      
-      // Update ticket status
-      ticket.status = 'cancelled';
-      ticket.cancelledAt = new Date().toISOString();
-      localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
-
-      // Update order status
-      if (ticket.orderId) {
-        const orderStored = localStorage.getItem('order_' + ticket.orderId);
-        if (orderStored) {
-          const order = JSON.parse(orderStored);
-          order.status = 'cancelled';
-          order.cancelledAt = new Date().toISOString();
-          localStorage.setItem('order_' + ticket.orderId, JSON.stringify(order));
-        }
-
-        // Try to cancel via API
-        try {
-          await fetch(`/api/ticket/orders/${ticket.orderId}/cancel`, { method: 'POST' });
-        } catch (e) {
-          console.log('API cancel failed, local update done');
-        }
+        showResult('error', 'Đã hủy vé', `Vé "${ticketId}" đã bị hủy.`);
+        updateRecentScans();
+      } catch (e) {
+        showResult('error', 'Không thể hủy vé', String(e.message || e));
       }
-
-      showResult('error', 'Đã hủy vé', `Vé "${ticketId}" đã bị hủy.`);
-      updateRecentScans();
     }
 
     function viewTicketInfo(ticketId) {
@@ -1389,16 +1402,33 @@
     }
 
     function markAsUsed(ticketId) {
-      const stored = localStorage.getItem('ticket_' + ticketId);
-      if (stored) {
-        const ticket = JSON.parse(stored);
-        ticket.status = 'used';
-        ticket.usedAt = new Date().toISOString();
-        localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
-        
-        showResult('success', 'Đã xác nhận', `Vé "${ticketId}" đã được đánh dấu là đã sử dụng.`);
-        updateRecentScans();
-      }
+      (async () => {
+        try {
+          const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}/use`, { method: 'POST' });
+          const json = await resp.json().catch(() => ({}));
+          if (!resp.ok || (json && json.error)) throw new Error((json && json.error) || 'Không thể cập nhật vé');
+
+          showResult('success', 'Đã xác nhận', `Vé "${ticketId}" đã được đánh dấu là đã sử dụng.`);
+          updateRecentScans();
+          return;
+        } catch (e) {
+          // fallback local
+          try {
+            const stored = localStorage.getItem('ticket_' + ticketId);
+            if (stored) {
+              const ticket = JSON.parse(stored);
+              ticket.status = 'used';
+              ticket.usedAt = new Date().toISOString();
+              localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
+              showResult('success', 'Đã xác nhận', `Vé "${ticketId}" đã được đánh dấu là đã sử dụng.`);
+              updateRecentScans();
+              return;
+            }
+          } catch {}
+
+          showResult('error', 'Không thể cập nhật vé', String(e.message || e));
+        }
+      })();
     }
 
     function resetScanner() {

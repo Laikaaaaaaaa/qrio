@@ -369,6 +369,41 @@ def init_tickets_db():
         except sqlite3.OperationalError:
             pass
 
+        # Ticket items (server-side registry for scanning across devices)
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS ticket_items (
+                ticket_id TEXT PRIMARY KEY,
+                order_id TEXT NOT NULL,
+                ticket_number INTEGER,
+                total_tickets INTEGER,
+                status TEXT NOT NULL,
+                created_at REAL NOT NULL,
+                used_at REAL,
+                cancelled_at REAL,
+                FOREIGN KEY(order_id) REFERENCES ticket_orders(order_id)
+            )
+        ''')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_items_order_id ON ticket_items(order_id)')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_items_status ON ticket_items(status)')
+
+        # Add new columns to existing table if missing
+        try:
+            cur.execute('ALTER TABLE ticket_items ADD COLUMN ticket_number INTEGER')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_items ADD COLUMN total_tickets INTEGER')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_items ADD COLUMN used_at REAL')
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cur.execute('ALTER TABLE ticket_items ADD COLUMN cancelled_at REAL')
+        except sqlite3.OperationalError:
+            pass
+
         cur.execute('''
             CREATE TABLE IF NOT EXISTS sepay_webhook_dedupe (
                 sepay_id INTEGER PRIMARY KEY,
@@ -398,6 +433,11 @@ def _new_event_id() -> str:
 
 def _new_order_id() -> str:
     return 'TK' + uuid.uuid4().hex[:10].upper()
+
+
+def _new_ticket_id() -> str:
+    # Public ticket code shown to buyer/staff.
+    return 'VE' + uuid.uuid4().hex[:12].upper()
 
 
 def _get_base_url() -> str:
@@ -1745,6 +1785,23 @@ def api_ticket_create_order():
                 int(quantity), int(total_amount), 'pending', payment_type,
                 cash_payer_name or None, cash_payment_time or None, now
             ))
+
+            # Create ticket items on server so staff scanning works across devices.
+            ticket_status = 'pending'
+            if payment_type == 'cash':
+                ticket_status = 'pending_payment'
+
+            ticket_ids = []
+            items = []
+            for i in range(int(quantity)):
+                tid = _new_ticket_id()
+                ticket_ids.append(tid)
+                items.append((tid, order_id, i + 1, int(quantity), ticket_status, now))
+
+            cur.executemany('''
+                INSERT INTO ticket_items (ticket_id, order_id, ticket_number, total_tickets, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', items)
             conn.commit()
         finally:
             try:
@@ -1758,6 +1815,7 @@ def api_ticket_create_order():
             'quantity': int(quantity),
             'pricePerTicket': int(price_per_ticket),
             'totalAmount': int(total_amount),
+            'ticketIds': ticket_ids,
             'memo': order_id,
             'bankCode': event_row['bank_code'],
             'bankName': event_row['bank_name'],
@@ -1791,6 +1849,11 @@ def api_ticket_get_order(order_id):
                 WHERE o.order_id = ?
             ''', (order_id,))
             row = cur.fetchone()
+
+            ticket_ids = []
+            if row:
+                cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY COALESCE(ticket_number, 0) ASC, ticket_id ASC', (order_id,))
+                ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
         finally:
             conn.close()
 
@@ -1808,6 +1871,7 @@ def api_ticket_get_order(order_id):
             'status': row['status'],
             'totalAmount': int(row['total_amount']),
             'quantity': int(row['quantity']),
+            'ticketIds': ticket_ids,
             'createdAt': row['created_at'],
             'paidAt': row['paid_at'],
             'paymentType': row['payment_type'] or 'transfer',
@@ -1886,6 +1950,232 @@ def api_ticket_list_orders(event_id):
         return jsonify({'error': 'Không thể tải danh sách đơn hàng'}), 500
 
 
+@app.route('/api/ticket/tickets/register', methods=['POST'])
+@limiter.limit("10 per second; 120 per minute")
+def api_ticket_register_tickets():
+    """Register ticket IDs on the server so staff scanning works across devices.
+
+    Body can be:
+      {"tickets": [{"ticketId": "VE...", "orderId": "TK...", "ticketNumber": 1, "totalTickets": 3, "status": "valid"}, ...]}
+    or a single ticket object.
+    """
+    try:
+        payload = request.get_json(silent=True) if request.is_json else None
+        if not isinstance(payload, dict):
+            payload = {}
+
+        items = payload.get('tickets')
+        if isinstance(items, list):
+            tickets = items
+        else:
+            # Allow single-ticket payload
+            tickets = [payload]
+
+        if not tickets or not isinstance(tickets, list):
+            return jsonify({'error': 'Thiếu tickets'}), 400
+
+        if len(tickets) > 500:
+            return jsonify({'error': 'Quá nhiều vé trong một lần đăng ký'}), 400
+
+        now = time.time()
+        to_upsert = []
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+
+            for t in tickets:
+                if not isinstance(t, dict):
+                    continue
+
+                ticket_id = sanitize_input(t.get('ticketId', ''), max_length=80).upper()
+                order_id = sanitize_input(t.get('orderId', ''), max_length=80).upper()
+                ticket_number = validate_int(t.get('ticketNumber'), default=0, min_val=0, max_val=10**6)
+                total_tickets = validate_int(t.get('totalTickets'), default=0, min_val=0, max_val=10**6)
+                status = sanitize_input(t.get('status', 'valid'), max_length=32).lower()
+
+                if not ticket_id or not order_id:
+                    continue
+
+                if status not in ('valid', 'paid', 'pending', 'pending_verification', 'pending_payment', 'used', 'cancelled'):
+                    status = 'valid'
+                if status == 'paid':
+                    status = 'valid'
+
+                # Ensure order exists
+                cur.execute('SELECT order_id FROM ticket_orders WHERE order_id = ?', (order_id,))
+                if not cur.fetchone():
+                    continue
+
+                to_upsert.append((ticket_id, order_id, int(ticket_number or 0), int(total_tickets or 0), status, now))
+
+            if not to_upsert:
+                return jsonify({'ok': True, 'registered': 0}), 200
+
+            cur.executemany('''
+                INSERT INTO ticket_items (ticket_id, order_id, ticket_number, total_tickets, status, created_at)
+                VALUES (?, ?, NULLIF(?, 0), NULLIF(?, 0), ?, ?)
+                ON CONFLICT(ticket_id) DO UPDATE SET
+                    order_id = excluded.order_id,
+                    ticket_number = COALESCE(excluded.ticket_number, ticket_items.ticket_number),
+                    total_tickets = COALESCE(excluded.total_tickets, ticket_items.total_tickets),
+                    status = CASE
+                        WHEN ticket_items.status IN ('used', 'cancelled') THEN ticket_items.status
+                        ELSE excluded.status
+                    END
+            ''', to_upsert)
+            conn.commit()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return jsonify({'ok': True, 'registered': len(to_upsert)}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_register_tickets: {e}")
+        return jsonify({'error': 'Không thể đăng ký vé. Vui lòng thử lại.'}), 500
+
+
+@app.route('/api/ticket/tickets/<ticket_id>', methods=['GET'])
+@limiter.limit("12 per second; 240 per minute")
+def api_ticket_get_ticket(ticket_id):
+    """Fetch a ticket by ticket_id for staff scanning."""
+    try:
+        ticket_id = sanitize_input(ticket_id, max_length=80).upper()
+        if not ticket_id:
+            return jsonify({'error': 'Thiếu ticketId'}), 400
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('''
+                SELECT
+                    t.ticket_id, t.order_id, t.ticket_number, t.total_tickets,
+                    t.status AS ticket_status, t.used_at, t.cancelled_at,
+                    o.status AS order_status, o.payment_type, o.cash_payer_name, o.cash_payment_time,
+                    o.buyer_name, o.buyer_email, o.buyer_phone, o.buyer_note,
+                    o.total_amount, o.quantity, o.created_at, o.paid_at,
+                    e.event_id, e.event_name, e.description, e.price_per_ticket
+                FROM ticket_items t
+                JOIN ticket_orders o ON o.order_id = t.order_id
+                JOIN ticket_events e ON e.event_id = o.event_id
+                WHERE t.ticket_id = ?
+            ''', (ticket_id,))
+            row = cur.fetchone()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        if not row:
+            return jsonify({'error': 'Không tìm thấy vé'}), 404
+
+        return jsonify({
+            'ticketId': row['ticket_id'],
+            'orderId': row['order_id'],
+            'ticketNumber': int(row['ticket_number'] or 0) if row['ticket_number'] is not None else None,
+            'totalTickets': int(row['total_tickets'] or 0) if row['total_tickets'] is not None else None,
+            'ticketStatus': (row['ticket_status'] or 'valid'),
+            'usedAt': row['used_at'],
+            'cancelledAt': row['cancelled_at'],
+            'orderStatus': row['order_status'],
+            'paymentType': row['payment_type'] or 'transfer',
+            'cashPayerName': row['cash_payer_name'],
+            'cashPaymentTime': row['cash_payment_time'],
+            'buyerName': row['buyer_name'],
+            'buyerEmail': row['buyer_email'],
+            'buyerPhone': row['buyer_phone'],
+            'buyerNote': row['buyer_note'] or '',
+            'totalAmount': int(row['total_amount'] or 0),
+            'quantity': int(row['quantity'] or 0),
+            'createdAt': row['created_at'],
+            'paidAt': row['paid_at'],
+            'eventId': row['event_id'],
+            'eventName': row['event_name'],
+            'description': row['description'] or '',
+            'pricePerTicket': int(row['price_per_ticket'] or 0),
+        }), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_get_ticket: {e}")
+        return jsonify({'error': 'Không thể tải vé'}), 500
+
+
+@app.route('/api/ticket/tickets/<ticket_id>/use', methods=['POST'])
+@limiter.limit("8 per second; 120 per minute")
+def api_ticket_mark_used(ticket_id):
+    """Mark a ticket as used (server-side), to avoid re-use across devices."""
+    try:
+        ticket_id = sanitize_input(ticket_id, max_length=80).upper()
+        if not ticket_id:
+            return jsonify({'error': 'Thiếu ticketId'}), 400
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT status FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({'error': 'Không tìm thấy vé'}), 404
+
+            status = (row['status'] or '').lower()
+            if status == 'used':
+                return jsonify({'ok': True, 'status': 'used'}), 200
+            if status == 'cancelled':
+                return jsonify({'error': 'Vé đã bị hủy'}), 400
+
+            cur.execute('UPDATE ticket_items SET status = ?, used_at = ? WHERE ticket_id = ?', ('used', time.time(), ticket_id))
+            conn.commit()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return jsonify({'ok': True, 'status': 'used'}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_mark_used: {e}")
+        return jsonify({'error': 'Không thể cập nhật trạng thái vé'}), 500
+
+
+@app.route('/api/ticket/tickets/<ticket_id>/cancel', methods=['POST'])
+@limiter.limit("8 per second; 120 per minute")
+def api_ticket_cancel_ticket(ticket_id):
+    """Mark a ticket as cancelled (server-side)."""
+    try:
+        ticket_id = sanitize_input(ticket_id, max_length=80).upper()
+        if not ticket_id:
+            return jsonify({'error': 'Thiếu ticketId'}), 400
+
+        conn = get_tickets_db()
+        try:
+            cur = conn.cursor()
+            cur.execute('SELECT status FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({'error': 'Không tìm thấy vé'}), 404
+
+            status = (row['status'] or '').lower()
+            if status == 'cancelled':
+                return jsonify({'ok': True, 'status': 'cancelled'}), 200
+            if status == 'used':
+                return jsonify({'error': 'Vé đã sử dụng, không thể hủy'}), 400
+
+            cur.execute('UPDATE ticket_items SET status = ?, cancelled_at = ? WHERE ticket_id = ?', ('cancelled', time.time(), ticket_id))
+            conn.commit()
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
+        return jsonify({'ok': True, 'status': 'cancelled'}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_cancel_ticket: {e}")
+        return jsonify({'error': 'Không thể hủy vé'}), 500
+
+
 @app.route('/api/ticket/orders/<order_id>/confirm', methods=['POST'])
 @limiter.limit("4 per second; 60 per minute")
 def api_ticket_confirm_order(order_id):
@@ -1903,9 +2193,17 @@ def api_ticket_confirm_order(order_id):
             if row['status'] == 'paid':
                 return jsonify({'ok': True, 'message': 'Đơn hàng đã được xác nhận trước đó'}), 200
 
+            now = time.time()
             cur.execute('''
                 UPDATE ticket_orders SET status = 'paid', paid_at = ? WHERE order_id = ?
-            ''', (time.time(), order_id))
+            ''', (now, order_id))
+
+            # Update tickets to valid (do not override used/cancelled)
+            cur.execute('''
+                UPDATE ticket_items
+                SET status = 'valid'
+                WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
+            ''', (order_id,))
             conn.commit()
         finally:
             conn.close()
@@ -1933,6 +2231,13 @@ def api_ticket_cancel_order(order_id):
             cur.execute('''
                 UPDATE ticket_orders SET status = 'cancelled' WHERE order_id = ?
             ''', (order_id,))
+
+            # Cancel tickets (do not override used)
+            cur.execute('''
+                UPDATE ticket_items
+                SET status = 'cancelled', cancelled_at = COALESCE(cancelled_at, ?)
+                WHERE order_id = ? AND status != 'used'
+            ''', (time.time(), order_id))
             conn.commit()
         finally:
             conn.close()
@@ -1992,6 +2297,13 @@ def api_ticket_upload_proof(order_id):
                 SET payment_proof_image = ?, status = ?
                 WHERE order_id = ?
             ''', (image_data, new_status, order_id))
+
+            if new_status == 'pending_verification':
+                cur.execute('''
+                    UPDATE ticket_items
+                    SET status = 'pending_verification'
+                    WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
+                ''', (order_id,))
             conn.commit()
         finally:
             conn.close()
@@ -2093,6 +2405,12 @@ def api_sepay_webhook(event_id):
                 SET status = 'paid', paid_at = ?, sepay_transaction_id = ?, sepay_reference_code = ?
                 WHERE order_id = ?
             ''', (time.time(), sepay_id_int, ref_code or None, order_id))
+
+            cur.execute('''
+                UPDATE ticket_items
+                SET status = 'valid'
+                WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
+            ''', (order_id,))
             conn.commit()
 
             return jsonify({'success': True, 'matched': True, 'orderId': order_id}), 200

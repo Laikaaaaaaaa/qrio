@@ -751,6 +751,27 @@
             // ignore
           }
         }
+
+        // If not found in cache, fetch from server
+        if (!ticketId) {
+          try {
+            const resp = await fetch(`/api/ticket/orders/${encodeURIComponent(currentOrderId)}`);
+            const json = await resp.json().catch(() => ({}));
+            if (resp.ok && json && Array.isArray(json.ticketIds) && json.ticketIds.length) {
+              ticketId = String(json.ticketIds[0] || '').trim();
+              // Cache for next time (optional)
+              try {
+                const cached = localStorage.getItem('order_' + currentOrderId);
+                const o = cached ? JSON.parse(cached) : {};
+                o.orderId = currentOrderId;
+                o.tickets = json.ticketIds;
+                localStorage.setItem('order_' + currentOrderId, JSON.stringify(o));
+              } catch {}
+            }
+          } catch {
+            // ignore
+          }
+        }
       }
 
       if (!ticketId) {
@@ -758,19 +779,45 @@
         return;
       }
 
-      // Get ticket from localStorage
-      const stored = localStorage.getItem('ticket_' + ticketId);
-      
-      if (!stored) {
-        showError('Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.');
-        return;
-      }
-
+      // Prefer server-side ticket registry
       try {
-        ticketData = JSON.parse(stored);
+        const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}`);
+        const json = await resp.json().catch(() => ({}));
+        if (resp.ok && json && !json.error) {
+          ticketData = {
+            ticketId: json.ticketId,
+            orderId: json.orderId,
+            eventId: json.eventId,
+            eventName: json.eventName,
+            description: json.description,
+            buyerName: json.buyerName,
+            buyerEmail: json.buyerEmail,
+            buyerPhone: json.buyerPhone,
+            buyerNote: json.buyerNote,
+            ticketNumber: json.ticketNumber || 1,
+            totalTickets: json.totalTickets || json.quantity || 1,
+            price: json.pricePerTicket || 0,
+            paymentType: json.paymentType || 'transfer',
+            cashPaymentTime: json.cashPaymentTime || '',
+            status: (json.ticketStatus || '').toLowerCase() || 'valid',
+            issuedAt: json.createdAt ? new Date(json.createdAt * 1000).toISOString() : new Date().toISOString()
+          };
+        } else {
+          throw new Error((json && json.error) || 'Không tìm thấy vé');
+        }
       } catch (e) {
-        showError('Dữ liệu vé không hợp lệ.');
-        return;
+        // Fallback: old local storage
+        const stored = localStorage.getItem('ticket_' + ticketId);
+        if (!stored) {
+          showError('Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.');
+          return;
+        }
+        try {
+          ticketData = JSON.parse(stored);
+        } catch {
+          showError('Dữ liệu vé không hợp lệ.');
+          return;
+        }
       }
 
       // Prefer orderId stored in ticket

@@ -321,30 +321,11 @@
       }
     }
 
-    function persistTickets(status) {
-      const ticketIds = [];
-      const qty = Math.max(1, parseInt((orderData && orderData.quantity) || 1, 10) || 1);
-      for (let i = 0; i < qty; i++) {
-        const tid = generateTicketId();
-        ticketIds.push(tid);
-        const ticket = {
-          ticketId: tid,
-          orderId,
-          eventId: orderData.eventId,
-          eventName: orderData.eventName,
-          buyerName: orderData.buyerName,
-          buyerEmail: orderData.buyerEmail,
-          buyerPhone: orderData.buyerPhone,
-          buyerNote: orderData.buyerNote,
-          ticketNumber: i + 1,
-          totalTickets: qty,
-          price: Math.floor((orderData.totalAmount || 0) / qty),
-          status,
-          issuedAt: new Date().toISOString()
-        };
-        localStorage.setItem('ticket_' + tid, JSON.stringify(ticket));
+    function getServerTicketIds() {
+      if (orderData && Array.isArray(orderData.ticketIds) && orderData.ticketIds.length) {
+        return orderData.ticketIds;
       }
-      return ticketIds;
+      return [];
     }
 
     async function init() {
@@ -389,19 +370,8 @@
       // Cash orders: no bank verification and no proof upload
       const paymentType = String((orderData && orderData.paymentType) || '').toLowerCase();
       if (paymentType === 'cash') {
-        // Create local pending tickets if needed (for the current device)
-        try {
-          const cached = localStorage.getItem('order_' + orderId);
-          const o = cached ? JSON.parse(cached) : {};
-          if (!Array.isArray(o.tickets) || o.tickets.length === 0) {
-            const ticketIds = persistTickets('pending_payment');
-            persistOrderStatus('pending_payment', ticketIds);
-          } else {
-            persistOrderStatus('pending_payment', o.tickets);
-          }
-        } catch {
-          // ignore
-        }
+        const ticketIds = getServerTicketIds();
+        persistOrderStatus('pending_payment', ticketIds);
 
         setStatus('Chờ thanh toán tiền mặt', false);
         showOnly('pending');
@@ -439,7 +409,7 @@
           if (!uploadResp.ok || uploadJson.error) throw new Error(uploadJson.error || 'Không thể tải ảnh');
 
           // Create local pending tickets immediately
-          const ticketIds = persistTickets('pending_verification');
+          const ticketIds = getServerTicketIds();
           persistOrderStatus('pending_verification', ticketIds);
 
           setStatus('Đã gửi ảnh - chờ duyệt', false);
@@ -466,14 +436,16 @@
         if (!resp.ok) throw new Error(json.error || json.message || 'Không thể kiểm tra thanh toán');
 
         if (json && json.verified === true) {
-          const ticketIds = persistTickets('valid');
+          const ticketIds = getServerTicketIds();
           persistOrderStatus('paid', ticketIds, new Date().toISOString());
 
           setStatus('Đã thanh toán', true);
           showOnly('success');
 
-          document.getElementById('ticket-id').textContent = ticketIds[0];
-          document.getElementById('view-ticket').href = `ticket.html?id=${encodeURIComponent(ticketIds[0])}`;
+          document.getElementById('ticket-id').textContent = ticketIds[0] || '-';
+          if (ticketIds[0]) {
+            document.getElementById('view-ticket').href = `ticket.html?id=${encodeURIComponent(ticketIds[0])}`;
+          }
           try { if (pollTimer) clearInterval(pollTimer); } catch {}
 
           scheduleRedirectToTicket();

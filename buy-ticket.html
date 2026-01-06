@@ -1327,6 +1327,7 @@
         totalAmount: createJson.totalAmount,
         paymentType: paymentType,
         paymentMethod: createJson.paymentMethod,
+        tickets: Array.isArray(createJson.ticketIds) ? createJson.ticketIds : [],
         status: 'pending',
         createdAt: new Date().toISOString()
       };
@@ -1450,33 +1451,11 @@
         // Save to local storage
         localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
-        // Generate tickets immediately for cash payment
-        const tickets = [];
-        for (let i = 0; i < orderData.quantity; i++) {
-          const ticketId = generateTicketId();
-          const ticket = {
-            ticketId: ticketId,
-            orderId: orderData.orderId,
-            eventId: eventData.eventId,
-            eventName: eventData.eventName,
-            buyerName: orderData.buyerName,
-            buyerEmail: orderData.buyerEmail,
-            buyerPhone: orderData.buyerPhone,
-            buyerNote: orderData.buyerNote,
-            ticketNumber: i + 1,
-            totalTickets: orderData.quantity,
-            price: eventData.pricePerTicket,
-            paymentType: 'cash',
-            cashPaymentTime: getCashPaymentTimeLabel(cashPaymentTime),
-            status: 'pending_payment',
-            issuedAt: new Date().toISOString()
-          };
-          tickets.push(ticket);
-          localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
+        // Tickets are issued on server; keep only ids (optional cache)
+        if (Array.isArray(createJson.ticketIds) && createJson.ticketIds.length) {
+          orderData.tickets = createJson.ticketIds;
+          localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
         }
-
-        orderData.tickets = tickets.map(t => t.ticketId);
-        localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
         // Go to order status page (cash doesn't require proof upload)
         window.location.href = `transfer-confirm.html?order=${encodeURIComponent(orderData.orderId)}`;
@@ -1658,32 +1637,15 @@
 
     function handleManualPending() {
       clearInterval(countdownTimer);
-      
-      // Generate tickets with pending_verification status
-      const tickets = [];
-      for (let i = 0; i < orderData.quantity; i++) {
-        const ticketId = generateTicketId();
-        const ticket = {
-          ticketId: ticketId,
-          orderId: orderData.orderId,
-          eventId: eventData.eventId,
-          eventName: eventData.eventName,
-          buyerName: orderData.buyerName,
-          buyerEmail: orderData.buyerEmail,
-          buyerPhone: orderData.buyerPhone,
-          ticketNumber: i + 1,
-          totalTickets: orderData.quantity,
-          price: eventData.pricePerTicket,
-          status: 'pending_verification',
-          issuedAt: new Date().toISOString()
-        };
-        tickets.push(ticket);
-        localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
-      }
+
+      // Tickets are issued on server when order was created.
+      const tickets = (orderData && Array.isArray(orderData.tickets)) ? orderData.tickets : [];
 
       // Update order status
       orderData.status = 'pending_verification';
-      orderData.tickets = tickets.map(t => t.ticketId);
+      if (!Array.isArray(orderData.tickets) || orderData.tickets.length === 0) {
+        orderData.tickets = tickets;
+      }
       localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
       // Show success with pending message
@@ -1716,7 +1678,7 @@
 
       // Fill success info
       const ticketCodeEl = document.getElementById('ticket-code');
-      if (ticketCodeEl) ticketCodeEl.textContent = tickets[0].ticketId;
+      if (ticketCodeEl) ticketCodeEl.textContent = tickets[0] || '-';
       const successEventEl = document.getElementById('success-event');
       if (successEventEl) successEventEl.textContent = eventData.eventName;
       const successNameEl = document.getElementById('success-name');
@@ -1730,31 +1692,14 @@
       const verifyingModal = document.getElementById('verifying-modal');
       if (verifyingModal) verifyingModal.classList.add('hidden');
 
-      // Generate ticket(s)
-      const tickets = [];
-      for (let i = 0; i < orderData.quantity; i++) {
-        const ticketId = generateTicketId();
-        const ticket = {
-          ticketId: ticketId,
-          orderId: orderData.orderId,
-          eventId: eventData.eventId,
-          eventName: eventData.eventName,
-          buyerName: orderData.buyerName,
-          buyerEmail: orderData.buyerEmail,
-          buyerPhone: orderData.buyerPhone,
-          ticketNumber: i + 1,
-          totalTickets: orderData.quantity,
-          price: eventData.pricePerTicket,
-          status: 'valid',
-          issuedAt: new Date().toISOString()
-        };
-        tickets.push(ticket);
-        localStorage.setItem('ticket_' + ticketId, JSON.stringify(ticket));
-      }
+      // Tickets are issued on server when order was created.
+      const tickets = (orderData && Array.isArray(orderData.tickets)) ? orderData.tickets : [];
 
       // Update order status
       orderData.status = 'paid';
-      orderData.tickets = tickets.map(t => t.ticketId);
+      if (!Array.isArray(orderData.tickets) || orderData.tickets.length === 0) {
+        orderData.tickets = tickets;
+      }
       orderData.paidAt = new Date().toISOString();
       localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
 
@@ -1779,7 +1724,7 @@
 
       // Fill success info
       const ticketCodeEl = document.getElementById('ticket-code');
-      if (ticketCodeEl) ticketCodeEl.textContent = tickets[0].ticketId;
+      if (ticketCodeEl) ticketCodeEl.textContent = tickets[0] || '-';
       const successEventEl = document.getElementById('success-event');
       if (successEventEl) successEventEl.textContent = eventData.eventName;
       const successNameEl = document.getElementById('success-name');
