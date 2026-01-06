@@ -3,6 +3,7 @@ click==8.3.1
 colorama==0.4.6
 Flask==3.1.2
 Flask-Limiter==3.5.0
+Flask-SocketIO==5.3.7
 gunicorn==23.0.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
@@ -13,3 +14,4 @@ Werkzeug==3.1.4
 requests==2.31.0
 bcrypt==4.2.0
 python-dotenv==1.0.1
+eventlet==0.36.1

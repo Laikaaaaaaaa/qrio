@@ -34,6 +34,12 @@ import hmac
 import re
 import sqlite3
 
+try:
+    from flask_socketio import SocketIO, join_room
+except Exception:  # pragma: no cover
+    SocketIO = None
+    join_room = None
+
 # ========================
 # PRODUCTION LOGGING SETUP
 # ========================
@@ -245,6 +251,92 @@ app = Flask(
 # Load environment variables
 from dotenv import load_dotenv
 load_dotenv()
+
+
+socketio = None
+if SocketIO is not None:
+    # Allow overriding async mode (e.g., "eventlet" in production, "threading" on Windows/dev)
+    _async_mode = os.environ.get('SOCKETIO_ASYNC_MODE')
+    socketio = SocketIO(
+        app,
+        cors_allowed_origins='*',
+        async_mode=_async_mode or None,
+        ping_timeout=20,
+        ping_interval=25,
+    )
+
+
+def _ws_emit_ticket_updated(ticket_id: str, extra: Optional[dict] = None) -> None:
+    if not socketio:
+        return
+    tid = sanitize_input(ticket_id or '', max_length=80).upper()
+    if not tid:
+        return
+    payload = {'ticketId': tid}
+    if isinstance(extra, dict):
+        payload.update(extra)
+    # Always emit to the ticket-specific room.
+    socketio.emit('ticket_updated', payload, room=f'ticket:{tid}')
+
+    # Also fan out to order/event rooms if identifiers are present.
+    oid = sanitize_input(payload.get('orderId', ''), max_length=80)
+    if oid:
+        socketio.emit('ticket_updated', payload, room=f'order:{oid}')
+    eid = sanitize_input(payload.get('eventId', ''), max_length=40)
+    if eid:
+        socketio.emit('ticket_updated', payload, room=f'event:{eid}')
+
+
+def _ws_emit_tickets_updated(ticket_ids, extra: Optional[dict] = None) -> None:
+    if not socketio:
+        return
+    if not ticket_ids:
+        return
+    for tid in ticket_ids:
+        _ws_emit_ticket_updated(tid, extra=extra)
+
+
+def _ws_emit_order_updated(order_id: str, event_id: str = '', status: str = '', ticket_ids=None) -> None:
+    if not socketio:
+        return
+    oid = sanitize_input(order_id or '', max_length=80)
+    if not oid:
+        return
+    payload = {'orderId': oid}
+    eid = sanitize_input(event_id or '', max_length=40)
+    if eid:
+        payload['eventId'] = eid
+    st = sanitize_input(status or '', max_length=32).lower()
+    if st:
+        payload['status'] = st
+    if isinstance(ticket_ids, list) and ticket_ids:
+        payload['ticketIds'] = [sanitize_input(t, max_length=80).upper() for t in ticket_ids if t]
+
+    socketio.emit('order_updated', payload, room=f'order:{oid}')
+    if eid:
+        socketio.emit('order_updated', payload, room=f'event:{eid}')
+
+
+if socketio:
+    @socketio.on('join')
+    def _ws_join(data):
+        try:
+            if not isinstance(data, dict):
+                data = {}
+            ticket_id = sanitize_input((data.get('ticketId') or ''), max_length=80).upper()
+            order_id = sanitize_input((data.get('orderId') or ''), max_length=80)
+            event_id = sanitize_input((data.get('eventId') or ''), max_length=40)
+
+            if join_room:
+                if ticket_id:
+                    join_room(f'ticket:{ticket_id}')
+                if order_id:
+                    join_room(f'order:{order_id}')
+                if event_id:
+                    join_room(f'event:{event_id}')
+        except Exception:
+            # Keep silent: client can still function without rooms.
+            pass
 
 
 # ========================
@@ -2111,13 +2203,22 @@ def api_ticket_mark_used(ticket_id):
         if not ticket_id:
             return jsonify({'error': 'Thiếu ticketId'}), 400
 
+        order_id = ''
+        event_id = ''
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT status FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
+            cur.execute('SELECT status, order_id FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'error': 'Không tìm thấy vé'}), 404
+
+            order_id = (row['order_id'] or '').strip()
+            if order_id:
+                cur.execute('SELECT event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
+                r2 = cur.fetchone()
+                if r2:
+                    event_id = (r2['event_id'] or '').strip()
 
             status = (row['status'] or '').lower()
             if status == 'used':
@@ -2133,6 +2234,7 @@ def api_ticket_mark_used(ticket_id):
             except Exception:
                 pass
 
+        _ws_emit_ticket_updated(ticket_id, extra={'status': 'used', 'orderId': order_id, 'eventId': event_id})
         return jsonify({'ok': True, 'status': 'used'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_mark_used: {e}")
@@ -2148,13 +2250,22 @@ def api_ticket_cancel_ticket(ticket_id):
         if not ticket_id:
             return jsonify({'error': 'Thiếu ticketId'}), 400
 
+        order_id = ''
+        event_id = ''
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT status FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
+            cur.execute('SELECT status, order_id FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'error': 'Không tìm thấy vé'}), 404
+
+            order_id = (row['order_id'] or '').strip()
+            if order_id:
+                cur.execute('SELECT event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
+                r2 = cur.fetchone()
+                if r2:
+                    event_id = (r2['event_id'] or '').strip()
 
             status = (row['status'] or '').lower()
             if status == 'cancelled':
@@ -2170,6 +2281,7 @@ def api_ticket_cancel_ticket(ticket_id):
             except Exception:
                 pass
 
+        _ws_emit_ticket_updated(ticket_id, extra={'status': 'cancelled', 'orderId': order_id, 'eventId': event_id})
         return jsonify({'ok': True, 'status': 'cancelled'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_cancel_ticket: {e}")
@@ -2182,13 +2294,17 @@ def api_ticket_confirm_order(order_id):
     """Manually confirm an order as paid (for manual verification)."""
     try:
         order_id = sanitize_input(order_id, max_length=80)
+        ticket_ids = []
+        event_id = ''
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT status FROM ticket_orders WHERE order_id = ?', (order_id,))
+            cur.execute('SELECT status, event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+            event_id = (row['event_id'] or '').strip()
 
             if row['status'] == 'paid':
                 return jsonify({'ok': True, 'message': 'Đơn hàng đã được xác nhận trước đó'}), 200
@@ -2204,10 +2320,15 @@ def api_ticket_confirm_order(order_id):
                 SET status = 'valid'
                 WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
             ''', (order_id,))
+
+            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
+            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
             conn.commit()
         finally:
             conn.close()
 
+        _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'paid'})
+        _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='paid', ticket_ids=ticket_ids)
         return jsonify({'ok': True, 'message': 'Đã xác nhận thanh toán thành công'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_confirm_order: {e}")
@@ -2220,13 +2341,17 @@ def api_ticket_cancel_order(order_id):
     """Cancel an order."""
     try:
         order_id = sanitize_input(order_id, max_length=80)
+        ticket_ids = []
+        event_id = ''
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT status FROM ticket_orders WHERE order_id = ?', (order_id,))
+            cur.execute('SELECT status, event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+            event_id = (row['event_id'] or '').strip()
 
             cur.execute('''
                 UPDATE ticket_orders SET status = 'cancelled' WHERE order_id = ?
@@ -2238,10 +2363,15 @@ def api_ticket_cancel_order(order_id):
                 SET status = 'cancelled', cancelled_at = COALESCE(cancelled_at, ?)
                 WHERE order_id = ? AND status != 'used'
             ''', (time.time(), order_id))
+
+            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
+            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
             conn.commit()
         finally:
             conn.close()
 
+        _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'cancelled'})
+        _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='cancelled', ticket_ids=ticket_ids)
         return jsonify({'ok': True, 'message': 'Đã hủy đơn hàng'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_cancel_order: {e}")
@@ -2279,13 +2409,17 @@ def api_ticket_upload_proof(order_id):
         if not image_data:
             return jsonify({'error': 'Vui lòng tải lên ảnh xác nhận'}), 400
 
+        ticket_ids = []
+        event_id = ''
         conn = get_tickets_db()
         try:
             cur = conn.cursor()
-            cur.execute('SELECT order_id, status FROM ticket_orders WHERE order_id = ?', (order_id,))
+            cur.execute('SELECT order_id, status, event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
             row = cur.fetchone()
             if not row:
                 return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+
+            event_id = (row['event_id'] or '').strip()
 
             status = (row['status'] or '').lower()
             new_status = status
@@ -2304,10 +2438,15 @@ def api_ticket_upload_proof(order_id):
                     SET status = 'pending_verification'
                     WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
                 ''', (order_id,))
+
+            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
+            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
             conn.commit()
         finally:
             conn.close()
 
+        _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': new_status})
+        _ws_emit_order_updated(order_id=order_id, event_id=event_id, status=new_status, ticket_ids=ticket_ids)
         return jsonify({'ok': True, 'message': 'Đã tải lên ảnh xác nhận'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_upload_proof: {e}")
@@ -2400,6 +2539,7 @@ def api_sepay_webhook(event_id):
             if status == 'paid':
                 return jsonify({'success': True, 'matched': True, 'already_paid': True}), 200
 
+            ticket_ids = []
             cur.execute('''
                 UPDATE ticket_orders
                 SET status = 'paid', paid_at = ?, sepay_transaction_id = ?, sepay_reference_code = ?
@@ -2411,7 +2551,13 @@ def api_sepay_webhook(event_id):
                 SET status = 'valid'
                 WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
             ''', (order_id,))
+
+            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
+            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
             conn.commit()
+
+            _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'paid', 'eventId': event_id})
+            _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='paid', ticket_ids=ticket_ids)
 
             return jsonify({'success': True, 'matched': True, 'orderId': order_id}), 200
         finally:
@@ -2829,4 +2975,7 @@ if __name__ == '__main__':
     logger.info(f"✓ Qrio đang chạy tại http://localhost:{port}")
     logger.info("✓ Mở trình duyệt và truy cập")
     logger.info("✓ Bấn Ctrl+C để dừng server")
-    app.run(debug=debug, host=host, port=port)
+    if socketio:
+        socketio.run(app, debug=debug, host=host, port=port)
+    else:
+        app.run(debug=debug, host=host, port=port)

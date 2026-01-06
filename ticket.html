@@ -23,6 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   
   <style>
     * {
@@ -716,6 +717,46 @@
     let currentOrderId = '';
     let currentOrder = null;
     let proofDataUrl = '';
+    let _realtimeSocket = null;
+    let _realtimeBoundTicketId = '';
+
+    function setupRealtimeForTicket(ticketId) {
+      const tid = String(ticketId || '').trim().toUpperCase();
+      if (!tid) return;
+      if (_realtimeBoundTicketId === tid) return;
+      if (!window.io) return;
+
+      _realtimeBoundTicketId = tid;
+
+      try {
+        if (_realtimeSocket) {
+          try { _realtimeSocket.disconnect(); } catch {}
+          _realtimeSocket = null;
+        }
+
+        _realtimeSocket = window.io({
+          transports: ['websocket', 'polling'],
+          timeout: 8000,
+        });
+
+        _realtimeSocket.on('connect', () => {
+          try { _realtimeSocket.emit('join', { ticketId: tid }); } catch {}
+        });
+
+        _realtimeSocket.on('ticket_updated', (msg) => {
+          try {
+            const updatedId = String((msg && msg.ticketId) || '').trim().toUpperCase();
+            if (!updatedId) return;
+            if (updatedId !== tid) return;
+            window.location.reload();
+          } catch {
+            // ignore
+          }
+        });
+      } catch {
+        // ignore
+      }
+    }
 
     function formatCurrency(amount) {
       return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
@@ -778,6 +819,8 @@
         showError('Link không hợp lệ.');
         return;
       }
+
+      setupRealtimeForTicket(ticketId);
 
       // Prefer server-side ticket registry
       try {

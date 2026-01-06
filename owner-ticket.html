@@ -180,6 +180,8 @@
           <div id="owner-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="unlockOwner()"><i class="fa-solid fa-lock-open"></i> Mở trang chủ vé</button>
             <a id="buy-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-link"></i> Link mua vé</a>
+            <a id="scan-link" class="btn btn-secondary" href="scan.html"><i class="fa-solid fa-qrcode"></i> Tới quét vé</a>
+            <a id="manage-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-list-check"></i> Quản lý đơn</a>
           </div>
         </div>
       </div>
@@ -372,6 +374,8 @@
 
       document.getElementById('event-id').textContent = eventId;
       document.getElementById('buy-link').href = `buy-ticket.html?event=${encodeURIComponent(eventId)}`;
+      document.getElementById('manage-link').href = `manage-orders.html?event=${encodeURIComponent(eventId)}`;
+      document.getElementById('scan-link').href = 'scan.html';
 
       try {
         const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}`);
