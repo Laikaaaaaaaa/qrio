@@ -230,6 +230,11 @@
       font-size: 13px;
       word-break: break-all;
     }
+
+    @media (max-width: 768px) {
+      .header { padding: 0 16px; }
+      .header-right span { display: none; }
+    }
   </style>
 </head>
 
@@ -248,8 +253,8 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a class="btn btn-secondary" href="ticket-create.html"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
-      <a class="btn btn-primary" href="home.html"><i class="fa-solid fa-house"></i> Trang chủ</a>
+      <a class="btn btn-secondary" href="ticket-create.html"><i class="fa-solid fa-arrow-left"></i> <span>Quay lại</span></a>
+      <a class="btn btn-primary" href="home.html"><i class="fa-solid fa-house"></i> <span>Trang chủ</span></a>
     </div>
   </header>
 

@@ -642,6 +642,10 @@
         padding: 0 16px;
       }
 
+      .header-right span {
+        display: none;
+      }
+
       .order-header {
         flex-direction: column;
       }
@@ -785,12 +789,83 @@
     </div>
   </main>
 
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
   <script>
     let eventData = null;
     let ordersData = [];
     let currentFilter = 'all';
     let authEventId = '';
     let authPassword = '';
+
+    let _realtimeSocket = null;
+    let _realtimeBoundEventId = '';
+    let _realtimeRefreshTimer = null;
+
+    function _scheduleSilentRefresh() {
+      if (_realtimeRefreshTimer) return;
+      _realtimeRefreshTimer = setTimeout(() => {
+        _realtimeRefreshTimer = null;
+        refreshOrdersSilently();
+      }, 700);
+    }
+
+    function setupRealtimeForEvent(eventId) {
+      if (!eventId) return;
+      if (!window.io) return;
+
+      _realtimeBoundEventId = String(eventId);
+
+      if (!_realtimeSocket) {
+        _realtimeSocket = io({ transports: ['websocket', 'polling'] });
+
+        _realtimeSocket.on('connect', () => {
+          if (_realtimeBoundEventId) {
+            _realtimeSocket.emit('join', { eventId: _realtimeBoundEventId });
+          }
+        });
+
+        _realtimeSocket.on('order_updated', (payload) => {
+          const pid = payload && payload.eventId ? String(payload.eventId) : '';
+          if (pid && _realtimeBoundEventId && pid === _realtimeBoundEventId) {
+            _scheduleSilentRefresh();
+          }
+        });
+
+        _realtimeSocket.on('ticket_updated', (payload) => {
+          const pid = payload && payload.eventId ? String(payload.eventId) : '';
+          if (pid && _realtimeBoundEventId && pid === _realtimeBoundEventId) {
+            _scheduleSilentRefresh();
+          }
+        });
+      }
+
+      if (_realtimeSocket.connected) {
+        _realtimeSocket.emit('join', { eventId: _realtimeBoundEventId });
+      }
+    }
+
+    async function refreshOrdersSilently() {
+      if (!authEventId || !authPassword) return;
+      try {
+        const resp = await fetch(`/api/ticket/events/${encodeURIComponent(authEventId)}/orders`, {
+          headers: {
+            'X-Owner-Password': authPassword
+          }
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.error) return;
+
+        eventData = data;
+        ordersData = data.orders || [];
+
+        displayEventInfo();
+        displayOrders();
+        updateCounts();
+      } catch {
+        // ignore
+      }
+    }
 
     // Format currency
     function formatCurrency(amount) {
@@ -905,6 +980,8 @@
         displayEventInfo();
         displayOrders();
         updateCounts();
+
+        setupRealtimeForEvent(eventId);
 
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('main-section').classList.remove('hidden');

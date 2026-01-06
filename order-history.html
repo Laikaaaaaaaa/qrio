@@ -655,9 +655,153 @@
     </div>
   </div>
 
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     let allOrders = [];
     let allTickets = [];
+
+    let _realtimeSocket = null;
+    let _realtimeJoinedOrderIds = new Set();
+    let _realtimeJoinedTicketIds = new Set();
+    let _realtimeRefreshTimer = null;
+
+    function _scheduleHistoryRefresh() {
+      if (_realtimeRefreshTimer) return;
+      _realtimeRefreshTimer = setTimeout(() => {
+        _realtimeRefreshTimer = null;
+        loadOrderHistory();
+      }, 700);
+    }
+
+    function _ensureRealtimeSetup() {
+      if (!window.io) return;
+      if (_realtimeSocket) {
+        _joinRealtimeRoomsFromCache();
+        return;
+      }
+
+      _realtimeSocket = io({ transports: ['websocket', 'polling'] });
+      _realtimeSocket.on('connect', () => {
+        _joinRealtimeRoomsFromCache();
+      });
+
+      _realtimeSocket.on('order_updated', (payload) => {
+        const orderId = payload && payload.orderId ? String(payload.orderId) : '';
+        if (!orderId) return;
+        if (!_realtimeJoinedOrderIds.has(orderId)) return;
+        refreshOrderFromServer(orderId);
+      });
+
+      _realtimeSocket.on('ticket_updated', (payload) => {
+        const ticketId = payload && payload.ticketId ? String(payload.ticketId) : '';
+        if (!ticketId) return;
+        if (!_realtimeJoinedTicketIds.has(ticketId)) return;
+        refreshTicketFromServer(ticketId);
+      });
+    }
+
+    function _joinRealtimeRoomsFromCache() {
+      if (!_realtimeSocket || !_realtimeSocket.connected) return;
+
+      // Join all known order rooms
+      for (const o of allOrders) {
+        const id = o && o.orderId ? String(o.orderId) : '';
+        if (!id) continue;
+        if (_realtimeJoinedOrderIds.has(id)) continue;
+        _realtimeJoinedOrderIds.add(id);
+        _realtimeSocket.emit('join', { orderId: id });
+      }
+
+      // Join all known ticket rooms
+      const ticketIds = new Set();
+      for (const t of allTickets) {
+        if (t && t.ticketId) ticketIds.add(String(t.ticketId));
+      }
+      for (const o of allOrders) {
+        if (o && Array.isArray(o.tickets)) {
+          for (const tid of o.tickets) {
+            if (tid) ticketIds.add(String(tid));
+          }
+        }
+      }
+
+      for (const tid of ticketIds) {
+        if (_realtimeJoinedTicketIds.has(tid)) continue;
+        _realtimeJoinedTicketIds.add(tid);
+        _realtimeSocket.emit('join', { ticketId: tid });
+      }
+    }
+
+    async function refreshOrderFromServer(orderId) {
+      try {
+        const resp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}`);
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || !json || json.error) return;
+
+        try {
+          const cacheKey = 'order_' + orderId;
+          const cached = localStorage.getItem(cacheKey);
+          const o = cached ? JSON.parse(cached) : {};
+          o.orderId = orderId;
+          if (json.eventId) o.eventId = json.eventId;
+          if (json.eventName) o.eventName = json.eventName;
+          if (json.buyerName) o.buyerName = json.buyerName;
+          if (typeof json.buyerEmail === 'string') o.buyerEmail = json.buyerEmail;
+          if (typeof json.buyerPhone === 'string') o.buyerPhone = json.buyerPhone;
+          if (typeof json.buyerNote === 'string') o.buyerNote = json.buyerNote;
+          if (typeof json.totalAmount === 'number') o.totalAmount = json.totalAmount;
+          if (typeof json.quantity === 'number') o.quantity = json.quantity;
+          if (json.status) o.status = json.status;
+          if (json.paymentType) o.paymentType = json.paymentType;
+          if (json.paymentProofImage) o.paymentProofImage = json.paymentProofImage;
+          if (json.cashPayerName) o.cashPayerName = json.cashPayerName;
+          if (json.cashPaymentTime) o.cashPaymentTime = json.cashPaymentTime;
+          if (json.createdAt) o.createdAt = json.createdAt;
+          if (json.paidAt) o.paidAt = json.paidAt;
+          if (Array.isArray(json.ticketIds)) o.tickets = json.ticketIds;
+          localStorage.setItem(cacheKey, JSON.stringify(o));
+        } catch {
+          // ignore
+        }
+
+        _scheduleHistoryRefresh();
+      } catch {
+        // ignore
+      }
+    }
+
+    async function refreshTicketFromServer(ticketId) {
+      try {
+        const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}`);
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || !json || json.error) return;
+
+        try {
+          const cacheKey = 'ticket_' + ticketId;
+          const cached = localStorage.getItem(cacheKey);
+          const t = cached ? JSON.parse(cached) : {};
+          t.ticketId = ticketId;
+          if (json.orderId) t.orderId = json.orderId;
+          if (json.eventId) t.eventId = json.eventId;
+          if (json.eventName) t.eventName = json.eventName;
+          if (json.ticketNumber != null) t.ticketNumber = json.ticketNumber;
+          if (json.totalTickets != null) t.totalTickets = json.totalTickets;
+          if (json.buyerName) t.buyerName = json.buyerName;
+          if (typeof json.buyerEmail === 'string') t.buyerEmail = json.buyerEmail;
+          if (typeof json.buyerPhone === 'string') t.buyerPhone = json.buyerPhone;
+          const ts = (json.ticketStatus || '').toLowerCase();
+          if (ts) t.status = ts;
+          if (json.usedAt) t.usedAt = new Date(json.usedAt * 1000).toISOString();
+          localStorage.setItem(cacheKey, JSON.stringify(t));
+        } catch {
+          // ignore
+        }
+
+        _scheduleHistoryRefresh();
+      } catch {
+        // ignore
+      }
+    }
 
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
@@ -696,6 +840,8 @@
 
       updateStats();
       renderOrders(allOrders);
+
+      _ensureRealtimeSetup();
     }
 
     function updateStats() {

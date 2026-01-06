@@ -492,6 +492,14 @@
     }
 
     @media (max-width: 500px) {
+      .header {
+        padding: 0 16px;
+      }
+
+      .header-right span {
+        display: none;
+      }
+
       .container {
         padding: 24px 16px;
       }
@@ -657,8 +665,37 @@
     </div>
   </div>
 
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     let ticketData = null;
+
+    let _realtimeSocket = null;
+    let _realtimeBoundTicketId = '';
+
+    function setupRealtimeForTicket(ticketId) {
+      if (!ticketId) return;
+      if (!window.io) return;
+      _realtimeBoundTicketId = String(ticketId);
+
+      if (!_realtimeSocket) {
+        _realtimeSocket = io({ transports: ['websocket', 'polling'] });
+        _realtimeSocket.on('connect', () => {
+          if (_realtimeBoundTicketId) {
+            _realtimeSocket.emit('join', { ticketId: _realtimeBoundTicketId });
+          }
+        });
+        _realtimeSocket.on('ticket_updated', (payload) => {
+          const updatedId = payload && payload.ticketId ? String(payload.ticketId) : '';
+          if (updatedId && _realtimeBoundTicketId && updatedId === _realtimeBoundTicketId) {
+            window.location.reload();
+          }
+        });
+      }
+
+      if (_realtimeSocket.connected) {
+        _realtimeSocket.emit('join', { ticketId: _realtimeBoundTicketId });
+      }
+    }
 
     function formatCurrency(amount) {
       return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
@@ -684,6 +721,8 @@
         showError('Link không hợp lệ.');
         return;
       }
+
+      setupRealtimeForTicket(ticketId);
 
       // Prefer server-side ticket registry
       try {

@@ -114,7 +114,11 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
 
     .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-    @media (max-width: 720px) { .auth-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) {
+      .auth-grid { grid-template-columns: 1fr; }
+      .header { padding: 0 16px; }
+      .header-right span { display: none; }
+    }
 
     .auth-label { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 6px; display: block; }
 

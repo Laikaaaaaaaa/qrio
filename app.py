@@ -257,6 +257,9 @@ socketio = None
 if SocketIO is not None:
     # Allow overriding async mode (e.g., "eventlet" in production, "threading" on Windows/dev)
     _async_mode = os.environ.get('SOCKETIO_ASYNC_MODE')
+    if not _async_mode and sys.platform.startswith('win'):
+        # eventlet/gevent can be fragile on Windows dev environments.
+        _async_mode = 'threading'
     socketio = SocketIO(
         app,
         cors_allowed_origins='*',
