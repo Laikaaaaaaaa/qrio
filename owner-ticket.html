@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Trang Chủ Vé</title>
+  <title data-i18n="doc.title">Qrio - Trang Chủ Vé</title>
+  <meta name="description" data-i18n-content="meta.description" content="Manage your event tickets: unlock owner panel, download QR, and manage orders." />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -72,6 +73,7 @@
 
     .header-right { display: flex; align-items: center; gap: 12px; }
 
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -120,6 +122,17 @@
       .header-right span { display: none; }
     }
 
+    .owner-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 720px) {
+      .owner-actions { grid-template-columns: 1fr; }
+    }
+    .owner-actions .btn { width: 100%; justify-content: center; }
+
+
     .auth-label { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 6px; display: block; }
 
     .auth-input {
@@ -159,70 +172,70 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a href="ticket-create.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i><span>Tạo vé</span></a>
-      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+      <a href="ticket-create.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i><span data-i18n="nav.createTicket">Tạo vé</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span data-i18n="nav.home">Trang chủ</span></a>
     </div>
   </header>
 
   <div class="container">
     <div class="card">
-      <div class="title"><i class="fa-solid fa-user-shield" style="color:#a78bfa;"></i> Trang chủ vé</div>
-      <div class="subtitle">Link này đã gắn sẵn mã sự kiện. Nhập mật khẩu để xem vé, tải xuống QR và tuỳ chỉnh.</div>
+      <div class="title"><i class="fa-solid fa-user-shield" style="color:#a78bfa;"></i> <span data-i18n="ownerTicket.title">Trang chủ vé</span></div>
+      <div class="subtitle" data-i18n="ownerTicket.subtitle">Link này đã gắn sẵn mã sự kiện. Nhập mật khẩu để xem vé, tải xuống QR và tuỳ chỉnh.</div>
 
       <div class="kv">
-        <div class="kv-row"><div class="k">Mã sự kiện</div><div class="v mono" id="event-id">-</div></div>
-        <div class="kv-row"><div class="k">Tên sự kiện</div><div class="v" id="event-name">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="ownerTicket.eventId">Mã sự kiện</div><div class="v mono" id="event-id">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="ownerTicket.eventName">Tên sự kiện</div><div class="v" id="event-name">-</div></div>
       </div>
 
       <div class="auth-grid" style="margin-top: 14px;">
         <div>
-          <label class="auth-label" for="owner-password">Mật khẩu chủ vé</label>
-          <input class="auth-input" id="owner-password" type="password" placeholder="Nhập mật khẩu đã tạo" autocomplete="current-password" />
+          <label class="auth-label" for="owner-password" data-i18n="ownerTicket.passwordLabel">Mật khẩu chủ vé</label>
+          <input class="auth-input" id="owner-password" type="password" placeholder="Nhập mật khẩu đã tạo" data-i18n-placeholder="ownerTicket.passwordPlaceholder" autocomplete="current-password" />
         </div>
         <div>
-          <label class="auth-label" for="owner-actions">Hành động</label>
-          <div id="owner-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="unlockOwner()"><i class="fa-solid fa-lock-open"></i> Mở trang chủ vé</button>
-            <a id="buy-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-link"></i> Link mua vé</a>
-            <a id="scan-link" class="btn btn-secondary" href="scan.html"><i class="fa-solid fa-qrcode"></i> Tới quét vé</a>
-            <a id="manage-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-list-check"></i> Quản lý đơn</a>
+          <label class="auth-label" for="owner-actions" data-i18n="ownerTicket.actions">Hành động</label>
+          <div id="owner-actions" class="owner-actions">
+            <button class="btn btn-primary" onclick="unlockOwner()"><i class="fa-solid fa-lock-open"></i> <span data-i18n="ownerTicket.unlock">Mở trang chủ vé</span></button>
+            <a id="buy-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-link"></i> <span data-i18n="ownerTicket.buyLink">Link mua vé</span></a>
+            <a id="scan-link" class="btn btn-secondary" href="scan-ticket.html"><i class="fa-solid fa-qrcode"></i> <span data-i18n="ownerTicket.goScan">Tới quét vé</span></a>
+            <a id="manage-link" class="btn btn-secondary" href="#"><i class="fa-solid fa-list-check"></i> <span data-i18n="ownerTicket.manageOrders">Quản lý đơn</span></a>
           </div>
         </div>
       </div>
     </div>
 
     <div class="card hidden" id="owner-panel">
-      <div class="title" style="font-size:1.15rem;"><i class="fa-solid fa-ticket" style="color:#93c5fd;"></i> Vé & QR</div>
-      <div class="subtitle" id="owner-subtitle">Bạn có thể tải QR và tuỳ chỉnh nhanh.</div>
+      <div class="title" style="font-size:1.15rem;"><i class="fa-solid fa-ticket" style="color:#93c5fd;"></i> <span data-i18n="ownerTicket.panelTitle">Vé & QR</span></div>
+      <div class="subtitle" id="owner-subtitle" data-i18n="ownerTicket.panelSubtitle">Bạn có thể tải QR và tuỳ chỉnh nhanh.</div>
 
       <div class="kv" style="margin-bottom: 12px;">
-        <div class="kv-row"><div class="k">Link mua vé</div><div class="v mono" id="buy-link-text">-</div></div>
-        <div class="kv-row"><div class="k">Link chủ vé</div><div class="v mono" id="owner-link-text">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="ownerTicket.panelBuyLink">Link mua vé</div><div class="v mono" id="buy-link-text">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="ownerTicket.panelOwnerLink">Link chủ vé</div><div class="v mono" id="owner-link-text">-</div></div>
       </div>
 
       <div class="auth-grid" style="margin-top: 8px;">
         <div>
-          <label class="auth-label" for="qr-color">Màu QR</label>
+          <label class="auth-label" for="qr-color" data-i18n="ownerTicket.qrColor">Màu QR</label>
           <input class="auth-input" id="qr-color" type="color" value="#0c6c3b" style="height: 46px; padding: 6px 10px;" />
         </div>
         <div>
-          <label class="auth-label" for="bg-color">Màu nền</label>
+          <label class="auth-label" for="bg-color" data-i18n="ownerTicket.bgColor">Màu nền</label>
           <input class="auth-input" id="bg-color" type="color" value="#ffffff" style="height: 46px; padding: 6px 10px;" />
         </div>
       </div>
 
       <div style="margin-top: 12px;">
-        <label class="auth-label" for="module-style">Kiểu module</label>
+        <label class="auth-label" for="module-style" data-i18n="ownerTicket.moduleStyle">Kiểu module</label>
         <select class="auth-input" id="module-style">
-          <option value="legacy">Mặc định</option>
-          <option value="dots">Chấm</option>
-          <option value="rounded">Bo tròn</option>
+          <option value="legacy" data-i18n="ownerTicket.moduleStyle.legacy">Mặc định</option>
+          <option value="dots" data-i18n="ownerTicket.moduleStyle.dots">Chấm</option>
+          <option value="rounded" data-i18n="ownerTicket.moduleStyle.rounded">Bo tròn</option>
         </select>
       </div>
 
       <div style="margin-top: 14px; display:flex; gap:12px; flex-wrap: wrap; align-items: center;">
-        <button class="btn btn-secondary" onclick="copyText(document.getElementById('buy-link-text').textContent)"><i class="fa-solid fa-copy"></i> Copy link mua vé</button>
-        <button class="btn btn-primary" onclick="downloadQr()"><i class="fa-solid fa-download"></i> Tải QR</button>
+        <button class="btn btn-secondary" onclick="copyText(document.getElementById('buy-link-text').textContent)"><i class="fa-solid fa-copy"></i> <span data-i18n="ownerTicket.copyBuyLink">Copy link mua vé</span></button>
+        <button class="btn btn-primary" onclick="downloadQr()"><i class="fa-solid fa-download"></i> <span data-i18n="ownerTicket.downloadQr">Tải QR</span></button>
       </div>
 
       <div style="margin-top: 14px; display:flex; justify-content:center;">
@@ -240,6 +253,442 @@
       </form>
     </div>
   </div>
+
+  <script>
+    // ---- i18n (10 languages; follows localStorage['qr_lang']) ----
+    const LANG_KEY = 'qr_lang';
+    const SUPPORTED_LANGS = ['en','zh','hi','es','fr','ar','pt','ru','id','vi'];
+
+    const I18N = {
+      vi: {
+        'doc.title': 'Qrio - Trang Chủ Vé',
+        'meta.description': 'Quản lý vé: mở trang chủ vé, tải QR, và quản lý đơn hàng.',
+        'aria.language': 'Ngôn ngữ',
+        'nav.home': 'Trang chủ',
+        'nav.createTicket': 'Tạo vé',
+        'ownerTicket.title': 'Trang chủ vé',
+        'ownerTicket.subtitle': 'Link này đã gắn sẵn mã sự kiện. Nhập mật khẩu để xem vé, tải xuống QR và tuỳ chỉnh.',
+        'ownerTicket.eventId': 'Mã sự kiện',
+        'ownerTicket.eventName': 'Tên sự kiện',
+        'ownerTicket.passwordLabel': 'Mật khẩu chủ vé',
+        'ownerTicket.passwordPlaceholder': 'Nhập mật khẩu đã tạo',
+        'ownerTicket.actions': 'Hành động',
+        'ownerTicket.unlock': 'Mở trang chủ vé',
+        'ownerTicket.buyLink': 'Link mua vé',
+        'ownerTicket.goScan': 'Tới quét vé',
+        'ownerTicket.manageOrders': 'Quản lý đơn',
+        'ownerTicket.panelTitle': 'Vé & QR',
+        'ownerTicket.panelSubtitle': 'Bạn có thể tải QR và tuỳ chỉnh nhanh.',
+        'ownerTicket.panelBuyLink': 'Link mua vé',
+        'ownerTicket.panelOwnerLink': 'Link chủ vé',
+        'ownerTicket.qrColor': 'Màu QR',
+        'ownerTicket.bgColor': 'Màu nền',
+        'ownerTicket.moduleStyle': 'Kiểu module',
+        'ownerTicket.moduleStyle.legacy': 'Mặc định',
+        'ownerTicket.moduleStyle.dots': 'Chấm',
+        'ownerTicket.moduleStyle.rounded': 'Bo tròn',
+        'ownerTicket.copyBuyLink': 'Copy link mua vé',
+        'ownerTicket.downloadQr': 'Tải QR',
+        'msg.enterOwnerPassword': 'Vui lòng nhập mật khẩu chủ vé',
+        'msg.qrGenerateFailed': 'Không thể tạo QR',
+        'msg.ownerHomeOpenFailed': 'Không thể mở trang chủ vé',
+        'msg.invalidOwnerPassword': 'Mật khẩu không đúng',
+        'msg.unlockOwnerFirst': 'Vui lòng mở trang chủ vé trước',
+        'msg.copied': 'Đã copy',
+        'msg.missingEventId': 'Thiếu mã sự kiện',
+        'msg.eventInfoLoadFailed': 'Không thể tải thông tin sự kiện',
+      },
+      en: {
+        'doc.title': 'Qrio - Owner Ticket Home',
+        'meta.description': 'Manage your event tickets: unlock owner panel, download QR, and manage orders.',
+        'aria.language': 'Language',
+        'nav.home': 'Home',
+        'nav.createTicket': 'Create ticket',
+        'ownerTicket.title': 'Ticket home',
+        'ownerTicket.subtitle': 'This link is pre-filled with the event ID. Enter the password to view tickets, download QR, and customize.',
+        'ownerTicket.eventId': 'Event ID',
+        'ownerTicket.eventName': 'Event name',
+        'ownerTicket.passwordLabel': 'Owner password',
+        'ownerTicket.passwordPlaceholder': 'Enter the password',
+        'ownerTicket.actions': 'Actions',
+        'ownerTicket.unlock': 'Unlock owner panel',
+        'ownerTicket.buyLink': 'Buy-ticket link',
+        'ownerTicket.goScan': 'Go to scan',
+        'ownerTicket.manageOrders': 'Manage orders',
+        'ownerTicket.panelTitle': 'Tickets & QR',
+        'ownerTicket.panelSubtitle': 'You can download the QR and customize quickly.',
+        'ownerTicket.panelBuyLink': 'Buy-ticket link',
+        'ownerTicket.panelOwnerLink': 'Owner link',
+        'ownerTicket.qrColor': 'QR color',
+        'ownerTicket.bgColor': 'Background color',
+        'ownerTicket.moduleStyle': 'Module style',
+        'ownerTicket.moduleStyle.legacy': 'Default',
+        'ownerTicket.moduleStyle.dots': 'Dots',
+        'ownerTicket.moduleStyle.rounded': 'Rounded',
+        'ownerTicket.copyBuyLink': 'Copy buy link',
+        'ownerTicket.downloadQr': 'Download QR',
+        'msg.enterOwnerPassword': 'Please enter the owner password',
+        'msg.qrGenerateFailed': 'Unable to generate QR',
+        'msg.ownerHomeOpenFailed': 'Unable to open owner panel',
+        'msg.invalidOwnerPassword': 'Incorrect password',
+        'msg.unlockOwnerFirst': 'Please unlock the owner panel first',
+        'msg.copied': 'Copied',
+        'msg.missingEventId': 'Missing event ID',
+        'msg.eventInfoLoadFailed': 'Unable to load event information',
+      },
+      zh: {
+        'doc.title': 'Qrio - 票务主页（所有者）',
+        'meta.description': '管理活动门票：解锁管理面板、下载二维码并管理订单。',
+        'aria.language': '语言',
+        'nav.home': '首页',
+        'nav.createTicket': '创建门票',
+        'ownerTicket.title': '门票主页',
+        'ownerTicket.subtitle': '该链接已预填活动 ID。输入密码以查看门票、下载二维码并进行自定义。',
+        'ownerTicket.eventId': '活动 ID',
+        'ownerTicket.eventName': '活动名称',
+        'ownerTicket.passwordLabel': '所有者密码',
+        'ownerTicket.passwordPlaceholder': '输入密码',
+        'ownerTicket.actions': '操作',
+        'ownerTicket.unlock': '解锁管理面板',
+        'ownerTicket.buyLink': '购票链接',
+        'ownerTicket.goScan': '前往验票',
+        'ownerTicket.manageOrders': '管理订单',
+        'ownerTicket.panelTitle': '门票与二维码',
+        'ownerTicket.panelSubtitle': '你可以快速下载二维码并自定义。',
+        'ownerTicket.panelBuyLink': '购票链接',
+        'ownerTicket.panelOwnerLink': '所有者链接',
+        'ownerTicket.qrColor': '二维码颜色',
+        'ownerTicket.bgColor': '背景颜色',
+        'ownerTicket.moduleStyle': '模块样式',
+        'ownerTicket.moduleStyle.legacy': '默认',
+        'ownerTicket.moduleStyle.dots': '点状',
+        'ownerTicket.moduleStyle.rounded': '圆角',
+        'ownerTicket.copyBuyLink': '复制购票链接',
+        'ownerTicket.downloadQr': '下载二维码',
+        'msg.enterOwnerPassword': '请输入所有者密码',
+        'msg.qrGenerateFailed': '无法生成二维码',
+        'msg.ownerHomeOpenFailed': '无法打开所有者面板',
+        'msg.invalidOwnerPassword': '密码不正确',
+        'msg.unlockOwnerFirst': '请先解锁所有者面板',
+        'msg.copied': '已复制',
+        'msg.missingEventId': '缺少活动 ID',
+        'msg.eventInfoLoadFailed': '无法加载活动信息',
+      },
+      hi: {
+        'doc.title': 'Qrio - ओनर टिकट होम',
+        'meta.description': 'अपने इवेंट टिकट प्रबंधित करें: ओनर पैनल खोलें, QR डाउनलोड करें और ऑर्डर प्रबंधित करें।',
+        'aria.language': 'भाषा',
+        'nav.home': 'होम',
+        'nav.createTicket': 'टिकट बनाएं',
+        'ownerTicket.title': 'टिकट होम',
+        'ownerTicket.subtitle': 'इस लिंक में इवेंट ID पहले से है। टिकट देखने, QR डाउनलोड करने और कस्टमाइज़ करने के लिए पासवर्ड दर्ज करें।',
+        'ownerTicket.eventId': 'इवेंट ID',
+        'ownerTicket.eventName': 'इवेंट नाम',
+        'ownerTicket.passwordLabel': 'ओनर पासवर्ड',
+        'ownerTicket.passwordPlaceholder': 'पासवर्ड दर्ज करें',
+        'ownerTicket.actions': 'एक्शन',
+        'ownerTicket.unlock': 'ओनर पैनल खोलें',
+        'ownerTicket.buyLink': 'टिकट खरीद लिंक',
+        'ownerTicket.goScan': 'स्कैन पर जाएँ',
+        'ownerTicket.manageOrders': 'ऑर्डर प्रबंधित करें',
+        'ownerTicket.panelTitle': 'टिकट और QR',
+        'ownerTicket.panelSubtitle': 'आप QR डाउनलोड करके जल्दी कस्टमाइज़ कर सकते हैं।',
+        'ownerTicket.panelBuyLink': 'खरीद लिंक',
+        'ownerTicket.panelOwnerLink': 'ओनर लिंक',
+        'ownerTicket.qrColor': 'QR रंग',
+        'ownerTicket.bgColor': 'बैकग्राउंड रंग',
+        'ownerTicket.moduleStyle': 'मॉड्यूल स्टाइल',
+        'ownerTicket.moduleStyle.legacy': 'डिफ़ॉल्ट',
+        'ownerTicket.moduleStyle.dots': 'डॉट्स',
+        'ownerTicket.moduleStyle.rounded': 'राउंडेड',
+        'ownerTicket.copyBuyLink': 'खरीद लिंक कॉपी करें',
+        'ownerTicket.downloadQr': 'QR डाउनलोड करें',
+        'msg.enterOwnerPassword': 'कृपया ओनर पासवर्ड दर्ज करें',
+        'msg.qrGenerateFailed': 'QR बनाना संभव नहीं है',
+        'msg.ownerHomeOpenFailed': 'ओनर पैनल खोलना संभव नहीं है',
+        'msg.invalidOwnerPassword': 'गलत पासवर्ड',
+        'msg.unlockOwnerFirst': 'कृपया पहले ओनर पैनल खोलें',
+        'msg.copied': 'कॉपी हो गया',
+        'msg.missingEventId': 'इवेंट ID नहीं मिला',
+        'msg.eventInfoLoadFailed': 'इवेंट जानकारी लोड नहीं हो सकी',
+      },
+      es: {
+        'doc.title': 'Qrio - Inicio del propietario',
+        'meta.description': 'Gestiona tus entradas: desbloquea el panel, descarga el QR y gestiona pedidos.',
+        'aria.language': 'Idioma',
+        'nav.home': 'Inicio',
+        'nav.createTicket': 'Crear entrada',
+        'ownerTicket.title': 'Inicio de entradas',
+        'ownerTicket.subtitle': 'Este enlace ya incluye el ID del evento. Ingresa la contraseña para ver entradas, descargar el QR y personalizar.',
+        'ownerTicket.eventId': 'ID del evento',
+        'ownerTicket.eventName': 'Nombre del evento',
+        'ownerTicket.passwordLabel': 'Contraseña del propietario',
+        'ownerTicket.passwordPlaceholder': 'Ingresa la contraseña',
+        'ownerTicket.actions': 'Acciones',
+        'ownerTicket.unlock': 'Desbloquear panel',
+        'ownerTicket.buyLink': 'Enlace de compra',
+        'ownerTicket.goScan': 'Ir a escanear',
+        'ownerTicket.manageOrders': 'Gestionar pedidos',
+        'ownerTicket.panelTitle': 'Entradas y QR',
+        'ownerTicket.panelSubtitle': 'Puedes descargar el QR y personalizar rápidamente.',
+        'ownerTicket.panelBuyLink': 'Enlace de compra',
+        'ownerTicket.panelOwnerLink': 'Enlace del propietario',
+        'ownerTicket.qrColor': 'Color del QR',
+        'ownerTicket.bgColor': 'Color de fondo',
+        'ownerTicket.moduleStyle': 'Estilo de módulo',
+        'ownerTicket.moduleStyle.legacy': 'Predeterminado',
+        'ownerTicket.moduleStyle.dots': 'Puntos',
+        'ownerTicket.moduleStyle.rounded': 'Redondeado',
+        'ownerTicket.copyBuyLink': 'Copiar enlace de compra',
+        'ownerTicket.downloadQr': 'Descargar QR',
+        'msg.enterOwnerPassword': 'Ingresa la contraseña del propietario',
+        'msg.qrGenerateFailed': 'No se pudo generar el QR',
+        'msg.ownerHomeOpenFailed': 'No se pudo abrir el panel del propietario',
+        'msg.invalidOwnerPassword': 'Contraseña incorrecta',
+        'msg.unlockOwnerFirst': 'Primero desbloquea el panel del propietario',
+        'msg.copied': 'Copiado',
+        'msg.missingEventId': 'Falta el ID del evento',
+        'msg.eventInfoLoadFailed': 'No se pudo cargar la información del evento',
+      },
+      fr: {
+        'doc.title': 'Qrio - Espace propriétaire',
+        'meta.description': 'Gérez vos billets : déverrouillez le panneau, téléchargez le QR et gérez les commandes.',
+        'aria.language': 'Langue',
+        'nav.home': 'Accueil',
+        'nav.createTicket': 'Créer un billet',
+        'ownerTicket.title': 'Espace billets',
+        'ownerTicket.subtitle': 'Ce lien contient déjà l’ID de l’événement. Saisissez le mot de passe pour voir les billets, télécharger le QR et personnaliser.',
+        'ownerTicket.eventId': 'ID de l’événement',
+        'ownerTicket.eventName': 'Nom de l’événement',
+        'ownerTicket.passwordLabel': 'Mot de passe propriétaire',
+        'ownerTicket.passwordPlaceholder': 'Saisissez le mot de passe',
+        'ownerTicket.actions': 'Actions',
+        'ownerTicket.unlock': 'Déverrouiller le panneau',
+        'ownerTicket.buyLink': 'Lien d’achat',
+        'ownerTicket.goScan': 'Aller au scan',
+        'ownerTicket.manageOrders': 'Gérer les commandes',
+        'ownerTicket.panelTitle': 'Billets & QR',
+        'ownerTicket.panelSubtitle': 'Vous pouvez télécharger le QR et personnaliser rapidement.',
+        'ownerTicket.panelBuyLink': 'Lien d’achat',
+        'ownerTicket.panelOwnerLink': 'Lien propriétaire',
+        'ownerTicket.qrColor': 'Couleur du QR',
+        'ownerTicket.bgColor': 'Couleur de fond',
+        'ownerTicket.moduleStyle': 'Style du module',
+        'ownerTicket.moduleStyle.legacy': 'Par défaut',
+        'ownerTicket.moduleStyle.dots': 'Points',
+        'ownerTicket.moduleStyle.rounded': 'Arrondi',
+        'ownerTicket.copyBuyLink': 'Copier le lien d’achat',
+        'ownerTicket.downloadQr': 'Télécharger le QR',
+        'msg.enterOwnerPassword': 'Veuillez saisir le mot de passe propriétaire',
+        'msg.qrGenerateFailed': 'Impossible de générer le QR',
+        'msg.ownerHomeOpenFailed': 'Impossible d’ouvrir le panneau propriétaire',
+        'msg.invalidOwnerPassword': 'Mot de passe incorrect',
+        'msg.unlockOwnerFirst': 'Veuillez d’abord déverrouiller le panneau',
+        'msg.copied': 'Copié',
+        'msg.missingEventId': 'ID de l’événement manquant',
+        'msg.eventInfoLoadFailed': 'Impossible de charger les informations de l’événement',
+      },
+      ar: {
+        'doc.title': 'Qrio - صفحة المالك',
+        'meta.description': 'إدارة التذاكر: فتح لوحة المالك، تنزيل QR، وإدارة الطلبات.',
+        'aria.language': 'اللغة',
+        'nav.home': 'الرئيسية',
+        'nav.createTicket': 'إنشاء تذكرة',
+        'ownerTicket.title': 'صفحة التذاكر',
+        'ownerTicket.subtitle': 'هذا الرابط يحتوي مسبقاً على معرّف الفعالية. أدخل كلمة المرور لعرض التذاكر وتنزيل QR والتخصيص.',
+        'ownerTicket.eventId': 'معرّف الفعالية',
+        'ownerTicket.eventName': 'اسم الفعالية',
+        'ownerTicket.passwordLabel': 'كلمة مرور المالك',
+        'ownerTicket.passwordPlaceholder': 'أدخل كلمة المرور',
+        'ownerTicket.actions': 'إجراءات',
+        'ownerTicket.unlock': 'فتح لوحة المالك',
+        'ownerTicket.buyLink': 'رابط شراء التذاكر',
+        'ownerTicket.goScan': 'اذهب للمسح',
+        'ownerTicket.manageOrders': 'إدارة الطلبات',
+        'ownerTicket.panelTitle': 'التذاكر و QR',
+        'ownerTicket.panelSubtitle': 'يمكنك تنزيل QR وتخصيصه بسرعة.',
+        'ownerTicket.panelBuyLink': 'رابط الشراء',
+        'ownerTicket.panelOwnerLink': 'رابط المالك',
+        'ownerTicket.qrColor': 'لون QR',
+        'ownerTicket.bgColor': 'لون الخلفية',
+        'ownerTicket.moduleStyle': 'نمط الوحدات',
+        'ownerTicket.moduleStyle.legacy': 'افتراضي',
+        'ownerTicket.moduleStyle.dots': 'نقاط',
+        'ownerTicket.moduleStyle.rounded': 'مستدير',
+        'ownerTicket.copyBuyLink': 'نسخ رابط الشراء',
+        'ownerTicket.downloadQr': 'تنزيل QR',
+        'msg.enterOwnerPassword': 'يرجى إدخال كلمة مرور المالك',
+        'msg.qrGenerateFailed': 'تعذر إنشاء QR',
+        'msg.ownerHomeOpenFailed': 'تعذر فتح لوحة المالك',
+        'msg.invalidOwnerPassword': 'كلمة المرور غير صحيحة',
+        'msg.unlockOwnerFirst': 'يرجى فتح لوحة المالك أولاً',
+        'msg.copied': 'تم النسخ',
+        'msg.missingEventId': 'معرّف الفعالية مفقود',
+        'msg.eventInfoLoadFailed': 'تعذر تحميل معلومات الفعالية',
+      },
+      pt: {
+        'doc.title': 'Qrio - Página do proprietário',
+        'meta.description': 'Gerencie seus ingressos: desbloqueie o painel, baixe o QR e gerencie pedidos.',
+        'aria.language': 'Idioma',
+        'nav.home': 'Início',
+        'nav.createTicket': 'Criar ingresso',
+        'ownerTicket.title': 'Página de ingressos',
+        'ownerTicket.subtitle': 'Este link já vem com o ID do evento. Digite a senha para ver ingressos, baixar o QR e personalizar.',
+        'ownerTicket.eventId': 'ID do evento',
+        'ownerTicket.eventName': 'Nome do evento',
+        'ownerTicket.passwordLabel': 'Senha do proprietário',
+        'ownerTicket.passwordPlaceholder': 'Digite a senha',
+        'ownerTicket.actions': 'Ações',
+        'ownerTicket.unlock': 'Desbloquear painel',
+        'ownerTicket.buyLink': 'Link de compra',
+        'ownerTicket.goScan': 'Ir para scan',
+        'ownerTicket.manageOrders': 'Gerenciar pedidos',
+        'ownerTicket.panelTitle': 'Ingressos & QR',
+        'ownerTicket.panelSubtitle': 'Você pode baixar o QR e personalizar rapidamente.',
+        'ownerTicket.panelBuyLink': 'Link de compra',
+        'ownerTicket.panelOwnerLink': 'Link do proprietário',
+        'ownerTicket.qrColor': 'Cor do QR',
+        'ownerTicket.bgColor': 'Cor de fundo',
+        'ownerTicket.moduleStyle': 'Estilo do módulo',
+        'ownerTicket.moduleStyle.legacy': 'Padrão',
+        'ownerTicket.moduleStyle.dots': 'Pontos',
+        'ownerTicket.moduleStyle.rounded': 'Arredondado',
+        'ownerTicket.copyBuyLink': 'Copiar link de compra',
+        'ownerTicket.downloadQr': 'Baixar QR',
+        'msg.enterOwnerPassword': 'Digite a senha do proprietário',
+        'msg.qrGenerateFailed': 'Não foi possível gerar o QR',
+        'msg.ownerHomeOpenFailed': 'Não foi possível abrir o painel do proprietário',
+        'msg.invalidOwnerPassword': 'Senha incorreta',
+        'msg.unlockOwnerFirst': 'Desbloqueie o painel do proprietário primeiro',
+        'msg.copied': 'Copiado',
+        'msg.missingEventId': 'Faltando ID do evento',
+        'msg.eventInfoLoadFailed': 'Não foi possível carregar as informações do evento',
+      },
+      ru: {
+        'doc.title': 'Qrio — Кабинет владельца',
+        'meta.description': 'Управление билетами: открыть панель, скачать QR и управлять заказами.',
+        'aria.language': 'Язык',
+        'nav.home': 'Главная',
+        'nav.createTicket': 'Создать билет',
+        'ownerTicket.title': 'Страница билетов',
+        'ownerTicket.subtitle': 'Ссылка уже содержит ID события. Введите пароль, чтобы увидеть билеты, скачать QR и настроить.',
+        'ownerTicket.eventId': 'ID события',
+        'ownerTicket.eventName': 'Название события',
+        'ownerTicket.passwordLabel': 'Пароль владельца',
+        'ownerTicket.passwordPlaceholder': 'Введите пароль',
+        'ownerTicket.actions': 'Действия',
+        'ownerTicket.unlock': 'Открыть панель владельца',
+        'ownerTicket.buyLink': 'Ссылка на покупку',
+        'ownerTicket.goScan': 'Перейти к сканированию',
+        'ownerTicket.manageOrders': 'Управление заказами',
+        'ownerTicket.panelTitle': 'Билеты и QR',
+        'ownerTicket.panelSubtitle': 'Можно скачать QR и быстро настроить.',
+        'ownerTicket.panelBuyLink': 'Ссылка на покупку',
+        'ownerTicket.panelOwnerLink': 'Ссылка владельца',
+        'ownerTicket.qrColor': 'Цвет QR',
+        'ownerTicket.bgColor': 'Цвет фона',
+        'ownerTicket.moduleStyle': 'Стиль модулей',
+        'ownerTicket.moduleStyle.legacy': 'По умолчанию',
+        'ownerTicket.moduleStyle.dots': 'Точки',
+        'ownerTicket.moduleStyle.rounded': 'Скруглённый',
+        'ownerTicket.copyBuyLink': 'Скопировать ссылку покупки',
+        'ownerTicket.downloadQr': 'Скачать QR',
+        'msg.enterOwnerPassword': 'Введите пароль владельца',
+        'msg.qrGenerateFailed': 'Не удалось создать QR',
+        'msg.ownerHomeOpenFailed': 'Не удалось открыть панель владельца',
+        'msg.invalidOwnerPassword': 'Неверный пароль',
+        'msg.unlockOwnerFirst': 'Сначала откройте панель владельца',
+        'msg.copied': 'Скопировано',
+        'msg.missingEventId': 'Отсутствует ID события',
+        'msg.eventInfoLoadFailed': 'Не удалось загрузить информацию о событии',
+      },
+      id: {
+        'doc.title': 'Qrio - Beranda pemilik tiket',
+        'meta.description': 'Kelola tiket acara: buka panel pemilik, unduh QR, dan kelola pesanan.',
+        'aria.language': 'Bahasa',
+        'nav.home': 'Beranda',
+        'nav.createTicket': 'Buat tiket',
+        'ownerTicket.title': 'Beranda tiket',
+        'ownerTicket.subtitle': 'Tautan ini sudah berisi ID acara. Masukkan kata sandi untuk melihat tiket, mengunduh QR, dan kustomisasi.',
+        'ownerTicket.eventId': 'ID acara',
+        'ownerTicket.eventName': 'Nama acara',
+        'ownerTicket.passwordLabel': 'Kata sandi pemilik',
+        'ownerTicket.passwordPlaceholder': 'Masukkan kata sandi',
+        'ownerTicket.actions': 'Aksi',
+        'ownerTicket.unlock': 'Buka panel pemilik',
+        'ownerTicket.buyLink': 'Tautan beli tiket',
+        'ownerTicket.goScan': 'Ke pemindaian',
+        'ownerTicket.manageOrders': 'Kelola pesanan',
+        'ownerTicket.panelTitle': 'Tiket & QR',
+        'ownerTicket.panelSubtitle': 'Anda dapat mengunduh QR dan mengatur dengan cepat.',
+        'ownerTicket.panelBuyLink': 'Tautan beli',
+        'ownerTicket.panelOwnerLink': 'Tautan pemilik',
+        'ownerTicket.qrColor': 'Warna QR',
+        'ownerTicket.bgColor': 'Warna latar',
+        'ownerTicket.moduleStyle': 'Gaya modul',
+        'ownerTicket.moduleStyle.legacy': 'Default',
+        'ownerTicket.moduleStyle.dots': 'Titik',
+        'ownerTicket.moduleStyle.rounded': 'Membulat',
+        'ownerTicket.copyBuyLink': 'Salin tautan beli',
+        'ownerTicket.downloadQr': 'Unduh QR',
+        'msg.enterOwnerPassword': 'Masukkan kata sandi pemilik',
+        'msg.qrGenerateFailed': 'Tidak dapat membuat QR',
+        'msg.ownerHomeOpenFailed': 'Tidak dapat membuka panel pemilik',
+        'msg.invalidOwnerPassword': 'Kata sandi salah',
+        'msg.unlockOwnerFirst': 'Silakan buka panel pemilik terlebih dahulu',
+        'msg.copied': 'Tersalin',
+        'msg.missingEventId': 'ID acara tidak ditemukan',
+        'msg.eventInfoLoadFailed': 'Tidak dapat memuat informasi acara',
+      },
+    };
+
+    function normalizeLang(input) {
+      const raw = String(input || '').trim().toLowerCase();
+      if (SUPPORTED_LANGS.includes(raw)) return raw;
+      const prefix = raw.split('-')[0];
+      if (SUPPORTED_LANGS.includes(prefix)) return prefix;
+      return 'vi';
+    }
+
+    function getLang() {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved) return normalizeLang(saved);
+      return normalizeLang(navigator.language || 'vi');
+    }
+
+    function t(key, lang) {
+      const l = normalizeLang(lang);
+      return (I18N[l] && I18N[l][key]) || (I18N.en && I18N.en[key]) || key;
+    }
+
+    function applyI18n(lang) {
+      const l = normalizeLang(lang);
+      document.documentElement.lang = l;
+
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key, l);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', t(key, l));
+      });
+    }
+
+    applyI18n(getLang());
+  </script>
 
   <script>
     let eventId = '';
@@ -280,7 +729,7 @@
       try {
         const resp = await fetch('/api/generate', { method: 'POST', body: fd });
         const data = await resp.json().catch(() => ({}));
-        if (!resp.ok || !data.image) throw new Error(data.error || 'Không thể tạo QR');
+        if (!resp.ok || !data.image) throw new Error(data.error || t('msg.qrGenerateFailed', getLang()));
         img.src = data.image;
       } catch {
         // keep last preview
@@ -302,7 +751,7 @@
     async function unlockOwner() {
       const pass = (document.getElementById('owner-password').value || '').trim();
       if (!pass) {
-        alert('Vui lòng nhập mật khẩu chủ vé');
+        alert(t('msg.enterOwnerPassword', getLang()));
         return;
       }
 
@@ -311,7 +760,7 @@
           headers: { 'X-Owner-Password': pass }
         });
         const data = await resp.json().catch(() => ({}));
-        if (!resp.ok || data.error) throw new Error(data.error || 'Không thể mở trang chủ vé');
+        if (!resp.ok || data.error) throw new Error(data.error || t('msg.ownerHomeOpenFailed', getLang()));
         ownerData = data;
 
         sessionStorage.setItem(getPassKey(), pass);
@@ -323,13 +772,13 @@
 
         await generatePreview();
       } catch (e) {
-        alert(e?.message || 'Mật khẩu không đúng');
+        alert(e?.message || t('msg.invalidOwnerPassword', getLang()));
       }
     }
 
     function downloadQr() {
       if (!ownerData || !ownerData.buyLink) {
-        alert('Vui lòng mở trang chủ vé trước');
+        alert(t('msg.unlockOwnerFirst', getLang()));
         return;
       }
 
@@ -349,13 +798,13 @@
     }
 
     async function copyText(text) {
-      const t = (text || '').trim();
-      if (!t || t === '-') return;
+      const value = (text || '').trim();
+      if (!value || value === '-') return;
       try {
-        await navigator.clipboard.writeText(t);
+        await navigator.clipboard.writeText(value);
       } catch {
         const ta = document.createElement('textarea');
-        ta.value = t;
+        ta.value = value;
         ta.style.position = 'fixed';
         ta.style.left = '-9999px';
         document.body.appendChild(ta);
@@ -363,7 +812,7 @@
         document.execCommand('copy');
         document.body.removeChild(ta);
       }
-      alert('Đã copy');
+      alert(t('msg.copied', getLang()));
     }
 
     async function init() {
@@ -371,7 +820,7 @@
       eventId = (urlParams.get('event') || '').trim();
 
       if (!eventId) {
-        alert('Thiếu mã sự kiện');
+        alert(t('msg.missingEventId', getLang()));
         window.location.href = 'ticket-create.html';
         return;
       }
@@ -379,12 +828,12 @@
       document.getElementById('event-id').textContent = eventId;
       document.getElementById('buy-link').href = `buy-ticket.html?event=${encodeURIComponent(eventId)}`;
       document.getElementById('manage-link').href = `manage-orders.html?event=${encodeURIComponent(eventId)}`;
-      document.getElementById('scan-link').href = 'scan.html';
+      document.getElementById('scan-link').href = 'scan-ticket.html';
 
       try {
         const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}`);
         const data = await resp.json().catch(() => ({}));
-        if (!resp.ok || data.error) throw new Error(data.error || 'Không thể tải thông tin sự kiện');
+        if (!resp.ok || data.error) throw new Error(data.error || t('msg.eventInfoLoadFailed', getLang()));
         document.getElementById('event-name').textContent = data.eventName || '-';
       } catch {
         document.getElementById('event-name').textContent = '-';

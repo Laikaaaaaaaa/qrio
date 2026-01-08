@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Quản Lý Đơn Hàng</title>
-  <meta name="description" content="Quản lý đơn đặt vé, xem ảnh xác nhận thanh toán và duyệt đơn hàng." />
+  <title data-i18n="doc.title">Qrio - Quản Lý Đơn Hàng</title>
+  <meta name="description" data-i18n-content="meta.description" content="Quản lý đơn đặt vé, xem ảnh xác nhận thanh toán và duyệt đơn hàng." />
   <meta name="robots" content="noindex, nofollow" />
   
   <meta name="theme-color" content="#7c3aed" />
@@ -180,6 +180,96 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    /* Language picker */
+    .lang-btn {
+      width: 40px;
+      padding: 8px 0;
+    }
+
+    .lang-select {
+      display: none;
+    }
+
+    .lang-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+
+    .lang-modal {
+      width: min(560px, 92vw);
+      background: rgba(15, 15, 26, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(14px);
+    }
+
+    .lang-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .lang-modal-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .lang-close {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .lang-modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .lang-item:hover {
+      border-color: rgba(124, 58, 237, 0.35);
+      background: rgba(124, 58, 237, 0.12);
+    }
+
+    .lang-item.active {
+      border-color: rgba(124, 58, 237, 0.55);
+      background: rgba(124, 58, 237, 0.18);
+    }
+
+    @media (max-width: 520px) {
+      .lang-modal-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* MAIN CONTENT */
@@ -681,51 +771,49 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a href="ticket-create.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i><span>Tạo vé</span></a>
-      <a href="order-history.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-history"></i><span>Lịch sử</span></a>
-      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+      <a href="ticket-create.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i><span data-i18n="nav.createTicket">Tạo vé</span></a>
+      <a href="order-history.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-history"></i><span data-i18n="nav.history">Lịch sử</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span data-i18n="nav.home">Trang chủ</span></a>
     </div>
   </header>
 
   <main class="main-content">
-    <h1 class="page-title"><i class="fa-solid fa-clipboard-list" style="color: #a78bfa;"></i> Quản Lý Đơn Hàng</h1>
-    <p class="page-subtitle">Xem và duyệt các đơn đặt vé của sự kiện</p>
+    <h1 class="page-title"><i class="fa-solid fa-clipboard-list" style="color: #a78bfa;"></i> <span data-i18n="page.title">Quản Lý Đơn Hàng</span></h1>
+    <p class="page-subtitle" data-i18n="page.subtitle">Xem và duyệt các đơn đặt vé của sự kiện</p>
 
     <!-- Auth Gate -->
     <div id="auth-section" class="card">
-      <div class="card-title"><i class="fa-solid fa-lock"></i> Xác nhận chủ sở hữu</div>
+      <div class="card-title"><i class="fa-solid fa-lock"></i> <span data-i18n="auth.title">Xác nhận chủ sở hữu</span></div>
       <div class="auth-grid">
         <div>
-          <label class="auth-label" for="auth-event-id">Mã sự kiện</label>
-          <input class="auth-input" id="auth-event-id" placeholder="VD: EVABC123..." autocomplete="off" />
+          <label class="auth-label" for="auth-event-id" data-i18n="auth.eventId">Mã sự kiện</label>
+          <input class="auth-input" id="auth-event-id" data-i18n-placeholder="auth.eventId.placeholder" placeholder="VD: EVABC123..." autocomplete="off" />
         </div>
         <div>
-          <label class="auth-label" for="auth-password">Mật khẩu quản lý</label>
-          <input class="auth-input" id="auth-password" type="password" placeholder="Nhập mật khẩu đã tạo" autocomplete="current-password" />
+          <label class="auth-label" for="auth-password" data-i18n="auth.password">Mật khẩu quản lý</label>
+          <input class="auth-input" id="auth-password" type="password" data-i18n-placeholder="auth.password.placeholder" placeholder="Nhập mật khẩu đã tạo" autocomplete="current-password" />
         </div>
       </div>
       <div style="display:flex; gap:10px; margin-top: 14px; flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="submitAuth()"><i class="fa-solid fa-arrow-right-to-bracket"></i> Xác nhận</button>
-        <a class="btn btn-secondary" href="ticket-create.html"><i class="fa-solid fa-plus"></i> Tạo vé mới</a>
+        <button class="btn btn-primary" onclick="submitAuth()"><i class="fa-solid fa-arrow-right-to-bracket"></i> <span data-i18n="auth.confirm">Xác nhận</span></button>
+        <a class="btn btn-secondary" href="ticket-create.html"><i class="fa-solid fa-plus"></i> <span data-i18n="auth.createNew">Tạo vé mới</span></a>
       </div>
-      <div class="auth-help">
-        Nhập <strong>Mã sự kiện</strong> và <strong>mật khẩu</strong> bạn đã đặt khi tạo vé để xem danh sách đơn hàng.
-      </div>
+      <div class="auth-help" data-i18n="auth.help">Nhập Mã sự kiện và mật khẩu bạn đã đặt khi tạo vé để xem danh sách đơn hàng.</div>
     </div>
 
     <!-- Loading -->
     <div id="loading" class="card loading hidden">
       <div class="loading-spinner"></div>
-      <p>Đang tải dữ liệu...</p>
+      <p data-i18n="loading">Đang tải dữ liệu...</p>
     </div>
 
     <!-- Error -->
     <div id="error-section" class="card hidden">
       <div class="empty-state">
         <i class="fa-solid fa-exclamation-triangle"></i>
-        <p id="error-message">Không thể tải dữ liệu</p>
+        <p id="error-message" data-i18n="error.generic">Không thể tải dữ liệu</p>
         <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="window.location.reload()">
-          <i class="fa-solid fa-refresh"></i> Thử lại
+          <i class="fa-solid fa-refresh"></i> <span data-i18n="error.retry">Thử lại</span>
         </button>
       </div>
     </div>
@@ -734,22 +822,22 @@
     <div id="main-section" class="hidden">
       <!-- Event Info -->
       <div class="card">
-        <div class="card-title"><i class="fa-solid fa-calendar-alt"></i> Thông tin sự kiện</div>
+        <div class="card-title"><i class="fa-solid fa-calendar-alt"></i> <span data-i18n="event.title">Thông tin sự kiện</span></div>
         <div class="event-info">
           <div class="event-info-item">
-            <span class="event-info-label">Tên sự kiện</span>
+            <span class="event-info-label" data-i18n="event.name">Tên sự kiện</span>
             <span class="event-info-value" id="event-name">-</span>
           </div>
           <div class="event-info-item">
-            <span class="event-info-label">Mã sự kiện</span>
+            <span class="event-info-label" data-i18n="event.id">Mã sự kiện</span>
             <span class="event-info-value" id="event-id" style="font-family: monospace; color: #a78bfa;">-</span>
           </div>
           <div class="event-info-item">
-            <span class="event-info-label">Phương thức xác nhận</span>
+            <span class="event-info-label" data-i18n="event.verifyMethod">Phương thức xác nhận</span>
             <span class="event-info-value" id="payment-method">-</span>
           </div>
           <div class="event-info-item">
-            <span class="event-info-label">Tổng đơn</span>
+            <span class="event-info-label" data-i18n="event.totalOrders">Tổng đơn</span>
             <span class="event-info-value" id="total-orders">0</span>
           </div>
         </div>
@@ -757,21 +845,21 @@
 
       <!-- Orders -->
       <div class="card">
-        <div class="card-title"><i class="fa-solid fa-shopping-cart"></i> Danh sách đơn hàng</div>
+        <div class="card-title"><i class="fa-solid fa-shopping-cart"></i> <span data-i18n="orders.title">Danh sách đơn hàng</span></div>
         
         <!-- Tabs -->
         <div class="tabs">
           <button class="tab active" data-filter="all">
-            Tất cả <span class="count" id="count-all">0</span>
+            <span data-i18n="tab.all">Tất cả</span> <span class="count" id="count-all">0</span>
           </button>
           <button class="tab" data-filter="pending">
-            <i class="fa-solid fa-clock"></i> Chờ duyệt <span class="count" id="count-pending">0</span>
+            <i class="fa-solid fa-clock"></i> <span data-i18n="tab.pending">Chờ duyệt</span> <span class="count" id="count-pending">0</span>
           </button>
           <button class="tab" data-filter="paid">
-            <i class="fa-solid fa-check"></i> Đã thanh toán <span class="count" id="count-paid">0</span>
+            <i class="fa-solid fa-check"></i> <span data-i18n="tab.paid">Đã thanh toán</span> <span class="count" id="count-paid">0</span>
           </button>
           <button class="tab" data-filter="cancelled">
-            <i class="fa-solid fa-times"></i> Đã hủy <span class="count" id="count-cancelled">0</span>
+            <i class="fa-solid fa-times"></i> <span data-i18n="tab.cancelled">Đã hủy</span> <span class="count" id="count-cancelled">0</span>
           </button>
         </div>
 
@@ -783,13 +871,526 @@
         <!-- Empty State -->
         <div class="empty-state hidden" id="empty-state">
           <i class="fa-solid fa-inbox"></i>
-          <p>Chưa có đơn hàng nào</p>
+          <p data-i18n="orders.empty">Chưa có đơn hàng nào</p>
         </div>
       </div>
     </div>
   </main>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+  <script>
+    const LANG_KEY = 'qr_lang';
+    const SUPPORTED_LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'pt', 'ru', 'id', 'vi'];
+    const I18N = {
+      en: {
+        'doc.title': 'Qrio - Manage Orders',
+        'meta.description': 'Manage ticket orders, view payment proofs, and approve orders.',
+        'lang.title': 'Language',
+        'lang.aria': 'Choose language',
+        'lang.choose': 'Choose language',
+        'lang.close': 'Close',
+        'tab.all': 'All',
+        'tab.pending': 'Pending approval',
+        'tab.paid': 'Paid',
+        'tab.cancelled': 'Cancelled',
+        'nav.createTicket': 'Create ticket',
+        'nav.history': 'History',
+        'nav.home': 'Home',
+        'page.title': 'Manage Orders',
+        'page.subtitle': 'View and approve event ticket orders',
+        'auth.title': 'Owner verification',
+        'auth.eventId': 'Event ID',
+        'auth.eventId.placeholder': 'e.g., EVABC123...',
+        'auth.password': 'Management password',
+        'auth.password.placeholder': 'Enter the password you created',
+        'auth.confirm': 'Verify',
+        'auth.createNew': 'Create new ticket',
+        'auth.help': 'Enter the event ID and the password you set when creating the ticket to view the order list.',
+        'loading': 'Loading data...',
+        'error.generic': 'Unable to load data',
+        'error.retry': 'Retry',
+        'event.title': 'Event information',
+        'event.name': 'Event name',
+        'event.id': 'Event ID',
+        'event.verifyMethod': 'Verification method',
+        'event.totalOrders': 'Total orders',
+        'orders.title': 'Orders list',
+        'orders.empty': 'No orders yet',
+        'orders.noProof': 'No proof uploaded yet',
+        'orders.confirmPayment': 'Confirm payment',
+        'orders.cancelOrder': 'Cancel order',
+        'orders.noActions': 'No available actions',
+        'msg.confirmPaid': 'Confirm this order is paid?',
+        'msg.confirmCancel': 'Are you sure you want to cancel this order?',
+        'msg.confirmOk': 'Payment confirmed successfully!',
+        'msg.cancelOk': 'Order cancelled!',
+        'msg.errPrefix': 'Error: ',
+        'msg.errConfirm': 'Unable to confirm',
+        'msg.errCancel': 'Unable to cancel'
+      },
+      vi: {
+        'doc.title': 'Qrio - Quản Lý Đơn Hàng',
+        'meta.description': 'Quản lý đơn đặt vé, xem ảnh xác nhận thanh toán và duyệt đơn hàng.',
+        'lang.title': 'Ngôn ngữ',
+        'lang.aria': 'Chọn ngôn ngữ',
+        'lang.choose': 'Chọn ngôn ngữ',
+        'lang.close': 'Đóng',
+        'tab.all': 'Tất cả',
+        'tab.pending': 'Chờ duyệt',
+        'tab.paid': 'Đã thanh toán',
+        'tab.cancelled': 'Đã hủy',
+        'nav.createTicket': 'Tạo vé',
+        'nav.history': 'Lịch sử',
+        'nav.home': 'Trang chủ',
+        'page.title': 'Quản Lý Đơn Hàng',
+        'page.subtitle': 'Xem và duyệt các đơn đặt vé của sự kiện',
+        'auth.title': 'Xác nhận chủ sở hữu',
+        'auth.eventId': 'Mã sự kiện',
+        'auth.eventId.placeholder': 'VD: EVABC123...',
+        'auth.password': 'Mật khẩu quản lý',
+        'auth.password.placeholder': 'Nhập mật khẩu đã tạo',
+        'auth.confirm': 'Xác nhận',
+        'auth.createNew': 'Tạo vé mới',
+        'auth.help': 'Nhập Mã sự kiện và mật khẩu bạn đã đặt khi tạo vé để xem danh sách đơn hàng.',
+        'loading': 'Đang tải dữ liệu...',
+        'error.generic': 'Không thể tải dữ liệu',
+        'error.retry': 'Thử lại',
+        'event.title': 'Thông tin sự kiện',
+        'event.name': 'Tên sự kiện',
+        'event.id': 'Mã sự kiện',
+        'event.verifyMethod': 'Phương thức xác nhận',
+        'event.totalOrders': 'Tổng đơn',
+        'orders.title': 'Danh sách đơn hàng',
+        'orders.empty': 'Chưa có đơn hàng nào',
+        'orders.noProof': 'Chưa có ảnh xác nhận',
+        'orders.confirmPayment': 'Xác nhận thanh toán',
+        'orders.cancelOrder': 'Hủy đơn',
+        'orders.noActions': 'Không có thao tác khả dụng',
+        'msg.confirmPaid': 'Xác nhận đơn hàng này đã thanh toán?',
+        'msg.confirmCancel': 'Bạn có chắc muốn hủy đơn hàng này?',
+        'msg.confirmOk': 'Đã xác nhận thanh toán thành công!',
+        'msg.cancelOk': 'Đã hủy đơn hàng!',
+        'msg.errPrefix': 'Lỗi: ',
+        'msg.errConfirm': 'Không thể xác nhận',
+        'msg.errCancel': 'Không thể hủy'
+      },
+      zh: {
+        'doc.title': 'Qrio - 订单管理',
+        'meta.description': '管理购票订单、查看付款凭证并审批订单。',
+        'lang.title': '语言',
+        'lang.aria': '选择语言',
+        'lang.choose': '选择语言',
+        'lang.close': '关闭',
+        'tab.all': '全部',
+        'tab.pending': '待审核',
+        'tab.paid': '已付款',
+        'tab.cancelled': '已取消',
+        'nav.createTicket': '创建门票',
+        'nav.history': '历史',
+        'nav.home': '首页',
+        'page.title': '订单管理',
+        'page.subtitle': '查看并审批活动门票订单',
+        'auth.title': '所有者验证',
+        'auth.eventId': '活动 ID',
+        'auth.eventId.placeholder': '例如：EVABC123...',
+        'auth.password': '管理密码',
+        'auth.password.placeholder': '输入你创建的密码',
+        'auth.confirm': '验证',
+        'auth.createNew': '创建新门票',
+        'auth.help': '输入创建门票时设置的活动 ID 和密码以查看订单列表。',
+        'loading': '正在加载数据...',
+        'error.generic': '无法加载数据',
+        'error.retry': '重试',
+        'event.title': '活动信息',
+        'event.name': '活动名称',
+        'event.id': '活动 ID',
+        'event.verifyMethod': '验证方式',
+        'event.totalOrders': '订单总数',
+        'orders.title': '订单列表',
+        'orders.empty': '暂无订单',
+        'orders.noProof': '尚未上传凭证',
+        'orders.confirmPayment': '确认付款',
+        'orders.cancelOrder': '取消订单',
+        'orders.noActions': '无可用操作',
+        'msg.confirmPaid': '确认此订单已付款？',
+        'msg.confirmCancel': '确定要取消此订单吗？',
+        'msg.confirmOk': '已成功确认付款！',
+        'msg.cancelOk': '订单已取消！',
+        'msg.errPrefix': '错误：',
+        'msg.errConfirm': '无法确认',
+        'msg.errCancel': '无法取消'
+      },
+      hi: {
+        'doc.title': 'Qrio - ऑर्डर प्रबंधन',
+        'meta.description': 'टिकट ऑर्डर प्रबंधित करें, भुगतान प्रमाण देखें और ऑर्डर अनुमोदित करें।',
+        'lang.title': 'भाषा',
+        'lang.aria': 'भाषा चुनें',
+        'lang.choose': 'भाषा चुनें',
+        'lang.close': 'बंद करें',
+        'tab.all': 'सभी',
+        'tab.pending': 'स्वीकृति प्रतीक्षा',
+        'tab.paid': 'भुगतान हुआ',
+        'tab.cancelled': 'रद्द',
+        'nav.createTicket': 'टिकट बनाएं',
+        'nav.history': 'इतिहास',
+        'nav.home': 'होम',
+        'page.title': 'ऑर्डर प्रबंधन',
+        'page.subtitle': 'इवेंट टिकट ऑर्डर देखें और अनुमोदित करें',
+        'auth.title': 'मालिक सत्यापन',
+        'auth.eventId': 'इवेंट ID',
+        'auth.eventId.placeholder': 'जैसे: EVABC123...',
+        'auth.password': 'प्रबंधन पासवर्ड',
+        'auth.password.placeholder': 'आपने जो पासवर्ड बनाया है वह दर्ज करें',
+        'auth.confirm': 'सत्यापित करें',
+        'auth.createNew': 'नया टिकट बनाएं',
+        'auth.help': 'ऑर्डर सूची देखने के लिए इवेंट ID और टिकट बनाते समय सेट किया गया पासवर्ड दर्ज करें।',
+        'loading': 'डेटा लोड हो रहा है...',
+        'error.generic': 'डेटा लोड नहीं हो सका',
+        'error.retry': 'फिर से प्रयास करें',
+        'event.title': 'इवेंट जानकारी',
+        'event.name': 'इवेंट नाम',
+        'event.id': 'इवेंट ID',
+        'event.verifyMethod': 'सत्यापन विधि',
+        'event.totalOrders': 'कुल ऑर्डर',
+        'orders.title': 'ऑर्डर सूची',
+        'orders.empty': 'अभी कोई ऑर्डर नहीं',
+        'orders.noProof': 'अभी कोई प्रमाण अपलोड नहीं',
+        'orders.confirmPayment': 'भुगतान पुष्टि करें',
+        'orders.cancelOrder': 'ऑर्डर रद्द करें',
+        'orders.noActions': 'कोई कार्रवाई उपलब्ध नहीं',
+        'msg.confirmPaid': 'क्या आप पुष्टि करते हैं कि यह ऑर्डर भुगतान हो चुका है?',
+        'msg.confirmCancel': 'क्या आप वाकई इस ऑर्डर को रद्द करना चाहते हैं?',
+        'msg.confirmOk': 'भुगतान सफलतापूर्वक पुष्टि हो गया!',
+        'msg.cancelOk': 'ऑर्डर रद्द कर दिया गया!',
+        'msg.errPrefix': 'त्रुटि: ',
+        'msg.errConfirm': 'पुष्टि नहीं हो सकी',
+        'msg.errCancel': 'रद्द नहीं हो सका'
+      },
+      es: {
+        'doc.title': 'Qrio - Gestionar pedidos',
+        'meta.description': 'Gestiona pedidos de entradas, ve comprobantes y aprueba pedidos.',
+        'lang.title': 'Idioma',
+        'lang.aria': 'Elegir idioma',
+        'lang.choose': 'Elegir idioma',
+        'lang.close': 'Cerrar',
+        'tab.all': 'Todos',
+        'tab.pending': 'Pendientes',
+        'tab.paid': 'Pagados',
+        'tab.cancelled': 'Cancelados',
+        'nav.createTicket': 'Crear entrada',
+        'nav.history': 'Historial',
+        'nav.home': 'Inicio',
+        'page.title': 'Gestionar pedidos',
+        'page.subtitle': 'Ver y aprobar pedidos de entradas del evento',
+        'auth.title': 'Verificación del propietario',
+        'auth.eventId': 'ID del evento',
+        'auth.eventId.placeholder': 'p. ej., EVABC123...',
+        'auth.password': 'Contraseña de gestión',
+        'auth.password.placeholder': 'Ingresa la contraseña que creaste',
+        'auth.confirm': 'Verificar',
+        'auth.createNew': 'Crear nueva entrada',
+        'auth.help': 'Ingresa el ID del evento y la contraseña definida al crear la entrada para ver la lista de pedidos.',
+        'loading': 'Cargando datos...',
+        'error.generic': 'No se pueden cargar los datos',
+        'error.retry': 'Reintentar',
+        'event.title': 'Información del evento',
+        'event.name': 'Nombre del evento',
+        'event.id': 'ID del evento',
+        'event.verifyMethod': 'Método de verificación',
+        'event.totalOrders': 'Total de pedidos',
+        'orders.title': 'Lista de pedidos',
+        'orders.empty': 'Aún no hay pedidos',
+        'orders.noProof': 'Aún no se subió comprobante',
+        'orders.confirmPayment': 'Confirmar pago',
+        'orders.cancelOrder': 'Cancelar pedido',
+        'orders.noActions': 'Sin acciones disponibles',
+        'msg.confirmPaid': '¿Confirmar que este pedido está pagado?',
+        'msg.confirmCancel': '¿Seguro que quieres cancelar este pedido?',
+        'msg.confirmOk': '¡Pago confirmado correctamente!',
+        'msg.cancelOk': '¡Pedido cancelado!',
+        'msg.errPrefix': 'Error: ',
+        'msg.errConfirm': 'No se puede confirmar',
+        'msg.errCancel': 'No se puede cancelar'
+      },
+      fr: {
+        'doc.title': 'Qrio - Gestion des commandes',
+        'meta.description': 'Gérez les commandes, consultez les preuves de paiement et validez les commandes.',
+        'lang.title': 'Langue',
+        'lang.aria': 'Choisir la langue',
+        'lang.choose': 'Choisir la langue',
+        'lang.close': 'Fermer',
+        'tab.all': 'Toutes',
+        'tab.pending': 'En attente',
+        'tab.paid': 'Payées',
+        'tab.cancelled': 'Annulées',
+        'nav.createTicket': 'Créer un billet',
+        'nav.history': 'Historique',
+        'nav.home': 'Accueil',
+        'page.title': 'Gestion des commandes',
+        'page.subtitle': 'Voir et valider les commandes de billets',
+        'auth.title': 'Vérification du propriétaire',
+        'auth.eventId': 'ID de l’événement',
+        'auth.eventId.placeholder': 'ex. EVABC123...',
+        'auth.password': 'Mot de passe de gestion',
+        'auth.password.placeholder': 'Saisissez le mot de passe créé',
+        'auth.confirm': 'Vérifier',
+        'auth.createNew': 'Créer un nouveau billet',
+        'auth.help': 'Saisissez l’ID de l’événement et le mot de passe défini lors de la création pour voir la liste des commandes.',
+        'loading': 'Chargement des données...',
+        'error.generic': 'Impossible de charger les données',
+        'error.retry': 'Réessayer',
+        'event.title': 'Informations de l’événement',
+        'event.name': 'Nom de l’événement',
+        'event.id': 'ID de l’événement',
+        'event.verifyMethod': 'Méthode de vérification',
+        'event.totalOrders': 'Total des commandes',
+        'orders.title': 'Liste des commandes',
+        'orders.empty': 'Aucune commande pour le moment',
+        'orders.noProof': 'Aucune preuve envoyée',
+        'orders.confirmPayment': 'Confirmer le paiement',
+        'orders.cancelOrder': 'Annuler la commande',
+        'orders.noActions': 'Aucune action disponible',
+        'msg.confirmPaid': 'Confirmer que cette commande est payée ?',
+        'msg.confirmCancel': 'Voulez-vous vraiment annuler cette commande ?',
+        'msg.confirmOk': 'Paiement confirmé avec succès !',
+        'msg.cancelOk': 'Commande annulée !',
+        'msg.errPrefix': 'Erreur : ',
+        'msg.errConfirm': 'Impossible de confirmer',
+        'msg.errCancel': 'Impossible d’annuler'
+      },
+      ar: {
+        'doc.title': 'Qrio - إدارة الطلبات',
+        'meta.description': 'إدارة طلبات التذاكر، عرض إثباتات الدفع، والموافقة على الطلبات.',
+        'lang.title': 'اللغة',
+        'lang.aria': 'اختر اللغة',
+        'lang.choose': 'اختر اللغة',
+        'lang.close': 'إغلاق',
+        'tab.all': 'الكل',
+        'tab.pending': 'قيد المراجعة',
+        'tab.paid': 'مدفوع',
+        'tab.cancelled': 'ملغي',
+        'nav.createTicket': 'إنشاء تذكرة',
+        'nav.history': 'السجل',
+        'nav.home': 'الرئيسية',
+        'page.title': 'إدارة الطلبات',
+        'page.subtitle': 'عرض واعتماد طلبات تذاكر الفعالية',
+        'auth.title': 'تحقق المالك',
+        'auth.eventId': 'معرّف الفعالية',
+        'auth.eventId.placeholder': 'مثال: EVABC123...',
+        'auth.password': 'كلمة مرور الإدارة',
+        'auth.password.placeholder': 'أدخل كلمة المرور التي أنشأتها',
+        'auth.confirm': 'تحقق',
+        'auth.createNew': 'إنشاء تذكرة جديدة',
+        'auth.help': 'أدخل معرّف الفعالية وكلمة المرور التي ضبطتها عند إنشاء التذكرة لعرض قائمة الطلبات.',
+        'loading': 'جارٍ تحميل البيانات...',
+        'error.generic': 'تعذر تحميل البيانات',
+        'error.retry': 'إعادة المحاولة',
+        'event.title': 'معلومات الفعالية',
+        'event.name': 'اسم الفعالية',
+        'event.id': 'معرّف الفعالية',
+        'event.verifyMethod': 'طريقة التحقق',
+        'event.totalOrders': 'إجمالي الطلبات',
+        'orders.title': 'قائمة الطلبات',
+        'orders.empty': 'لا توجد طلبات بعد',
+        'orders.noProof': 'لم يتم رفع إثبات بعد',
+        'orders.confirmPayment': 'تأكيد الدفع',
+        'orders.cancelOrder': 'إلغاء الطلب',
+        'orders.noActions': 'لا توجد إجراءات متاحة',
+        'msg.confirmPaid': 'هل تؤكد أن هذا الطلب مدفوع؟',
+        'msg.confirmCancel': 'هل أنت متأكد أنك تريد إلغاء هذا الطلب؟',
+        'msg.confirmOk': 'تم تأكيد الدفع بنجاح!',
+        'msg.cancelOk': 'تم إلغاء الطلب!',
+        'msg.errPrefix': 'خطأ: ',
+        'msg.errConfirm': 'تعذر التأكيد',
+        'msg.errCancel': 'تعذر الإلغاء'
+      },
+      pt: {
+        'doc.title': 'Qrio - Gerenciar pedidos',
+        'meta.description': 'Gerencie pedidos de ingressos, veja comprovantes e aprove pedidos.',
+        'lang.title': 'Idioma',
+        'lang.aria': 'Escolher idioma',
+        'lang.choose': 'Escolher idioma',
+        'lang.close': 'Fechar',
+        'tab.all': 'Todos',
+        'tab.pending': 'Pendentes',
+        'tab.paid': 'Pagos',
+        'tab.cancelled': 'Cancelados',
+        'nav.createTicket': 'Criar ingresso',
+        'nav.history': 'Histórico',
+        'nav.home': 'Início',
+        'page.title': 'Gerenciar pedidos',
+        'page.subtitle': 'Veja e aprove pedidos de ingressos do evento',
+        'auth.title': 'Verificação do proprietário',
+        'auth.eventId': 'ID do evento',
+        'auth.eventId.placeholder': 'ex.: EVABC123...',
+        'auth.password': 'Senha de gestão',
+        'auth.password.placeholder': 'Digite a senha que você criou',
+        'auth.confirm': 'Verificar',
+        'auth.createNew': 'Criar novo ingresso',
+        'auth.help': 'Digite o ID do evento e a senha definida ao criar o ingresso para ver a lista de pedidos.',
+        'loading': 'Carregando dados...',
+        'error.generic': 'Não foi possível carregar os dados',
+        'error.retry': 'Tentar novamente',
+        'event.title': 'Informações do evento',
+        'event.name': 'Nome do evento',
+        'event.id': 'ID do evento',
+        'event.verifyMethod': 'Método de verificação',
+        'event.totalOrders': 'Total de pedidos',
+        'orders.title': 'Lista de pedidos',
+        'orders.empty': 'Ainda não há pedidos',
+        'orders.noProof': 'Nenhum comprovante enviado',
+        'orders.confirmPayment': 'Confirmar pagamento',
+        'orders.cancelOrder': 'Cancelar pedido',
+        'orders.noActions': 'Nenhuma ação disponível',
+        'msg.confirmPaid': 'Confirmar que este pedido está pago?',
+        'msg.confirmCancel': 'Tem certeza de que deseja cancelar este pedido?',
+        'msg.confirmOk': 'Pagamento confirmado com sucesso!',
+        'msg.cancelOk': 'Pedido cancelado!',
+        'msg.errPrefix': 'Erro: ',
+        'msg.errConfirm': 'Não foi possível confirmar',
+        'msg.errCancel': 'Não foi possível cancelar'
+      },
+      ru: {
+        'doc.title': 'Qrio — Управление заказами',
+        'meta.description': 'Управляйте заказами, смотрите подтверждения оплаты и подтверждайте заказы.',
+        'lang.title': 'Язык',
+        'lang.aria': 'Выберите язык',
+        'lang.choose': 'Выберите язык',
+        'lang.close': 'Закрыть',
+        'tab.all': 'Все',
+        'tab.pending': 'Ожидают',
+        'tab.paid': 'Оплачено',
+        'tab.cancelled': 'Отменено',
+        'nav.createTicket': 'Создать билет',
+        'nav.history': 'История',
+        'nav.home': 'Главная',
+        'page.title': 'Управление заказами',
+        'page.subtitle': 'Просмотр и подтверждение заказов на билеты',
+        'auth.title': 'Проверка владельца',
+        'auth.eventId': 'ID события',
+        'auth.eventId.placeholder': 'например: EVABC123...',
+        'auth.password': 'Пароль управления',
+        'auth.password.placeholder': 'Введите созданный пароль',
+        'auth.confirm': 'Проверить',
+        'auth.createNew': 'Создать новый билет',
+        'auth.help': 'Введите ID события и пароль, заданный при создании билета, чтобы увидеть список заказов.',
+        'loading': 'Загрузка данных...',
+        'error.generic': 'Не удалось загрузить данные',
+        'error.retry': 'Повторить',
+        'event.title': 'Информация о событии',
+        'event.name': 'Название события',
+        'event.id': 'ID события',
+        'event.verifyMethod': 'Способ проверки',
+        'event.totalOrders': 'Всего заказов',
+        'orders.title': 'Список заказов',
+        'orders.empty': 'Заказов пока нет',
+        'orders.noProof': 'Подтверждение не загружено',
+        'orders.confirmPayment': 'Подтвердить оплату',
+        'orders.cancelOrder': 'Отменить заказ',
+        'orders.noActions': 'Нет доступных действий',
+        'msg.confirmPaid': 'Подтвердить, что заказ оплачен?',
+        'msg.confirmCancel': 'Вы уверены, что хотите отменить этот заказ?',
+        'msg.confirmOk': 'Оплата успешно подтверждена!',
+        'msg.cancelOk': 'Заказ отменён!',
+        'msg.errPrefix': 'Ошибка: ',
+        'msg.errConfirm': 'Не удалось подтвердить',
+        'msg.errCancel': 'Не удалось отменить'
+      },
+      id: {
+        'doc.title': 'Qrio - Kelola pesanan',
+        'meta.description': 'Kelola pesanan tiket, lihat bukti pembayaran, dan setujui pesanan.',
+        'lang.title': 'Bahasa',
+        'lang.aria': 'Pilih bahasa',
+        'lang.choose': 'Pilih bahasa',
+        'lang.close': 'Tutup',
+        'tab.all': 'Semua',
+        'tab.pending': 'Menunggu',
+        'tab.paid': 'Lunas',
+        'tab.cancelled': 'Dibatalkan',
+        'nav.createTicket': 'Buat tiket',
+        'nav.history': 'Riwayat',
+        'nav.home': 'Beranda',
+        'page.title': 'Kelola pesanan',
+        'page.subtitle': 'Lihat dan setujui pesanan tiket acara',
+        'auth.title': 'Verifikasi pemilik',
+        'auth.eventId': 'ID acara',
+        'auth.eventId.placeholder': 'mis.: EVABC123...',
+        'auth.password': 'Kata sandi pengelolaan',
+        'auth.password.placeholder': 'Masukkan kata sandi yang dibuat',
+        'auth.confirm': 'Verifikasi',
+        'auth.createNew': 'Buat tiket baru',
+        'auth.help': 'Masukkan ID acara dan kata sandi yang Anda set saat membuat tiket untuk melihat daftar pesanan.',
+        'loading': 'Memuat data...',
+        'error.generic': 'Tidak dapat memuat data',
+        'error.retry': 'Coba lagi',
+        'event.title': 'Informasi acara',
+        'event.name': 'Nama acara',
+        'event.id': 'ID acara',
+        'event.verifyMethod': 'Metode verifikasi',
+        'event.totalOrders': 'Total pesanan',
+        'orders.title': 'Daftar pesanan',
+        'orders.empty': 'Belum ada pesanan',
+        'orders.noProof': 'Bukti belum diunggah',
+        'orders.confirmPayment': 'Konfirmasi pembayaran',
+        'orders.cancelOrder': 'Batalkan pesanan',
+        'orders.noActions': 'Tidak ada aksi tersedia',
+        'msg.confirmPaid': 'Konfirmasi pesanan ini sudah dibayar?',
+        'msg.confirmCancel': 'Yakin ingin membatalkan pesanan ini?',
+        'msg.confirmOk': 'Pembayaran berhasil dikonfirmasi!',
+        'msg.cancelOk': 'Pesanan dibatalkan!',
+        'msg.errPrefix': 'Error: ',
+        'msg.errConfirm': 'Tidak dapat mengonfirmasi',
+        'msg.errCancel': 'Tidak dapat membatalkan'
+      }
+    };
+    function normalizeLang(input) {
+      const raw = String(input || '').trim().toLowerCase();
+      if (SUPPORTED_LANGS.includes(raw)) return raw;
+      const prefix = raw.split('-')[0];
+      if (SUPPORTED_LANGS.includes(prefix)) return prefix;
+      return 'vi';
+    }
+    function getLang() {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved) return normalizeLang(saved);
+      return normalizeLang(navigator.language || 'vi');
+    }
+    function t(key, lang) {
+      const l = normalizeLang(lang);
+      return (I18N[l] && I18N[l][key]) || (I18N.en && I18N.en[key]) || key;
+    }
+    function tr(key) { return t(key, getLang()); }
+
+    function applyI18n(lang) {
+      const l = normalizeLang(lang);
+      document.documentElement.lang = l;
+
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key, l);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', t(key, l));
+      });
+    }
+
+    const initialLang = getLang();
+    applyI18n(initialLang);
+  </script>
 
   <script>
     let eventData = null;
@@ -1119,7 +1720,7 @@
               ` : `
                 <div class="no-proof">
                   <i class="fa-solid fa-image-slash" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
-                  Chưa có ảnh xác nhận
+                  ${tr('orders.noProof')}
                 </div>
               `}
             </div>
@@ -1128,16 +1729,16 @@
             <div class="order-actions">
               ${canConfirm ? `
                 <button class="btn btn-success" onclick="confirmOrder('${order.orderId}')">
-                  <i class="fa-solid fa-check"></i> Xác nhận thanh toán
+                  <i class="fa-solid fa-check"></i> ${tr('orders.confirmPayment')}
                 </button>
               ` : ''}
               ${canCancel ? `
                 <button class="btn btn-danger" onclick="cancelOrder('${order.orderId}')">
-                  <i class="fa-solid fa-times"></i> Hủy đơn
+                  <i class="fa-solid fa-times"></i> ${tr('orders.cancelOrder')}
                 </button>
               ` : ''}
               ${!canConfirm && !canCancel ? `
-                <span style="color: #64748b; font-style: italic;">Không có thao tác khả dụng</span>
+                <span style="color: #64748b; font-style: italic;">${tr('orders.noActions')}</span>
               ` : ''}
             </div>
           </div>
@@ -1161,7 +1762,7 @@
 
     // Confirm order
     async function confirmOrder(orderId) {
-      if (!confirm('Xác nhận đơn hàng này đã thanh toán?')) return;
+      if (!confirm(tr('msg.confirmPaid'))) return;
 
       try {
         const resp = await fetch(`/api/ticket/orders/${orderId}/confirm`, {
@@ -1170,10 +1771,10 @@
         const data = await resp.json();
 
         if (!resp.ok || data.error) {
-          throw new Error(data.error || 'Không thể xác nhận');
+          throw new Error(data.error || tr('msg.errConfirm'));
         }
 
-        alert('Đã xác nhận thanh toán thành công!');
+        alert(tr('msg.confirmOk'));
         
         // Update local data
         const order = ordersData.find(o => o.orderId === orderId);
@@ -1186,13 +1787,13 @@
         updateCounts();
 
       } catch (e) {
-        alert('Lỗi: ' + e.message);
+        alert(tr('msg.errPrefix') + e.message);
       }
     }
 
     // Cancel order
     async function cancelOrder(orderId) {
-      if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) return;
+      if (!confirm(tr('msg.confirmCancel'))) return;
 
       try {
         const resp = await fetch(`/api/ticket/orders/${orderId}/cancel`, {
@@ -1201,10 +1802,10 @@
         const data = await resp.json();
 
         if (!resp.ok || data.error) {
-          throw new Error(data.error || 'Không thể hủy');
+          throw new Error(data.error || tr('msg.errCancel'));
         }
 
-        alert('Đã hủy đơn hàng!');
+        alert(tr('msg.cancelOk'));
         
         // Update local data
         const order = ordersData.find(o => o.orderId === orderId);
@@ -1216,7 +1817,7 @@
         updateCounts();
 
       } catch (e) {
-        alert('Lỗi: ' + e.message);
+        alert(tr('msg.errPrefix') + e.message);
       }
     }
 

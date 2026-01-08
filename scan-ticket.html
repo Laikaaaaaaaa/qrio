@@ -4,15 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title data-i18n="doc.title">Qrio - Quét QR</title>
-  <meta name="description" data-i18n-content="meta.description" content="Quét và giải mã tất cả các loại mã QR." />
+  <title data-i18n="doc.title">Qrio - Quét Vé</title>
+  <meta name="description" data-i18n-content="meta.description" content="Quét mã QR vé điện tử để kiểm tra và xác nhận vé." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://qrio.site/scan.html" />
+  <link rel="canonical" href="https://qrio.site/scan-ticket.html" />
   
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://qrio.site/scan.html" />
-  <meta property="og:title" content="Qrio - Quét QR" />
-  <meta property="og:description" content="Quét và giải mã tất cả các loại mã QR." />
+  <meta property="og:url" content="https://qrio.site/scan-ticket.html" />
+  <meta property="og:title" content="Qrio - Scan Ticket" />
+  <meta property="og:description" content="Scan QR e-tickets to verify and confirm." />
   <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
   
   <meta name="theme-color" content="#7c3aed" />
@@ -147,24 +147,8 @@
       gap: 12px;
     }
 
-    @media (max-width: 500px) {
-      .header {
-        padding: 0 16px;
-      }
-
-      .header-right {
-        gap: 8px;
-      }
-
-      .header-right .btn {
-        width: 40px;
-        height: 40px;
-        padding: 0;
-      }
-
-      .header-right .btn span {
-        display: none;
-      }
+    #header-create-ticket .mobile-icon {
+      display: none;
     }
 
     .lang-picker {
@@ -345,6 +329,61 @@
       padding: 28px;
       backdrop-filter: blur(10px);
       margin-bottom: 24px;
+    }
+
+    .auth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 560px) {
+      .auth-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .auth-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-top: 12px;
+    }
+
+    .auth-meta .left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .auth-meta .label {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .auth-meta .value {
+      font-size: 13px;
+      font-weight: 800;
+      color: #e2e8f0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .auth-help {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 10px;
+      line-height: 1.5;
     }
 
     .card-title {
@@ -827,13 +866,31 @@
       color: #e2e8f0;
     }
 
-    @media (max-width: 500px) {
+    @media (max-width: 650px) {
       .header {
         padding: 0 16px;
       }
 
-      .header-right span {
+      .header-right {
+        gap: 8px;
+      }
+
+      .header-right .btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+      }
+
+      .header-right .btn span {
         display: none;
+      }
+
+      #header-create-ticket .desktop-icon {
+        display: none;
+      }
+
+      #header-create-ticket .mobile-icon {
+        display: inline;
       }
 
       .container {
@@ -848,6 +905,74 @@
         width: 160px;
         height: 160px;
       }
+    }
+
+    /* AUTH MODAL */
+    .auth-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.62);
+      backdrop-filter: blur(6px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .auth-modal-overlay.show { display: flex; }
+    .auth-modal {
+      width: 100%;
+      max-width: 720px;
+      max-height: calc(100vh - 36px);
+      overflow: visible;
+    }
+
+    #auth-card {
+      max-height: calc(100vh - 36px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #auth-rows {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-right: 4px;
+      /* default fallback; JS will set --auth-rows-max to fit ~3 rows */
+      max-height: min(var(--auth-rows-max, 360px), calc(100vh - 380px));
+      transition: max-height 180ms ease;
+    }
+
+    #auth-add-row:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .auth-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .auth-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+      margin-top: 10px;
+    }
+
+    .auth-row.is-new {
+      animation: authRowPop 220ms ease-out;
+    }
+
+    @keyframes authRowPop {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (max-width: 720px) {
+      .auth-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -865,11 +990,16 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a href="ticket-create.html" class="btn btn-secondary btn-sm" data-i18n-title="nav.createTicket">
-        <i class="fa-solid fa-plus"></i>
+      <button class="btn btn-secondary btn-sm" id="open-auth-modal" type="button" data-i18n-title="auth.title" data-i18n-aria="auth.title">
+        <i class="fa-solid fa-lock"></i>
+        <span data-i18n="auth.title">Xác thực sự kiện để quét</span>
+      </button>
+      <a href="ticket-create.html" class="btn btn-secondary btn-sm" id="header-create-ticket">
+        <i class="fa-solid fa-plus desktop-icon"></i>
+        <i class="fa-solid fa-ticket mobile-icon"></i>
         <span data-i18n="nav.createTicket">Tạo vé</span>
       </a>
-      <a href="home.html" class="btn btn-primary btn-sm" data-i18n-title="nav.home">
+      <a href="home.html" class="btn btn-primary btn-sm">
         <i class="fa-solid fa-house"></i>
         <span data-i18n="nav.home">Trang chủ</span>
       </a>
@@ -883,6 +1013,52 @@
       <p class="page-subtitle" data-i18n="scan.subtitle">Quét mã QR trên vé điện tử để kiểm tra và xác nhận</p>
     </div>
 
+    <div class="auth-modal-overlay" id="auth-modal" aria-hidden="true">
+      <div class="auth-modal" role="dialog" aria-modal="true">
+        <div class="card" id="auth-card">
+          <div class="result-title" style="margin-bottom: 12px; display:flex; align-items:center; justify-content: space-between; gap: 10px;">
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <i class="fa-solid fa-lock"></i>
+              <span data-i18n="auth.title">Xác thực sự kiện để quét</span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" id="auth-add-row" type="button" data-i18n-title="auth.addEvent" data-i18n-aria="auth.addEvent">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm" id="auth-modal-close" type="button" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <p class="subtitle" style="margin-bottom: 10px;" data-i18n="auth.subtitle">Nhập mã sự kiện và mật khẩu của sự kiện đó. Chỉ quét được vé thuộc đúng sự kiện.</p>
+
+          <div id="auth-rows"></div>
+
+          <div class="auth-actions">
+            <button class="btn btn-secondary" id="auth-clear-all" type="button">
+              <i class="fa-solid fa-eraser"></i>
+              <span data-i18n="auth.clearAll">Xoá tất cả</span>
+            </button>
+            <button class="btn btn-primary" id="auth-done" type="button">
+              <i class="fa-solid fa-circle-check"></i>
+              <span data-i18n="auth.done">Xong</span>
+            </button>
+          </div>
+
+          <div class="auth-meta" id="auth-meta" style="display:none; margin-top: 12px;">
+            <div class="left">
+              <div class="label" data-i18n="auth.verifiedAs">Đã xác thực</div>
+              <div class="value" id="auth-meta-value"></div>
+            </div>
+          </div>
+
+          <div class="auth-help" data-i18n="auth.help">Lưu ý: Nếu bạn quét mã QR của vé thuộc sự kiện khác, hệ thống sẽ từ chối.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="scan-area" style="display:none;">
     <div class="card">
       <!-- Tabs -->
       <div class="tabs">
@@ -932,7 +1108,7 @@
       <div id="tab-manual" class="hidden">
         <div class="form-group">
           <label data-i18n="scan.manualLabel">Nhập mã vé</label>
-          <input type="text" id="manual-code" placeholder="VD: https://example.com" data-i18n-placeholder="scan.manualPlaceholder" />
+          <input type="text" id="manual-code" placeholder="VD: VEM1ABC123XYZ" data-i18n-placeholder="scan.manualPlaceholder" style="text-transform: uppercase;" />
         </div>
         <button class="btn btn-primary" onclick="checkManualCode()" style="width: 100%;">
           <i class="fa-solid fa-search"></i>
@@ -960,6 +1136,7 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 
   <script>
@@ -969,15 +1146,44 @@
 
     const I18N = {
       vi: {
-        'doc.title': 'Qrio - Quét QR',
-        'meta.description': 'Quét và giải mã tất cả các loại mã QR.',
+        'doc.title': 'Qrio - Quét Vé',
+        'meta.description': 'Quét mã QR vé điện tử để kiểm tra và xác nhận vé.',
         'aria.language': 'Ngôn ngữ',
         'nav.home': 'Trang chủ',
         'nav.createTicket': 'Tạo vé',
 
+        'auth.title': 'Xác thực sự kiện để quét',
+        'auth.subtitle': 'Nhập mã sự kiện và mật khẩu của sự kiện đó. Chỉ quét được vé thuộc đúng sự kiện.',
+        'auth.eventIdLabel': 'Mã sự kiện',
+        'auth.eventIdPlaceholder': 'VD: EV12345',
+        'auth.passwordLabel': 'Mật khẩu sự kiện',
+        'auth.passwordPlaceholder': 'Nhập mật khẩu',
+        'auth.verifyBtn': 'Xác thực',
+        'auth.clearBtn': 'Xoá',
+        'auth.logoutBtn': 'Đổi sự kiện',
+        'auth.addEvent': 'Thêm sự kiện',
+        'auth.clearAll': 'Xoá tất cả',
+        'auth.done': 'Xong',
+        'auth.verifiedAs': 'Đã xác thực',
+        'auth.help': 'Lưu ý: Nếu bạn quét mã QR của vé thuộc sự kiện khác, hệ thống sẽ từ chối.',
+
+        'auth.msg.requiredTitle': 'Cần xác thực sự kiện',
+        'auth.msg.requiredBody': 'Vui lòng nhập mã sự kiện và mật khẩu của sự kiện trước khi quét.',
+        'auth.msg.enterEventId': 'Vui lòng nhập mã sự kiện',
+        'auth.msg.enterPassword': 'Vui lòng nhập mật khẩu sự kiện',
+        'auth.msg.verifying': 'Đang xác thực...',
+        'auth.msg.verifySuccessTitle': 'Xác thực thành công',
+        'auth.msg.verifySuccessBody': 'Bạn có thể bắt đầu quét vé cho sự kiện này.',
+        'auth.msg.verifyFailedTitle': 'Xác thực thất bại',
+        'auth.msg.verifyFailedBody': 'Mã sự kiện hoặc mật khẩu không đúng.',
+        'auth.msg.wrongEventTitle': 'Sai sự kiện',
+        'auth.msg.wrongEventBody': 'Vé này thuộc sự kiện khác nên không thể quét ở đây.',
+        'auth.msg.unknownEventTitle': 'Thiếu thông tin sự kiện',
+        'auth.msg.unknownEventBody': 'Không xác định được sự kiện của vé này.',
+
         'scan.badge': 'Dành cho nhân viên',
-        'scan.title': 'Quét Mã QR',
-        'scan.subtitle': 'Quét và giải mã nội dung từ tất cả các loại mã QR',
+        'scan.title': 'Quét Vé Điện Tử',
+        'scan.subtitle': 'Quét mã QR trên vé điện tử để kiểm tra và xác nhận',
         'scan.tab.camera': 'Camera',
         'scan.tab.upload': 'Tải ảnh',
         'scan.tab.manual': 'Nhập mã',
@@ -985,20 +1191,11 @@
         'scan.toggleCamera': 'Bật camera',
         'scan.uploadTitle': 'Tải ảnh mã QR',
         'scan.uploadHint': 'Kéo thả hoặc nhấn để chọn ảnh',
-        'scan.manualLabel': 'Nhập nội dung QR',
-        'scan.manualPlaceholder': 'VD: https://example.com',
-        'scan.check': 'Giải mã',
+        'scan.manualLabel': 'Nhập mã vé',
+        'scan.manualPlaceholder': 'VD: VEM1ABC123XYZ',
+        'scan.check': 'Kiểm tra vé',
         'scan.recent': 'Quét gần đây',
         'scan.recentEmpty': 'Chưa có lịch sử quét',
-
-        'scan.msg.enterContent': 'Vui lòng nhập nội dung QR',
-        'scan.msg.privateTitle': 'Mã riêng tư',
-        'scan.msg.privateBody': 'Mã này thuộc vé/sự kiện và không thể quét ở trang này. Vui lòng dùng trang “Quét Vé” (dành cho nhân viên).',
-        'scan.msg.decodedTitle': 'Đã giải mã',
-        'scan.msg.decodedBody': 'Nội dung QR bên dưới:',
-        'scan.action.copy': 'Sao chép',
-        'scan.action.open': 'Mở liên kết',
-        'scan.action.scanAgain': 'Quét lại',
 
         'scan.detail.ticketQty': 'Số vé',
         'scan.detail.price': 'Giá vé',
@@ -1018,15 +1215,44 @@
         'scan.msg.cancelConfirm': 'Bạn có chắc muốn hủy vé này?',
       },
       en: {
-        'doc.title': 'Qrio - Scan QR',
-        'meta.description': 'Scan and decode any QR code content.',
+        'doc.title': 'Qrio - Scan Ticket',
+        'meta.description': 'Scan QR e-tickets to verify and confirm.',
         'aria.language': 'Language',
         'nav.home': 'Home',
         'nav.createTicket': 'Create ticket',
 
+        'auth.title': 'Verify event to scan',
+        'auth.subtitle': 'Enter the Event ID and its password. You can only scan tickets from that event.',
+        'auth.eventIdLabel': 'Event ID',
+        'auth.eventIdPlaceholder': 'e.g. EV12345',
+        'auth.passwordLabel': 'Event password',
+        'auth.passwordPlaceholder': 'Enter password',
+        'auth.verifyBtn': 'Verify',
+        'auth.clearBtn': 'Clear',
+        'auth.logoutBtn': 'Change event',
+        'auth.addEvent': 'Add event',
+        'auth.clearAll': 'Clear all',
+        'auth.done': 'Done',
+        'auth.verifiedAs': 'Verified',
+        'auth.help': 'Note: If you scan a ticket from another event, it will be rejected.',
+
+        'auth.msg.requiredTitle': 'Event verification required',
+        'auth.msg.requiredBody': 'Please enter the Event ID and password before scanning.',
+        'auth.msg.enterEventId': 'Please enter the Event ID',
+        'auth.msg.enterPassword': 'Please enter the event password',
+        'auth.msg.verifying': 'Verifying...',
+        'auth.msg.verifySuccessTitle': 'Verified',
+        'auth.msg.verifySuccessBody': 'You can start scanning tickets for this event.',
+        'auth.msg.verifyFailedTitle': 'Verification failed',
+        'auth.msg.verifyFailedBody': 'Incorrect Event ID or password.',
+        'auth.msg.wrongEventTitle': 'Wrong event',
+        'auth.msg.wrongEventBody': 'This ticket belongs to another event and cannot be scanned here.',
+        'auth.msg.unknownEventTitle': 'Missing event info',
+        'auth.msg.unknownEventBody': 'Unable to determine the event for this ticket.',
+
         'scan.badge': 'For staff',
-        'scan.title': 'Scan QR Code',
-        'scan.subtitle': 'Scan and decode content from any QR code',
+        'scan.title': 'Scan E-ticket',
+        'scan.subtitle': 'Scan the QR code on the ticket to verify and confirm',
         'scan.tab.camera': 'Camera',
         'scan.tab.upload': 'Upload',
         'scan.tab.manual': 'Manual',
@@ -1034,20 +1260,11 @@
         'scan.toggleCamera': 'Enable camera',
         'scan.uploadTitle': 'Upload QR image',
         'scan.uploadHint': 'Drag & drop or click to choose an image',
-        'scan.manualLabel': 'Enter QR content',
-        'scan.manualPlaceholder': 'e.g. https://example.com',
-        'scan.check': 'Decode',
+        'scan.manualLabel': 'Enter ticket code',
+        'scan.manualPlaceholder': 'e.g. VEM1ABC123XYZ',
+        'scan.check': 'Check ticket',
         'scan.recent': 'Recent scans',
         'scan.recentEmpty': 'No scan history yet',
-
-        'scan.msg.enterContent': 'Please enter QR content',
-        'scan.msg.privateTitle': 'Private code',
-        'scan.msg.privateBody': 'This code belongs to a ticket/event and cannot be scanned on this page. Please use the staff “Scan Ticket” page.',
-        'scan.msg.decodedTitle': 'Decoded',
-        'scan.msg.decodedBody': 'QR content below:',
-        'scan.action.copy': 'Copy',
-        'scan.action.open': 'Open link',
-        'scan.action.scanAgain': 'Scan again',
 
         'scan.detail.ticketQty': 'Tickets',
         'scan.detail.price': 'Price',
@@ -1067,15 +1284,44 @@
         'scan.msg.cancelConfirm': 'Are you sure you want to cancel this ticket?',
       },
       zh: {
-        'doc.title': 'Qrio - 扫描二维码',
-        'meta.description': '扫描并解码任意二维码内容。',
+        'doc.title': 'Qrio - 扫描票券',
+        'meta.description': '扫描电子票二维码以验证与确认。',
         'aria.language': '语言',
         'nav.home': '主页',
         'nav.createTicket': '创建票券',
 
+        'auth.title': '验证活动以开始扫描',
+        'auth.subtitle': '请输入活动 ID 和密码。你只能扫描该活动的票券。',
+        'auth.eventIdLabel': '活动 ID',
+        'auth.eventIdPlaceholder': '例如：EV12345',
+        'auth.passwordLabel': '活动密码',
+        'auth.passwordPlaceholder': '输入密码',
+        'auth.verifyBtn': '验证',
+        'auth.clearBtn': '清除',
+        'auth.logoutBtn': '更换活动',
+        'auth.addEvent': '添加活动',
+        'auth.clearAll': '全部清除',
+        'auth.done': '完成',
+        'auth.verifiedAs': '已验证',
+        'auth.help': '提示：扫描其他活动的票将被拒绝。',
+
+        'auth.msg.requiredTitle': '需要验证活动',
+        'auth.msg.requiredBody': '请先输入活动 ID 和密码再扫描。',
+        'auth.msg.enterEventId': '请输入活动 ID',
+        'auth.msg.enterPassword': '请输入活动密码',
+        'auth.msg.verifying': '验证中...',
+        'auth.msg.verifySuccessTitle': '验证成功',
+        'auth.msg.verifySuccessBody': '你可以开始扫描该活动的票券。',
+        'auth.msg.verifyFailedTitle': '验证失败',
+        'auth.msg.verifyFailedBody': '活动 ID 或密码不正确。',
+        'auth.msg.wrongEventTitle': '活动不匹配',
+        'auth.msg.wrongEventBody': '此票属于其他活动，无法在此处扫描。',
+        'auth.msg.unknownEventTitle': '缺少活动信息',
+        'auth.msg.unknownEventBody': '无法判断该票属于哪个活动。',
+
         'scan.badge': '工作人员使用',
-        'scan.title': '扫描二维码',
-        'scan.subtitle': '扫描并解码任何二维码内容',
+        'scan.title': '扫描电子票',
+        'scan.subtitle': '扫描票券上的二维码以验证与确认',
         'scan.tab.camera': '相机',
         'scan.tab.upload': '上传',
         'scan.tab.manual': '手动',
@@ -1083,20 +1329,11 @@
         'scan.toggleCamera': '启用相机',
         'scan.uploadTitle': '上传二维码图片',
         'scan.uploadHint': '拖放或点击选择图片',
-        'scan.manualLabel': '输入二维码内容',
-        'scan.manualPlaceholder': '例如：https://example.com',
-        'scan.check': '解码',
+        'scan.manualLabel': '输入票码',
+        'scan.manualPlaceholder': '例如：VEM1ABC123XYZ',
+        'scan.check': '检查票券',
         'scan.recent': '最近扫描',
         'scan.recentEmpty': '暂无扫描记录',
-
-        'scan.msg.enterContent': '请输入二维码内容',
-        'scan.msg.privateTitle': '私密码',
-        'scan.msg.privateBody': '此码属于票券/活动，不能在此页面扫描。请使用工作人员“扫描票券”页面。',
-        'scan.msg.decodedTitle': '已解码',
-        'scan.msg.decodedBody': '二维码内容如下：',
-        'scan.action.copy': '复制',
-        'scan.action.open': '打开链接',
-        'scan.action.scanAgain': '再次扫描',
 
         'scan.detail.ticketQty': '票数',
         'scan.detail.price': '价格',
@@ -1116,36 +1353,56 @@
         'scan.msg.cancelConfirm': '确定要取消此票券吗？',
       },
       hi: {
-        'doc.title': 'Qrio - QR स्कैन',
-        'meta.description': 'किसी भी QR कोड की सामग्री स्कैन और डिकोड करें।',
+        'doc.title': 'Qrio - टिकट स्कैन',
+        'meta.description': 'ई-टिकट QR को स्कैन करके सत्यापित और पुष्टि करें।',
         'aria.language': 'भाषा',
         'nav.home': 'होम',
         'nav.createTicket': 'टिकट बनाएं',
 
+        'auth.title': 'स्कैन करने के लिए इवेंट सत्यापित करें',
+        'auth.subtitle': 'Event ID और पासवर्ड दर्ज करें। आप केवल उसी इवेंट के टिकट स्कैन कर सकते हैं।',
+        'auth.eventIdLabel': 'Event ID',
+        'auth.eventIdPlaceholder': 'जैसे EV12345',
+        'auth.passwordLabel': 'इवेंट पासवर्ड',
+        'auth.passwordPlaceholder': 'पासवर्ड दर्ज करें',
+        'auth.verifyBtn': 'सत्यापित करें',
+        'auth.clearBtn': 'साफ़ करें',
+        'auth.logoutBtn': 'इवेंट बदलें',
+        'auth.addEvent': 'इवेंट जोड़ें',
+        'auth.clearAll': 'सब साफ़ करें',
+        'auth.done': 'हो गया',
+        'auth.verifiedAs': 'सत्यापित',
+        'auth.help': 'नोट: दूसरे इवेंट का टिकट स्कैन करने पर अस्वीकार होगा।',
+
+        'auth.msg.requiredTitle': 'इवेंट सत्यापन आवश्यक',
+        'auth.msg.requiredBody': 'स्कैन करने से पहले Event ID और पासवर्ड दर्ज करें।',
+        'auth.msg.enterEventId': 'कृपया Event ID दर्ज करें',
+        'auth.msg.enterPassword': 'कृपया इवेंट पासवर्ड दर्ज करें',
+        'auth.msg.verifying': 'सत्यापित हो रहा है...',
+        'auth.msg.verifySuccessTitle': 'सत्यापित',
+        'auth.msg.verifySuccessBody': 'अब आप इस इवेंट के टिकट स्कैन कर सकते हैं।',
+        'auth.msg.verifyFailedTitle': 'सत्यापन विफल',
+        'auth.msg.verifyFailedBody': 'Event ID या पासवर्ड गलत है।',
+        'auth.msg.wrongEventTitle': 'गलत इवेंट',
+        'auth.msg.wrongEventBody': 'यह टिकट किसी अन्य इवेंट का है और यहाँ स्कैन नहीं हो सकता।',
+        'auth.msg.unknownEventTitle': 'इवेंट जानकारी नहीं',
+        'auth.msg.unknownEventBody': 'इस टिकट का इवेंट निर्धारित नहीं हो सका।',
+
         'scan.badge': 'स्टाफ के लिए',
-        'scan.title': 'QR कोड स्कैन करें',
-        'scan.subtitle': 'किसी भी QR कोड से सामग्री स्कैन और डिकोड करें',
+        'scan.title': 'ई-टिकट स्कैन करें',
+        'scan.subtitle': 'सत्यापन/पुष्टि के लिए टिकट के QR को स्कैन करें',
         'scan.tab.camera': 'कैमरा',
         'scan.tab.upload': 'अपलोड',
         'scan.tab.manual': 'मैन्युअल',
-        'scan.hint': 'QR कोड को फ्रेम के अंदर रखें',
+        'scan.hint': 'QR को फ्रेम के अंदर रखें',
         'scan.toggleCamera': 'कैमरा चालू करें',
         'scan.uploadTitle': 'QR इमेज अपलोड करें',
         'scan.uploadHint': 'खींचें/छोड़ें या क्लिक करके इमेज चुनें',
-        'scan.manualLabel': 'QR सामग्री दर्ज करें',
-        'scan.manualPlaceholder': 'जैसे https://example.com',
-        'scan.check': 'डिकोड',
+        'scan.manualLabel': 'टिकट कोड दर्ज करें',
+        'scan.manualPlaceholder': 'जैसे VEM1ABC123XYZ',
+        'scan.check': 'टिकट जाँचें',
         'scan.recent': 'हाल की स्कैन',
-        'scan.recentEmpty': 'अभी तक कोई स्कैन इतिहास नहीं',
-
-        'scan.msg.enterContent': 'कृपया QR सामग्री दर्ज करें',
-        'scan.msg.privateTitle': 'निजी कोड',
-        'scan.msg.privateBody': 'यह कोड टिकट/इवेंट से संबंधित है और इस पेज पर स्कैन नहीं किया जा सकता। कृपया स्टाफ “Scan Ticket” पेज का उपयोग करें।',
-        'scan.msg.decodedTitle': 'डिकोड हो गया',
-        'scan.msg.decodedBody': 'नीचे QR सामग्री:',
-        'scan.action.copy': 'कॉपी',
-        'scan.action.open': 'लिंक खोलें',
-        'scan.action.scanAgain': 'फिर से स्कैन करें',
+        'scan.recentEmpty': 'अभी तक कोई इतिहास नहीं',
 
         'scan.detail.ticketQty': 'टिकट',
         'scan.detail.price': 'कीमत',
@@ -1165,15 +1422,44 @@
         'scan.msg.cancelConfirm': 'क्या आप वाकई इस टिकट को रद्द करना चाहते हैं?',
       },
       es: {
-        'doc.title': 'Qrio - Escanear QR',
-        'meta.description': 'Escanea y decodifica cualquier contenido de QR.',
+        'doc.title': 'Qrio - Escanear ticket',
+        'meta.description': 'Escanea e-tickets QR para verificar y confirmar.',
         'aria.language': 'Idioma',
         'nav.home': 'Inicio',
         'nav.createTicket': 'Crear ticket',
 
+        'auth.title': 'Verificar evento para escanear',
+        'auth.subtitle': 'Ingresa el ID del evento y su contraseña. Solo podrás escanear tickets de ese evento.',
+        'auth.eventIdLabel': 'ID del evento',
+        'auth.eventIdPlaceholder': 'p. ej. EV12345',
+        'auth.passwordLabel': 'Contraseña del evento',
+        'auth.passwordPlaceholder': 'Ingresa la contraseña',
+        'auth.verifyBtn': 'Verificar',
+        'auth.clearBtn': 'Limpiar',
+        'auth.logoutBtn': 'Cambiar evento',
+        'auth.addEvent': 'Añadir evento',
+        'auth.clearAll': 'Borrar todo',
+        'auth.done': 'Listo',
+        'auth.verifiedAs': 'Verificado',
+        'auth.help': 'Nota: Si escaneas un ticket de otro evento, será rechazado.',
+
+        'auth.msg.requiredTitle': 'Se requiere verificación',
+        'auth.msg.requiredBody': 'Ingresa el ID del evento y la contraseña antes de escanear.',
+        'auth.msg.enterEventId': 'Ingresa el ID del evento',
+        'auth.msg.enterPassword': 'Ingresa la contraseña del evento',
+        'auth.msg.verifying': 'Verificando...',
+        'auth.msg.verifySuccessTitle': 'Verificado',
+        'auth.msg.verifySuccessBody': 'Ya puedes escanear tickets de este evento.',
+        'auth.msg.verifyFailedTitle': 'Verificación fallida',
+        'auth.msg.verifyFailedBody': 'ID del evento o contraseña incorrectos.',
+        'auth.msg.wrongEventTitle': 'Evento incorrecto',
+        'auth.msg.wrongEventBody': 'Este ticket pertenece a otro evento y no puede escanearse aquí.',
+        'auth.msg.unknownEventTitle': 'Falta información',
+        'auth.msg.unknownEventBody': 'No se pudo determinar el evento de este ticket.',
+
         'scan.badge': 'Para staff',
-        'scan.title': 'Escanear código QR',
-        'scan.subtitle': 'Escanea y decodifica contenido de cualquier QR',
+        'scan.title': 'Escanear e-ticket',
+        'scan.subtitle': 'Escanea el QR del ticket para verificar y confirmar',
         'scan.tab.camera': 'Cámara',
         'scan.tab.upload': 'Subir',
         'scan.tab.manual': 'Manual',
@@ -1181,20 +1467,11 @@
         'scan.toggleCamera': 'Activar cámara',
         'scan.uploadTitle': 'Subir imagen de QR',
         'scan.uploadHint': 'Arrastra y suelta o haz clic para elegir una imagen',
-        'scan.manualLabel': 'Ingresa contenido del QR',
-        'scan.manualPlaceholder': 'p. ej. https://example.com',
-        'scan.check': 'Decodificar',
+        'scan.manualLabel': 'Ingresa el código del ticket',
+        'scan.manualPlaceholder': 'p. ej. VEM1ABC123XYZ',
+        'scan.check': 'Comprobar ticket',
         'scan.recent': 'Escaneos recientes',
         'scan.recentEmpty': 'Aún no hay historial',
-
-        'scan.msg.enterContent': 'Ingresa el contenido del QR',
-        'scan.msg.privateTitle': 'Código privado',
-        'scan.msg.privateBody': 'Este código pertenece a un ticket/evento y no puede escanearse en esta página. Usa la página de staff “Scan Ticket”.',
-        'scan.msg.decodedTitle': 'Decodificado',
-        'scan.msg.decodedBody': 'Contenido del QR:',
-        'scan.action.copy': 'Copiar',
-        'scan.action.open': 'Abrir enlace',
-        'scan.action.scanAgain': 'Escanear de nuevo',
 
         'scan.detail.ticketQty': 'Tickets',
         'scan.detail.price': 'Precio',
@@ -1214,15 +1491,44 @@
         'scan.msg.cancelConfirm': '¿Seguro que deseas cancelar este ticket?',
       },
       fr: {
-        'doc.title': 'Qrio - Scanner QR',
-        'meta.description': 'Scannez et décodez le contenu de n’importe quel QR.',
+        'doc.title': 'Qrio - Scanner un billet',
+        'meta.description': 'Scannez des e-billets QR pour vérifier et confirmer.',
         'aria.language': 'Langue',
         'nav.home': 'Accueil',
         'nav.createTicket': 'Créer un billet',
 
+        'auth.title': 'Vérifier l’événement pour scanner',
+        'auth.subtitle': 'Entrez l’ID de l’événement et son mot de passe. Vous ne pouvez scanner que les billets de cet événement.',
+        'auth.eventIdLabel': 'ID de l’événement',
+        'auth.eventIdPlaceholder': 'ex. EV12345',
+        'auth.passwordLabel': 'Mot de passe de l’événement',
+        'auth.passwordPlaceholder': 'Saisir le mot de passe',
+        'auth.verifyBtn': 'Vérifier',
+        'auth.clearBtn': 'Effacer',
+        'auth.logoutBtn': 'Changer d’événement',
+        'auth.addEvent': 'Ajouter un événement',
+        'auth.clearAll': 'Tout effacer',
+        'auth.done': 'Terminé',
+        'auth.verifiedAs': 'Vérifié',
+        'auth.help': 'Note : un billet d’un autre événement sera refusé.',
+
+        'auth.msg.requiredTitle': 'Vérification requise',
+        'auth.msg.requiredBody': 'Veuillez entrer l’ID et le mot de passe avant de scanner.',
+        'auth.msg.enterEventId': 'Veuillez saisir l’ID de l’événement',
+        'auth.msg.enterPassword': 'Veuillez saisir le mot de passe de l’événement',
+        'auth.msg.verifying': 'Vérification...',
+        'auth.msg.verifySuccessTitle': 'Vérifié',
+        'auth.msg.verifySuccessBody': 'Vous pouvez maintenant scanner les billets de cet événement.',
+        'auth.msg.verifyFailedTitle': 'Échec de la vérification',
+        'auth.msg.verifyFailedBody': 'ID ou mot de passe incorrect.',
+        'auth.msg.wrongEventTitle': 'Mauvais événement',
+        'auth.msg.wrongEventBody': 'Ce billet appartient à un autre événement et ne peut pas être scanné ici.',
+        'auth.msg.unknownEventTitle': 'Infos manquantes',
+        'auth.msg.unknownEventBody': 'Impossible de déterminer l’événement de ce billet.',
+
         'scan.badge': 'Pour le staff',
-        'scan.title': 'Scanner un QR code',
-        'scan.subtitle': 'Scannez et décodez le contenu de tout QR code',
+        'scan.title': 'Scanner un e-billet',
+        'scan.subtitle': 'Scannez le QR du billet pour vérifier et confirmer',
         'scan.tab.camera': 'Caméra',
         'scan.tab.upload': 'Téléverser',
         'scan.tab.manual': 'Manuel',
@@ -1230,20 +1536,11 @@
         'scan.toggleCamera': 'Activer la caméra',
         'scan.uploadTitle': 'Téléverser une image QR',
         'scan.uploadHint': 'Glisser-déposer ou cliquer pour choisir une image',
-        'scan.manualLabel': 'Entrer le contenu du QR',
-        'scan.manualPlaceholder': 'ex. https://example.com',
-        'scan.check': 'Décoder',
+        'scan.manualLabel': 'Entrer le code du billet',
+        'scan.manualPlaceholder': 'ex. VEM1ABC123XYZ',
+        'scan.check': 'Vérifier le billet',
         'scan.recent': 'Scans récents',
         'scan.recentEmpty': 'Aucun historique pour le moment',
-
-        'scan.msg.enterContent': 'Veuillez entrer le contenu du QR',
-        'scan.msg.privateTitle': 'Code privé',
-        'scan.msg.privateBody': 'Ce code appartient à un billet/événement et ne peut pas être scanné sur cette page. Utilisez la page staff “Scan Ticket”.',
-        'scan.msg.decodedTitle': 'Décodé',
-        'scan.msg.decodedBody': 'Contenu du QR :',
-        'scan.action.copy': 'Copier',
-        'scan.action.open': 'Ouvrir le lien',
-        'scan.action.scanAgain': 'Rescanner',
 
         'scan.detail.ticketQty': 'Billets',
         'scan.detail.price': 'Prix',
@@ -1263,15 +1560,44 @@
         'scan.msg.cancelConfirm': 'Voulez-vous vraiment annuler ce billet ?',
       },
       ar: {
-        'doc.title': 'Qrio - مسح QR',
-        'meta.description': 'امسح وفك ترميز أي محتوى لرمز QR.',
+        'doc.title': 'Qrio - مسح التذكرة',
+        'meta.description': 'امسح تذاكر QR للتحقق والتأكيد.',
         'aria.language': 'اللغة',
         'nav.home': 'الرئيسية',
         'nav.createTicket': 'إنشاء تذكرة',
 
+        'auth.title': 'تحقق من الحدث لبدء المسح',
+        'auth.subtitle': 'أدخل معرف الحدث وكلمة المرور. يمكنك مسح تذاكر هذا الحدث فقط.',
+        'auth.eventIdLabel': 'معرف الحدث',
+        'auth.eventIdPlaceholder': 'مثال: EV12345',
+        'auth.passwordLabel': 'كلمة مرور الحدث',
+        'auth.passwordPlaceholder': 'أدخل كلمة المرور',
+        'auth.verifyBtn': 'تحقق',
+        'auth.clearBtn': 'مسح',
+        'auth.logoutBtn': 'تغيير الحدث',
+        'auth.addEvent': 'إضافة حدث',
+        'auth.clearAll': 'مسح الكل',
+        'auth.done': 'تم',
+        'auth.verifiedAs': 'تم التحقق',
+        'auth.help': 'ملاحظة: مسح تذكرة لحدث آخر سيتم رفضه.',
+
+        'auth.msg.requiredTitle': 'التحقق مطلوب',
+        'auth.msg.requiredBody': 'يرجى إدخال معرف الحدث وكلمة المرور قبل المسح.',
+        'auth.msg.enterEventId': 'يرجى إدخال معرف الحدث',
+        'auth.msg.enterPassword': 'يرجى إدخال كلمة مرور الحدث',
+        'auth.msg.verifying': 'جارٍ التحقق...',
+        'auth.msg.verifySuccessTitle': 'تم التحقق',
+        'auth.msg.verifySuccessBody': 'يمكنك الآن مسح تذاكر هذا الحدث.',
+        'auth.msg.verifyFailedTitle': 'فشل التحقق',
+        'auth.msg.verifyFailedBody': 'معرف الحدث أو كلمة المرور غير صحيحة.',
+        'auth.msg.wrongEventTitle': 'حدث غير مطابق',
+        'auth.msg.wrongEventBody': 'هذه التذكرة لحدث آخر ولا يمكن مسحها هنا.',
+        'auth.msg.unknownEventTitle': 'معلومات الحدث مفقودة',
+        'auth.msg.unknownEventBody': 'تعذر تحديد الحدث لهذه التذكرة.',
+
         'scan.badge': 'للموظفين',
-        'scan.title': 'مسح رمز QR',
-        'scan.subtitle': 'امسح وفك ترميز المحتوى من أي رمز QR',
+        'scan.title': 'مسح تذكرة إلكترونية',
+        'scan.subtitle': 'امسح رمز QR على التذكرة للتحقق والتأكيد',
         'scan.tab.camera': 'الكاميرا',
         'scan.tab.upload': 'رفع',
         'scan.tab.manual': 'يدوي',
@@ -1279,20 +1605,11 @@
         'scan.toggleCamera': 'تفعيل الكاميرا',
         'scan.uploadTitle': 'رفع صورة QR',
         'scan.uploadHint': 'اسحب وأفلت أو انقر لاختيار صورة',
-        'scan.manualLabel': 'أدخل محتوى QR',
-        'scan.manualPlaceholder': 'مثال: https://example.com',
-        'scan.check': 'فك الترميز',
+        'scan.manualLabel': 'أدخل رمز التذكرة',
+        'scan.manualPlaceholder': 'مثال: VEM1ABC123XYZ',
+        'scan.check': 'تحقق من التذكرة',
         'scan.recent': 'عمليات المسح الأخيرة',
         'scan.recentEmpty': 'لا يوجد سجل بعد',
-
-        'scan.msg.enterContent': 'يرجى إدخال محتوى QR',
-        'scan.msg.privateTitle': 'رمز خاص',
-        'scan.msg.privateBody': 'هذا الرمز يخص تذكرة/حدث ولا يمكن مسحه في هذه الصفحة. يرجى استخدام صفحة الموظفين “Scan Ticket”.',
-        'scan.msg.decodedTitle': 'تم فك الترميز',
-        'scan.msg.decodedBody': 'محتوى QR:',
-        'scan.action.copy': 'نسخ',
-        'scan.action.open': 'فتح الرابط',
-        'scan.action.scanAgain': 'مسح مرة أخرى',
 
         'scan.detail.ticketQty': 'التذاكر',
         'scan.detail.price': 'السعر',
@@ -1312,15 +1629,44 @@
         'scan.msg.cancelConfirm': 'هل أنت متأكد من إلغاء هذه التذكرة؟',
       },
       pt: {
-        'doc.title': 'Qrio - Escanear QR',
-        'meta.description': 'Escaneie e decodifique qualquer conteúdo de QR.',
+        'doc.title': 'Qrio - Escanear ticket',
+        'meta.description': 'Escaneie e-tickets QR para verificar e confirmar.',
         'aria.language': 'Idioma',
         'nav.home': 'Início',
         'nav.createTicket': 'Criar ticket',
 
+        'auth.title': 'Verificar evento para escanear',
+        'auth.subtitle': 'Informe o ID do evento e a senha. Você só pode escanear tickets desse evento.',
+        'auth.eventIdLabel': 'ID do evento',
+        'auth.eventIdPlaceholder': 'ex.: EV12345',
+        'auth.passwordLabel': 'Senha do evento',
+        'auth.passwordPlaceholder': 'Digite a senha',
+        'auth.verifyBtn': 'Verificar',
+        'auth.clearBtn': 'Limpar',
+        'auth.logoutBtn': 'Trocar evento',
+        'auth.addEvent': 'Adicionar evento',
+        'auth.clearAll': 'Limpar tudo',
+        'auth.done': 'Concluído',
+        'auth.verifiedAs': 'Verificado',
+        'auth.help': 'Nota: Tickets de outro evento serão recusados.',
+
+        'auth.msg.requiredTitle': 'Verificação necessária',
+        'auth.msg.requiredBody': 'Informe o ID do evento e a senha antes de escanear.',
+        'auth.msg.enterEventId': 'Digite o ID do evento',
+        'auth.msg.enterPassword': 'Digite a senha do evento',
+        'auth.msg.verifying': 'Verificando...',
+        'auth.msg.verifySuccessTitle': 'Verificado',
+        'auth.msg.verifySuccessBody': 'Você já pode escanear tickets deste evento.',
+        'auth.msg.verifyFailedTitle': 'Falha na verificação',
+        'auth.msg.verifyFailedBody': 'ID do evento ou senha incorretos.',
+        'auth.msg.wrongEventTitle': 'Evento incorreto',
+        'auth.msg.wrongEventBody': 'Este ticket é de outro evento e não pode ser escaneado aqui.',
+        'auth.msg.unknownEventTitle': 'Sem informações do evento',
+        'auth.msg.unknownEventBody': 'Não foi possível determinar o evento deste ticket.',
+
         'scan.badge': 'Para equipe',
-        'scan.title': 'Escanear QR Code',
-        'scan.subtitle': 'Escaneie e decodifique conteúdo de qualquer QR',
+        'scan.title': 'Escanear e-ticket',
+        'scan.subtitle': 'Escaneie o QR do ticket para verificar e confirmar',
         'scan.tab.camera': 'Câmera',
         'scan.tab.upload': 'Enviar',
         'scan.tab.manual': 'Manual',
@@ -1328,20 +1674,11 @@
         'scan.toggleCamera': 'Ativar câmera',
         'scan.uploadTitle': 'Enviar imagem do QR',
         'scan.uploadHint': 'Arraste e solte ou clique para escolher uma imagem',
-        'scan.manualLabel': 'Digite o conteúdo do QR',
-        'scan.manualPlaceholder': 'ex.: https://example.com',
-        'scan.check': 'Decodificar',
+        'scan.manualLabel': 'Digite o código do ticket',
+        'scan.manualPlaceholder': 'ex.: VEM1ABC123XYZ',
+        'scan.check': 'Verificar ticket',
         'scan.recent': 'Scans recentes',
         'scan.recentEmpty': 'Ainda não há histórico',
-
-        'scan.msg.enterContent': 'Digite o conteúdo do QR',
-        'scan.msg.privateTitle': 'Código privado',
-        'scan.msg.privateBody': 'Este código pertence a um ticket/evento e não pode ser escaneado nesta página. Use a página da equipe “Scan Ticket”.',
-        'scan.msg.decodedTitle': 'Decodificado',
-        'scan.msg.decodedBody': 'Conteúdo do QR:',
-        'scan.action.copy': 'Copiar',
-        'scan.action.open': 'Abrir link',
-        'scan.action.scanAgain': 'Escanear novamente',
 
         'scan.detail.ticketQty': 'Ingressos',
         'scan.detail.price': 'Preço',
@@ -1361,15 +1698,44 @@
         'scan.msg.cancelConfirm': 'Tem certeza que deseja cancelar este ticket?',
       },
       ru: {
-        'doc.title': 'Qrio — Сканировать QR',
-        'meta.description': 'Сканируйте и декодируйте содержимое любого QR-кода.',
+        'doc.title': 'Qrio — Сканировать билет',
+        'meta.description': 'Сканируйте QR e‑билеты для проверки и подтверждения.',
         'aria.language': 'Язык',
         'nav.home': 'Главная',
         'nav.createTicket': 'Создать билет',
 
+        'auth.title': 'Подтвердите событие для сканирования',
+        'auth.subtitle': 'Введите ID события и пароль. Вы сможете сканировать только билеты этого события.',
+        'auth.eventIdLabel': 'ID события',
+        'auth.eventIdPlaceholder': 'например EV12345',
+        'auth.passwordLabel': 'Пароль события',
+        'auth.passwordPlaceholder': 'Введите пароль',
+        'auth.verifyBtn': 'Проверить',
+        'auth.clearBtn': 'Очистить',
+        'auth.logoutBtn': 'Сменить событие',
+        'auth.addEvent': 'Добавить событие',
+        'auth.clearAll': 'Очистить всё',
+        'auth.done': 'Готово',
+        'auth.verifiedAs': 'Подтверждено',
+        'auth.help': 'Примечание: билет другого события будет отклонён.',
+
+        'auth.msg.requiredTitle': 'Требуется подтверждение',
+        'auth.msg.requiredBody': 'Перед сканированием введите ID события и пароль.',
+        'auth.msg.enterEventId': 'Введите ID события',
+        'auth.msg.enterPassword': 'Введите пароль события',
+        'auth.msg.verifying': 'Проверка...',
+        'auth.msg.verifySuccessTitle': 'Подтверждено',
+        'auth.msg.verifySuccessBody': 'Теперь можно сканировать билеты этого события.',
+        'auth.msg.verifyFailedTitle': 'Проверка не удалась',
+        'auth.msg.verifyFailedBody': 'Неверный ID события или пароль.',
+        'auth.msg.wrongEventTitle': 'Другое событие',
+        'auth.msg.wrongEventBody': 'Этот билет относится к другому событию и не может быть отсканирован здесь.',
+        'auth.msg.unknownEventTitle': 'Нет данных о событии',
+        'auth.msg.unknownEventBody': 'Не удалось определить событие для этого билета.',
+
         'scan.badge': 'Для персонала',
-        'scan.title': 'Сканировать QR‑код',
-        'scan.subtitle': 'Сканируйте и декодируйте содержимое любого QR‑кода',
+        'scan.title': 'Сканировать e‑билет',
+        'scan.subtitle': 'Сканируйте QR на билете для проверки и подтверждения',
         'scan.tab.camera': 'Камера',
         'scan.tab.upload': 'Загрузить',
         'scan.tab.manual': 'Вручную',
@@ -1377,20 +1743,11 @@
         'scan.toggleCamera': 'Включить камеру',
         'scan.uploadTitle': 'Загрузить изображение QR',
         'scan.uploadHint': 'Перетащите файл или нажмите, чтобы выбрать изображение',
-        'scan.manualLabel': 'Введите содержимое QR',
-        'scan.manualPlaceholder': 'например https://example.com',
-        'scan.check': 'Декодировать',
+        'scan.manualLabel': 'Введите код билета',
+        'scan.manualPlaceholder': 'например VEM1ABC123XYZ',
+        'scan.check': 'Проверить билет',
         'scan.recent': 'Недавние сканы',
         'scan.recentEmpty': 'История сканов пуста',
-
-        'scan.msg.enterContent': 'Введите содержимое QR',
-        'scan.msg.privateTitle': 'Приватный код',
-        'scan.msg.privateBody': 'Этот код относится к билету/событию и не может быть отсканирован на этой странице. Используйте страницу персонала “Scan Ticket”.',
-        'scan.msg.decodedTitle': 'Декодировано',
-        'scan.msg.decodedBody': 'Содержимое QR:',
-        'scan.action.copy': 'Копировать',
-        'scan.action.open': 'Открыть ссылку',
-        'scan.action.scanAgain': 'Сканировать снова',
 
         'scan.detail.ticketQty': 'Билеты',
         'scan.detail.price': 'Цена',
@@ -1410,15 +1767,44 @@
         'scan.msg.cancelConfirm': 'Вы уверены, что хотите отменить этот билет?',
       },
       id: {
-        'doc.title': 'Qrio - Pindai QR',
-        'meta.description': 'Pindai dan dekode konten QR apa pun.',
+        'doc.title': 'Qrio - Pindai Tiket',
+        'meta.description': 'Pindai QR e-tiket untuk verifikasi dan konfirmasi.',
         'aria.language': 'Bahasa',
         'nav.home': 'Beranda',
         'nav.createTicket': 'Buat tiket',
 
+        'auth.title': 'Verifikasi acara untuk memindai',
+        'auth.subtitle': 'Masukkan ID Acara dan kata sandinya. Anda hanya bisa memindai tiket dari acara tersebut.',
+        'auth.eventIdLabel': 'ID Acara',
+        'auth.eventIdPlaceholder': 'mis. EV12345',
+        'auth.passwordLabel': 'Kata sandi acara',
+        'auth.passwordPlaceholder': 'Masukkan kata sandi',
+        'auth.verifyBtn': 'Verifikasi',
+        'auth.clearBtn': 'Bersihkan',
+        'auth.logoutBtn': 'Ganti acara',
+        'auth.addEvent': 'Tambah acara',
+        'auth.clearAll': 'Bersihkan semua',
+        'auth.done': 'Selesai',
+        'auth.verifiedAs': 'Terverifikasi',
+        'auth.help': 'Catatan: Tiket dari acara lain akan ditolak.',
+
+        'auth.msg.requiredTitle': 'Perlu verifikasi acara',
+        'auth.msg.requiredBody': 'Masukkan ID Acara dan kata sandi sebelum memindai.',
+        'auth.msg.enterEventId': 'Masukkan ID Acara',
+        'auth.msg.enterPassword': 'Masukkan kata sandi acara',
+        'auth.msg.verifying': 'Memverifikasi...',
+        'auth.msg.verifySuccessTitle': 'Terverifikasi',
+        'auth.msg.verifySuccessBody': 'Anda bisa mulai memindai tiket untuk acara ini.',
+        'auth.msg.verifyFailedTitle': 'Verifikasi gagal',
+        'auth.msg.verifyFailedBody': 'ID Acara atau kata sandi salah.',
+        'auth.msg.wrongEventTitle': 'Acara tidak cocok',
+        'auth.msg.wrongEventBody': 'Tiket ini milik acara lain dan tidak bisa dipindai di sini.',
+        'auth.msg.unknownEventTitle': 'Info acara tidak ada',
+        'auth.msg.unknownEventBody': 'Tidak dapat menentukan acara untuk tiket ini.',
+
         'scan.badge': 'Untuk staf',
-        'scan.title': 'Pindai Kode QR',
-        'scan.subtitle': 'Pindai dan dekode konten dari kode QR apa pun',
+        'scan.title': 'Pindai E-tiket',
+        'scan.subtitle': 'Pindai QR pada tiket untuk verifikasi dan konfirmasi',
         'scan.tab.camera': 'Kamera',
         'scan.tab.upload': 'Unggah',
         'scan.tab.manual': 'Manual',
@@ -1426,20 +1812,11 @@
         'scan.toggleCamera': 'Aktifkan kamera',
         'scan.uploadTitle': 'Unggah gambar QR',
         'scan.uploadHint': 'Seret & lepas atau klik untuk memilih gambar',
-        'scan.manualLabel': 'Masukkan konten QR',
-        'scan.manualPlaceholder': 'mis. https://example.com',
-        'scan.check': 'Dekode',
+        'scan.manualLabel': 'Masukkan kode tiket',
+        'scan.manualPlaceholder': 'mis. VEM1ABC123XYZ',
+        'scan.check': 'Periksa tiket',
         'scan.recent': 'Pemindaian terbaru',
         'scan.recentEmpty': 'Belum ada riwayat pemindaian',
-
-        'scan.msg.enterContent': 'Silakan masukkan konten QR',
-        'scan.msg.privateTitle': 'Kode privat',
-        'scan.msg.privateBody': 'Kode ini milik tiket/acara dan tidak bisa dipindai di halaman ini. Silakan gunakan halaman staf “Scan Ticket”.',
-        'scan.msg.decodedTitle': 'Terdekode',
-        'scan.msg.decodedBody': 'Konten QR:',
-        'scan.action.copy': 'Salin',
-        'scan.action.open': 'Buka tautan',
-        'scan.action.scanAgain': 'Pindai lagi',
 
         'scan.detail.ticketQty': 'Tiket',
         'scan.detail.price': 'Harga',
@@ -1543,12 +1920,381 @@
     async function maybeAutoStartCamera() {
       if (currentTab !== 'camera') return;
       if (scannerActive || videoStream) return;
+      if (!requireEventAuth()) return;
 
       const granted = hasCameraGrantedHint() || await isCameraPermissionGranted();
       if (!granted) return;
 
       await startScanner({ silent: true });
     }
+
+    // ===== EVENT AUTH GATE (MULTI EVENTS) =====
+    const SCAN_AUTH_SESSION_KEY = 'qr_scan_event_auth_v2';
+    const AUTH_MAX_ROWS = 10;
+    let authedEvents = [];
+    let authRows = [{ eventId: '' }];
+    let authModalForced = false;
+    let lastAddedAuthRowIdx = null;
+
+    function escapeAttr(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    function normalizeEventId(raw) {
+      return String(raw || '').trim().toUpperCase();
+    }
+
+    function getAuthedLabel() {
+      if (!Array.isArray(authedEvents) || authedEvents.length === 0) return '';
+      return authedEvents.map(e => {
+        const id = e && e.eventId != null ? String(e.eventId) : '';
+        const name = e && e.eventName ? String(e.eventName) : '';
+        return name ? `${id} — ${name}` : id;
+      }).filter(Boolean).join(' | ');
+    }
+
+    function isEventAuthed(eventId) {
+      const target = String(eventId || '');
+      return (authedEvents || []).some(e => String(e && e.eventId) === target);
+    }
+
+    function setScanControlsEnabled(enabled) {
+      const toggleBtn = document.getElementById('toggle-camera');
+      const fileInput = document.getElementById('file-input');
+      const manualInput = document.getElementById('manual-code');
+      const drop = document.getElementById('drop-zone');
+
+      if (toggleBtn) toggleBtn.disabled = !enabled;
+      if (fileInput) fileInput.disabled = !enabled;
+      if (manualInput) manualInput.disabled = !enabled;
+      if (drop) {
+        drop.style.opacity = enabled ? '1' : '0.6';
+        drop.style.pointerEvents = enabled ? 'auto' : 'none';
+      }
+    }
+
+    function openAuthModal(force) {
+      const overlay = document.getElementById('auth-modal');
+      if (!overlay) return;
+      authModalForced = !!force;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(updateAuthRowsMaxHeight);
+    }
+
+    function closeAuthModal() {
+      const overlay = document.getElementById('auth-modal');
+      if (!overlay) return;
+      if (authModalForced && (!authedEvents || authedEvents.length === 0)) return;
+      authModalForced = false;
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function captureAuthRowValues() {
+      const rows = Array.isArray(authRows) ? authRows : [];
+      authRows = rows.map((r, idx) => {
+        const input = document.getElementById(`auth-event-id-${idx}`);
+        const eventId = input ? String(input.value || '').trim() : (r && r.eventId ? String(r.eventId) : '');
+        return { eventId };
+      });
+      if (authRows.length === 0) authRows = [{ eventId: '' }];
+    }
+
+    function updateAuthRowsMaxHeight() {
+      const container = document.getElementById('auth-rows');
+      if (!container) return;
+
+      const row = container.querySelector('.auth-row');
+      if (!row) {
+        container.style.removeProperty('--auth-rows-max');
+        return;
+      }
+
+      const rect = row.getBoundingClientRect();
+      const mt = parseFloat(getComputedStyle(row).marginTop || '0') || 0;
+      const perRow = Math.max(1, rect.height + mt);
+      const visible = Math.min(3, Array.isArray(authRows) ? authRows.length : 1);
+      container.style.setProperty('--auth-rows-max', `${Math.ceil(perRow * visible)}px`);
+    }
+
+    function renderAuthRows() {
+      const container = document.getElementById('auth-rows');
+      if (!container) return;
+      if (!Array.isArray(authRows) || authRows.length === 0) authRows = [{ eventId: '' }];
+
+      // Cap at 10 rows
+      if (authRows.length > AUTH_MAX_ROWS) authRows = authRows.slice(0, AUTH_MAX_ROWS);
+
+      const showRemove = authRows.length > 1;
+
+      container.innerHTML = authRows.map((row, idx) => {
+        const eid = escapeAttr(row && row.eventId ? row.eventId : '');
+        const isNew = lastAddedAuthRowIdx === idx;
+        return `
+          <div class="auth-row ${isNew ? 'is-new' : ''}" data-idx="${idx}">
+            <div class="form-group">
+              <label for="auth-event-id-${idx}" data-i18n="auth.eventIdLabel">Mã sự kiện</label>
+              <input id="auth-event-id-${idx}" type="text" inputmode="text" autocapitalize="characters" spellcheck="false" autocomplete="off" value="${eid}" data-i18n-placeholder="auth.eventIdPlaceholder" />
+            </div>
+            <div class="form-group">
+              <label for="auth-event-password-${idx}" data-i18n="auth.passwordLabel">Mật khẩu sự kiện</label>
+              <input id="auth-event-password-${idx}" type="password" autocomplete="current-password" placeholder="••••••••" data-i18n-placeholder="auth.passwordPlaceholder" />
+            </div>
+            <button class="btn btn-primary auth-verify-row" type="button" data-idx="${idx}">
+              <i class="fa-solid fa-circle-check"></i>
+              <span data-i18n="auth.verifyBtn">Xác thực</span>
+            </button>
+            ${showRemove ? `
+            <button class="btn btn-secondary auth-remove-row" type="button" data-idx="${idx}" data-i18n-title="auth.clearBtn" data-i18n-aria="auth.clearBtn">
+              <i class="fa-solid fa-trash"></i>
+              <span data-i18n="auth.clearBtn">Xoá</span>
+            </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      applyI18n(getLang());
+      requestAnimationFrame(updateAuthRowsMaxHeight);
+
+      const addBtn = document.getElementById('auth-add-row');
+      if (addBtn) addBtn.disabled = authRows.length >= AUTH_MAX_ROWS;
+
+      if (lastAddedAuthRowIdx != null) {
+        const idx = lastAddedAuthRowIdx;
+        lastAddedAuthRowIdx = null;
+        setTimeout(() => {
+          document.querySelector(`.auth-row[data-idx="${idx}"]`)?.classList.remove('is-new');
+        }, 260);
+      }
+    }
+
+    function renderAuthUi() {
+      const meta = document.getElementById('auth-meta');
+      const metaValue = document.getElementById('auth-meta-value');
+      const doneBtn = document.getElementById('auth-done');
+      const scanArea = document.getElementById('scan-area');
+      const overlay = document.getElementById('auth-modal');
+
+      const isVerified = Array.isArray(authedEvents) && authedEvents.length > 0;
+      if (meta) meta.style.display = isVerified ? 'flex' : 'none';
+      if (metaValue) metaValue.textContent = isVerified ? getAuthedLabel() : '';
+      if (doneBtn) doneBtn.disabled = !isVerified;
+
+      setScanControlsEnabled(isVerified);
+      if (scanArea) scanArea.style.display = isVerified ? '' : 'none';
+
+      if (!isVerified) {
+        openAuthModal(true);
+      } else {
+        authModalForced = false;
+        // Keep the modal open if the user is currently adding/switching events.
+        // (Auto-close only when it's not open, e.g. returning with a saved session.)
+        if (!overlay || !overlay.classList.contains('show')) {
+          closeAuthModal();
+        }
+      }
+    }
+
+    function loadScanAuth() {
+      try {
+        const raw = sessionStorage.getItem(SCAN_AUTH_SESSION_KEY) || sessionStorage.getItem('qr_scan_event_auth_v1');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.events)) {
+          authedEvents = parsed.events
+            .filter(e => e && e.eventId != null)
+            .map(e => ({ eventId: String(e.eventId), eventName: e.eventName ? String(e.eventName) : '' }));
+          return;
+        }
+        if (parsed && parsed.eventId) {
+          authedEvents = [{ eventId: String(parsed.eventId), eventName: parsed.eventName ? String(parsed.eventName) : '' }];
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    function saveScanAuth() {
+      const events = Array.isArray(authedEvents) ? authedEvents : [];
+      const payload = { events: events.map(e => ({ eventId: String(e.eventId), eventName: e.eventName ? String(e.eventName) : '' })) };
+      sessionStorage.setItem(SCAN_AUTH_SESSION_KEY, JSON.stringify(payload));
+    }
+
+    function clearScanAuth() {
+      authedEvents = [];
+      try { sessionStorage.removeItem(SCAN_AUTH_SESSION_KEY); } catch { /* ignore */ }
+      try { sessionStorage.removeItem('qr_scan_event_auth_v1'); } catch { /* ignore */ }
+      stopScanner();
+      renderAuthUi();
+      renderAuthRows();
+    }
+
+    function requireEventAuth() {
+      if (Array.isArray(authedEvents) && authedEvents.length > 0) return true;
+      stopScanner();
+      openAuthModal(true);
+      return false;
+    }
+
+    async function verifyAuthRow(idx) {
+      const idInput = document.getElementById(`auth-event-id-${idx}`);
+      const pwInput = document.getElementById(`auth-event-password-${idx}`);
+      const verifyBtn = document.querySelector(`.auth-verify-row[data-idx="${idx}"]`);
+
+      const eventId = normalizeEventId(idInput?.value);
+      const password = String(pwInput?.value || '');
+      if (!eventId) {
+        alert(tr('auth.msg.enterEventId'));
+        idInput?.focus();
+        return;
+      }
+      if (!password) {
+        alert(tr('auth.msg.enterPassword'));
+        pwInput?.focus();
+        return;
+      }
+
+      if (verifyBtn) verifyBtn.disabled = true;
+      try {
+        // Show status in result area only when scan area is visible
+        if (document.getElementById('scan-area')?.style.display !== 'none') {
+          showResult('pending', tr('auth.msg.verifying'), tr('auth.msg.verifying'));
+        }
+        const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}/owner?strict=1`, {
+          method: 'GET',
+          headers: { 'X-Owner-Password': password }
+        });
+        const json = await resp.json().catch(() => ({}));
+        if (!resp.ok || !json || json.error) {
+          alert((json && json.error) ? String(json.error) : tr('auth.msg.verifyFailedBody'));
+          return;
+        }
+
+        const eventName = json.eventName ? String(json.eventName) : (json.name ? String(json.name) : '');
+        if (!isEventAuthed(eventId)) {
+          authedEvents.push({ eventId: String(eventId), eventName });
+        } else {
+          authedEvents = (authedEvents || []).map(e => String(e.eventId) === String(eventId) ? { eventId: String(eventId), eventName } : e);
+        }
+
+        saveScanAuth();
+        if (pwInput) pwInput.value = '';
+        renderAuthUi();
+        if (document.getElementById('scan-area')?.style.display !== 'none') {
+          showResult('success', tr('auth.msg.verifySuccessTitle'), tr('auth.msg.verifySuccessBody'));
+        }
+        if (currentTab === 'camera') {
+          maybeAutoStartCamera();
+        }
+      } catch {
+        alert(tr('auth.msg.verifyFailedBody'));
+      } finally {
+        if (verifyBtn) verifyBtn.disabled = false;
+      }
+    }
+
+    function addAuthRow() {
+      captureAuthRowValues();
+      if (!Array.isArray(authRows)) authRows = [{ eventId: '' }];
+      if (authRows.length >= AUTH_MAX_ROWS) return;
+      authRows.push({ eventId: '' });
+      lastAddedAuthRowIdx = authRows.length - 1;
+      renderAuthRows();
+      // focus new row
+      const idx = authRows.length - 1;
+      setTimeout(() => document.getElementById(`auth-event-id-${idx}`)?.focus(), 0);
+      requestAnimationFrame(() => {
+        const c = document.getElementById('auth-rows');
+        if (c) c.scrollTop = c.scrollHeight;
+      });
+    }
+
+    function removeAuthRow(idx) {
+      captureAuthRowValues();
+      if (!Array.isArray(authRows)) authRows = [{ eventId: '' }];
+
+      const row = authRows[idx];
+      const removedId = normalizeEventId(row && row.eventId ? row.eventId : '');
+
+      authRows = authRows.filter((_, i) => i !== idx);
+      if (!authRows || authRows.length === 0) authRows = [{ eventId: '' }];
+
+      if (removedId) {
+        const before = Array.isArray(authedEvents) ? authedEvents : [];
+        const next = before.filter(e => String(e && e.eventId) !== String(removedId));
+        if (next.length !== before.length) {
+          authedEvents = next;
+          saveScanAuth();
+          stopScanner();
+        }
+      }
+
+      renderAuthRows();
+      renderAuthUi();
+    }
+
+    function initAuthGate() {
+      loadScanAuth();
+      renderAuthRows();
+      renderAuthUi();
+
+      window.addEventListener('resize', () => {
+        if (document.getElementById('auth-modal')?.classList.contains('show')) {
+          updateAuthRowsMaxHeight();
+        }
+      });
+
+      document.getElementById('open-auth-modal')?.addEventListener('click', () => {
+        renderAuthRows();
+        openAuthModal(false);
+      });
+
+      document.getElementById('auth-add-row')?.addEventListener('click', addAuthRow);
+      document.getElementById('auth-clear-all')?.addEventListener('click', clearScanAuth);
+      document.getElementById('auth-done')?.addEventListener('click', () => {
+        if (Array.isArray(authedEvents) && authedEvents.length > 0) closeAuthModal();
+      });
+      document.getElementById('auth-modal-close')?.addEventListener('click', () => {
+        if (Array.isArray(authedEvents) && authedEvents.length > 0) closeAuthModal();
+      });
+      document.getElementById('auth-modal')?.addEventListener('click', (e) => {
+        const overlay = document.getElementById('auth-modal');
+        if (e && overlay && e.target === overlay) {
+          if (Array.isArray(authedEvents) && authedEvents.length > 0) closeAuthModal();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e && e.key === 'Escape') {
+          if (Array.isArray(authedEvents) && authedEvents.length > 0) closeAuthModal();
+        }
+      });
+
+      document.getElementById('auth-rows')?.addEventListener('click', (e) => {
+        const root = e && e.target ? e.target : null;
+        if (!root) return;
+
+        const removeBtn = root.closest('.auth-remove-row');
+        if (removeBtn) {
+          const idx = parseInt(removeBtn.getAttribute('data-idx') || '0', 10);
+          removeAuthRow(idx);
+          return;
+        }
+
+        const verifyBtn = root.closest('.auth-verify-row');
+        if (!verifyBtn) return;
+        const idx = parseInt(verifyBtn.getAttribute('data-idx') || '0', 10);
+        verifyAuthRow(idx);
+      });
+    }
+
+    initAuthGate();
 
     // ===== TAB SWITCHING =====
     function switchTab(evt, tab) {
@@ -1569,7 +2315,7 @@
       // Manage camera
       if (tab === 'camera') {
         // Only start camera on user gesture (tab click)
-        startScanner();
+        if (requireEventAuth()) startScanner();
       } else {
         stopScanner();
       }
@@ -1582,6 +2328,7 @@
     async function startScanner(opts = {}) {
       const silent = !!opts.silent;
       try {
+        if (!requireEventAuth()) return;
         if (videoStream && scannerActive) {
           return;
         }
@@ -1655,6 +2402,7 @@
     }
 
     function toggleCamera() {
+      if (!requireEventAuth()) return;
       if (scannerActive) {
         stopScanner();
       } else {
@@ -1702,6 +2450,7 @@
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
+      if (!requireEventAuth()) return;
       const file = e.dataTransfer.files[0];
       if (file && file.type.startsWith('image/')) {
         processImageFile(file);
@@ -1709,6 +2458,7 @@
     });
 
     function handleFileSelect(event) {
+      if (!requireEventAuth()) return;
       const file = event.target.files[0];
       if (file) {
         processImageFile(file);
@@ -1716,6 +2466,7 @@
     }
 
     function processImageFile(file) {
+      if (!requireEventAuth()) return;
       const reader = new FileReader();
       reader.onload = function(e) {
         const img = new Image();
@@ -1752,142 +2503,171 @@
 
     // ===== MANUAL INPUT =====
     function checkManualCode() {
-      const code = String(document.getElementById('manual-code').value || '').trim();
+      if (!requireEventAuth()) return;
+      const code = document.getElementById('manual-code').value.trim().toUpperCase();
       if (!code) {
-        alert(tr('scan.msg.enterContent'));
+        alert('Vui lòng nhập mã vé');
         return;
       }
 
-      // Always validate via the same pipeline
+      // Always validate via the same pipeline (server-first)
       processQRData(code);
     }
 
     // ===== PROCESS QR DATA =====
     function processQRData(data) {
+      if (!requireEventAuth()) return;
       const raw = String(data || '').trim();
       if (!raw) {
         showResult('error', 'Mã QR không hợp lệ', 'Không thể đọc dữ liệu từ mã QR này.');
         return;
       }
 
-      if (isPrivateTicketQr(raw)) {
-        showResult('error', tr('scan.msg.privateTitle'), tr('scan.msg.privateBody'));
-        return;
-      }
-
-      addToRecentScans(raw);
-      showDecoded(raw);
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-    }
-
-    function isHttpUrl(text) {
-      return /^https?:\/\//i.test(String(text || '').trim());
-    }
-
-    function isPrivateTicketQr(raw) {
-      const text = String(raw || '').trim();
-      const upper = text.toUpperCase();
-
-      // Ticket codes are considered private (staff-only scanning page)
-      if (/^VEM[0-9A-Z]{4,}$/i.test(upper)) return true;
-
-      // URLs that point to ticket pages are considered private
-      if (isHttpUrl(text)) {
-        try {
-          const u = new URL(text);
-          const p = (u.pathname || '').toLowerCase();
-          if (p.endsWith('/ticket.html') || p.endsWith('/owner-ticket.html') || p.endsWith('/scan-ticket.html') || p.endsWith('/information.html')) {
-            return true;
-          }
-          if (u.searchParams.has('ticketId') || u.searchParams.has('id')) {
-            // Many ticket URLs use id/ticketId query param.
-            return true;
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      // JSON payloads that include ticket identifiers are private
-      if (text.startsWith('{') && text.endsWith('}')) {
-        try {
-          const obj = JSON.parse(text);
-          if (obj && (obj.ticketId || obj.orderId) ) return true;
-        } catch {
-          // ignore
-        }
-      }
-
-      return false;
-    }
-
-    async function copyText(text) {
-      const value = String(text || '');
+      // 1) JSON payload
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(value);
-          return true;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.type === 'QRIO_TICKET' && parsed.ticketId) {
+          checkTicket(String(parsed.ticketId).trim().toUpperCase());
+          return;
         }
-      } catch {
+      } catch (e) {
         // ignore
       }
 
+      // 2) URL payload (optional)
       try {
-        const ta = document.createElement('textarea');
-        ta.value = value;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        return ok;
-      } catch {
-        return false;
+        if (/^https?:\/\//i.test(raw)) {
+          const url = new URL(raw);
+          const maybeId = url.searchParams.get('id') || url.searchParams.get('ticketId') || url.searchParams.get('code');
+          if (maybeId) {
+            checkTicket(String(maybeId).trim().toUpperCase());
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore
       }
+
+      // 3) Plain ticket code
+      const candidate = raw.replace(/\s+/g, '').toUpperCase();
+      if (/^[A-Z0-9_-]{6,}$/.test(candidate)) {
+        checkTicket(candidate);
+        return;
+      }
+
+      showResult('error', 'Mã QR không hợp lệ', 'Đây không phải là mã QR vé điện tử Qrio.');
     }
 
-    function showDecoded(raw) {
-      const resultSection = document.getElementById('result-section');
-      const resultContent = document.getElementById('result-content');
-      const safe = escapeHtml(raw);
-      const url = isHttpUrl(raw) ? String(raw).trim() : '';
+    function checkTicket(ticketId) {
+      (async () => {
+        if (!requireEventAuth()) return;
+        // Prefer server-side ticket registry
+        try {
+          const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketId)}`);
+          const json = await resp.json().catch(() => ({}));
+          if (resp.ok && json && !json.error) {
+            const mapped = {
+              ticketId: json.ticketId,
+              orderId: json.orderId,
+              eventId: json.eventId,
+              eventName: json.eventName,
+              description: json.description,
+              buyerName: json.buyerName,
+              buyerEmail: json.buyerEmail,
+              buyerPhone: json.buyerPhone,
+              buyerNote: json.buyerNote,
+              ticketNumber: json.ticketNumber || 1,
+              totalTickets: json.totalTickets || json.quantity || 1,
+              price: json.pricePerTicket || 0,
+              paymentType: json.paymentType || 'transfer',
+              cashPaymentTime: json.cashPaymentTime || '',
+              status: (json.ticketStatus || '').toLowerCase() || 'valid',
+              issuedAt: json.createdAt ? new Date(json.createdAt * 1000).toISOString() : new Date().toISOString()
+            };
 
-      const openBtn = url
-        ? `<a class="btn btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${escapeHtml(tr('scan.action.open'))}</a>`
-        : '';
+            if (!mapped.eventId) {
+              showResult('error', tr('auth.msg.unknownEventTitle'), tr('auth.msg.unknownEventBody'));
+              return;
+            }
+            if (!isEventAuthed(mapped.eventId)) {
+              showResult('error', tr('auth.msg.wrongEventTitle'), tr('auth.msg.wrongEventBody'));
+              return;
+            }
 
-      resultContent.innerHTML = `
-        <div class="result-icon success"><i class="fa-solid fa-check"></i></div>
-        <h3>${escapeHtml(tr('scan.msg.decodedTitle'))}</h3>
-        <p>${escapeHtml(tr('scan.msg.decodedBody'))}</p>
-        <div style="margin-top: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 12px;">
-          <pre style="white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.5; color: #e2e8f0;">${safe}</pre>
-        </div>
-        <div class="btn-group" style="margin-top: 12px; display:flex; gap:10px; flex-wrap: wrap;">
-          <button class="btn btn-secondary" type="button" onclick="copyDecoded()"><i class="fa-solid fa-copy"></i> ${escapeHtml(tr('scan.action.copy'))}</button>
-          ${openBtn}
-          <button class="btn btn-secondary" type="button" onclick="resetScanner()"><i class="fa-solid fa-rotate-right"></i> ${escapeHtml(tr('scan.action.scanAgain'))}</button>
-        </div>
-      `;
+            // Cache recent scans only
+            addToRecentScans(mapped);
 
-      window.__lastDecodedText = raw;
-      resultSection.classList.remove('hidden');
-      try { resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+            const st = mapped.status;
+            if (st === 'used') {
+              showResult('warning', 'Vé đã sử dụng', `Vé này đã được sử dụng trước đó.`, mapped);
+            } else if (st === 'cancelled') {
+              showResult('error', 'Vé đã bị huỷ', `Vé này đã bị huỷ.`, mapped);
+            } else if (st === 'pending_verification') {
+              showResult('pending', 'Chờ xác nhận thanh toán', `Vé này đang chờ xác nhận thanh toán từ chủ sự kiện.`, mapped);
+            } else if (st === 'pending_payment') {
+              showResult('cash_pending', 'Chờ thanh toán tiền mặt', `Vé này đang chờ thanh toán tiền mặt.`, mapped);
+            } else if (st === 'pending') {
+              showResult('pending', 'Chờ thanh toán', `Vé này đang chờ thanh toán.`, mapped);
+            } else {
+              showResult('success', 'Vé hợp lệ', `Vé hợp lệ và sẵn sàng sử dụng.`, mapped);
+            }
+            return;
+          }
+        } catch (e) {
+          // ignore and fall back
+        }
+
+        // Fallback: old localStorage behavior (for offline/dev)
+        try {
+          const stored = localStorage.getItem('ticket_' + ticketId);
+          if (!stored) {
+            showResult('error', 'Vé không tồn tại', `Không tìm thấy vé với mã ${ticketId}`);
+            return;
+          }
+          const ticket = JSON.parse(stored);
+
+          if (!ticket || !ticket.eventId) {
+            showResult('error', tr('auth.msg.unknownEventTitle'), tr('auth.msg.unknownEventBody'));
+            return;
+          }
+          if (!isEventAuthed(ticket.eventId)) {
+            showResult('error', tr('auth.msg.wrongEventTitle'), tr('auth.msg.wrongEventBody'));
+            return;
+          }
+
+          addToRecentScans(ticket);
+          if (ticket.status === 'used') {
+            showResult('warning', 'Vé đã sử dụng', `Vé này đã được sử dụng trước đó.`, ticket);
+          } else if (ticket.status === 'pending_verification') {
+            showResult('pending', 'Chờ xác nhận thanh toán', `Vé này đang chờ xác nhận thanh toán từ chủ sự kiện.`, ticket);
+          } else if (ticket.status === 'pending_payment') {
+            showResult('cash_pending', 'Chờ thanh toán tiền mặt', `Vé này đang chờ thanh toán tiền mặt.`, ticket);
+          } else {
+            showResult('success', 'Vé hợp lệ', `Vé hợp lệ và sẵn sàng sử dụng.`, ticket);
+          }
+        } catch {
+          showResult('error', 'Vé không tồn tại', `Không tìm thấy vé với mã ${ticketId}`);
+        }
+      })();
     }
 
-    function copyDecoded() {
-      const txt = window.__lastDecodedText || '';
-      copyText(txt);
+    async function fetchOrderData(orderId) {
+      try {
+        // Try to get from localStorage first
+        const stored = localStorage.getItem('order_' + orderId);
+        if (stored) {
+          return JSON.parse(stored);
+        }
+        
+        // Try to fetch from API
+        const resp = await fetch(`/api/ticket/orders/${orderId}`);
+        if (resp.ok) {
+          return await resp.json();
+        }
+      } catch (e) {
+        console.log('Could not fetch order data', e);
+      }
+      return null;
     }
 
     async function showResult(type, title, message, ticket = null) {
@@ -2128,64 +2908,50 @@
     }
 
     // ===== RECENT SCANS =====
-    const RECENT_QR_KEY = 'recent_qr_scans_v1';
-    window.__recentQrCache = [];
-
-    function addToRecentScans(text) {
-      let recent = JSON.parse(localStorage.getItem(RECENT_QR_KEY) || '[]');
-      const value = String(text || '').trim();
-      if (!value) return;
-
-      recent = recent.filter(r => r && r.text !== value);
+    function addToRecentScans(ticket) {
+      let recent = JSON.parse(localStorage.getItem('recent_scans') || '[]');
+      
+      // Remove if exists
+      recent = recent.filter(r => r.ticketId !== ticket.ticketId);
+      
+      // Add to front
       recent.unshift({
-        text: value,
-        isUrl: isHttpUrl(value),
+        ticketId: ticket.ticketId,
+        eventName: ticket.eventName,
+        buyerName: ticket.buyerName,
+        status: ticket.status,
         scannedAt: new Date().toISOString()
       });
-
+      
+      // Keep only last 10
       recent = recent.slice(0, 10);
-      localStorage.setItem(RECENT_QR_KEY, JSON.stringify(recent));
+      
+      localStorage.setItem('recent_scans', JSON.stringify(recent));
       updateRecentScans();
     }
 
-    function handleRecentClick(index) {
-      const item = (window.__recentQrCache || [])[index];
-      if (!item || !item.text) return;
-      if (item.isUrl) {
-        window.open(item.text, '_blank', 'noopener');
-        return;
-      }
-      copyText(item.text);
-    }
-
     function updateRecentScans() {
-      const recent = JSON.parse(localStorage.getItem(RECENT_QR_KEY) || '[]');
+      const recent = JSON.parse(localStorage.getItem('recent_scans') || '[]');
       const listEl = document.getElementById('recent-list');
-      window.__recentQrCache = Array.isArray(recent) ? recent : [];
 
-      if (!listEl) return;
-
-      if (window.__recentQrCache.length === 0) {
+      if (recent.length === 0) {
         listEl.innerHTML = `<p style="color: #64748b; font-size: 13px; text-align: center; padding: 20px;">${tr('scan.recentEmpty')}</p>`;
         return;
       }
 
-      listEl.innerHTML = window.__recentQrCache.map((item, idx) => {
+      listEl.innerHTML = recent.map(item => {
         const time = new Date(item.scannedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        const icon = item.isUrl ? 'fa-link' : 'fa-qrcode';
-        const title = escapeHtml(item.isUrl ? 'URL' : 'TEXT');
-        const snippet = escapeHtml(String(item.text).slice(0, 80));
-        const hint = escapeHtml(item.isUrl ? tr('scan.action.open') : tr('scan.action.copy'));
-
+        const isUsed = item.status === 'used';
+        
         return `
-          <div class="recent-item" onclick="handleRecentClick(${idx})" title="${hint}">
+          <div class="recent-item" onclick="viewTicketInfo('${item.ticketId}')">
             <div class="recent-item-info">
-              <div class="recent-item-icon">
-                <i class="fa-solid ${icon}"></i>
+              <div class="recent-item-icon ${isUsed ? 'used' : ''}">
+                <i class="fa-solid ${isUsed ? 'fa-times' : 'fa-check'}"></i>
               </div>
               <div class="recent-item-text">
-                <h5>${title}</h5>
-                <p>${snippet}${String(item.text).length > 80 ? '…' : ''}</p>
+                <h5>${item.ticketId}</h5>
+                <p>${item.buyerName} - ${item.eventName}</p>
               </div>
             </div>
             <span class="recent-item-time">${time}</span>
@@ -2197,7 +2963,7 @@
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       updateRecentScans();
-      // Auto-start camera if permission was already granted.
+      // Auto-start camera if permission was already granted (and auth is satisfied).
       maybeAutoStartCamera();
     });
 

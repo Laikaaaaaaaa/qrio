@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Thông Tin Vé</title>
-  <meta name="description" content="Thông tin chi tiết vé điện tử." />
+  <title data-i18n="doc.title">Qrio - Thông Tin Vé</title>
+  <meta name="description" data-i18n-content="meta.description" content="Thông tin chi tiết vé điện tử." />
   <meta name="robots" content="noindex, nofollow" />
   
   <meta name="theme-color" content="#7c3aed" />
@@ -38,36 +38,6 @@
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-    
-    .bg-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(56px);
-      opacity: 0.28;
-      animation: floatOrb 28s ease-in-out infinite;
-    }
-    
-    .bg-orb-1 {
-      width: 400px;
-      height: 400px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      top: -100px;
-      right: -100px;
-    }
-    
-    .bg-orb-2 {
-      width: 300px;
-      height: 300px;
-      background: linear-gradient(135deg, #06b6d4, #3b82f6);
-      bottom: 100px;
-      left: -100px;
-      animation-delay: -5s;
     }
     
     @keyframes floatOrb {
@@ -178,6 +148,96 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    /* Language picker */
+    .lang-btn {
+      width: 40px;
+      padding: 8px 0;
+    }
+
+    .lang-select {
+      display: none;
+    }
+
+    .lang-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+
+    .lang-modal {
+      width: min(560px, 92vw);
+      background: rgba(15, 15, 26, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(14px);
+    }
+
+    .lang-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .lang-modal-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .lang-close {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .lang-modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .lang-item:hover {
+      border-color: rgba(124, 58, 237, 0.35);
+      background: rgba(124, 58, 237, 0.12);
+    }
+
+    .lang-item.active {
+      border-color: rgba(124, 58, 237, 0.55);
+      background: rgba(124, 58, 237, 0.18);
+    }
+
+    @media (max-width: 520px) {
+      .lang-modal-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .btn-success {
@@ -524,13 +584,13 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a href="scan.html" class="btn btn-secondary btn-sm">
+      <a href="scan-ticket.html" class="btn btn-secondary btn-sm">
         <i class="fa-solid fa-qrcode"></i>
-        <span>Quét tiếp</span>
+        <span data-i18n="nav.scanNext">Quét tiếp</span>
       </a>
       <a href="home.html" class="btn btn-primary btn-sm">
         <i class="fa-solid fa-house"></i>
-        <span>Trang chủ</span>
+        <span data-i18n="nav.home">Trang chủ</span>
       </a>
     </div>
   </header>
@@ -544,11 +604,11 @@
     <!-- Error -->
     <div class="error-box hidden" id="error-section">
       <div class="error-icon"><i class="fa-solid fa-ticket-xmark"></i></div>
-      <h2>Không tìm thấy vé</h2>
+      <h2 data-i18n="error.title">Không tìm thấy vé</h2>
       <p id="error-message">Link không hợp lệ hoặc vé không tồn tại.</p>
-      <a href="scan.html" class="btn btn-primary">
+      <a href="scan-ticket.html" class="btn btn-primary">
         <i class="fa-solid fa-qrcode"></i>
-        Quét vé khác
+        <span data-i18n="error.scanOther">Quét vé khác</span>
       </a>
     </div>
 
@@ -560,20 +620,20 @@
           <div class="status-icon" id="status-icon">
             <i class="fa-solid fa-check"></i>
           </div>
-          <div class="status-text" id="status-text">VÉ HỢP LỆ</div>
+          <div class="status-text" id="status-text" data-i18n="status.valid">VÉ HỢP LỆ</div>
           <div class="ticket-id" id="ticket-id">-</div>
         </div>
 
         <!-- Event Info -->
         <div class="info-section">
-          <div class="section-title"><i class="fa-solid fa-calendar-star"></i> Thông tin sự kiện</div>
+          <div class="section-title"><i class="fa-solid fa-calendar-star"></i> <span data-i18n="section.event">Thông tin sự kiện</span></div>
           <div class="info-grid">
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-ticket"></i> Sự kiện</span>
+              <span class="info-label"><i class="fa-solid fa-ticket"></i> <span data-i18n="label.event">Sự kiện</span></span>
               <span class="info-value" id="event-name">-</span>
             </div>
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-money-bill"></i> Giá vé</span>
+              <span class="info-label"><i class="fa-solid fa-money-bill"></i> <span data-i18n="label.price">Giá vé</span></span>
               <span class="info-value" id="ticket-price">-</span>
             </div>
           </div>
@@ -581,18 +641,18 @@
 
         <!-- Buyer Info -->
         <div class="info-section">
-          <div class="section-title"><i class="fa-solid fa-user"></i> Người mua</div>
+          <div class="section-title"><i class="fa-solid fa-user"></i> <span data-i18n="section.buyer">Người mua</span></div>
           <div class="info-grid">
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-user"></i> Họ tên</span>
+              <span class="info-label"><i class="fa-solid fa-user"></i> <span data-i18n="label.fullName">Họ tên</span></span>
               <span class="info-value" id="buyer-name">-</span>
             </div>
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-envelope"></i> Email</span>
+              <span class="info-label"><i class="fa-solid fa-envelope"></i> <span data-i18n="label.email">Email</span></span>
               <span class="info-value" id="buyer-email">-</span>
             </div>
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-phone"></i> SĐT</span>
+              <span class="info-label"><i class="fa-solid fa-phone"></i> <span data-i18n="label.phone">SĐT</span></span>
               <span class="info-value" id="buyer-phone">-</span>
             </div>
           </div>
@@ -600,14 +660,14 @@
 
         <!-- Ticket Details -->
         <div class="info-section">
-          <div class="section-title"><i class="fa-solid fa-info-circle"></i> Chi tiết vé</div>
+          <div class="section-title"><i class="fa-solid fa-info-circle"></i> <span data-i18n="section.ticket">Chi tiết vé</span></div>
           <div class="info-grid">
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-hashtag"></i> Số thứ tự</span>
+              <span class="info-label"><i class="fa-solid fa-hashtag"></i> <span data-i18n="label.serial">Số thứ tự</span></span>
               <span class="info-value" id="ticket-number">-</span>
             </div>
             <div class="info-item">
-              <span class="info-label"><i class="fa-solid fa-receipt"></i> Mã đơn</span>
+              <span class="info-label"><i class="fa-solid fa-receipt"></i> <span data-i18n="label.orderId">Mã đơn</span></span>
               <span class="info-value" id="order-id">-</span>
             </div>
           </div>
@@ -615,7 +675,7 @@
 
         <!-- Timeline -->
         <div class="info-section">
-          <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử</div>
+          <div class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="section.timeline">Lịch sử</span></div>
           <div class="timeline" id="timeline">
             <!-- Dynamic content -->
           </div>
@@ -625,11 +685,11 @@
         <div class="action-buttons" id="action-buttons">
           <button class="btn btn-success" onclick="showConfirmModal()" id="mark-used-btn">
             <i class="fa-solid fa-check-circle"></i>
-            Đánh dấu đã sử dụng
+            <span data-i18n="actions.markUsed">Đánh dấu đã sử dụng</span>
           </button>
-          <a href="scan.html" class="btn btn-secondary">
+          <a href="scan-ticket.html" class="btn btn-secondary">
             <i class="fa-solid fa-qrcode"></i>
-            Quét vé khác
+            <span data-i18n="actions.scanOther">Quét vé khác</span>
           </a>
         </div>
       </div>
@@ -639,11 +699,11 @@
   <!-- Confirm Modal -->
   <div class="modal-overlay hidden" id="confirm-modal">
     <div class="modal">
-      <h3><i class="fa-solid fa-check-circle" style="color: #22c55e;"></i> Xác nhận sử dụng vé?</h3>
-      <p>Sau khi đánh dấu, vé sẽ không thể sử dụng lại. Hành động này không thể hoàn tác.</p>
+      <h3><i class="fa-solid fa-check-circle" style="color: #22c55e;"></i> <span data-i18n="confirm.title">Xác nhận sử dụng vé?</span></h3>
+      <p data-i18n="confirm.desc">Sau khi đánh dấu, vé sẽ không thể sử dụng lại. Hành động này không thể hoàn tác.</p>
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="hideModal()">Hủy</button>
-        <button class="btn btn-success" onclick="markAsUsed()">Xác nhận</button>
+        <button class="btn btn-secondary" onclick="hideModal()"><span data-i18n="confirm.cancel">Hủy</span></button>
+        <button class="btn btn-success" onclick="markAsUsed()"><span data-i18n="confirm.ok">Xác nhận</span></button>
       </div>
     </div>
   </div>
@@ -654,12 +714,12 @@
       <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #22c55e); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px;">
         <i class="fa-solid fa-check"></i>
       </div>
-      <h3>Thành công!</h3>
-      <p>Vé đã được đánh dấu là đã sử dụng.</p>
+      <h3 data-i18n="success.title">Thành công!</h3>
+      <p data-i18n="success.desc">Vé đã được đánh dấu là đã sử dụng.</p>
       <div class="modal-actions">
-        <a href="scan.html" class="btn btn-primary" style="width: 100%;">
+        <a href="scan-ticket.html" class="btn btn-primary" style="width: 100%;">
           <i class="fa-solid fa-qrcode"></i>
-          Quét vé tiếp theo
+          <span data-i18n="success.scanNext">Quét vé tiếp theo</span>
         </a>
       </div>
     </div>
@@ -667,6 +727,457 @@
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
+    const LANG_KEY = 'qr_lang';
+    const SUPPORTED_LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'pt', 'ru', 'id', 'vi'];
+    const I18N = {
+      en: {
+        'doc.title': 'Qrio - Ticket information',
+        'meta.description': 'Detailed electronic ticket information.',
+        'lang.title': 'Language',
+        'lang.aria': 'Choose language',
+        'lang.choose': 'Choose language',
+        'lang.close': 'Close',
+        'nav.scanNext': 'Scan next',
+        'nav.home': 'Home',
+        'error.title': 'Ticket not found',
+        'error.scanOther': 'Scan another ticket',
+        'status.valid': 'VALID TICKET',
+        'status.used': 'USED TICKET',
+        'section.event': 'Event information',
+        'section.buyer': 'Buyer',
+        'section.ticket': 'Ticket details',
+        'section.timeline': 'Timeline',
+        'label.event': 'Event',
+        'label.price': 'Price',
+        'label.fullName': 'Full name',
+        'label.email': 'Email',
+        'label.phone': 'Phone',
+        'label.serial': 'Serial',
+        'label.orderId': 'Order ID',
+        'actions.markUsed': 'Mark as used',
+        'actions.scanOther': 'Scan another ticket',
+        'confirm.title': 'Confirm ticket usage?',
+        'confirm.desc': 'After marking, the ticket cannot be used again. This action cannot be undone.',
+        'confirm.cancel': 'Cancel',
+        'confirm.ok': 'Confirm',
+        'success.title': 'Success!',
+        'success.desc': 'The ticket has been marked as used.',
+        'success.scanNext': 'Scan next ticket',
+        'msg.ticketNotFound': 'Ticket not found',
+        'msg.invalidData': 'Invalid ticket data.',
+        'msg.notFoundLong': 'Ticket not found. It may have been deleted or does not exist.',
+        'msg.cannotUpdate': 'Unable to update ticket',
+        'timeline.issued': 'Ticket created',
+        'timeline.used': 'Ticket used'
+      },
+      vi: {
+        'doc.title': 'Qrio - Thông Tin Vé',
+        'meta.description': 'Thông tin chi tiết vé điện tử.',
+        'lang.title': 'Ngôn ngữ',
+        'lang.aria': 'Chọn ngôn ngữ',
+        'lang.choose': 'Chọn ngôn ngữ',
+        'lang.close': 'Đóng',
+        'nav.scanNext': 'Quét tiếp',
+        'nav.home': 'Trang chủ',
+        'error.title': 'Không tìm thấy vé',
+        'error.scanOther': 'Quét vé khác',
+        'status.valid': 'VÉ HỢP LỆ',
+        'status.used': 'VÉ ĐÃ SỬ DỤNG',
+        'section.event': 'Thông tin sự kiện',
+        'section.buyer': 'Người mua',
+        'section.ticket': 'Chi tiết vé',
+        'section.timeline': 'Lịch sử',
+        'label.event': 'Sự kiện',
+        'label.price': 'Giá vé',
+        'label.fullName': 'Họ tên',
+        'label.email': 'Email',
+        'label.phone': 'SĐT',
+        'label.serial': 'Số thứ tự',
+        'label.orderId': 'Mã đơn',
+        'actions.markUsed': 'Đánh dấu đã sử dụng',
+        'actions.scanOther': 'Quét vé khác',
+        'confirm.title': 'Xác nhận sử dụng vé?',
+        'confirm.desc': 'Sau khi đánh dấu, vé sẽ không thể sử dụng lại. Hành động này không thể hoàn tác.',
+        'confirm.cancel': 'Hủy',
+        'confirm.ok': 'Xác nhận',
+        'success.title': 'Thành công!',
+        'success.desc': 'Vé đã được đánh dấu là đã sử dụng.',
+        'success.scanNext': 'Quét vé tiếp theo',
+        'msg.ticketNotFound': 'Không tìm thấy vé',
+        'msg.invalidData': 'Dữ liệu vé không hợp lệ.',
+        'msg.notFoundLong': 'Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.',
+        'msg.cannotUpdate': 'Không thể cập nhật vé',
+        'timeline.issued': 'Vé được tạo',
+        'timeline.used': 'Vé đã sử dụng'
+      },
+      zh: {
+        'doc.title': 'Qrio - 门票信息',
+        'meta.description': '电子门票的详细信息。',
+        'lang.title': '语言',
+        'lang.aria': '选择语言',
+        'lang.choose': '选择语言',
+        'lang.close': '关闭',
+        'nav.scanNext': '扫描下一张',
+        'nav.home': '首页',
+        'error.title': '未找到门票',
+        'error.scanOther': '扫描其他门票',
+        'status.valid': '有效门票',
+        'status.used': '已使用',
+        'section.event': '活动信息',
+        'section.buyer': '购买者',
+        'section.ticket': '门票详情',
+        'section.timeline': '时间线',
+        'label.event': '活动',
+        'label.price': '价格',
+        'label.fullName': '姓名',
+        'label.email': '邮箱',
+        'label.phone': '电话',
+        'label.serial': '序号',
+        'label.orderId': '订单号',
+        'actions.markUsed': '标记为已使用',
+        'actions.scanOther': '扫描其他门票',
+        'confirm.title': '确认使用门票？',
+        'confirm.desc': '标记后该门票将无法再次使用，且无法撤销。',
+        'confirm.cancel': '取消',
+        'confirm.ok': '确认',
+        'success.title': '成功！',
+        'success.desc': '门票已标记为已使用。',
+        'success.scanNext': '扫描下一张门票',
+        'msg.ticketNotFound': '未找到门票',
+        'msg.invalidData': '门票数据无效。',
+        'msg.notFoundLong': '未找到门票。可能已删除或不存在。',
+        'msg.cannotUpdate': '无法更新门票',
+        'timeline.issued': '门票已创建',
+        'timeline.used': '门票已使用'
+      },
+      hi: {
+        'doc.title': 'Qrio - टिकट जानकारी',
+        'meta.description': 'इलेक्ट्रॉनिक टिकट की विस्तृत जानकारी।',
+        'lang.title': 'भाषा',
+        'lang.aria': 'भाषा चुनें',
+        'lang.choose': 'भाषा चुनें',
+        'lang.close': 'बंद करें',
+        'nav.scanNext': 'अगला स्कैन',
+        'nav.home': 'होम',
+        'error.title': 'टिकट नहीं मिला',
+        'error.scanOther': 'दूसरा टिकट स्कैन करें',
+        'status.valid': 'मान्य टिकट',
+        'status.used': 'उपयोग किया गया',
+        'section.event': 'इवेंट जानकारी',
+        'section.buyer': 'खरीदार',
+        'section.ticket': 'टिकट विवरण',
+        'section.timeline': 'टाइमलाइन',
+        'label.event': 'इवेंट',
+        'label.price': 'कीमत',
+        'label.fullName': 'पूरा नाम',
+        'label.email': 'ईमेल',
+        'label.phone': 'फ़ोन',
+        'label.serial': 'सीरियल',
+        'label.orderId': 'ऑर्डर ID',
+        'actions.markUsed': 'उपयोग किया हुआ चिन्हित करें',
+        'actions.scanOther': 'दूसरा टिकट स्कैन करें',
+        'confirm.title': 'टिकट उपयोग की पुष्टि करें?',
+        'confirm.desc': 'चिन्हित करने के बाद टिकट फिर उपयोग नहीं हो सकेगा। यह क्रिया वापस नहीं होगी।',
+        'confirm.cancel': 'रद्द करें',
+        'confirm.ok': 'पुष्टि करें',
+        'success.title': 'सफल!',
+        'success.desc': 'टिकट को उपयोग किया हुआ चिन्हित किया गया है।',
+        'success.scanNext': 'अगला टिकट स्कैन करें',
+        'msg.ticketNotFound': 'टिकट नहीं मिला',
+        'msg.invalidData': 'अमान्य टिकट डेटा।',
+        'msg.notFoundLong': 'टिकट नहीं मिला। यह हटाया गया हो सकता है या मौजूद नहीं है।',
+        'msg.cannotUpdate': 'टिकट अपडेट नहीं हो सका',
+        'timeline.issued': 'टिकट बनाया गया',
+        'timeline.used': 'टिकट उपयोग किया गया'
+      },
+      es: {
+        'doc.title': 'Qrio - Información del ticket',
+        'meta.description': 'Información detallada del ticket electrónico.',
+        'lang.title': 'Idioma',
+        'lang.aria': 'Elegir idioma',
+        'lang.choose': 'Elegir idioma',
+        'lang.close': 'Cerrar',
+        'nav.scanNext': 'Escanear siguiente',
+        'nav.home': 'Inicio',
+        'error.title': 'Ticket no encontrado',
+        'error.scanOther': 'Escanear otro ticket',
+        'status.valid': 'TICKET VÁLIDO',
+        'status.used': 'TICKET USADO',
+        'section.event': 'Información del evento',
+        'section.buyer': 'Comprador',
+        'section.ticket': 'Detalles del ticket',
+        'section.timeline': 'Línea de tiempo',
+        'label.event': 'Evento',
+        'label.price': 'Precio',
+        'label.fullName': 'Nombre completo',
+        'label.email': 'Email',
+        'label.phone': 'Teléfono',
+        'label.serial': 'Serial',
+        'label.orderId': 'ID de pedido',
+        'actions.markUsed': 'Marcar como usado',
+        'actions.scanOther': 'Escanear otro ticket',
+        'confirm.title': '¿Confirmar uso del ticket?',
+        'confirm.desc': 'Después de marcarlo, el ticket no podrá usarse de nuevo. Esta acción no se puede deshacer.',
+        'confirm.cancel': 'Cancelar',
+        'confirm.ok': 'Confirmar',
+        'success.title': '¡Éxito!',
+        'success.desc': 'El ticket se marcó como usado.',
+        'success.scanNext': 'Escanear siguiente ticket',
+        'msg.ticketNotFound': 'Ticket no encontrado',
+        'msg.invalidData': 'Datos de ticket inválidos.',
+        'msg.notFoundLong': 'Ticket no encontrado. Puede haberse eliminado o no existir.',
+        'msg.cannotUpdate': 'No se puede actualizar el ticket',
+        'timeline.issued': 'Ticket creado',
+        'timeline.used': 'Ticket usado'
+      },
+      fr: {
+        'doc.title': 'Qrio - Informations du billet',
+        'meta.description': 'Informations détaillées du billet électronique.',
+        'lang.title': 'Langue',
+        'lang.aria': 'Choisir la langue',
+        'lang.choose': 'Choisir la langue',
+        'lang.close': 'Fermer',
+        'nav.scanNext': 'Scanner le suivant',
+        'nav.home': 'Accueil',
+        'error.title': 'Billet introuvable',
+        'error.scanOther': 'Scanner un autre billet',
+        'status.valid': 'BILLET VALIDE',
+        'status.used': 'BILLET UTILISÉ',
+        'section.event': 'Informations de l’événement',
+        'section.buyer': 'Acheteur',
+        'section.ticket': 'Détails du billet',
+        'section.timeline': 'Chronologie',
+        'label.event': 'Événement',
+        'label.price': 'Prix',
+        'label.fullName': 'Nom complet',
+        'label.email': 'Email',
+        'label.phone': 'Téléphone',
+        'label.serial': 'Numéro',
+        'label.orderId': 'ID de commande',
+        'actions.markUsed': 'Marquer comme utilisé',
+        'actions.scanOther': 'Scanner un autre billet',
+        'confirm.title': 'Confirmer l’utilisation du billet ?',
+        'confirm.desc': 'Après marquage, le billet ne pourra plus être utilisé. Cette action est irréversible.',
+        'confirm.cancel': 'Annuler',
+        'confirm.ok': 'Confirmer',
+        'success.title': 'Succès !',
+        'success.desc': 'Le billet a été marqué comme utilisé.',
+        'success.scanNext': 'Scanner le billet suivant',
+        'msg.ticketNotFound': 'Billet introuvable',
+        'msg.invalidData': 'Données de billet invalides.',
+        'msg.notFoundLong': 'Billet introuvable. Il a peut-être été supprimé ou n’existe pas.',
+        'msg.cannotUpdate': 'Impossible de mettre à jour le billet',
+        'timeline.issued': 'Billet créé',
+        'timeline.used': 'Billet utilisé'
+      },
+      ar: {
+        'doc.title': 'Qrio - معلومات التذكرة',
+        'meta.description': 'معلومات تفصيلية عن التذكرة الإلكترونية.',
+        'lang.title': 'اللغة',
+        'lang.aria': 'اختر اللغة',
+        'lang.choose': 'اختر اللغة',
+        'lang.close': 'إغلاق',
+        'nav.scanNext': 'امسح التالية',
+        'nav.home': 'الرئيسية',
+        'error.title': 'لم يتم العثور على التذكرة',
+        'error.scanOther': 'امسح تذكرة أخرى',
+        'status.valid': 'تذكرة صالحة',
+        'status.used': 'تذكرة مستخدمة',
+        'section.event': 'معلومات الفعالية',
+        'section.buyer': 'المشتري',
+        'section.ticket': 'تفاصيل التذكرة',
+        'section.timeline': 'الخط الزمني',
+        'label.event': 'الفعالية',
+        'label.price': 'السعر',
+        'label.fullName': 'الاسم الكامل',
+        'label.email': 'البريد الإلكتروني',
+        'label.phone': 'الهاتف',
+        'label.serial': 'الرقم التسلسلي',
+        'label.orderId': 'معرّف الطلب',
+        'actions.markUsed': 'وضع علامة مستخدمة',
+        'actions.scanOther': 'امسح تذكرة أخرى',
+        'confirm.title': 'تأكيد استخدام التذكرة؟',
+        'confirm.desc': 'بعد التعليم، لا يمكن استخدام التذكرة مرة أخرى. لا يمكن التراجع عن هذا الإجراء.',
+        'confirm.cancel': 'إلغاء',
+        'confirm.ok': 'تأكيد',
+        'success.title': 'تم بنجاح!',
+        'success.desc': 'تم وضع علامة على التذكرة بأنها مستخدمة.',
+        'success.scanNext': 'امسح التذكرة التالية',
+        'msg.ticketNotFound': 'لم يتم العثور على التذكرة',
+        'msg.invalidData': 'بيانات التذكرة غير صالحة.',
+        'msg.notFoundLong': 'لم يتم العثور على التذكرة. ربما تم حذفها أو لا وجود لها.',
+        'msg.cannotUpdate': 'تعذر تحديث التذكرة',
+        'timeline.issued': 'تم إنشاء التذكرة',
+        'timeline.used': 'تم استخدام التذكرة'
+      },
+      pt: {
+        'doc.title': 'Qrio - Informações do ingresso',
+        'meta.description': 'Informações detalhadas do ingresso eletrônico.',
+        'lang.title': 'Idioma',
+        'lang.aria': 'Escolher idioma',
+        'lang.choose': 'Escolher idioma',
+        'lang.close': 'Fechar',
+        'nav.scanNext': 'Escanear próximo',
+        'nav.home': 'Início',
+        'error.title': 'Ingresso não encontrado',
+        'error.scanOther': 'Escanear outro ingresso',
+        'status.valid': 'INGRESSO VÁLIDO',
+        'status.used': 'INGRESSO USADO',
+        'section.event': 'Informações do evento',
+        'section.buyer': 'Comprador',
+        'section.ticket': 'Detalhes do ingresso',
+        'section.timeline': 'Linha do tempo',
+        'label.event': 'Evento',
+        'label.price': 'Preço',
+        'label.fullName': 'Nome completo',
+        'label.email': 'Email',
+        'label.phone': 'Telefone',
+        'label.serial': 'Número',
+        'label.orderId': 'ID do pedido',
+        'actions.markUsed': 'Marcar como usado',
+        'actions.scanOther': 'Escanear outro ingresso',
+        'confirm.title': 'Confirmar uso do ingresso?',
+        'confirm.desc': 'Após marcar, o ingresso não poderá ser usado novamente. Esta ação não pode ser desfeita.',
+        'confirm.cancel': 'Cancelar',
+        'confirm.ok': 'Confirmar',
+        'success.title': 'Sucesso!',
+        'success.desc': 'O ingresso foi marcado como usado.',
+        'success.scanNext': 'Escanear próximo ingresso',
+        'msg.ticketNotFound': 'Ingresso não encontrado',
+        'msg.invalidData': 'Dados do ingresso inválidos.',
+        'msg.notFoundLong': 'Ingresso não encontrado. Pode ter sido excluído ou não existir.',
+        'msg.cannotUpdate': 'Não foi possível atualizar o ingresso',
+        'timeline.issued': 'Ingresso criado',
+        'timeline.used': 'Ingresso usado'
+      },
+      ru: {
+        'doc.title': 'Qrio — Информация о билете',
+        'meta.description': 'Подробная информация об электронном билете.',
+        'lang.title': 'Язык',
+        'lang.aria': 'Выберите язык',
+        'lang.choose': 'Выберите язык',
+        'lang.close': 'Закрыть',
+        'nav.scanNext': 'Сканировать следующий',
+        'nav.home': 'Главная',
+        'error.title': 'Билет не найден',
+        'error.scanOther': 'Сканировать другой билет',
+        'status.valid': 'ДЕЙСТВИТЕЛЬНЫЙ БИЛЕТ',
+        'status.used': 'БИЛЕТ ИСПОЛЬЗОВАН',
+        'section.event': 'Информация о событии',
+        'section.buyer': 'Покупатель',
+        'section.ticket': 'Детали билета',
+        'section.timeline': 'Хронология',
+        'label.event': 'Событие',
+        'label.price': 'Цена',
+        'label.fullName': 'ФИО',
+        'label.email': 'Email',
+        'label.phone': 'Телефон',
+        'label.serial': 'Серийный номер',
+        'label.orderId': 'ID заказа',
+        'actions.markUsed': 'Отметить как использованный',
+        'actions.scanOther': 'Сканировать другой билет',
+        'confirm.title': 'Подтвердить использование билета?',
+        'confirm.desc': 'После отметки билет нельзя использовать повторно. Действие необратимо.',
+        'confirm.cancel': 'Отмена',
+        'confirm.ok': 'Подтвердить',
+        'success.title': 'Успешно!',
+        'success.desc': 'Билет отмечен как использованный.',
+        'success.scanNext': 'Сканировать следующий билет',
+        'msg.ticketNotFound': 'Билет не найден',
+        'msg.invalidData': 'Некорректные данные билета.',
+        'msg.notFoundLong': 'Билет не найден. Возможно, он удалён или не существует.',
+        'msg.cannotUpdate': 'Не удалось обновить билет',
+        'timeline.issued': 'Билет создан',
+        'timeline.used': 'Билет использован'
+      },
+      id: {
+        'doc.title': 'Qrio - Informasi tiket',
+        'meta.description': 'Informasi detail tiket elektronik.',
+        'lang.title': 'Bahasa',
+        'lang.aria': 'Pilih bahasa',
+        'lang.choose': 'Pilih bahasa',
+        'lang.close': 'Tutup',
+        'nav.scanNext': 'Pindai berikutnya',
+        'nav.home': 'Beranda',
+        'error.title': 'Tiket tidak ditemukan',
+        'error.scanOther': 'Pindai tiket lain',
+        'status.valid': 'TIKET VALID',
+        'status.used': 'TIKET TERPAKAI',
+        'section.event': 'Informasi acara',
+        'section.buyer': 'Pembeli',
+        'section.ticket': 'Detail tiket',
+        'section.timeline': 'Linimasa',
+        'label.event': 'Acara',
+        'label.price': 'Harga',
+        'label.fullName': 'Nama lengkap',
+        'label.email': 'Email',
+        'label.phone': 'Telepon',
+        'label.serial': 'Serial',
+        'label.orderId': 'ID pesanan',
+        'actions.markUsed': 'Tandai terpakai',
+        'actions.scanOther': 'Pindai tiket lain',
+        'confirm.title': 'Konfirmasi penggunaan tiket?',
+        'confirm.desc': 'Setelah ditandai, tiket tidak dapat digunakan lagi. Tindakan ini tidak dapat dibatalkan.',
+        'confirm.cancel': 'Batal',
+        'confirm.ok': 'Konfirmasi',
+        'success.title': 'Berhasil!',
+        'success.desc': 'Tiket telah ditandai sebagai terpakai.',
+        'success.scanNext': 'Pindai tiket berikutnya',
+        'msg.ticketNotFound': 'Tiket tidak ditemukan',
+        'msg.invalidData': 'Data tiket tidak valid.',
+        'msg.notFoundLong': 'Tiket tidak ditemukan. Mungkin sudah dihapus atau tidak ada.',
+        'msg.cannotUpdate': 'Tidak dapat memperbarui tiket',
+        'timeline.issued': 'Tiket dibuat',
+        'timeline.used': 'Tiket digunakan'
+      }
+    };
+    function normalizeLang(input) {
+      const raw = String(input || '').trim().toLowerCase();
+      if (SUPPORTED_LANGS.includes(raw)) return raw;
+      const prefix = raw.split('-')[0];
+      if (SUPPORTED_LANGS.includes(prefix)) return prefix;
+      return 'vi';
+    }
+    function getLang() {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved) return normalizeLang(saved);
+      return normalizeLang(navigator.language || 'vi');
+    }
+    function t(key, lang) {
+      const l = normalizeLang(lang);
+      return (I18N[l] && I18N[l][key]) || (I18N.en && I18N.en[key]) || key;
+    }
+    function tr(key) { return t(key, getLang()); }
+
+    function applyI18n(lang) {
+      const l = normalizeLang(lang);
+      document.documentElement.lang = l;
+
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key, l);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', t(key, l));
+      });
+    }
+
+    const initialLang = getLang();
+    applyI18n(initialLang);
+
     let ticketData = null;
 
     let _realtimeSocket = null;
@@ -745,19 +1256,19 @@
             usedAt: json.usedAt ? new Date(json.usedAt * 1000).toISOString() : ''
           };
         } else {
-          throw new Error((json && json.error) || 'Không tìm thấy vé');
+          throw new Error((json && json.error) || tr('msg.ticketNotFound'));
         }
       } catch (e) {
         // Fallback: local storage (legacy)
         const stored = localStorage.getItem('ticket_' + ticketId);
         if (!stored) {
-          showError('Không tìm thấy vé. Vé có thể đã bị xóa hoặc không tồn tại.');
+          showError(tr('msg.notFoundLong'));
           return;
         }
         try {
           ticketData = JSON.parse(stored);
         } catch (e2) {
-          showError('Dữ liệu vé không hợp lệ.');
+          showError(tr('msg.invalidData'));
           return;
         }
       }
@@ -780,13 +1291,13 @@
         statusIcon.className = 'status-icon used';
         statusIcon.innerHTML = '<i class="fa-solid fa-times"></i>';
         statusText.className = 'status-text used';
-        statusText.textContent = 'VÉ ĐÃ SỬ DỤNG';
+        statusText.textContent = tr('status.used');
         document.getElementById('mark-used-btn').classList.add('hidden');
       } else {
         statusIcon.className = 'status-icon valid';
         statusIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
         statusText.className = 'status-text valid';
-        statusText.textContent = 'VÉ HỢP LỆ';
+        statusText.textContent = tr('status.valid');
       }
 
       // Basic info
@@ -813,7 +1324,7 @@
 
       // Issued
       items.push({
-        title: 'Vé được tạo',
+        title: tr('timeline.issued'),
         time: formatDate(ticketData.issuedAt),
         type: 'success'
       });
@@ -821,7 +1332,7 @@
       // Used
       if (ticketData.status === 'used' && ticketData.usedAt) {
         items.push({
-          title: 'Vé đã sử dụng',
+          title: tr('timeline.used'),
           time: formatDate(ticketData.usedAt),
           type: 'danger'
         });
@@ -851,7 +1362,7 @@
         try {
           const resp = await fetch(`/api/ticket/tickets/${encodeURIComponent(ticketData.ticketId)}/use`, { method: 'POST' });
           const json = await resp.json().catch(() => ({}));
-          if (!resp.ok || (json && json.error)) throw new Error((json && json.error) || 'Không thể cập nhật vé');
+          if (!resp.ok || (json && json.error)) throw new Error((json && json.error) || tr('msg.cannotUpdate'));
 
           ticketData.status = 'used';
           ticketData.usedAt = new Date().toISOString();

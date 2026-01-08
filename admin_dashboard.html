@@ -171,7 +171,6 @@
             flex-shrink: 0;
         }
 
-        .lang-current,
         .logout-btn {
             height: 40px;
             padding: 0 12px;
@@ -272,151 +271,6 @@
             }
         }
 
-          /* ========================
-              LANGUAGE PICKER
-              Modal picker
-              ======================== */
-        .lang-picker {
-            position: relative;
-            user-select: none;
-        }
-
-        .lang-current {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 0 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.10);
-            color: rgba(226,232,240,0.95);
-            transition: all 0.3s ease;
-        }
-
-        .lang-current:hover {
-            background: rgba(255,255,255,0.10);
-            border-color: rgba(124, 58, 237, 0.40);
-            transform: translateY(-1px);
-        }
-
-        .lang-current i {
-            font-size: 14px;
-            color: #a5b4fc;
-            transition: transform 0.3s ease;
-        }
-
-        .lang-current:hover i {
-            transform: rotate(15deg);
-            color: #c4b5fd;
-        }
-
-        .lang-label {
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .lang-current:focus-visible {
-            outline: none;
-            border-color: rgba(124, 58, 237, 0.70);
-            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.20);
-        }
-
-        @media (max-width: 768px) {
-            .lang-label { display: none; }
-            .lang-current {
-                width: 40px;
-                height: 40px;
-                padding: 0;
-                border-radius: 12px;
-                justify-content: center;
-                gap: 0;
-            }
-        }
-
-        .lang-modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.62);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            z-index: 5000;
-        }
-
-        .lang-modal-overlay.show {
-            display: flex;
-        }
-
-        .lang-modal {
-            width: 100%;
-            max-width: 380px;
-            background: rgba(24, 24, 27, 0.92);
-            border: 1px solid rgba(124, 58, 237, 0.22);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 30px 90px rgba(0,0,0,0.55);
-            backdrop-filter: blur(12px);
-        }
-
-        .lang-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 14px 14px;
-            border-bottom: 1px solid rgba(124, 58, 237, 0.12);
-        }
-
-        .lang-modal-title {
-            font-weight: 900;
-            color: #fff;
-        }
-
-        .lang-modal-close {
-            border: 1px solid #3f3f46;
-            background: rgba(39, 39, 42, 0.85);
-            color: #e4e4e7;
-            border-radius: 12px;
-            padding: 8px 10px;
-            cursor: pointer;
-        }
-
-        .lang-modal-close:hover {
-            background: #3f3f46;
-            border-color: #52525b;
-        }
-
-        .lang-modal-body {
-            padding: 10px;
-            display: grid;
-            gap: 10px;
-        }
-
-        .lang-modal-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 12px 12px;
-            border-radius: 14px;
-            border: 1px solid rgba(124, 58, 237, 0.16);
-            background: rgba(39, 39, 42, 0.65);
-            color: #e4e4e7;
-            cursor: pointer;
-            font-weight: 900;
-            text-align: left;
-        }
-
-        .lang-modal-item:hover {
-            border-color: rgba(124, 58, 237, 0.45);
-            background: rgba(39, 39, 42, 0.85);
-        }
-
-        
         .session-info {
             font-size: 0.75rem;
             color: #71717a;
@@ -1227,12 +1081,6 @@
             </div>
         </div>
         <div class="header-actions">
-            <div class="lang-picker" id="langPicker" title="Language">
-                <div class="lang-current" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-                    <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                    <span id="langLabel" class="lang-label">English</span>
-                </div>
-            </div>
             <form method="POST" action="/admin/logout" style="margin:0">
                 <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span data-i18n="logout">Đăng xuất</span></button>
             </form>
@@ -1267,21 +1115,6 @@
         </div>
     </div>
 
-    <div class="lang-modal-overlay" id="langModalOverlay" aria-hidden="true">
-        <div class="lang-modal" role="dialog" aria-modal="true" aria-label="Language">
-            <div class="lang-modal-header">
-                <div class="lang-modal-title" data-i18n="lang_choose">Chọn ngôn ngữ</div>
-                <button type="button" class="lang-modal-close" id="langModalClose" aria-label="Close">
-                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div class="lang-modal-body">
-                <button type="button" class="lang-modal-item" data-lang="vi">Tiếng Việt <i class="fa-solid fa-check" aria-hidden="true" style="opacity:.0" data-lang-check="vi"></i></button>
-                <button type="button" class="lang-modal-item" data-lang="en">English <i class="fa-solid fa-check" aria-hidden="true" style="opacity:.0" data-lang-check="en"></i></button>
-            </div>
-        </div>
-    </div>
-    
     <main class="main">
         <section id="view-analytics">
         <!-- Stats Cards -->
@@ -1515,11 +1348,23 @@
                 }
             };
 
+            var LANG_KEY = 'qr_lang';
+            var SUPPORTED_LANGS = ['en', 'vi'];
+
+            function normalizeLang(input) {
+                try {
+                    var raw = String(input || '').trim().toLowerCase();
+                    if (SUPPORTED_LANGS.indexOf(raw) >= 0) return raw;
+                    var prefix = raw.split('-')[0];
+                    if (SUPPORTED_LANGS.indexOf(prefix) >= 0) return prefix;
+                } catch (e) {}
+                return 'en';
+            }
+
             function getLang() {
                 try {
-                    var params = new URLSearchParams(window.location.search || '');
-                    var q = (params.get('lang') || '').toLowerCase();
-                    if (q === 'vi' || q === 'en') return q;
+                    var saved = localStorage.getItem(LANG_KEY);
+                    if (saved) return normalizeLang(saved);
                 } catch (e) {}
                 try {
                     var nav = (navigator.language || '').toLowerCase();
@@ -1531,8 +1376,8 @@
             var currentLang = getLang();
 
             function t(key) {
-                var dict = LANG_TEXT[currentLang] || LANG_TEXT.vi;
-                return (dict && dict[key]) ? dict[key] : (LANG_TEXT.vi[key] || key);
+                var dict = LANG_TEXT[currentLang] || LANG_TEXT.en || LANG_TEXT.vi;
+                return (dict && dict[key]) ? dict[key] : ((LANG_TEXT.en && LANG_TEXT.en[key]) || LANG_TEXT.vi[key] || key);
             }
 
             function applyLang() {
@@ -1542,16 +1387,6 @@
                     var k = els[i].getAttribute('data-i18n');
                     if (!k) continue;
                     els[i].textContent = t(k);
-                }
-            }
-
-            function setLangInUrlAndReload(lang) {
-                try {
-                    var params = new URLSearchParams(window.location.search || '');
-                    params.set('lang', (lang === 'en' ? 'en' : 'vi'));
-                    window.location.href = window.location.pathname + '?' + params.toString();
-                } catch (e) {
-                    window.location.reload();
                 }
             }
 
@@ -1998,84 +1833,6 @@
                     });
             }
             
-            // ========================
-            // INITIALIZE
-            // ========================
-            function langLabelText(lang) {
-                return (lang === 'vi') ? 'Tiếng Việt' : 'English';
-            }
-
-            var langPicker = document.getElementById('langPicker');
-            var langLabel = document.getElementById('langLabel');
-            var langModalOverlay = document.getElementById('langModalOverlay');
-            var langModalClose = document.getElementById('langModalClose');
-
-            function setLangPickerLabel() {
-                if (langLabel) langLabel.textContent = langLabelText(currentLang);
-                if (!langModalOverlay) return;
-                var checks = langModalOverlay.querySelectorAll('[data-lang-check]');
-                for (var i = 0; i < checks.length; i++) {
-                    var k = checks[i].getAttribute('data-lang-check');
-                    checks[i].style.opacity = (k === currentLang) ? '1' : '0';
-                }
-            }
-
-            function openLangModal() {
-                if (!langModalOverlay) return;
-                langModalOverlay.classList.add('show');
-                langModalOverlay.setAttribute('aria-hidden', 'false');
-            }
-
-            function closeLangModal() {
-                if (!langModalOverlay) return;
-                langModalOverlay.classList.remove('show');
-                langModalOverlay.setAttribute('aria-hidden', 'true');
-            }
-
-            if (langPicker) {
-                setLangPickerLabel();
-
-                var curBtn = langPicker.querySelector('.lang-current');
-                if (curBtn) {
-                    curBtn.addEventListener('click', function(e) {
-                        if (e) e.stopPropagation();
-                        openLangModal();
-                    });
-                    curBtn.addEventListener('keydown', function(e) {
-                        if (!e) return;
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            openLangModal();
-                        }
-                    });
-                }
-            }
-
-            if (langModalOverlay) {
-                langModalOverlay.addEventListener('click', function(e) {
-                    if (e && e.target === langModalOverlay) closeLangModal();
-                });
-                if (langModalClose) {
-                    langModalClose.addEventListener('click', function() {
-                        closeLangModal();
-                    });
-                }
-
-                var modalItems = langModalOverlay.querySelectorAll('[data-lang]');
-                for (var m = 0; m < modalItems.length; m++) {
-                    modalItems[m].addEventListener('click', function(e) {
-                        if (e) e.stopPropagation();
-                        var lang2 = (this.getAttribute('data-lang') || '').toLowerCase();
-                        if (lang2 === 'vi' || lang2 === 'en') setLangInUrlAndReload(lang2);
-                    });
-                }
-            }
-
-            document.addEventListener('keydown', function(e) {
-                if (!e || e.key !== 'Escape') return;
-                closeLangModal();
-            });
-
             applyLang();
             hoursTzButtons = Array.prototype.slice.call(document.querySelectorAll('.tz-btn')) || [];
             hoursTzButtons.forEach(function(btn) {

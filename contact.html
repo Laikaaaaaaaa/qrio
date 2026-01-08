@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="doc.title">Contact - Qrio</title>
-  <meta name="description" content="Liên hệ với Qrio - công cụ tạo mã QR miễn phí. Chúng tôi luôn sẵn sàng hỗ trợ bạn." />
+  <meta name="description" data-i18n-content="meta.description" content="Contact Qrio - the free QR code generator. We're always happy to help." />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -678,9 +678,6 @@
         <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
         <span>Qrio</span>
       </a>
-      <div class="sticky-actions">
-        <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
-      </div>
     </div>
   </div>
   <div class="bg-effects">
@@ -694,14 +691,6 @@
     <div class="topbar">
       <a class="home-btn" href="home.html" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
       <div class="topbar-right">
-        <button type="button" class="lang-picker" id="lang-btn" data-i18n-aria="aria.language" aria-haspopup="dialog" aria-expanded="false">
-          <i class="fa-solid fa-globe"></i>
-          <span id="lang-label" class="lang-label">English</span>
-        </button>
-        <select id="lang-select" class="lang-native" aria-hidden="true" tabindex="-1">
-          <option value="vi">Tiếng Việt</option>
-          <option value="en">English</option>
-        </select>
       </div>
     </div>
 
@@ -793,24 +782,15 @@
     </div>
   </main>
 
-  <div class="lang-modal-overlay" id="lang-modal" aria-hidden="true">
-    <div class="lang-modal" role="dialog" aria-modal="true">
-      <div class="lang-modal-header">
-        <div class="lang-modal-title" data-i18n="aria.language">Language</div>
-        <button type="button" class="lang-modal-close" id="lang-modal-close" aria-label="Close">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="lang-modal-body" id="lang-modal-list"></div>
-    </div>
-  </div>
-
   <script>
     const LANG_KEY = 'qr_lang';
+
+    const SUPPORTED_LANGS = ['en', 'vi'];
 
     const I18N = {
       vi: {
         'doc.title': 'Liên hệ - Qrio',
+        'meta.description': 'Liên hệ với Qrio - công cụ tạo mã QR miễn phí. Chúng tôi luôn sẵn sàng hỗ trợ bạn.',
         'aria.language': 'Ngôn ngữ',
 
         'contact.h1': 'Liên hệ với chúng tôi',
@@ -852,6 +832,7 @@
       },
       en: {
         'doc.title': 'Contact - Qrio',
+        'meta.description': "Contact Qrio - the free QR code generator. We're always happy to help.",
         'aria.language': 'Language',
 
         'contact.h1': 'Contact Us',
@@ -894,8 +875,8 @@
     };
 
     function normalizeLang(raw) {
-      if (!raw) return 'en';
-      return raw.toLowerCase() === 'vi' ? 'vi' : 'en';
+      const v = String(raw || '').toLowerCase();
+      return SUPPORTED_LANGS.includes(v) ? v : 'en';
     }
 
     function detectDefaultLang() {
@@ -926,6 +907,11 @@
       document.documentElement.lang = normalized;
       document.title = String(t('doc.title', undefined, normalized));
 
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', String(t(key, undefined, normalized)));
+      });
+
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const value = t(key, undefined, normalized);
@@ -947,75 +933,7 @@
         el.setAttribute('placeholder', String(t(key, undefined, normalized)));
       });
 
-      const select = document.getElementById('lang-select');
-      if (select && select.value !== normalized) select.value = normalized;
-
-      const label = document.getElementById('lang-label');
-      if (label && select) {
-        const opt = select.options[select.selectedIndex];
-        label.textContent = opt ? opt.textContent : (normalized === 'vi' ? 'Tiếng Việt' : 'English');
-      }
     }
-
-    function setLang(lang) {
-      const normalized = normalizeLang(lang);
-      localStorage.setItem(LANG_KEY, normalized);
-      applyI18n(normalized);
-    }
-
-    document.getElementById('lang-select')?.addEventListener('change', (e) => {
-      setLang(e.target.value);
-    });
-
-    // Language modal (always modal)
-    (function initLangModal() {
-      const btn = document.getElementById('lang-btn');
-      const overlay = document.getElementById('lang-modal');
-      const closeBtn = document.getElementById('lang-modal-close');
-      const list = document.getElementById('lang-modal-list');
-      const select = document.getElementById('lang-select');
-      if (!btn || !overlay || !list || !select) return;
-
-      function open() {
-        overlay.classList.add('show');
-        overlay.setAttribute('aria-hidden', 'false');
-        btn.setAttribute('aria-expanded', 'true');
-      }
-
-      function close() {
-        overlay.classList.remove('show');
-        overlay.setAttribute('aria-hidden', 'true');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-
-      function render() {
-        const current = getLang();
-        list.innerHTML = '';
-        Array.from(select.options).forEach(opt => {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'lang-modal-item' + (opt.value === current ? ' active' : '');
-          b.textContent = opt.textContent;
-          b.addEventListener('click', () => {
-            setLang(opt.value);
-            close();
-          });
-          list.appendChild(b);
-        });
-      }
-
-      btn.addEventListener('click', () => {
-        render();
-        open();
-      });
-      if (closeBtn) closeBtn.addEventListener('click', close);
-      overlay.addEventListener('click', (e) => {
-        if (e && e.target === overlay) close();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e && e.key === 'Escape') close();
-      });
-    })();
 
     // Form submission handler
     document.getElementById('contact-form')?.addEventListener('submit', (e) => {

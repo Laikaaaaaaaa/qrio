@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="doc.title">About Us - Qrio</title>
-  <meta name="description" content="Tìm hiểu về Qrio - công cụ tạo mã QR miễn phí, nhanh chóng và dễ sử dụng." />
+  <meta name="description" data-i18n-content="meta.description" content="Learn about Qrio - a free, fast, and easy-to-use QR code generator." />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -592,9 +592,6 @@
         <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
         <span>Qrio</span>
       </a>
-      <div class="sticky-actions">
-        <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
-      </div>
     </div>
   </div>
   <div class="bg-effects">
@@ -608,14 +605,6 @@
     <div class="topbar">
       <a class="home-btn" href="/" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
       <div class="topbar-right">
-        <button type="button" class="lang-picker" id="lang-btn" data-i18n-aria="aria.language" aria-haspopup="dialog" aria-expanded="false">
-          <i class="fa-solid fa-globe"></i>
-          <span id="lang-label" class="lang-label">English</span>
-        </button>
-        <select id="lang-select" class="lang-native" aria-hidden="true" tabindex="-1">
-          <option value="vi">Tiếng Việt</option>
-          <option value="en">English</option>
-        </select>
       </div>
     </div>
 
@@ -709,24 +698,15 @@
     </div>
   </main>
 
-  <div class="lang-modal-overlay" id="lang-modal" aria-hidden="true">
-    <div class="lang-modal" role="dialog" aria-modal="true">
-      <div class="lang-modal-header">
-        <div class="lang-modal-title" data-i18n="aria.language">Language</div>
-        <button type="button" class="lang-modal-close" id="lang-modal-close" aria-label="Close">
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="lang-modal-body" id="lang-modal-list"></div>
-    </div>
-  </div>
-
   <script>
     const LANG_KEY = 'qr_lang';
+
+    const SUPPORTED_LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'pt', 'ru', 'id', 'vi'];
 
     const I18N = {
       vi: {
         'doc.title': 'Về chúng tôi - Qrio',
+        'meta.description': 'Tìm hiểu về Qrio - công cụ tạo mã QR miễn phí, nhanh chóng và dễ sử dụng.',
         'aria.language': 'Ngôn ngữ',
 
         'about.h1': 'Về chúng tôi',
@@ -770,6 +750,7 @@
       },
       en: {
         'doc.title': 'About Us - Qrio',
+        'meta.description': 'Learn about Qrio - a free, fast, and easy-to-use QR code generator.',
         'aria.language': 'Language',
 
         'about.h1': 'About Us',
@@ -810,12 +791,364 @@
         'footer.disclaimer': 'Disclaimer',
         'footer.contact': 'Contact',
         'common.copyright': '© 2025 Qrio',
+      },
+      zh: {
+        'doc.title': '关于我们 - Qrio',
+        'meta.description': '了解 Qrio——免费、快速、易用的二维码生成器。',
+        'aria.language': '语言',
+
+        'about.h1': '关于我们',
+        'about.subtitle': '欢迎使用 Qrio——免费、快速、易用的二维码生成工具。',
+
+        'about.mission.h2': '我们的使命',
+        'about.mission.p1': 'Qrio 的目标是为每个人提供一个简单、快速且完全免费的二维码生成器。我们相信技术应该人人可用。',
+        'about.mission.highlight': '<strong>承诺：</strong>Qrio 始终免费，使用基础功能无需注册。',
+
+        'about.features.h2': '核心功能',
+        'about.features.p1': 'Qrio 提供多种二维码类型，满足你的需求：',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': '为网站链接创建二维码',
+        'about.features.text.title': 'QR 文本',
+        'about.features.text.desc': '编码任意文本',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': '分享 Wi‑Fi 连接信息',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': '创建电子名片',
+        'about.features.file.title': 'QR 文件',
+        'about.features.file.desc': '通过二维码分享文件',
+        'about.features.custom.title': '自定义',
+        'about.features.custom.desc': '更改颜色与样式',
+
+        'about.why.h2': '为什么选择 Qrio？',
+        'about.why.li1': '<strong>100% 免费：</strong>无隐藏费用，无需注册。',
+        'about.why.li2': '<strong>快速：</strong>几秒钟生成二维码。',
+        'about.why.li3': '<strong>安全：</strong>数据在浏览器中处理。',
+        'about.why.li4': '<strong>多用途：</strong>支持多种二维码类型。',
+        'about.why.li5': '<strong>易用：</strong>界面简洁友好。',
+
+        'about.team.h2': '开发团队',
+        'about.team.p1': 'Qrio 由一群热爱技术的开发者打造，希望为社区提供有用的工具。',
+        'about.team.p2': '我们持续倾听用户反馈，不断改进并开发新功能。',
+
+        'footer.terms': '服务条款',
+        'footer.privacy': '隐私政策',
+        'footer.disclaimer': '免责声明',
+        'footer.contact': '联系我们',
+        'common.copyright': '© 2025 Qrio',
+      },
+      hi: {
+        'doc.title': 'हमारे बारे में - Qrio',
+        'meta.description': 'Qrio के बारे में जानें — मुफ्त, तेज़ और आसान QR जनरेटर।',
+        'aria.language': 'भाषा',
+
+        'about.h1': 'हमारे बारे में',
+        'about.subtitle': 'Qrio में आपका स्वागत है — मुफ्त, तेज़ और उपयोग में आसान QR कोड जनरेटर।',
+
+        'about.mission.h2': 'हमारा मिशन',
+        'about.mission.p1': 'Qrio का लक्ष्य सभी के लिए एक सरल, तेज़ और पूरी तरह मुफ्त QR कोड जनरेटर उपलब्ध कराना है।',
+        'about.mission.highlight': '<strong>प्रतिबद्धता:</strong> Qrio हमेशा मुफ्त है और बुनियादी सुविधाओं के लिए रजिस्ट्रेशन की जरूरत नहीं।',
+
+        'about.features.h2': 'मुख्य विशेषताएँ',
+        'about.features.p1': 'Qrio आपकी जरूरतों के लिए कई प्रकार के QR कोड प्रदान करता है:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'वेबसाइट लिंक के लिए QR बनाएं',
+        'about.features.text.title': 'QR टेक्स्ट',
+        'about.features.text.desc': 'किसी भी टेक्स्ट को एन्कोड करें',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'Wi‑Fi जानकारी साझा करें',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'डिजिटल बिजनेस कार्ड बनाएं',
+        'about.features.file.title': 'QR फ़ाइल',
+        'about.features.file.desc': 'QR के जरिए फ़ाइल साझा करें',
+        'about.features.custom.title': 'कस्टमाइज़ेशन',
+        'about.features.custom.desc': 'रंग और स्टाइल बदलें',
+
+        'about.why.h2': 'Qrio क्यों चुनें?',
+        'about.why.li1': '<strong>100% मुफ्त:</strong> कोई छिपा शुल्क नहीं, रजिस्ट्रेशन नहीं।',
+        'about.why.li2': '<strong>तेज़:</strong> सेकंडों में QR बनाएं।',
+        'about.why.li3': '<strong>सुरक्षित:</strong> डेटा आपके ब्राउज़र में ही प्रोसेस होता है।',
+        'about.why.li4': '<strong>बहुउपयोगी:</strong> कई प्रकार के QR समर्थित।',
+        'about.why.li5': '<strong>आसान:</strong> सरल और यूज़र‑फ्रेंडली UI।',
+
+        'about.team.h2': 'डेवलपमेंट टीम',
+        'about.team.p1': 'Qrio को ऐसे डेवलपर्स ने बनाया है जो समुदाय के लिए उपयोगी टूल बनाना चाहते हैं।',
+        'about.team.p2': 'हम फ़ीडबैक सुनते हैं और लगातार सुधार करते हैं।',
+
+        'footer.terms': 'सेवा की शर्तें',
+        'footer.privacy': 'गोपनीयता नीति',
+        'footer.disclaimer': 'अस्वीकरण',
+        'footer.contact': 'संपर्क',
+        'common.copyright': '© 2025 Qrio',
+      },
+      es: {
+        'doc.title': 'Sobre nosotros - Qrio',
+        'meta.description': 'Conoce Qrio: un generador de QR gratis, rápido y fácil de usar.',
+        'aria.language': 'Idioma',
+
+        'about.h1': 'Sobre nosotros',
+        'about.subtitle': 'Bienvenido a Qrio: el generador de códigos QR gratuito, rápido y fácil de usar.',
+
+        'about.mission.h2': 'Nuestra misión',
+        'about.mission.p1': 'Qrio fue creado para ofrecer a todos un generador de QR simple, rápido y completamente gratuito.',
+        'about.mission.highlight': '<strong>Compromiso:</strong> Qrio siempre es gratis y no requiere registro para funciones básicas.',
+
+        'about.features.h2': 'Funciones principales',
+        'about.features.p1': 'Qrio ofrece varios tipos de QR para tus necesidades:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'Crea QR para enlaces web',
+        'about.features.text.title': 'QR Texto',
+        'about.features.text.desc': 'Codifica cualquier texto',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'Comparte datos de Wi‑Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Crea tarjetas de presentación digitales',
+        'about.features.file.title': 'QR Archivo',
+        'about.features.file.desc': 'Comparte archivos vía QR',
+        'about.features.custom.title': 'Personalización',
+        'about.features.custom.desc': 'Cambia colores y estilos',
+
+        'about.why.h2': '¿Por qué elegir Qrio?',
+        'about.why.li1': '<strong>100% gratis:</strong> sin costos ocultos ni registro.',
+        'about.why.li2': '<strong>Rápido:</strong> crea QR en segundos.',
+        'about.why.li3': '<strong>Seguro:</strong> los datos se procesan en tu navegador.',
+        'about.why.li4': '<strong>Versátil:</strong> soporta varios tipos de QR.',
+        'about.why.li5': '<strong>Fácil:</strong> interfaz simple y amigable.',
+
+        'about.team.h2': 'Equipo de desarrollo',
+        'about.team.p1': 'Qrio es desarrollado por un grupo de personas apasionadas por la tecnología.',
+        'about.team.p2': 'Escuchamos el feedback para mejorar y crear nuevas funciones.',
+
+        'footer.terms': 'Términos del servicio',
+        'footer.privacy': 'Política de privacidad',
+        'footer.disclaimer': 'Aviso legal',
+        'footer.contact': 'Contacto',
+        'common.copyright': '© 2025 Qrio',
+      },
+      fr: {
+        'doc.title': 'À propos - Qrio',
+        'meta.description': 'Découvrez Qrio — un générateur de QR gratuit, rapide et simple.',
+        'aria.language': 'Langue',
+
+        'about.h1': 'À propos',
+        'about.subtitle': 'Bienvenue sur Qrio — le générateur de QR gratuit, rapide et facile à utiliser.',
+
+        'about.mission.h2': 'Notre mission',
+        'about.mission.p1': 'Qrio a été créé pour offrir à tous un générateur de QR simple, rapide et entièrement gratuit.',
+        'about.mission.highlight': '<strong>Engagement :</strong> Qrio est toujours gratuit et ne nécessite pas d’inscription pour les fonctions de base.',
+
+        'about.features.h2': 'Fonctionnalités clés',
+        'about.features.p1': 'Qrio propose plusieurs types de QR pour répondre à vos besoins :',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'Créer des QR pour des liens web',
+        'about.features.text.title': 'QR Texte',
+        'about.features.text.desc': 'Encoder n’importe quel texte',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'Partager des infos Wi‑Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Créer des cartes de visite digitales',
+        'about.features.file.title': 'QR Fichier',
+        'about.features.file.desc': 'Partager des fichiers via QR',
+        'about.features.custom.title': 'Personnalisation',
+        'about.features.custom.desc': 'Changer les couleurs et styles',
+
+        'about.why.h2': 'Pourquoi choisir Qrio ?',
+        'about.why.li1': '<strong>100% gratuit :</strong> aucun coût caché, aucune inscription.',
+        'about.why.li2': '<strong>Rapide :</strong> créez des QR en quelques secondes.',
+        'about.why.li3': '<strong>Sécurisé :</strong> traitement dans votre navigateur.',
+        'about.why.li4': '<strong>Polyvalent :</strong> plusieurs types de QR.',
+        'about.why.li5': '<strong>Simple :</strong> interface claire et conviviale.',
+
+        'about.team.h2': 'Équipe de développement',
+        'about.team.p1': 'Qrio est développé par des passionnés de technologie.',
+        'about.team.p2': 'Nous écoutons les retours pour améliorer et ajouter des fonctionnalités.',
+
+        'footer.terms': 'Conditions d’utilisation',
+        'footer.privacy': 'Politique de confidentialité',
+        'footer.disclaimer': 'Avertissement',
+        'footer.contact': 'Contact',
+        'common.copyright': '© 2025 Qrio',
+      },
+      ar: {
+        'doc.title': 'معلومات عنا - Qrio',
+        'meta.description': 'تعرّف على Qrio — مولّد QR مجاني وسريع وسهل الاستخدام.',
+        'aria.language': 'اللغة',
+
+        'about.h1': 'معلومات عنا',
+        'about.subtitle': 'مرحباً بك في Qrio — مولّد رموز QR مجاني وسريع وسهل الاستخدام.',
+
+        'about.mission.h2': 'مهمتنا',
+        'about.mission.p1': 'تم إنشاء Qrio بهدف توفير مولّد QR بسيط وسريع ومجاني للجميع.',
+        'about.mission.highlight': '<strong>التزام:</strong> Qrio مجاني دائماً ولا يتطلب تسجيلًا للميزات الأساسية.',
+
+        'about.features.h2': 'الميزات الرئيسية',
+        'about.features.p1': 'يوفر Qrio أنواعاً متعددة من رموز QR لتلبية احتياجاتك:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'إنشاء QR لروابط المواقع',
+        'about.features.text.title': 'QR نص',
+        'about.features.text.desc': 'ترميز أي نص',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'مشاركة معلومات اتصال Wi‑Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'إنشاء بطاقات أعمال رقمية',
+        'about.features.file.title': 'QR ملف',
+        'about.features.file.desc': 'مشاركة الملفات عبر QR',
+        'about.features.custom.title': 'تخصيص',
+        'about.features.custom.desc': 'تغيير الألوان والأنماط',
+
+        'about.why.h2': 'لماذا Qrio؟',
+        'about.why.li1': '<strong>مجاني 100%:</strong> بلا تكاليف مخفية ولا تسجيل.',
+        'about.why.li2': '<strong>سريع:</strong> أنشئ QR خلال ثوانٍ.',
+        'about.why.li3': '<strong>آمن:</strong> تتم المعالجة في متصفحك.',
+        'about.why.li4': '<strong>متعدد الاستخدام:</strong> يدعم عدة أنواع.',
+        'about.why.li5': '<strong>سهل:</strong> واجهة بسيطة وسهلة.',
+
+        'about.team.h2': 'فريق التطوير',
+        'about.team.p1': 'تم تطوير Qrio بواسطة مطورين شغوفين بالتقنية لخدمة المجتمع.',
+        'about.team.p2': 'نستمع لآراء المستخدمين لتحسين وإضافة ميزات جديدة.',
+
+        'footer.terms': 'شروط الخدمة',
+        'footer.privacy': 'سياسة الخصوصية',
+        'footer.disclaimer': 'إخلاء المسؤولية',
+        'footer.contact': 'اتصل بنا',
+        'common.copyright': '© 2025 Qrio',
+      },
+      pt: {
+        'doc.title': 'Sobre nós - Qrio',
+        'meta.description': 'Saiba mais sobre o Qrio — gerador de QR gratuito, rápido e fácil.',
+        'aria.language': 'Idioma',
+
+        'about.h1': 'Sobre nós',
+        'about.subtitle': 'Bem-vindo ao Qrio — gerador de QR gratuito, rápido e fácil de usar.',
+
+        'about.mission.h2': 'Nossa missão',
+        'about.mission.p1': 'O Qrio foi criado para oferecer a todos um gerador de QR simples, rápido e totalmente gratuito.',
+        'about.mission.highlight': '<strong>Compromisso:</strong> o Qrio é sempre gratuito e não exige cadastro para recursos básicos.',
+
+        'about.features.h2': 'Principais recursos',
+        'about.features.p1': 'O Qrio oferece vários tipos de QR para suas necessidades:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'Criar QR para links de sites',
+        'about.features.text.title': 'QR Texto',
+        'about.features.text.desc': 'Codificar qualquer texto',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'Compartilhar informações de Wi‑Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Criar cartões de visita digitais',
+        'about.features.file.title': 'QR Arquivo',
+        'about.features.file.desc': 'Compartilhar arquivos via QR',
+        'about.features.custom.title': 'Personalização',
+        'about.features.custom.desc': 'Alterar cores e estilos',
+
+        'about.why.h2': 'Por que escolher o Qrio?',
+        'about.why.li1': '<strong>100% grátis:</strong> sem custos ocultos, sem cadastro.',
+        'about.why.li2': '<strong>Rápido:</strong> crie QR em segundos.',
+        'about.why.li3': '<strong>Seguro:</strong> dados processados no seu navegador.',
+        'about.why.li4': '<strong>Versátil:</strong> suporta vários tipos de QR.',
+        'about.why.li5': '<strong>Fácil:</strong> interface simples e amigável.',
+
+        'about.team.h2': 'Equipe de desenvolvimento',
+        'about.team.p1': 'O Qrio é desenvolvido por pessoas apaixonadas por tecnologia.',
+        'about.team.p2': 'Ouvimos o feedback para melhorar e criar novas funções.',
+
+        'footer.terms': 'Termos de serviço',
+        'footer.privacy': 'Política de privacidade',
+        'footer.disclaimer': 'Aviso legal',
+        'footer.contact': 'Contato',
+        'common.copyright': '© 2025 Qrio',
+      },
+      ru: {
+        'doc.title': 'О нас — Qrio',
+        'meta.description': 'Узнайте о Qrio — бесплатном, быстром и простом генераторе QR.',
+        'aria.language': 'Язык',
+
+        'about.h1': 'О нас',
+        'about.subtitle': 'Добро пожаловать в Qrio — бесплатный, быстрый и удобный генератор QR‑кодов.',
+
+        'about.mission.h2': 'Наша миссия',
+        'about.mission.p1': 'Qrio создан, чтобы дать каждому простой, быстрый и полностью бесплатный генератор QR‑кодов.',
+        'about.mission.highlight': '<strong>Обязательство:</strong> Qrio всегда бесплатен и не требует регистрации для базовых функций.',
+
+        'about.features.h2': 'Ключевые функции',
+        'about.features.p1': 'Qrio предлагает разные типы QR для ваших задач:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'QR для ссылок на сайты',
+        'about.features.text.title': 'QR Текст',
+        'about.features.text.desc': 'Кодирование любого текста',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'Поделиться данными Wi‑Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Создать цифровые визитки',
+        'about.features.file.title': 'QR Файл',
+        'about.features.file.desc': 'Делиться файлами через QR',
+        'about.features.custom.title': 'Настройка',
+        'about.features.custom.desc': 'Изменять цвета и стиль',
+
+        'about.why.h2': 'Почему Qrio?',
+        'about.why.li1': '<strong>100% бесплатно:</strong> без скрытых платежей и регистрации.',
+        'about.why.li2': '<strong>Быстро:</strong> создавайте QR за секунды.',
+        'about.why.li3': '<strong>Безопасно:</strong> обработка в браузере.',
+        'about.why.li4': '<strong>Универсально:</strong> поддерживает разные типы.',
+        'about.why.li5': '<strong>Просто:</strong> понятный интерфейс.',
+
+        'about.team.h2': 'Команда разработки',
+        'about.team.p1': 'Qrio создаёт команда разработчиков, увлечённых технологиями.',
+        'about.team.p2': 'Мы слушаем отзывы и постоянно улучшаем продукт.',
+
+        'footer.terms': 'Условия',
+        'footer.privacy': 'Конфиденциальность',
+        'footer.disclaimer': 'Отказ от ответственности',
+        'footer.contact': 'Контакты',
+        'common.copyright': '© 2025 Qrio',
+      },
+      id: {
+        'doc.title': 'Tentang Kami - Qrio',
+        'meta.description': 'Pelajari Qrio — pembuat QR gratis, cepat, dan mudah digunakan.',
+        'aria.language': 'Bahasa',
+
+        'about.h1': 'Tentang Kami',
+        'about.subtitle': 'Selamat datang di Qrio — pembuat QR gratis, cepat, dan mudah digunakan.',
+
+        'about.mission.h2': 'Misi Kami',
+        'about.mission.p1': 'Qrio dibuat untuk menyediakan pembuat QR yang sederhana, cepat, dan sepenuhnya gratis untuk semua orang.',
+        'about.mission.highlight': '<strong>Komitmen:</strong> Qrio selalu gratis dan tidak perlu registrasi untuk fitur dasar.',
+
+        'about.features.h2': 'Fitur Utama',
+        'about.features.p1': 'Qrio menyediakan berbagai jenis QR untuk kebutuhan Anda:',
+        'about.features.url.title': 'QR URL',
+        'about.features.url.desc': 'Buat QR untuk tautan website',
+        'about.features.text.title': 'QR Teks',
+        'about.features.text.desc': 'Enkode teks apa pun',
+        'about.features.wifi.title': 'QR Wi‑Fi',
+        'about.features.wifi.desc': 'Bagikan info koneksi Wi‑Fi',
+        'about.features.vcard.title': 'QR vCard',
+        'about.features.vcard.desc': 'Buat kartu nama digital',
+        'about.features.file.title': 'QR File',
+        'about.features.file.desc': 'Bagikan file lewat QR',
+        'about.features.custom.title': 'Kustomisasi',
+        'about.features.custom.desc': 'Ubah warna dan gaya',
+
+        'about.why.h2': 'Kenapa pilih Qrio?',
+        'about.why.li1': '<strong>100% Gratis:</strong> tanpa biaya tersembunyi, tanpa registrasi.',
+        'about.why.li2': '<strong>Cepat:</strong> buat QR dalam hitungan detik.',
+        'about.why.li3': '<strong>Aman:</strong> data diproses di browser.',
+        'about.why.li4': '<strong>Serbaguna:</strong> mendukung banyak jenis QR.',
+        'about.why.li5': '<strong>Mudah:</strong> antarmuka sederhana dan ramah pengguna.',
+
+        'about.team.h2': 'Tim Pengembang',
+        'about.team.p1': 'Qrio dikembangkan oleh tim pengembang yang bersemangat membuat alat bermanfaat.',
+        'about.team.p2': 'Kami selalu mendengar masukan untuk terus meningkatkan fitur.',
+
+        'footer.terms': 'Syarat layanan',
+        'footer.privacy': 'Kebijakan privasi',
+        'footer.disclaimer': 'Disklaimer',
+        'footer.contact': 'Kontak',
+        'common.copyright': '© 2025 Qrio',
       }
     };
 
     function normalizeLang(raw) {
-      if (!raw) return 'en';
-      return raw.toLowerCase() === 'vi' ? 'vi' : 'en';
+      const v = String(raw || '').toLowerCase();
+      return SUPPORTED_LANGS.includes(v) ? v : 'en';
     }
 
     function detectDefaultLang() {
@@ -846,6 +1179,11 @@
       document.documentElement.lang = normalized;
       document.title = String(t('doc.title', undefined, normalized));
 
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', String(t(key, undefined, normalized)));
+      });
+
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const value = t(key, undefined, normalized);
@@ -861,15 +1199,6 @@
         const key = el.getAttribute('data-i18n-aria');
         el.setAttribute('aria-label', String(t(key, undefined, normalized)));
       });
-
-      const select = document.getElementById('lang-select');
-      if (select && select.value !== normalized) select.value = normalized;
-
-      const label = document.getElementById('lang-label');
-      if (label && select) {
-        const opt = select.options[select.selectedIndex];
-        label.textContent = opt ? opt.textContent : (normalized === 'vi' ? 'Tiếng Việt' : 'English');
-      }
     }
 
     function setLang(lang) {
@@ -878,61 +1207,7 @@
       applyI18n(normalized);
     }
 
-    document.getElementById('lang-select')?.addEventListener('change', (e) => {
-      setLang(e.target.value);
-    });
-
     applyI18n(getLang());
-
-    // Language modal (always modal, no dropdown)
-    (function initLangModal() {
-      const btn = document.getElementById('lang-btn');
-      const overlay = document.getElementById('lang-modal');
-      const closeBtn = document.getElementById('lang-modal-close');
-      const list = document.getElementById('lang-modal-list');
-      const select = document.getElementById('lang-select');
-      if (!btn || !overlay || !list || !select) return;
-
-      function open() {
-        overlay.classList.add('show');
-        overlay.setAttribute('aria-hidden', 'false');
-        btn.setAttribute('aria-expanded', 'true');
-      }
-
-      function close() {
-        overlay.classList.remove('show');
-        overlay.setAttribute('aria-hidden', 'true');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-
-      function render() {
-        const current = getLang();
-        list.innerHTML = '';
-        Array.from(select.options).forEach(opt => {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'lang-modal-item' + (opt.value === current ? ' active' : '');
-          b.textContent = opt.textContent;
-          b.addEventListener('click', () => {
-            setLang(opt.value);
-            close();
-          });
-          list.appendChild(b);
-        });
-      }
-
-      btn.addEventListener('click', () => {
-        render();
-        open();
-      });
-      if (closeBtn) closeBtn.addEventListener('click', close);
-      overlay.addEventListener('click', (e) => {
-        if (e && e.target === overlay) close();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e && e.key === 'Escape') close();
-      });
-    })();
   </script>
 </body>
 

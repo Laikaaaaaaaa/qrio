@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Thanh Toán Chuyển Khoản</title>
+  <title data-i18n="doc.title">Qrio - Thanh Toán Chuyển Khoản</title>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -235,8 +235,8 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a href="order-history.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-history"></i><span>Lịch sử</span></a>
-      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+      <a href="order-history.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-history"></i><span data-i18n="nav.history">Lịch sử</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span data-i18n="nav.home">Trang chủ</span></a>
     </div>
   </header>
 
@@ -244,45 +244,45 @@
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
         <div>
-          <div class="page-title"><i class="fa-solid fa-building-columns" style="color:#a78bfa;"></i> Thanh toán chuyển khoản</div>
-          <div class="page-subtitle">Quét QR để chuyển khoản đúng số tiền và nội dung chuyển khoản.</div>
+          <div class="page-title"><i class="fa-solid fa-building-columns" style="color:#a78bfa;"></i> <span data-i18n="transfer.title">Thanh toán chuyển khoản</span></div>
+          <div class="page-subtitle" data-i18n="transfer.subtitle">Quét QR để chuyển khoản đúng số tiền và nội dung chuyển khoản.</div>
         </div>
-        <div id="status-pill" class="status-pill status-wait"><i class="fa-solid fa-clock"></i> Đang chờ thanh toán</div>
+        <div id="status-pill" class="status-pill status-wait"><i class="fa-solid fa-clock"></i> <span data-i18n="transfer.status.wait">Đang chờ thanh toán</span></div>
       </div>
       <div class="kv">
-        <div class="kv-row"><div class="k">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
-        <div class="kv-row"><div class="k">Sự kiện</div><div class="v" id="event-name">-</div></div>
-        <div class="kv-row hidden" id="note-row"><div class="k">Ghi chú</div><div class="v" id="buyer-note">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="transfer.kv.orderId">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="transfer.kv.event">Sự kiện</div><div class="v" id="event-name">-</div></div>
+        <div class="kv-row hidden" id="note-row"><div class="k" data-i18n="transfer.kv.note">Ghi chú</div><div class="v" id="buyer-note">-</div></div>
       </div>
     </div>
 
     <div class="grid">
       <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
-          <div style="font-weight:800;"><i class="fa-solid fa-qrcode" style="color:#a78bfa;"></i> QR thanh toán</div>
-          <div style="color:#94a3b8; font-size: 13px;">Hệ thống sẽ cập nhật trạng thái tự động</div>
+          <div style="font-weight:800;"><i class="fa-solid fa-qrcode" style="color:#a78bfa;"></i> <span data-i18n="transfer.qr.title">QR thanh toán</span></div>
+          <div style="color:#94a3b8; font-size: 13px;" data-i18n="transfer.qr.autoUpdate">Hệ thống sẽ cập nhật trạng thái tự động</div>
         </div>
         <div id="qr-box" class="qr-box">
-          <div class="loading"><span class="spinner"></span> Đang tạo QR...</div>
+          <div class="loading"><span class="spinner"></span> <span data-i18n="transfer.qr.generating">Đang tạo QR...</span></div>
         </div>
       </div>
 
       <div class="card">
-        <div style="font-weight:800; margin-bottom: 10px;"><i class="fa-solid fa-receipt" style="color:#a78bfa;"></i> Thông tin chuyển khoản</div>
+        <div style="font-weight:800; margin-bottom: 10px;"><i class="fa-solid fa-receipt" style="color:#a78bfa;"></i> <span data-i18n="transfer.info.title">Thông tin chuyển khoản</span></div>
         <div class="kv">
-          <div class="kv-row"><div class="k">Ngân hàng</div><div class="v" id="bank-name">-</div></div>
-          <div class="kv-row"><div class="k">Số tài khoản</div><div class="v mono" id="account-number">-</div></div>
-          <div class="kv-row"><div class="k">Chủ tài khoản</div><div class="v" id="account-name">-</div></div>
-          <div class="kv-row"><div class="k">Số tiền</div><div class="v" id="amount">-</div></div>
-          <div class="kv-row"><div class="k">Nội dung</div><div class="v mono" id="memo">-</div></div>
+          <div class="kv-row"><div class="k" data-i18n="transfer.info.bank">Ngân hàng</div><div class="v" id="bank-name">-</div></div>
+          <div class="kv-row"><div class="k" data-i18n="transfer.info.accountNumber">Số tài khoản</div><div class="v mono" id="account-number">-</div></div>
+          <div class="kv-row"><div class="k" data-i18n="transfer.info.accountName">Chủ tài khoản</div><div class="v" id="account-name">-</div></div>
+          <div class="kv-row"><div class="k" data-i18n="transfer.info.amount">Số tiền</div><div class="v" id="amount">-</div></div>
+          <div class="kv-row"><div class="k" data-i18n="transfer.info.memo">Nội dung</div><div class="v mono" id="memo">-</div></div>
         </div>
 
         <div id="proof-section" class="proof-area hidden" style="margin-top: 14px;">
-          <div style="font-weight:800; margin-bottom: 8px;"><i class="fa-solid fa-image" style="color:#fbbf24;"></i> Ảnh xác nhận (check thủ công)</div>
-          <div style="color:#94a3b8; font-size: 13px; line-height: 1.5;">Tải ảnh (biên lai/ảnh giao dịch) để chủ sự kiện duyệt.</div>
+          <div style="font-weight:800; margin-bottom: 8px;"><i class="fa-solid fa-image" style="color:#fbbf24;"></i> <span data-i18n="transfer.proof.title">Ảnh xác nhận (check thủ công)</span></div>
+          <div style="color:#94a3b8; font-size: 13px; line-height: 1.5;" data-i18n="transfer.proof.subtitle">Tải ảnh (biên lai/ảnh giao dịch) để chủ sự kiện duyệt.</div>
           <input class="proof-input" type="file" id="proof-input" accept="image/*" onchange="handleProofUpload(this)" />
           <div id="proof-preview" class="proof-preview hidden">
-            <button class="proof-remove" onclick="removeProof()" title="Xóa ảnh">
+            <button class="proof-remove" onclick="removeProof()" data-i18n-title="transfer.proof.removeTitle" title="Xóa ảnh">
               <i class="fa-solid fa-trash"></i>
             </button>
             <img id="proof-image" alt="Proof" />
@@ -290,12 +290,398 @@
         </div>
 
         <div class="proof-actions" style="margin-top: 14px;">
-          <a id="confirm-link" class="btn btn-primary" href="#"><i class="fa-solid fa-circle-check"></i> Tôi đã chuyển khoản</a>
-          <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> Xem lịch sử</a>
+          <a id="confirm-link" class="btn btn-primary" href="#"><i class="fa-solid fa-circle-check"></i> <span data-i18n="transfer.actions.confirm">Tôi đã chuyển khoản</span></a>
+          <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> <span data-i18n="transfer.actions.history">Xem lịch sử</span></a>
         </div>
       </div>
     </div>
   </div>
+
+  <span id="i18n-transfer-status-wait" class="hidden" data-i18n="transfer.status.wait">Đang chờ thanh toán</span>
+  <span id="i18n-transfer-status-ok" class="hidden" data-i18n="transfer.status.ok">Đã nhận thanh toán</span>
+  <span id="i18n-transfer-qr-generating" class="hidden" data-i18n="transfer.qr.generating">Đang tạo QR...</span>
+  <span id="i18n-transfer-qr-open-new-tab" class="hidden" data-i18n="transfer.qr.openNewTab">Mở QR ở tab mới</span>
+  <span id="i18n-transfer-qr-fail" class="hidden" data-i18n="transfer.err.qrFail">Không tạo được QR: {error}</span>
+  <span id="i18n-transfer-file-too-large" class="hidden" data-i18n="transfer.err.fileTooLarge">File ảnh quá lớn (tối đa 5MB)</span>
+  <span id="i18n-transfer-missing-order" class="hidden" data-i18n="transfer.err.missingOrder">Thiếu mã đơn hàng</span>
+  <span id="i18n-transfer-load-order-fail" class="hidden" data-i18n="transfer.err.loadOrder">Không thể tải đơn hàng</span>
+  <span id="i18n-transfer-load-event-fail" class="hidden" data-i18n="transfer.err.loadEvent">Không thể tải sự kiện</span>
+  <span id="i18n-transfer-generate-qr-fail" class="hidden" data-i18n="transfer.err.generateQr">Không thể tạo QR</span>
+
+  <script>
+    (function initI18n() {
+      const LANG_KEY = 'qr_lang';
+      const SUPPORTED_LANGS = ['en','zh','hi','es','fr','ar','pt','ru','id','vi'];
+      const I18N = {
+        vi: {
+          'doc.title': 'Qrio - Thanh Toán Chuyển Khoản',
+          'nav.history': 'Lịch sử',
+          'nav.home': 'Trang chủ',
+          'transfer.title': 'Thanh toán chuyển khoản',
+          'transfer.subtitle': 'Quét QR để chuyển khoản đúng số tiền và nội dung chuyển khoản.',
+          'transfer.status.wait': 'Đang chờ thanh toán',
+          'transfer.status.ok': 'Đã nhận thanh toán',
+          'transfer.kv.orderId': 'Mã đơn',
+          'transfer.kv.event': 'Sự kiện',
+          'transfer.kv.note': 'Ghi chú',
+          'transfer.qr.title': 'QR thanh toán',
+          'transfer.qr.autoUpdate': 'Hệ thống sẽ cập nhật trạng thái tự động',
+          'transfer.qr.generating': 'Đang tạo QR...',
+          'transfer.qr.openNewTab': 'Mở QR ở tab mới',
+          'transfer.info.title': 'Thông tin chuyển khoản',
+          'transfer.info.bank': 'Ngân hàng',
+          'transfer.info.accountNumber': 'Số tài khoản',
+          'transfer.info.accountName': 'Chủ tài khoản',
+          'transfer.info.amount': 'Số tiền',
+          'transfer.info.memo': 'Nội dung',
+          'transfer.proof.title': 'Ảnh xác nhận (check thủ công)',
+          'transfer.proof.subtitle': 'Tải ảnh (biên lai/ảnh giao dịch) để chủ sự kiện duyệt.',
+          'transfer.proof.removeTitle': 'Xóa ảnh',
+          'transfer.actions.confirm': 'Tôi đã chuyển khoản',
+          'transfer.actions.history': 'Xem lịch sử',
+          'transfer.err.fileTooLarge': 'File ảnh quá lớn (tối đa 5MB)',
+          'transfer.err.missingOrder': 'Thiếu mã đơn hàng',
+          'transfer.err.loadOrder': 'Không thể tải đơn hàng',
+          'transfer.err.loadEvent': 'Không thể tải sự kiện',
+          'transfer.err.generateQr': 'Không thể tạo QR',
+          'transfer.err.qrFail': 'Không tạo được QR: {error}',
+        },
+        en: {
+          'doc.title': 'Qrio - Bank Transfer Payment',
+          'nav.history': 'History',
+          'nav.home': 'Home',
+          'transfer.title': 'Bank transfer payment',
+          'transfer.subtitle': 'Scan the QR to transfer the correct amount and transfer note.',
+          'transfer.status.wait': 'Waiting for payment',
+          'transfer.status.ok': 'Payment received',
+          'transfer.kv.orderId': 'Order',
+          'transfer.kv.event': 'Event',
+          'transfer.kv.note': 'Note',
+          'transfer.qr.title': 'Payment QR',
+          'transfer.qr.autoUpdate': 'Status updates automatically',
+          'transfer.qr.generating': 'Generating QR...',
+          'transfer.qr.openNewTab': 'Open QR in new tab',
+          'transfer.info.title': 'Transfer details',
+          'transfer.info.bank': 'Bank',
+          'transfer.info.accountNumber': 'Account number',
+          'transfer.info.accountName': 'Account name',
+          'transfer.info.amount': 'Amount',
+          'transfer.info.memo': 'Memo',
+          'transfer.proof.title': 'Payment proof (manual check)',
+          'transfer.proof.subtitle': 'Upload a receipt/transaction screenshot for the organizer to review.',
+          'transfer.proof.removeTitle': 'Remove image',
+          'transfer.actions.confirm': 'I have transferred',
+          'transfer.actions.history': 'View history',
+          'transfer.err.fileTooLarge': 'Image file is too large (max 5MB)',
+          'transfer.err.missingOrder': 'Missing order id',
+          'transfer.err.loadOrder': 'Unable to load order',
+          'transfer.err.loadEvent': 'Unable to load event',
+          'transfer.err.generateQr': 'Unable to generate QR',
+          'transfer.err.qrFail': 'Could not generate QR: {error}',
+        }
+        ,zh: {
+          'doc.title': 'Qrio - 银行转账支付',
+          'nav.history': '历史',
+          'nav.home': '主页',
+          'transfer.title': '银行转账支付',
+          'transfer.subtitle': '扫描二维码，按正确金额与备注转账。',
+          'transfer.status.wait': '等待付款',
+          'transfer.status.ok': '已收到付款',
+          'transfer.kv.orderId': '订单号',
+          'transfer.kv.event': '活动',
+          'transfer.kv.note': '备注',
+          'transfer.qr.title': '支付二维码',
+          'transfer.qr.autoUpdate': '状态将自动更新',
+          'transfer.qr.generating': '正在生成二维码...',
+          'transfer.qr.openNewTab': '在新标签页打开二维码',
+          'transfer.info.title': '转账信息',
+          'transfer.info.bank': '银行',
+          'transfer.info.accountNumber': '账号',
+          'transfer.info.accountName': '账户名',
+          'transfer.info.amount': '金额',
+          'transfer.info.memo': '备注',
+          'transfer.proof.title': '付款凭证（人工审核）',
+          'transfer.proof.subtitle': '上传回执/交易截图供主办方审核。',
+          'transfer.proof.removeTitle': '删除图片',
+          'transfer.actions.confirm': '我已转账',
+          'transfer.actions.history': '查看历史',
+          'transfer.err.fileTooLarge': '图片过大（最大 5MB）',
+          'transfer.err.missingOrder': '缺少订单号',
+          'transfer.err.loadOrder': '无法加载订单',
+          'transfer.err.loadEvent': '无法加载活动',
+          'transfer.err.generateQr': '无法生成二维码',
+          'transfer.err.qrFail': '无法生成二维码：{error}',
+        },
+        hi: {
+          'doc.title': 'Qrio - बैंक ट्रांसफर भुगतान',
+          'nav.history': 'इतिहास',
+          'nav.home': 'होम',
+          'transfer.title': 'बैंक ट्रांसफर भुगतान',
+          'transfer.subtitle': 'सही राशि और नोट के साथ ट्रांसफर करने के लिए QR स्कैन करें।',
+          'transfer.status.wait': 'भुगतान की प्रतीक्षा',
+          'transfer.status.ok': 'भुगतान प्राप्त',
+          'transfer.kv.orderId': 'ऑर्डर',
+          'transfer.kv.event': 'इवेंट',
+          'transfer.kv.note': 'नोट',
+          'transfer.qr.title': 'पेमेंट QR',
+          'transfer.qr.autoUpdate': 'स्थिति अपने आप अपडेट होगी',
+          'transfer.qr.generating': 'QR बनाया जा रहा है...',
+          'transfer.qr.openNewTab': 'नए टैब में QR खोलें',
+          'transfer.info.title': 'ट्रांसफर विवरण',
+          'transfer.info.bank': 'बैंक',
+          'transfer.info.accountNumber': 'खाता नंबर',
+          'transfer.info.accountName': 'खाता नाम',
+          'transfer.info.amount': 'राशि',
+          'transfer.info.memo': 'विवरण',
+          'transfer.proof.title': 'भुगतान प्रमाण (मैनुअल जाँच)',
+          'transfer.proof.subtitle': 'आयोजक के लिए रसीद/ट्रांज़ैक्शन स्क्रीनशॉट अपलोड करें।',
+          'transfer.proof.removeTitle': 'छवि हटाएँ',
+          'transfer.actions.confirm': 'मैंने ट्रांसफर कर दिया',
+          'transfer.actions.history': 'इतिहास देखें',
+          'transfer.err.fileTooLarge': 'छवि फ़ाइल बहुत बड़ी है (अधिकतम 5MB)',
+          'transfer.err.missingOrder': 'ऑर्डर आईडी नहीं मिली',
+          'transfer.err.loadOrder': 'ऑर्डर लोड नहीं हो सका',
+          'transfer.err.loadEvent': 'इवेंट लोड नहीं हो सका',
+          'transfer.err.generateQr': 'QR जनरेट नहीं हो सका',
+          'transfer.err.qrFail': 'QR जनरेट नहीं हो सका: {error}',
+        },
+        es: {
+          'doc.title': 'Qrio - Pago por transferencia',
+          'nav.history': 'Historial',
+          'nav.home': 'Inicio',
+          'transfer.title': 'Pago por transferencia bancaria',
+          'transfer.subtitle': 'Escanea el QR para transferir el monto y el concepto correctos.',
+          'transfer.status.wait': 'Esperando pago',
+          'transfer.status.ok': 'Pago recibido',
+          'transfer.kv.orderId': 'Pedido',
+          'transfer.kv.event': 'Evento',
+          'transfer.kv.note': 'Nota',
+          'transfer.qr.title': 'QR de pago',
+          'transfer.qr.autoUpdate': 'El estado se actualiza automáticamente',
+          'transfer.qr.generating': 'Generando QR...',
+          'transfer.qr.openNewTab': 'Abrir QR en una nueva pestaña',
+          'transfer.info.title': 'Datos de la transferencia',
+          'transfer.info.bank': 'Banco',
+          'transfer.info.accountNumber': 'Número de cuenta',
+          'transfer.info.accountName': 'Titular',
+          'transfer.info.amount': 'Importe',
+          'transfer.info.memo': 'Concepto',
+          'transfer.proof.title': 'Comprobante (revisión manual)',
+          'transfer.proof.subtitle': 'Sube un recibo/captura para que el organizador lo revise.',
+          'transfer.proof.removeTitle': 'Eliminar imagen',
+          'transfer.actions.confirm': 'Ya transferí',
+          'transfer.actions.history': 'Ver historial',
+          'transfer.err.fileTooLarge': 'La imagen es demasiado grande (máx. 5MB)',
+          'transfer.err.missingOrder': 'Falta el ID de pedido',
+          'transfer.err.loadOrder': 'No se pudo cargar el pedido',
+          'transfer.err.loadEvent': 'No se pudo cargar el evento',
+          'transfer.err.generateQr': 'No se pudo generar el QR',
+          'transfer.err.qrFail': 'No se pudo generar el QR: {error}',
+        },
+        fr: {
+          'doc.title': 'Qrio - Paiement par virement',
+          'nav.history': 'Historique',
+          'nav.home': 'Accueil',
+          'transfer.title': 'Paiement par virement bancaire',
+          'transfer.subtitle': 'Scannez le QR pour virer le montant et le libellé corrects.',
+          'transfer.status.wait': 'En attente de paiement',
+          'transfer.status.ok': 'Paiement reçu',
+          'transfer.kv.orderId': 'Commande',
+          'transfer.kv.event': 'Événement',
+          'transfer.kv.note': 'Note',
+          'transfer.qr.title': 'QR de paiement',
+          'transfer.qr.autoUpdate': 'Le statut se met à jour automatiquement',
+          'transfer.qr.generating': 'Génération du QR…',
+          'transfer.qr.openNewTab': 'Ouvrir le QR dans un nouvel onglet',
+          'transfer.info.title': 'Détails du virement',
+          'transfer.info.bank': 'Banque',
+          'transfer.info.accountNumber': 'N° de compte',
+          'transfer.info.accountName': 'Titulaire',
+          'transfer.info.amount': 'Montant',
+          'transfer.info.memo': 'Libellé',
+          'transfer.proof.title': 'Justificatif (vérification manuelle)',
+          'transfer.proof.subtitle': 'Téléversez un reçu/une capture pour validation par l’organisateur.',
+          'transfer.proof.removeTitle': 'Supprimer l’image',
+          'transfer.actions.confirm': 'J’ai effectué le virement',
+          'transfer.actions.history': 'Voir l’historique',
+          'transfer.err.fileTooLarge': 'Image trop volumineuse (max 5 Mo)',
+          'transfer.err.missingOrder': 'ID de commande manquant',
+          'transfer.err.loadOrder': 'Impossible de charger la commande',
+          'transfer.err.loadEvent': 'Impossible de charger l’événement',
+          'transfer.err.generateQr': 'Impossible de générer le QR',
+          'transfer.err.qrFail': 'Impossible de générer le QR : {error}',
+        },
+        ar: {
+          'doc.title': 'Qrio - الدفع عبر تحويل بنكي',
+          'nav.history': 'السجل',
+          'nav.home': 'الرئيسية',
+          'transfer.title': 'الدفع عبر تحويل بنكي',
+          'transfer.subtitle': 'امسح رمز QR لتحويل المبلغ الصحيح ومرجع التحويل.',
+          'transfer.status.wait': 'بانتظار الدفع',
+          'transfer.status.ok': 'تم استلام الدفع',
+          'transfer.kv.orderId': 'رقم الطلب',
+          'transfer.kv.event': 'الفعالية',
+          'transfer.kv.note': 'ملاحظة',
+          'transfer.qr.title': 'رمز QR للدفع',
+          'transfer.qr.autoUpdate': 'سيتم تحديث الحالة تلقائياً',
+          'transfer.qr.generating': 'جارٍ إنشاء رمز QR...',
+          'transfer.qr.openNewTab': 'فتح رمز QR في تبويب جديد',
+          'transfer.info.title': 'تفاصيل التحويل',
+          'transfer.info.bank': 'البنك',
+          'transfer.info.accountNumber': 'رقم الحساب',
+          'transfer.info.accountName': 'اسم الحساب',
+          'transfer.info.amount': 'المبلغ',
+          'transfer.info.memo': 'المرجع',
+          'transfer.proof.title': 'إثبات الدفع (مراجعة يدوية)',
+          'transfer.proof.subtitle': 'ارفع الإيصال/لقطة المعاملة ليقوم المنظم بالمراجعة.',
+          'transfer.proof.removeTitle': 'حذف الصورة',
+          'transfer.actions.confirm': 'لقد قمت بالتحويل',
+          'transfer.actions.history': 'عرض السجل',
+          'transfer.err.fileTooLarge': 'ملف الصورة كبير جداً (الحد الأقصى 5MB)',
+          'transfer.err.missingOrder': 'معرّف الطلب مفقود',
+          'transfer.err.loadOrder': 'تعذر تحميل الطلب',
+          'transfer.err.loadEvent': 'تعذر تحميل الفعالية',
+          'transfer.err.generateQr': 'تعذر إنشاء رمز QR',
+          'transfer.err.qrFail': 'تعذر إنشاء رمز QR: {error}',
+        },
+        pt: {
+          'doc.title': 'Qrio - Pagamento por transferência',
+          'nav.history': 'Histórico',
+          'nav.home': 'Início',
+          'transfer.title': 'Pagamento por transferência bancária',
+          'transfer.subtitle': 'Escaneie o QR para transferir o valor e a referência corretos.',
+          'transfer.status.wait': 'Aguardando pagamento',
+          'transfer.status.ok': 'Pagamento recebido',
+          'transfer.kv.orderId': 'Pedido',
+          'transfer.kv.event': 'Evento',
+          'transfer.kv.note': 'Observação',
+          'transfer.qr.title': 'QR de pagamento',
+          'transfer.qr.autoUpdate': 'O status é atualizado automaticamente',
+          'transfer.qr.generating': 'Gerando QR...',
+          'transfer.qr.openNewTab': 'Abrir QR em nova aba',
+          'transfer.info.title': 'Dados da transferência',
+          'transfer.info.bank': 'Banco',
+          'transfer.info.accountNumber': 'Número da conta',
+          'transfer.info.accountName': 'Titular',
+          'transfer.info.amount': 'Valor',
+          'transfer.info.memo': 'Referência',
+          'transfer.proof.title': 'Comprovante (verificação manual)',
+          'transfer.proof.subtitle': 'Envie um comprovante/captura para o organizador analisar.',
+          'transfer.proof.removeTitle': 'Remover imagem',
+          'transfer.actions.confirm': 'Já fiz a transferência',
+          'transfer.actions.history': 'Ver histórico',
+          'transfer.err.fileTooLarge': 'Imagem muito grande (máx. 5MB)',
+          'transfer.err.missingOrder': 'ID do pedido ausente',
+          'transfer.err.loadOrder': 'Não foi possível carregar o pedido',
+          'transfer.err.loadEvent': 'Não foi possível carregar o evento',
+          'transfer.err.generateQr': 'Não foi possível gerar o QR',
+          'transfer.err.qrFail': 'Não foi possível gerar o QR: {error}',
+        },
+        ru: {
+          'doc.title': 'Qrio — Оплата переводом',
+          'nav.history': 'История',
+          'nav.home': 'Главная',
+          'transfer.title': 'Оплата банковским переводом',
+          'transfer.subtitle': 'Сканируйте QR, чтобы перевести точную сумму и указать правильное назначение.',
+          'transfer.status.wait': 'Ожидание оплаты',
+          'transfer.status.ok': 'Оплата получена',
+          'transfer.kv.orderId': 'Заказ',
+          'transfer.kv.event': 'Событие',
+          'transfer.kv.note': 'Примечание',
+          'transfer.qr.title': 'QR для оплаты',
+          'transfer.qr.autoUpdate': 'Статус обновляется автоматически',
+          'transfer.qr.generating': 'Создание QR...',
+          'transfer.qr.openNewTab': 'Открыть QR в новой вкладке',
+          'transfer.info.title': 'Данные для перевода',
+          'transfer.info.bank': 'Банк',
+          'transfer.info.accountNumber': 'Номер счёта',
+          'transfer.info.accountName': 'Получатель',
+          'transfer.info.amount': 'Сумма',
+          'transfer.info.memo': 'Назначение',
+          'transfer.proof.title': 'Подтверждение (ручная проверка)',
+          'transfer.proof.subtitle': 'Загрузите чек/скриншот операции для проверки организатором.',
+          'transfer.proof.removeTitle': 'Удалить изображение',
+          'transfer.actions.confirm': 'Я перевёл(а)',
+          'transfer.actions.history': 'История',
+          'transfer.err.fileTooLarge': 'Файл изображения слишком большой (макс. 5 МБ)',
+          'transfer.err.missingOrder': 'Не указан ID заказа',
+          'transfer.err.loadOrder': 'Не удалось загрузить заказ',
+          'transfer.err.loadEvent': 'Не удалось загрузить событие',
+          'transfer.err.generateQr': 'Не удалось создать QR',
+          'transfer.err.qrFail': 'Не удалось создать QR: {error}',
+        },
+        id: {
+          'doc.title': 'Qrio - Pembayaran Transfer Bank',
+          'nav.history': 'Riwayat',
+          'nav.home': 'Beranda',
+          'transfer.title': 'Pembayaran transfer bank',
+          'transfer.subtitle': 'Pindai QR untuk transfer nominal dan catatan yang benar.',
+          'transfer.status.wait': 'Menunggu pembayaran',
+          'transfer.status.ok': 'Pembayaran diterima',
+          'transfer.kv.orderId': 'Pesanan',
+          'transfer.kv.event': 'Acara',
+          'transfer.kv.note': 'Catatan',
+          'transfer.qr.title': 'QR pembayaran',
+          'transfer.qr.autoUpdate': 'Status akan diperbarui otomatis',
+          'transfer.qr.generating': 'Membuat QR...',
+          'transfer.qr.openNewTab': 'Buka QR di tab baru',
+          'transfer.info.title': 'Detail transfer',
+          'transfer.info.bank': 'Bank',
+          'transfer.info.accountNumber': 'Nomor rekening',
+          'transfer.info.accountName': 'Nama rekening',
+          'transfer.info.amount': 'Jumlah',
+          'transfer.info.memo': 'Keterangan',
+          'transfer.proof.title': 'Bukti pembayaran (cek manual)',
+          'transfer.proof.subtitle': 'Unggah struk/screenshot transaksi untuk ditinjau penyelenggara.',
+          'transfer.proof.removeTitle': 'Hapus gambar',
+          'transfer.actions.confirm': 'Saya sudah transfer',
+          'transfer.actions.history': 'Lihat riwayat',
+          'transfer.err.fileTooLarge': 'File gambar terlalu besar (maks 5MB)',
+          'transfer.err.missingOrder': 'ID pesanan tidak ada',
+          'transfer.err.loadOrder': 'Tidak dapat memuat pesanan',
+          'transfer.err.loadEvent': 'Tidak dapat memuat acara',
+          'transfer.err.generateQr': 'Tidak dapat membuat QR',
+          'transfer.err.qrFail': 'Tidak dapat membuat QR: {error}',
+        }
+      };
+
+      function normalizeLang(raw) {
+        const v = String(raw || '').toLowerCase();
+        return SUPPORTED_LANGS.includes(v) ? v : 'en';
+      }
+      function getLang() {
+        return normalizeLang(localStorage.getItem(LANG_KEY) || 'en');
+      }
+      function t(key, langOverride) {
+        const lang = normalizeLang(langOverride || getLang());
+        const dict = I18N[lang] || I18N.en;
+        return String((dict && dict[key]) ?? (I18N.en && I18N.en[key]) ?? (I18N.vi && I18N.vi[key]) ?? key);
+      }
+      function tFmt(key, vars, langOverride) {
+        let s = t(key, langOverride);
+        if (vars && typeof vars === 'object') {
+          for (const k of Object.keys(vars)) s = s.replaceAll('{' + k + '}', String(vars[k]));
+        }
+        return s;
+      }
+      function applyI18n(lang) {
+        const l = normalizeLang(lang);
+        document.documentElement.lang = l;
+        document.title = t('doc.title', l);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          el.textContent = t(key, l);
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+          const key = el.getAttribute('data-i18n-title');
+          el.setAttribute('title', t(key, l));
+        });
+      }
+
+      window.__i18n = { getLang, t, tFmt, applyI18n };
+      applyI18n(getLang());
+    })();
+  </script>
 
   <script>
     let orderId = '';
@@ -305,17 +691,20 @@
     let pollTimer = null;
 
     function formatCurrency(amount) {
-      return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+      const l = (window.__i18n && window.__i18n.getLang) ? window.__i18n.getLang() : 'en';
+      const localeMap = { vi: 'vi-VN', en: 'en-US', zh: 'zh-CN', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR', ar: 'ar', pt: 'pt-PT', ru: 'ru-RU', id: 'id-ID' };
+      const locale = localeMap[l] || 'en-US';
+      return new Intl.NumberFormat(locale).format(amount) + ' VND';
     }
 
     function setStatus(verified) {
       const el = document.getElementById('status-pill');
       if (verified) {
         el.className = 'status-pill status-ok';
-        el.innerHTML = '<i class="fa-solid fa-check"></i> Đã nhận thanh toán';
+        el.innerHTML = '<i class="fa-solid fa-check"></i> ' + (document.getElementById('i18n-transfer-status-ok')?.textContent || 'Payment received');
       } else {
         el.className = 'status-pill status-wait';
-        el.innerHTML = '<i class="fa-solid fa-clock"></i> Đang chờ thanh toán';
+        el.innerHTML = '<i class="fa-solid fa-clock"></i> ' + (document.getElementById('i18n-transfer-status-wait')?.textContent || 'Waiting');
       }
     }
 
@@ -323,7 +712,7 @@
       const file = input.files && input.files[0];
       if (!file) return;
       if (file.size > 5 * 1024 * 1024) {
-        alert('File ảnh quá lớn (tối đa 5MB)');
+        alert(document.getElementById('i18n-transfer-file-too-large')?.textContent || 'File too large');
         input.value = '';
         return;
       }
@@ -350,7 +739,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       orderId = urlParams.get('order') || '';
       if (!orderId) {
-        alert('Thiếu mã đơn hàng');
+        alert(document.getElementById('i18n-transfer-missing-order')?.textContent || 'Missing order id');
         window.location.href = 'home.html';
         return;
       }
@@ -362,7 +751,7 @@
       try {
         const orderResp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}`);
         const orderJson = await orderResp.json().catch(() => ({}));
-        if (!orderResp.ok || orderJson.error) throw new Error(orderJson.error || 'Không thể tải đơn hàng');
+        if (!orderResp.ok || orderJson.error) throw new Error(orderJson.error || (document.getElementById('i18n-transfer-load-order-fail')?.textContent || 'Unable to load order'));
 
         orderData = orderJson;
         document.getElementById('event-name').textContent = orderJson.eventName || '-';
@@ -382,7 +771,7 @@
 
         const eventResp = await fetch(`/api/ticket/events/${encodeURIComponent(orderJson.eventId)}`);
         const eventJson = await eventResp.json().catch(() => ({}));
-        if (!eventResp.ok || eventJson.error) throw new Error(eventJson.error || 'Không thể tải sự kiện');
+        if (!eventResp.ok || eventJson.error) throw new Error(eventJson.error || (document.getElementById('i18n-transfer-load-event-fail')?.textContent || 'Unable to load event'));
 
         eventData = eventJson;
 
@@ -421,7 +810,7 @@
       const amount = orderData.totalAmount;
 
       const qrBox = document.getElementById('qr-box');
-      qrBox.innerHTML = '<div class="loading"><span class="spinner"></span> Đang tạo QR...</div>';
+      qrBox.innerHTML = '<div class="loading"><span class="spinner"></span> ' + (document.getElementById('i18n-transfer-qr-generating')?.textContent || 'Generating...') + '</div>';
 
       try {
         const formData = new FormData();
@@ -438,15 +827,19 @@
 
         const resp = await fetch('/api/generate', { method: 'POST', body: formData });
         const json = await resp.json().catch(() => ({}));
-        if (!resp.ok || json.error || !json.image) throw new Error(json.error || 'Không thể tạo QR');
+        if (!resp.ok || json.error || !json.image) throw new Error(json.error || (document.getElementById('i18n-transfer-generate-qr-fail')?.textContent || 'Unable to generate QR'));
         qrBox.innerHTML = `<img src="${json.image}" alt="QR thanh toán" />`;
       } catch (e) {
         const fallbackUrl = `https://img.vietqr.io/image/${encodeURIComponent(String(eventData.bankCode || ''))}-${encodeURIComponent(String(eventData.accountNumber || ''))}-compact2.jpg?amount=${encodeURIComponent(String(orderData.totalAmount || 0))}&addInfo=${encodeURIComponent(orderId)}&accountName=${encodeURIComponent(eventData.accountName || '')}`;
+        const failTpl = (window.__i18n && window.__i18n.tFmt)
+          ? window.__i18n.tFmt('transfer.err.qrFail', { error: String(e.message || e) })
+          : 'Could not generate QR: ' + String(e.message || e);
+        const openNewTab = document.getElementById('i18n-transfer-qr-open-new-tab')?.textContent || 'Open in new tab';
         qrBox.innerHTML = `
           <div style="padding: 14px; text-align: center;">
-            <p style="color:#ef4444; font-size: 13px; margin-bottom: 10px;">Không tạo được QR: ${String(e.message || e)}</p>
+            <p style="color:#ef4444; font-size: 13px; margin-bottom: 10px;">${failTpl}</p>
             <a class="btn btn-secondary btn-sm" href="${fallbackUrl}" target="_blank" rel="noopener">
-              <i class="fa-solid fa-up-right-from-square"></i> Mở QR ở tab mới
+              <i class="fa-solid fa-up-right-from-square"></i> ${openNewTab}
             </a>
           </div>
         `;

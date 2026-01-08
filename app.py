@@ -1252,9 +1252,17 @@ def ticket_html():
 @app.route('/scan')
 @app.route('/scan.html')
 def scan_html():
-    """Page for staff to scan ticket QR codes."""
+    """General QR scanner page (scan any QR content)."""
     track_event('/scan', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'scan.html')
+
+
+@app.route('/scan-ticket')
+@app.route('/scan-ticket.html')
+def scan_ticket_html():
+    """Renamed page for staff to scan ticket QR codes."""
+    track_event('/scan-ticket', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
+    return send_from_directory('.', 'scan-ticket.html')
 
 
 @app.route('/manage-orders')
@@ -1775,6 +1783,7 @@ def api_ticket_get_event_owner(event_id):
     try:
         event_id = sanitize_input(event_id, max_length=40)
         owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
+        strict = str(request.args.get('strict', '')).strip().lower() in ('1', 'true', 'yes')
 
         conn = get_tickets_db()
         try:
@@ -1793,7 +1802,10 @@ def api_ticket_get_event_owner(event_id):
             return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
 
         stored_hash = (row['owner_password_hash'] or '').strip()
-        # Backward compatible: if no password was set, allow access.
+        if strict and not stored_hash:
+            return jsonify({'error': 'Sự kiện chưa thiết lập mật khẩu'}), 401
+
+        # Backward compatible: if no password was set, allow access (unless strict).
         if stored_hash:
             if not owner_password:
                 return jsonify({'error': 'Vui lòng nhập mật khẩu chủ vé'}), 401

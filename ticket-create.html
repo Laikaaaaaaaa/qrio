@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Tạo Vé Điện Tử</title>
-  <meta name="description" content="Tạo mã QR vé điện tử để bán vé và quản lý thanh toán tự động." />
+  <title data-i18n="doc.title">Qrio - Tạo Vé Điện Tử</title>
+  <meta name="description" data-i18n-content="meta.description" content="Create QR e-tickets to sell tickets and manage payments." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://qrio.site/ticket-create.html" />
   
@@ -539,6 +539,20 @@
     .hidden {
       display: none !important;
     }
+
+    /* Language picker modal */
+    .lang-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .lang-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 18px; }
+    .lang-modal-overlay.show { display: flex; }
+    .lang-modal { width: 100%; max-width: 420px; background: rgba(15, 15, 26, 0.96); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; }
+    .lang-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .lang-modal-title { font-weight: 800; }
+    .lang-modal-close { background: transparent; border: none; color: inherit; cursor: pointer; padding: 8px; border-radius: 10px; }
+    .lang-modal-close:hover { background: rgba(255,255,255,0.06); }
+    .lang-modal-body { padding: 14px 16px; display: grid; gap: 10px; }
+    .lang-modal-item { width: 100%; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); color: inherit; font-weight: 700; cursor: pointer; }
+    .lang-modal-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(124,58,237,0.25); }
+    .lang-modal-item.active { border-color: rgba(124,58,237,0.55); background: rgba(124,58,237,0.10); }
   </style>
 </head>
 
@@ -555,22 +569,22 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a href="scan.html" class="btn btn-secondary">
+      <a href="scan-ticket.html" class="btn btn-secondary">
         <i class="fa-solid fa-qrcode"></i>
-        <span>Quét vé</span>
+        <span data-i18n="nav.scan">Quét vé</span>
       </a>
       <a href="home.html" class="btn btn-primary">
         <i class="fa-solid fa-house"></i>
-        <span>Trang chủ</span>
+        <span data-i18n="nav.home">Trang chủ</span>
       </a>
     </div>
   </header>
 
   <div class="container">
     <div class="page-header">
-      <div class="page-badge"><i class="fa-solid fa-ticket"></i> Dành cho chủ sở hữu</div>
-      <h1 class="page-title">Tạo Vé Điện Tử</h1>
-      <p class="page-subtitle">Tạo mã QR để khách hàng quét và mua vé. Tải mã QR về và in hoặc hiển thị tại quầy.</p>
+      <div class="page-badge"><i class="fa-solid fa-ticket"></i> <span data-i18n="ticketCreate.badge">Dành cho chủ sở hữu</span></div>
+      <h1 class="page-title" data-i18n="ticketCreate.title">Tạo Vé Điện Tử</h1>
+      <p class="page-subtitle" data-i18n="ticketCreate.subtitle">Tạo mã QR để khách hàng quét và mua vé. Tải mã QR về và in hoặc hiển thị tại quầy.</p>
     </div>
 
     <div class="main-content">
@@ -578,32 +592,32 @@
       <div class="card" id="create-form">
         <div class="card-title">
           <i class="fa-solid fa-edit"></i>
-          Thông tin vé
+          <span data-i18n="ticketCreate.section.ticketInfo">Thông tin vé</span>
         </div>
         
         <div class="form-group">
-          <label>Tên sự kiện / Sản phẩm *</label>
-          <input type="text" id="event-name" placeholder="VD: Vé xem phim, Vé vào cổng, Buffet..." />
+          <label data-i18n="ticketCreate.eventName.label">Tên sự kiện / Sản phẩm *</label>
+          <input type="text" id="event-name" data-i18n-placeholder="ticketCreate.eventName.placeholder" placeholder="VD: Vé xem phim, Vé vào cổng, Buffet..." />
         </div>
 
         <div class="form-group">
-          <label>Mô tả chi tiết</label>
-          <textarea id="event-desc" placeholder="Mô tả thêm về vé này (thời gian, địa điểm, điều kiện...)"></textarea>
+          <label data-i18n="ticketCreate.eventDesc.label">Mô tả chi tiết</label>
+          <textarea id="event-desc" data-i18n-placeholder="ticketCreate.eventDesc.placeholder" placeholder="Mô tả thêm về vé này (thời gian, địa điểm, điều kiện...)"></textarea>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Giá mỗi vé (VND) *</label>
-            <input type="number" id="ticket-price" placeholder="100000" min="1000" />
+            <label data-i18n="ticketCreate.price.label">Giá mỗi vé (VND) *</label>
+            <input type="number" id="ticket-price" data-i18n-placeholder="ticketCreate.price.placeholder" placeholder="100000" min="1000" />
           </div>
           <div class="form-group">
-            <label>Số vé tối đa / lần mua</label>
+            <label data-i18n="ticketCreate.maxTickets.label">Số vé tối đa / lần mua</label>
             <input type="number" id="max-tickets" value="10" min="1" max="100" />
           </div>
         </div>
 
         <div class="form-group">
-          <label>Ngân hàng nhận tiền *</label>
+          <label data-i18n="ticketCreate.bank.label">Ngân hàng nhận tiền *</label>
           <select id="bank-select">
             <option value="970436">Vietcombank (VCB)</option>
             <option value="970418">BIDV</option>
@@ -624,73 +638,82 @@
         </div>
 
         <div class="form-group">
-          <label>Số tài khoản *</label>
-          <input type="text" id="account-number" placeholder="0123456789" />
+          <label data-i18n="ticketCreate.accountNumber.label">Số tài khoản *</label>
+          <input type="text" id="account-number" data-i18n-placeholder="ticketCreate.accountNumber.placeholder" placeholder="0123456789" />
         </div>
 
         <div class="form-group">
-          <label>Tên chủ tài khoản</label>
-          <input type="text" id="account-name" placeholder="NGUYEN VAN A" style="text-transform: uppercase;" />
+          <label data-i18n="ticketCreate.accountName.label">Tên chủ tài khoản</label>
+          <input type="text" id="account-name" data-i18n-placeholder="ticketCreate.accountName.placeholder" placeholder="NGUYEN VAN A" style="text-transform: uppercase;" />
         </div>
 
         <div class="form-group">
-          <label>Phương thức xác nhận thanh toán *</label>
+          <label data-i18n="ticketCreate.paymentMethod.label">Phương thức xác nhận thanh toán *</label>
           <select id="payment-method">
-            <option value="bank_api" selected>API ngân hàng (khuyến nghị)</option>
-            <option value="sepay_webhook">Webhooks (SePay)</option>
-            <option value="manual">Check thủ công</option>
+            <option value="bank_api" selected data-i18n="ticketCreate.paymentMethod.bankApi">API ngân hàng (khuyến nghị)</option>
+            <option value="sepay_webhook" data-i18n="ticketCreate.paymentMethod.sepay">Webhooks (SePay)</option>
+            <option value="manual" data-i18n="ticketCreate.paymentMethod.manual">Check thủ công</option>
           </select>
           <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
-            Chọn cách hệ thống xác nhận giao dịch. <strong style="color:#a78bfa;">Khuyến nghị dùng API ngân hàng</strong> để tự động xác nhận nhanh chóng.
+            <span data-i18n="ticketCreate.paymentMethod.hintPrefix">Chọn cách hệ thống xác nhận giao dịch.</span>
+            <strong style="color:#a78bfa;" data-i18n="ticketCreate.paymentMethod.hintStrong">Khuyến nghị dùng API ngân hàng</strong>
+            <span data-i18n="ticketCreate.paymentMethod.hintSuffix">để tự động xác nhận nhanh chóng.</span>
           </p>
 
           <div id="bank-api-config" style="margin-top: 12px;">
-            <label style="margin-top: 0;">API Key ngân hàng *</label>
-            <input type="password" id="bank-api-key" placeholder="Nhập API Key từ ngân hàng" autocomplete="off" />
+            <label style="margin-top: 0;" data-i18n="ticketCreate.bankApiKey.label">API Key ngân hàng *</label>
+            <input type="password" id="bank-api-key" data-i18n-placeholder="ticketCreate.bankApiKey.placeholder" placeholder="Nhập API Key từ ngân hàng" autocomplete="off" />
             <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
-              Lấy API Key từ trang quản lý ngân hàng của bạn hoặc liên hệ ngân hàng để được cấp.
+              <span data-i18n="ticketCreate.bankApiKey.hint">Lấy API Key từ trang quản lý ngân hàng của bạn hoặc liên hệ ngân hàng để được cấp.</span>
             </p>
           </div>
 
           <div id="sepay-config" style="margin-top: 12px; display: none;">
-            <label style="margin-top: 0;">SePay API Key *</label>
-            <input type="password" id="sepay-api-key" placeholder="Nhập SePay API Key" autocomplete="off" />
+            <label style="margin-top: 0;" data-i18n="ticketCreate.sepayApiKey.label">SePay API Key *</label>
+            <input type="password" id="sepay-api-key" data-i18n-placeholder="ticketCreate.sepayApiKey.placeholder" placeholder="Nhập SePay API Key" autocomplete="off" />
             <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
-              Xem <a href="/sepay-webhook-guide.html" style="color:#a78bfa; text-decoration:none;">hướng dẫn tạo WebHook SePay</a>.
+              <span data-i18n="ticketCreate.sepayApiKey.hintPrefix">Xem</span>
+              <a href="/sepay-webhook-guide.html" style="color:#a78bfa; text-decoration:none;" data-i18n="ticketCreate.sepayApiKey.hintLink">hướng dẫn tạo WebHook SePay</a>.
             </p>
           </div>
 
           <div id="manual-config" style="margin-top: 12px; display: none;">
             <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 12px;">
               <p style="font-size: 13px; color: #fbbf24; margin: 0;">
-                <i class="fa-solid fa-info-circle"></i> <strong>Check thủ công:</strong> Khách hàng sẽ upload ảnh xác nhận chuyển khoản. Bạn cần vào trang <a href="/manage-orders.html" style="color:#a78bfa;">Quản lý đơn hàng</a> để duyệt thủ công.
+                <i class="fa-solid fa-info-circle"></i>
+                <strong data-i18n="ticketCreate.manualWarn.title">Check thủ công:</strong>
+                <span data-i18n="ticketCreate.manualWarn.body">Khách hàng sẽ upload ảnh xác nhận chuyển khoản. Bạn cần vào trang</span>
+                <a href="/manage-orders.html" style="color:#a78bfa;" data-i18n="ticketCreate.manualWarn.link">Quản lý đơn hàng</a>
+                <span data-i18n="ticketCreate.manualWarn.suffix">để duyệt thủ công.</span>
               </p>
             </div>
           </div>
         </div>
 
         <div class="form-group" style="margin-top: 14px;">
-          <label>Mật khẩu quản lý đơn hàng *</label>
-          <input type="password" id="owner-password" placeholder="VD: qrio@2026" autocomplete="new-password" />
+          <label data-i18n="ticketCreate.ownerPassword.label">Mật khẩu quản lý đơn hàng *</label>
+          <input type="password" id="owner-password" data-i18n-placeholder="ticketCreate.ownerPassword.placeholder" placeholder="VD: qrio@2026" autocomplete="new-password" />
           <p style="font-size: 12px; color: #64748b; margin-top: 8px; line-height: 1.5;">
-            Dùng để vào trang <strong style="color:#a78bfa;">Quản lý đơn hàng</strong>. Hãy lưu lại (không có cách khôi phục).
+            <span data-i18n="ticketCreate.ownerPassword.hintPrefix">Dùng để vào trang</span>
+            <strong style="color:#a78bfa;" data-i18n="ticketCreate.ownerPassword.hintStrong">Quản lý đơn hàng</strong>
+            <span data-i18n="ticketCreate.ownerPassword.hintSuffix">. Hãy lưu lại (không có cách khôi phục).</span>
           </p>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Ngày bắt đầu bán</label>
+            <label data-i18n="ticketCreate.startDate.label">Ngày bắt đầu bán</label>
             <input type="date" id="start-date" />
           </div>
           <div class="form-group">
-            <label>Ngày kết thúc bán</label>
+            <label data-i18n="ticketCreate.endDate.label">Ngày kết thúc bán</label>
             <input type="date" id="end-date" />
           </div>
         </div>
 
         <button class="btn btn-primary" id="generate-btn" onclick="generateTicketQR()" style="width: 100%; margin-top: 8px;">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
-          Tạo mã QR bán vé
+          <span data-i18n="ticketCreate.generateBtn">Tạo mã QR bán vé</span>
         </button>
       </div>
 
@@ -698,101 +721,993 @@
       <div class="card qr-preview-card">
         <div class="card-title" style="width: 100%;">
           <i class="fa-solid fa-qrcode"></i>
-          Mã QR bán vé
+          <span data-i18n="ticketCreate.preview.title">Mã QR bán vé</span>
         </div>
         
         <div class="qr-preview" id="qr-preview">
           <div class="placeholder">
             <i class="fa-solid fa-qrcode"></i>
-            <p>Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé</p>
+            <p data-i18n="ticketCreate.preview.placeholder">Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé</p>
           </div>
         </div>
 
         <div id="qr-result" class="hidden" style="width: 100%;">
           <div class="ticket-summary">
             <div class="summary-row">
-              <span class="label">Sự kiện:</span>
+              <span class="label" data-i18n="ticketCreate.summary.event">Sự kiện:</span>
               <span class="value" id="summary-event">-</span>
             </div>
             <div class="summary-row">
-              <span class="label">Mã sự kiện:</span>
+              <span class="label" data-i18n="ticketCreate.summary.eventId">Mã sự kiện:</span>
               <span class="value" id="summary-event-id" style="font-family: monospace; color: #a78bfa;">-</span>
             </div>
             <div class="summary-row">
-              <span class="label">Giá vé:</span>
+              <span class="label" data-i18n="ticketCreate.summary.price">Giá vé:</span>
               <span class="value" id="summary-price">-</span>
             </div>
             <div class="summary-row">
-              <span class="label">Ngân hàng:</span>
+              <span class="label" data-i18n="ticketCreate.summary.bank">Ngân hàng:</span>
               <span class="value" id="summary-bank">-</span>
             </div>
             <div class="summary-row">
-              <span class="label">STK:</span>
+              <span class="label" data-i18n="ticketCreate.summary.account">STK:</span>
               <span class="value" id="summary-account">-</span>
             </div>
           </div>
 
           <div class="info-box">
-            <h4><i class="fa-solid fa-link"></i> Link mua vé</h4>
+            <h4><i class="fa-solid fa-link"></i> <span data-i18n="ticketCreate.buyLink.title">Link mua vé</span></h4>
             <div class="link-display">
               <input type="text" id="buy-link" readonly />
               <button onclick="copyLink()"><i class="fa-solid fa-copy"></i></button>
             </div>
-            <p style="font-size: 12px; color: #64748b;">Khách hàng quét mã QR hoặc truy cập link này để mua vé</p>
+            <p style="font-size: 12px; color: #64748b;" data-i18n="ticketCreate.buyLink.hint">Khách hàng quét mã QR hoặc truy cập link này để mua vé</p>
           </div>
 
           <div class="info-box" id="webhook-info-box" style="margin-top: 12px;">
-            <h4><i class="fa-solid fa-plug"></i> Webhook URL (SePay)</h4>
+            <h4><i class="fa-solid fa-plug"></i> <span data-i18n="ticketCreate.webhook.title">Webhook URL (SePay)</span></h4>
             <div class="link-display">
               <input type="text" id="webhook-url" readonly />
               <button onclick="copyWebhookUrl()"><i class="fa-solid fa-copy"></i></button>
             </div>
-            <p style="font-size: 12px; color: #64748b;">Dán URL này vào SePay → WebHooks → Gọi đến URL</p>
+            <p style="font-size: 12px; color: #64748b;" data-i18n="ticketCreate.webhook.hint">Dán URL này vào SePay → WebHooks → Gọi đến URL</p>
           </div>
 
           <div class="info-box" id="manage-orders-box" style="margin-top: 12px;">
-            <h4><i class="fa-solid fa-user-shield"></i> Link chủ vé</h4>
+            <h4><i class="fa-solid fa-user-shield"></i> <span data-i18n="ticketCreate.ownerLink.title">Link chủ vé</span></h4>
             <div class="link-display">
               <input type="text" id="owner-link" readonly />
               <button onclick="copyOwnerLink()"><i class="fa-solid fa-copy"></i></button>
             </div>
             <a href="#" id="manage-orders-link" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; margin-top: 10px;">
-              <i class="fa-solid fa-clipboard-list"></i> Mở trang chủ vé
+              <i class="fa-solid fa-clipboard-list"></i> <span data-i18n="ticketCreate.ownerLink.openBtn">Mở trang chủ vé</span>
             </a>
-            <p style="font-size: 12px; color: #64748b; margin-top: 8px;">Link dạng <span style="font-family: monospace; color:#a78bfa;">/ticket-create.html/c/EVCODE</span></p>
+            <p style="font-size: 12px; color: #64748b; margin-top: 8px;"><span data-i18n="ticketCreate.ownerLink.format">Link dạng</span> <span style="font-family: monospace; color:#a78bfa;">/ticket-create.html/c/EVCODE</span></p>
           </div>
 
           <div class="action-buttons">
             <button class="btn btn-success" onclick="downloadQR()">
               <i class="fa-solid fa-download"></i>
-              Tải mã QR
+              <span data-i18n="ticketCreate.actions.download">Tải mã QR</span>
             </button>
             <button class="btn btn-secondary" onclick="resetForm()">
               <i class="fa-solid fa-plus"></i>
-              Tạo mới
+              <span data-i18n="ticketCreate.actions.new">Tạo mới</span>
             </button>
           </div>
         </div>
 
         <div class="info-box" id="info-guide">
-          <h4><i class="fa-solid fa-lightbulb"></i> Hướng dẫn sử dụng</h4>
+          <h4><i class="fa-solid fa-lightbulb"></i> <span data-i18n="ticketCreate.guide.title">Hướng dẫn sử dụng</span></h4>
           <ol>
-            <li>Điền thông tin vé và ngân hàng nhận tiền</li>
-            <li>Nhấn "Tạo mã QR" để tạo mã bán vé</li>
-            <li>Tải mã QR về và in ra hoặc hiển thị tại quầy</li>
-            <li>Khách hàng quét mã → Nhập thông tin → Thanh toán</li>
-            <li>Hệ thống tự động tạo vé điện tử cho khách</li>
-            <li>Vào trang "Quét vé" để kiểm tra vé của khách</li>
+            <li data-i18n="ticketCreate.guide.step1">Điền thông tin vé và ngân hàng nhận tiền</li>
+            <li data-i18n="ticketCreate.guide.step2">Nhấn "Tạo mã QR" để tạo mã bán vé</li>
+            <li data-i18n="ticketCreate.guide.step3">Tải mã QR về và in ra hoặc hiển thị tại quầy</li>
+            <li data-i18n="ticketCreate.guide.step4">Khách hàng quét mã → Nhập thông tin → Thanh toán</li>
+            <li data-i18n="ticketCreate.guide.step5">Hệ thống tự động tạo vé điện tử cho khách</li>
+            <li data-i18n="ticketCreate.guide.step6">Vào trang "Quét vé" để kiểm tra vé của khách</li>
           </ol>
         </div>
       </div>
     </div>
   </div>
 
+  <span id="i18n-generating" class="hidden" data-i18n="ticketCreate.generating">Đang tạo...</span>
+  <span id="i18n-preview-placeholder" class="hidden" data-i18n="ticketCreate.preview.placeholder">Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé</span>
+
+  <script>
+    (function initI18n() {
+      const LANG_KEY = 'qr_lang';
+      const SUPPORTED_LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'pt', 'ru', 'id', 'vi'];
+
+      const I18N = {
+        vi: {
+          'doc.title': 'Qrio - Tạo Vé Điện Tử',
+          'meta.description': 'Tạo mã QR vé điện tử để bán vé và quản lý thanh toán tự động.',
+          'aria.language': 'Ngôn ngữ',
+          'nav.scan': 'Quét vé',
+          'nav.home': 'Trang chủ',
+          'ticketCreate.badge': 'Dành cho chủ sở hữu',
+          'ticketCreate.title': 'Tạo Vé Điện Tử',
+          'ticketCreate.subtitle': 'Tạo mã QR để khách hàng quét và mua vé. Tải mã QR về và in hoặc hiển thị tại quầy.',
+
+          'ticketCreate.section.ticketInfo': 'Thông tin vé',
+          'ticketCreate.eventName.label': 'Tên sự kiện / Sản phẩm *',
+          'ticketCreate.eventName.placeholder': 'VD: Vé xem phim, Vé vào cổng, Buffet...',
+          'ticketCreate.eventDesc.label': 'Mô tả chi tiết',
+          'ticketCreate.eventDesc.placeholder': 'Mô tả thêm về vé này (thời gian, địa điểm, điều kiện...)',
+          'ticketCreate.price.label': 'Giá mỗi vé (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Số vé tối đa / lần mua',
+          'ticketCreate.bank.label': 'Ngân hàng nhận tiền *',
+          'ticketCreate.accountNumber.label': 'Số tài khoản *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Tên chủ tài khoản',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Phương thức xác nhận thanh toán *',
+          'ticketCreate.paymentMethod.bankApi': 'API ngân hàng (khuyến nghị)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Check thủ công',
+          'ticketCreate.paymentMethod.hintPrefix': 'Chọn cách hệ thống xác nhận giao dịch.',
+          'ticketCreate.paymentMethod.hintStrong': 'Khuyến nghị dùng API ngân hàng',
+          'ticketCreate.paymentMethod.hintSuffix': 'để tự động xác nhận nhanh chóng.',
+
+          'ticketCreate.bankApiKey.label': 'API Key ngân hàng *',
+          'ticketCreate.bankApiKey.placeholder': 'Nhập API Key từ ngân hàng',
+          'ticketCreate.bankApiKey.hint': 'Lấy API Key từ trang quản lý ngân hàng của bạn hoặc liên hệ ngân hàng để được cấp.',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': 'Nhập SePay API Key',
+          'ticketCreate.sepayApiKey.hintPrefix': 'Xem',
+          'ticketCreate.sepayApiKey.hintLink': 'hướng dẫn tạo WebHook SePay',
+
+          'ticketCreate.manualWarn.title': 'Check thủ công:',
+          'ticketCreate.manualWarn.body': 'Khách hàng sẽ upload ảnh xác nhận chuyển khoản. Bạn cần vào trang',
+          'ticketCreate.manualWarn.link': 'Quản lý đơn hàng',
+          'ticketCreate.manualWarn.suffix': 'để duyệt thủ công.',
+
+          'ticketCreate.ownerPassword.label': 'Mật khẩu quản lý đơn hàng *',
+          'ticketCreate.ownerPassword.placeholder': 'VD: qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Dùng để vào trang',
+          'ticketCreate.ownerPassword.hintStrong': 'Quản lý đơn hàng',
+          'ticketCreate.ownerPassword.hintSuffix': '. Hãy lưu lại (không có cách khôi phục).',
+
+          'ticketCreate.startDate.label': 'Ngày bắt đầu bán',
+          'ticketCreate.endDate.label': 'Ngày kết thúc bán',
+          'ticketCreate.generateBtn': 'Tạo mã QR bán vé',
+          'ticketCreate.generating': 'Đang tạo...',
+
+          'ticketCreate.preview.title': 'Mã QR bán vé',
+          'ticketCreate.preview.placeholder': 'Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé',
+          'ticketCreate.summary.event': 'Sự kiện:',
+          'ticketCreate.summary.eventId': 'Mã sự kiện:',
+          'ticketCreate.summary.price': 'Giá vé:',
+          'ticketCreate.summary.bank': 'Ngân hàng:',
+          'ticketCreate.summary.account': 'STK:',
+          'ticketCreate.buyLink.title': 'Link mua vé',
+          'ticketCreate.buyLink.hint': 'Khách hàng quét mã QR hoặc truy cập link này để mua vé',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Dán URL này vào SePay → WebHooks → Gọi đến URL',
+          'ticketCreate.ownerLink.title': 'Link chủ vé',
+          'ticketCreate.ownerLink.openBtn': 'Mở trang chủ vé',
+          'ticketCreate.ownerLink.format': 'Link dạng',
+          'ticketCreate.actions.download': 'Tải mã QR',
+          'ticketCreate.actions.new': 'Tạo mới',
+
+          'ticketCreate.guide.title': 'Hướng dẫn sử dụng',
+          'ticketCreate.guide.step1': 'Điền thông tin vé và ngân hàng nhận tiền',
+          'ticketCreate.guide.step2': 'Nhấn "Tạo mã QR" để tạo mã bán vé',
+          'ticketCreate.guide.step3': 'Tải mã QR về và in ra hoặc hiển thị tại quầy',
+          'ticketCreate.guide.step4': 'Khách hàng quét mã → Nhập thông tin → Thanh toán',
+          'ticketCreate.guide.step5': 'Hệ thống tự động tạo vé điện tử cho khách',
+          'ticketCreate.guide.step6': 'Vào trang "Quét vé" để kiểm tra vé của khách',
+        },
+        en: {
+          'doc.title': 'Qrio - Create eTickets',
+          'meta.description': 'Create QR e-tickets to sell tickets and manage payments.',
+          'aria.language': 'Language',
+          'nav.scan': 'Scan',
+          'nav.home': 'Home',
+          'ticketCreate.badge': 'For owners',
+          'ticketCreate.title': 'Create eTickets',
+          'ticketCreate.subtitle': 'Create a QR code for customers to scan and buy tickets. Download the QR and print or display at your counter.',
+
+          'ticketCreate.section.ticketInfo': 'Ticket details',
+          'ticketCreate.eventName.label': 'Event / Product name *',
+          'ticketCreate.eventName.placeholder': 'e.g., Movie ticket, Entrance ticket, Buffet...',
+          'ticketCreate.eventDesc.label': 'Detailed description',
+          'ticketCreate.eventDesc.placeholder': 'Add more details (time, location, conditions...)',
+          'ticketCreate.price.label': 'Price per ticket (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Max tickets per purchase',
+          'ticketCreate.bank.label': 'Receiving bank *',
+          'ticketCreate.accountNumber.label': 'Account number *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Account holder name',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Payment confirmation method *',
+          'ticketCreate.paymentMethod.bankApi': 'Bank API (recommended)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Manual check',
+          'ticketCreate.paymentMethod.hintPrefix': 'Choose how the system confirms transactions.',
+          'ticketCreate.paymentMethod.hintStrong': 'Recommended: bank API',
+          'ticketCreate.paymentMethod.hintSuffix': 'for fast automatic confirmation.',
+
+          'ticketCreate.bankApiKey.label': 'Bank API Key *',
+          'ticketCreate.bankApiKey.placeholder': 'Enter the API key from your bank',
+          'ticketCreate.bankApiKey.hint': 'Get the API key from your bank portal or contact the bank to request access.',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': 'Enter the SePay API key',
+          'ticketCreate.sepayApiKey.hintPrefix': 'See',
+          'ticketCreate.sepayApiKey.hintLink': 'the SePay webhook setup guide',
+
+          'ticketCreate.manualWarn.title': 'Manual check:',
+          'ticketCreate.manualWarn.body': 'Customers will upload a payment confirmation image. Go to',
+          'ticketCreate.manualWarn.link': 'Manage orders',
+          'ticketCreate.manualWarn.suffix': 'to approve manually.',
+
+          'ticketCreate.ownerPassword.label': 'Order management password *',
+          'ticketCreate.ownerPassword.placeholder': 'e.g., qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Used to access',
+          'ticketCreate.ownerPassword.hintStrong': 'Manage orders',
+          'ticketCreate.ownerPassword.hintSuffix': '. Save it (no recovery).',
+
+          'ticketCreate.startDate.label': 'Sales start date',
+          'ticketCreate.endDate.label': 'Sales end date',
+          'ticketCreate.generateBtn': 'Create ticket QR',
+          'ticketCreate.generating': 'Creating...',
+
+          'ticketCreate.preview.title': 'Ticket QR',
+          'ticketCreate.preview.placeholder': 'Fill in details and click "Create QR" to generate a ticket QR',
+          'ticketCreate.summary.event': 'Event:',
+          'ticketCreate.summary.eventId': 'Event ID:',
+          'ticketCreate.summary.price': 'Price:',
+          'ticketCreate.summary.bank': 'Bank:',
+          'ticketCreate.summary.account': 'Account:',
+          'ticketCreate.buyLink.title': 'Purchase link',
+          'ticketCreate.buyLink.hint': 'Customers scan the QR or open this link to buy tickets',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Paste this URL in SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'Owner link',
+          'ticketCreate.ownerLink.openBtn': 'Open owner page',
+          'ticketCreate.ownerLink.format': 'Format',
+          'ticketCreate.actions.download': 'Download QR',
+          'ticketCreate.actions.new': 'Create new',
+
+          'ticketCreate.guide.title': 'How to use',
+          'ticketCreate.guide.step1': 'Fill in ticket details and receiving bank.',
+          'ticketCreate.guide.step2': 'Click "Create QR" to generate a ticket QR.',
+          'ticketCreate.guide.step3': 'Download the QR and print or display at your counter.',
+          'ticketCreate.guide.step4': 'Customers scan the QR → enter info → pay.',
+          'ticketCreate.guide.step5': 'The system automatically issues e-tickets to customers.',
+          'ticketCreate.guide.step6': 'Go to "Scan" to check customer tickets.',
+        },
+        zh: {
+          'doc.title': 'Qrio - 创建电子票',
+          'meta.description': '创建电子票二维码，用于售票并自动管理付款。',
+          'aria.language': '语言',
+          'nav.scan': '扫描',
+          'nav.home': '主页',
+          'ticketCreate.badge': '主办方使用',
+          'ticketCreate.title': '创建电子票',
+          'ticketCreate.subtitle': '生成二维码供客户扫码购票。下载二维码并打印或在柜台展示。',
+
+          'ticketCreate.section.ticketInfo': '票务信息',
+          'ticketCreate.eventName.label': '活动/产品名称 *',
+          'ticketCreate.eventName.placeholder': '例如：电影票、入场票、自助餐...',
+          'ticketCreate.eventDesc.label': '详细描述',
+          'ticketCreate.eventDesc.placeholder': '补充说明（时间、地点、条件...）',
+          'ticketCreate.price.label': '单张票价（VND）*',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': '单次购买最大数量',
+          'ticketCreate.bank.label': '收款银行 *',
+          'ticketCreate.accountNumber.label': '账号 *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': '账户姓名',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': '付款确认方式 *',
+          'ticketCreate.paymentMethod.bankApi': '银行 API（推荐）',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks（SePay）',
+          'ticketCreate.paymentMethod.manual': '手动审核',
+          'ticketCreate.paymentMethod.hintPrefix': '选择系统确认交易的方式。',
+          'ticketCreate.paymentMethod.hintStrong': '推荐使用银行 API',
+          'ticketCreate.paymentMethod.hintSuffix': '以便快速自动确认。',
+
+          'ticketCreate.bankApiKey.label': '银行 API Key *',
+          'ticketCreate.bankApiKey.placeholder': '输入银行提供的 API Key',
+          'ticketCreate.bankApiKey.hint': '从银行后台获取 API Key，或联系银行申请开通。',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': '输入 SePay API Key',
+          'ticketCreate.sepayApiKey.hintPrefix': '查看',
+          'ticketCreate.sepayApiKey.hintLink': 'SePay webhook 设置指南',
+
+          'ticketCreate.manualWarn.title': '手动审核：',
+          'ticketCreate.manualWarn.body': '客户将上传转账凭证图片。请前往',
+          'ticketCreate.manualWarn.link': '订单管理',
+          'ticketCreate.manualWarn.suffix': '进行人工确认。',
+
+          'ticketCreate.ownerPassword.label': '订单管理密码 *',
+          'ticketCreate.ownerPassword.placeholder': '例如：qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': '用于访问',
+          'ticketCreate.ownerPassword.hintStrong': '订单管理',
+          'ticketCreate.ownerPassword.hintSuffix': '。请妥善保存（无法找回）。',
+
+          'ticketCreate.startDate.label': '开售日期',
+          'ticketCreate.endDate.label': '停售日期',
+          'ticketCreate.generateBtn': '生成售票二维码',
+          'ticketCreate.generating': '正在生成...',
+
+          'ticketCreate.preview.title': '票券二维码',
+          'ticketCreate.preview.placeholder': '填写信息并点击“创建 QR”生成票券二维码',
+          'ticketCreate.summary.event': '活动：',
+          'ticketCreate.summary.eventId': '活动 ID：',
+          'ticketCreate.summary.price': '票价：',
+          'ticketCreate.summary.bank': '银行：',
+          'ticketCreate.summary.account': '账号：',
+          'ticketCreate.buyLink.title': '购买链接',
+          'ticketCreate.buyLink.hint': '客户扫码或打开此链接即可购买',
+          'ticketCreate.webhook.title': 'Webhook URL（SePay）',
+          'ticketCreate.webhook.hint': '将此 URL 粘贴到 SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': '主办方链接',
+          'ticketCreate.ownerLink.openBtn': '打开主办方页面',
+          'ticketCreate.ownerLink.format': '格式',
+          'ticketCreate.actions.download': '下载二维码',
+          'ticketCreate.actions.new': '新建',
+
+          'ticketCreate.guide.title': '使用方法',
+          'ticketCreate.guide.step1': '填写票务信息与收款银行。',
+          'ticketCreate.guide.step2': '点击“创建 QR”生成售票二维码。',
+          'ticketCreate.guide.step3': '下载二维码并打印或在柜台展示。',
+          'ticketCreate.guide.step4': '客户扫码 → 填写信息 → 付款。',
+          'ticketCreate.guide.step5': '系统会自动向客户发放电子票。',
+          'ticketCreate.guide.step6': '前往“扫描”检查客户票券。',
+        },
+        hi: {
+          'doc.title': 'Qrio - ई-टिकट बनाएं',
+          'meta.description': 'ई-टिकट QR बनाएं और भुगतान प्रबंधन करें।',
+          'aria.language': 'भाषा',
+          'nav.scan': 'स्कैन',
+          'nav.home': 'होम',
+          'ticketCreate.badge': 'मालिकों के लिए',
+          'ticketCreate.title': 'ई-टिकट बनाएं',
+          'ticketCreate.subtitle': 'ग्राहक QR स्कैन करके टिकट खरीदें। QR डाउनलोड करें और प्रिंट/काउंटर पर दिखाएं।',
+
+          'ticketCreate.section.ticketInfo': 'टिकट विवरण',
+          'ticketCreate.eventName.label': 'इवेंट/प्रोडक्ट नाम *',
+          'ticketCreate.eventName.placeholder': 'जैसे: मूवी टिकट, एंट्री टिकट, बुफे...',
+          'ticketCreate.eventDesc.label': 'विस्तृत विवरण',
+          'ticketCreate.eventDesc.placeholder': 'और विवरण (समय, स्थान, शर्तें...)',
+          'ticketCreate.price.label': 'प्रति टिकट कीमत (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'प्रति खरीद अधिकतम टिकट',
+          'ticketCreate.bank.label': 'प्राप्ति बैंक *',
+          'ticketCreate.accountNumber.label': 'खाता नंबर *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'खाता धारक नाम',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'भुगतान पुष्टि तरीका *',
+          'ticketCreate.paymentMethod.bankApi': 'बैंक API (अनुशंसित)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'मैन्युअल जांच',
+          'ticketCreate.paymentMethod.hintPrefix': 'सिस्टम लेन-देन कैसे पुष्टि करेगा चुनें।',
+          'ticketCreate.paymentMethod.hintStrong': 'अनुशंसित: बैंक API',
+          'ticketCreate.paymentMethod.hintSuffix': 'तेज़ स्वचालित पुष्टि के लिए।',
+
+          'ticketCreate.bankApiKey.label': 'बैंक API Key *',
+          'ticketCreate.bankApiKey.placeholder': 'अपने बैंक से API key दर्ज करें',
+          'ticketCreate.bankApiKey.hint': 'बैंक पोर्टल से API key लें या बैंक से एक्सेस के लिए संपर्क करें।',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': 'SePay API key दर्ज करें',
+          'ticketCreate.sepayApiKey.hintPrefix': 'देखें',
+          'ticketCreate.sepayApiKey.hintLink': 'SePay webhook सेटअप गाइड',
+
+          'ticketCreate.manualWarn.title': 'मैन्युअल जांच:',
+          'ticketCreate.manualWarn.body': 'ग्राहक भुगतान प्रमाण छवि अपलोड करेंगे। जाएँ',
+          'ticketCreate.manualWarn.link': 'ऑर्डर प्रबंधन',
+          'ticketCreate.manualWarn.suffix': 'और मैन्युअली अनुमोदित करें।',
+
+          'ticketCreate.ownerPassword.label': 'ऑर्डर प्रबंधन पासवर्ड *',
+          'ticketCreate.ownerPassword.placeholder': 'जैसे, qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'एक्सेस के लिए उपयोग',
+          'ticketCreate.ownerPassword.hintStrong': 'ऑर्डर प्रबंधन',
+          'ticketCreate.ownerPassword.hintSuffix': '। सुरक्षित रखें (रिकवरी नहीं)।',
+
+          'ticketCreate.startDate.label': 'बिक्री शुरू तिथि',
+          'ticketCreate.endDate.label': 'बिक्री समाप्ति तिथि',
+          'ticketCreate.generateBtn': 'टिकट QR बनाएं',
+          'ticketCreate.generating': 'बनाया जा रहा है...',
+
+          'ticketCreate.preview.title': 'टिकट QR',
+          'ticketCreate.preview.placeholder': 'विवरण भरें और "Create QR" क्लिक करें',
+          'ticketCreate.summary.event': 'इवेंट:',
+          'ticketCreate.summary.eventId': 'Event ID:',
+          'ticketCreate.summary.price': 'कीमत:',
+          'ticketCreate.summary.bank': 'बैंक:',
+          'ticketCreate.summary.account': 'खाता:',
+          'ticketCreate.buyLink.title': 'खरीद लिंक',
+          'ticketCreate.buyLink.hint': 'ग्राहक QR स्कैन करें या इस लिंक से टिकट खरीदें',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'यह URL SePay → WebHooks → Call URL में पेस्ट करें',
+          'ticketCreate.ownerLink.title': 'ओनर लिंक',
+          'ticketCreate.ownerLink.openBtn': 'ओनर पेज खोलें',
+          'ticketCreate.ownerLink.format': 'फॉर्मेट',
+          'ticketCreate.actions.download': 'QR डाउनलोड करें',
+          'ticketCreate.actions.new': 'नया बनाएं',
+
+          'ticketCreate.guide.title': 'कैसे उपयोग करें',
+          'ticketCreate.guide.step1': 'टिकट विवरण और बैंक भरें।',
+          'ticketCreate.guide.step2': '"Create QR" क्लिक करें।',
+          'ticketCreate.guide.step3': 'QR डाउनलोड करें और प्रिंट/दिखाएं।',
+          'ticketCreate.guide.step4': 'ग्राहक स्कैन → जानकारी → भुगतान।',
+          'ticketCreate.guide.step5': 'सिस्टम स्वतः ई-टिकट जारी करता है।',
+          'ticketCreate.guide.step6': '"Scan" में जाकर टिकट जाँचें।',
+        },
+        es: {
+          'doc.title': 'Qrio - Crear e-tickets',
+          'meta.description': 'Crea e-tickets QR para vender tickets y gestionar pagos.',
+          'aria.language': 'Idioma',
+          'nav.scan': 'Escanear',
+          'nav.home': 'Inicio',
+          'ticketCreate.badge': 'Para organizadores',
+          'ticketCreate.title': 'Crear e-tickets',
+          'ticketCreate.subtitle': 'Crea un QR para que los clientes escaneen y compren. Descarga el QR y muéstralo o imprímelo.',
+
+          'ticketCreate.section.ticketInfo': 'Detalles del ticket',
+          'ticketCreate.eventName.label': 'Nombre del evento/producto *',
+          'ticketCreate.eventName.placeholder': 'p. ej., entrada, buffet, cine...',
+          'ticketCreate.eventDesc.label': 'Descripción detallada',
+          'ticketCreate.eventDesc.placeholder': 'Más detalles (hora, lugar, condiciones...)',
+          'ticketCreate.price.label': 'Precio por ticket (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Máx. tickets por compra',
+          'ticketCreate.bank.label': 'Banco receptor *',
+          'ticketCreate.accountNumber.label': 'Número de cuenta *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Nombre del titular',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Método de confirmación de pago *',
+          'ticketCreate.paymentMethod.bankApi': 'API bancaria (recomendado)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Revisión manual',
+          'ticketCreate.paymentMethod.hintPrefix': 'Elige cómo el sistema confirma transacciones.',
+          'ticketCreate.paymentMethod.hintStrong': 'Recomendado: API bancaria',
+          'ticketCreate.paymentMethod.hintSuffix': 'para confirmación automática rápida.',
+
+          'ticketCreate.bankApiKey.label': 'API Key del banco *',
+          'ticketCreate.bankApiKey.placeholder': 'Ingresa la API key de tu banco',
+          'ticketCreate.bankApiKey.hint': 'Obtén la API key en el portal del banco o solicita acceso al banco.',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': 'Ingresa la SePay API key',
+          'ticketCreate.sepayApiKey.hintPrefix': 'Ver',
+          'ticketCreate.sepayApiKey.hintLink': 'guía de webhook de SePay',
+
+          'ticketCreate.manualWarn.title': 'Revisión manual:',
+          'ticketCreate.manualWarn.body': 'Los clientes subirán un comprobante. Ve a',
+          'ticketCreate.manualWarn.link': 'Gestionar pedidos',
+          'ticketCreate.manualWarn.suffix': 'para aprobar manualmente.',
+
+          'ticketCreate.ownerPassword.label': 'Contraseña de gestión *',
+          'ticketCreate.ownerPassword.placeholder': 'p. ej., qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Se usa para acceder a',
+          'ticketCreate.ownerPassword.hintStrong': 'Gestionar pedidos',
+          'ticketCreate.ownerPassword.hintSuffix': '. Guárdala (sin recuperación).',
+
+          'ticketCreate.startDate.label': 'Inicio de ventas',
+          'ticketCreate.endDate.label': 'Fin de ventas',
+          'ticketCreate.generateBtn': 'Crear QR del ticket',
+          'ticketCreate.generating': 'Creando...',
+
+          'ticketCreate.preview.title': 'QR del ticket',
+          'ticketCreate.preview.placeholder': 'Completa los datos y haz clic en "Create QR"',
+          'ticketCreate.summary.event': 'Evento:',
+          'ticketCreate.summary.eventId': 'ID del evento:',
+          'ticketCreate.summary.price': 'Precio:',
+          'ticketCreate.summary.bank': 'Banco:',
+          'ticketCreate.summary.account': 'Cuenta:',
+          'ticketCreate.buyLink.title': 'Enlace de compra',
+          'ticketCreate.buyLink.hint': 'Los clientes escanean el QR o abren este enlace para comprar',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Pega esta URL en SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'Enlace del organizador',
+          'ticketCreate.ownerLink.openBtn': 'Abrir página del organizador',
+          'ticketCreate.ownerLink.format': 'Formato',
+          'ticketCreate.actions.download': 'Descargar QR',
+          'ticketCreate.actions.new': 'Crear nuevo',
+
+          'ticketCreate.guide.title': 'Cómo usar',
+          'ticketCreate.guide.step1': 'Completa los datos y el banco receptor.',
+          'ticketCreate.guide.step2': 'Haz clic en "Create QR" para generar el QR.',
+          'ticketCreate.guide.step3': 'Descarga el QR y muéstralo o imprímelo.',
+          'ticketCreate.guide.step4': 'Cliente escanea → ingresa info → paga.',
+          'ticketCreate.guide.step5': 'El sistema emite e-tickets automáticamente.',
+          'ticketCreate.guide.step6': 'Ve a "Scan" para revisar tickets.',
+        },
+        fr: {
+          'doc.title': 'Qrio - Créer des e-billets',
+          'meta.description': 'Créez des e-billets QR pour vendre et gérer les paiements.',
+          'aria.language': 'Langue',
+          'nav.scan': 'Scanner',
+          'nav.home': 'Accueil',
+          'ticketCreate.badge': 'Pour les organisateurs',
+          'ticketCreate.title': 'Créer des e-billets',
+          'ticketCreate.subtitle': 'Créez un QR pour que les clients scannent et achètent. Téléchargez le QR et affichez/ imprimez-le.',
+
+          'ticketCreate.section.ticketInfo': 'Détails du billet',
+          'ticketCreate.eventName.label': 'Nom de l’événement/produit *',
+          'ticketCreate.eventName.placeholder': 'ex. billet cinéma, entrée, buffet...',
+          'ticketCreate.eventDesc.label': 'Description détaillée',
+          'ticketCreate.eventDesc.placeholder': 'Ajoutez des détails (heure, lieu, conditions...)',
+          'ticketCreate.price.label': 'Prix par billet (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Billets max par achat',
+          'ticketCreate.bank.label': 'Banque réceptrice *',
+          'ticketCreate.accountNumber.label': 'Numéro de compte *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Nom du titulaire',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Méthode de confirmation de paiement *',
+          'ticketCreate.paymentMethod.bankApi': 'API bancaire (recommandé)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Vérification manuelle',
+          'ticketCreate.paymentMethod.hintPrefix': 'Choisissez comment le système confirme les transactions.',
+          'ticketCreate.paymentMethod.hintStrong': 'Recommandé : API bancaire',
+          'ticketCreate.paymentMethod.hintSuffix': 'pour une confirmation automatique rapide.',
+
+          'ticketCreate.bankApiKey.label': 'Clé API bancaire *',
+          'ticketCreate.bankApiKey.placeholder': 'Saisissez la clé API de votre banque',
+          'ticketCreate.bankApiKey.hint': 'Récupérez la clé API via le portail bancaire ou contactez la banque.',
+
+          'ticketCreate.sepayApiKey.label': 'Clé API SePay *',
+          'ticketCreate.sepayApiKey.placeholder': 'Saisissez la clé API SePay',
+          'ticketCreate.sepayApiKey.hintPrefix': 'Voir',
+          'ticketCreate.sepayApiKey.hintLink': 'le guide webhook SePay',
+
+          'ticketCreate.manualWarn.title': 'Vérification manuelle :',
+          'ticketCreate.manualWarn.body': 'Les clients téléversent un justificatif. Allez sur',
+          'ticketCreate.manualWarn.link': 'Gestion des commandes',
+          'ticketCreate.manualWarn.suffix': 'pour approuver manuellement.',
+
+          'ticketCreate.ownerPassword.label': 'Mot de passe de gestion *',
+          'ticketCreate.ownerPassword.placeholder': 'ex. qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Utilisé pour accéder à',
+          'ticketCreate.ownerPassword.hintStrong': 'Gestion des commandes',
+          'ticketCreate.ownerPassword.hintSuffix': '. À conserver (pas de récupération).',
+
+          'ticketCreate.startDate.label': 'Début des ventes',
+          'ticketCreate.endDate.label': 'Fin des ventes',
+          'ticketCreate.generateBtn': 'Créer le QR du billet',
+          'ticketCreate.generating': 'Création...',
+
+          'ticketCreate.preview.title': 'QR du billet',
+          'ticketCreate.preview.placeholder': 'Renseignez les infos puis cliquez sur "Create QR"',
+          'ticketCreate.summary.event': 'Événement :',
+          'ticketCreate.summary.eventId': 'ID événement :',
+          'ticketCreate.summary.price': 'Prix :',
+          'ticketCreate.summary.bank': 'Banque :',
+          'ticketCreate.summary.account': 'Compte :',
+          'ticketCreate.buyLink.title': 'Lien d’achat',
+          'ticketCreate.buyLink.hint': 'Les clients scannent le QR ou ouvrent ce lien pour acheter',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Collez cette URL dans SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'Lien organisateur',
+          'ticketCreate.ownerLink.openBtn': 'Ouvrir la page organisateur',
+          'ticketCreate.ownerLink.format': 'Format',
+          'ticketCreate.actions.download': 'Télécharger le QR',
+          'ticketCreate.actions.new': 'Créer nouveau',
+
+          'ticketCreate.guide.title': 'Mode d’emploi',
+          'ticketCreate.guide.step1': 'Renseignez les détails et la banque.',
+          'ticketCreate.guide.step2': 'Cliquez sur "Create QR" pour générer le QR.',
+          'ticketCreate.guide.step3': 'Téléchargez le QR et imprimez/affichez-le.',
+          'ticketCreate.guide.step4': 'Client scanne → infos → paiement.',
+          'ticketCreate.guide.step5': 'Le système émet automatiquement les e-billets.',
+          'ticketCreate.guide.step6': 'Allez dans "Scan" pour vérifier les billets.',
+        },
+        ar: {
+          'doc.title': 'Qrio - إنشاء تذاكر إلكترونية',
+          'meta.description': 'أنشئ تذاكر QR لبيع التذاكر وإدارة المدفوعات.',
+          'aria.language': 'اللغة',
+          'nav.scan': 'مسح',
+          'nav.home': 'الرئيسية',
+          'ticketCreate.badge': 'لأصحاب الفعاليات',
+          'ticketCreate.title': 'إنشاء تذاكر إلكترونية',
+          'ticketCreate.subtitle': 'أنشئ رمز QR ليقوم العملاء بالمسح والشراء. حمّل الرمز واطبعه أو اعرضه.',
+
+          'ticketCreate.section.ticketInfo': 'تفاصيل التذكرة',
+          'ticketCreate.eventName.label': 'اسم الحدث/المنتج *',
+          'ticketCreate.eventName.placeholder': 'مثال: تذكرة سينما، دخول، بوفيه...',
+          'ticketCreate.eventDesc.label': 'وصف تفصيلي',
+          'ticketCreate.eventDesc.placeholder': 'أضف تفاصيل (الوقت، المكان، الشروط...)',
+          'ticketCreate.price.label': 'سعر التذكرة (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'الحد الأقصى لكل عملية شراء',
+          'ticketCreate.bank.label': 'البنك المستلم *',
+          'ticketCreate.accountNumber.label': 'رقم الحساب *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'اسم صاحب الحساب',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'طريقة تأكيد الدفع *',
+          'ticketCreate.paymentMethod.bankApi': 'واجهة بنك API (موصى بها)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'مراجعة يدوية',
+          'ticketCreate.paymentMethod.hintPrefix': 'اختر كيفية تأكيد المعاملات.',
+          'ticketCreate.paymentMethod.hintStrong': 'موصى به: API البنك',
+          'ticketCreate.paymentMethod.hintSuffix': 'لتأكيد تلقائي سريع.',
+
+          'ticketCreate.bankApiKey.label': 'مفتاح API للبنك *',
+          'ticketCreate.bankApiKey.placeholder': 'أدخل مفتاح API من البنك',
+          'ticketCreate.bankApiKey.hint': 'احصل على مفتاح API من بوابة البنك أو تواصل مع البنك لطلب الوصول.',
+
+          'ticketCreate.sepayApiKey.label': 'مفتاح SePay API *',
+          'ticketCreate.sepayApiKey.placeholder': 'أدخل مفتاح SePay API',
+          'ticketCreate.sepayApiKey.hintPrefix': 'راجع',
+          'ticketCreate.sepayApiKey.hintLink': 'دليل إعداد Webhook لـ SePay',
+
+          'ticketCreate.manualWarn.title': 'مراجعة يدوية:',
+          'ticketCreate.manualWarn.body': 'سيقوم العملاء برفع صورة إثبات الدفع. اذهب إلى',
+          'ticketCreate.manualWarn.link': 'إدارة الطلبات',
+          'ticketCreate.manualWarn.suffix': 'للموافقة يدوياً.',
+
+          'ticketCreate.ownerPassword.label': 'كلمة مرور إدارة الطلبات *',
+          'ticketCreate.ownerPassword.placeholder': 'مثال: qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'تُستخدم للوصول إلى',
+          'ticketCreate.ownerPassword.hintStrong': 'إدارة الطلبات',
+          'ticketCreate.ownerPassword.hintSuffix': '. احفظها (بدون استرجاع).',
+
+          'ticketCreate.startDate.label': 'تاريخ بدء المبيعات',
+          'ticketCreate.endDate.label': 'تاريخ انتهاء المبيعات',
+          'ticketCreate.generateBtn': 'إنشاء QR للتذكرة',
+          'ticketCreate.generating': 'جارٍ الإنشاء...',
+
+          'ticketCreate.preview.title': 'QR التذكرة',
+          'ticketCreate.preview.placeholder': 'املأ التفاصيل ثم اضغط "Create QR"',
+          'ticketCreate.summary.event': 'الحدث:',
+          'ticketCreate.summary.eventId': 'معرف الحدث:',
+          'ticketCreate.summary.price': 'السعر:',
+          'ticketCreate.summary.bank': 'البنك:',
+          'ticketCreate.summary.account': 'الحساب:',
+          'ticketCreate.buyLink.title': 'رابط الشراء',
+          'ticketCreate.buyLink.hint': 'يمسح العملاء QR أو يفتحون هذا الرابط لشراء التذاكر',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'الصق هذا الرابط في SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'رابط المالك',
+          'ticketCreate.ownerLink.openBtn': 'فتح صفحة المالك',
+          'ticketCreate.ownerLink.format': 'الصيغة',
+          'ticketCreate.actions.download': 'تحميل QR',
+          'ticketCreate.actions.new': 'إنشاء جديد',
+
+          'ticketCreate.guide.title': 'طريقة الاستخدام',
+          'ticketCreate.guide.step1': 'املأ تفاصيل التذكرة والبنك المستلم.',
+          'ticketCreate.guide.step2': 'اضغط "Create QR" لإنشاء QR.',
+          'ticketCreate.guide.step3': 'حمّل QR واطبعه أو اعرضه.',
+          'ticketCreate.guide.step4': 'العميل يمسح → يدخل المعلومات → يدفع.',
+          'ticketCreate.guide.step5': 'يصدر النظام التذاكر الإلكترونية تلقائياً.',
+          'ticketCreate.guide.step6': 'اذهب إلى "Scan" للتحقق من التذاكر.',
+        },
+        pt: {
+          'doc.title': 'Qrio - Criar e-tickets',
+          'meta.description': 'Crie e-tickets QR para vender ingressos e gerenciar pagamentos.',
+          'aria.language': 'Idioma',
+          'nav.scan': 'Escanear',
+          'nav.home': 'Início',
+          'ticketCreate.badge': 'Para organizadores',
+          'ticketCreate.title': 'Criar e-tickets',
+          'ticketCreate.subtitle': 'Crie um QR para clientes escanearem e comprarem. Baixe o QR e imprima/mostre no balcão.',
+
+          'ticketCreate.section.ticketInfo': 'Detalhes do ingresso',
+          'ticketCreate.eventName.label': 'Nome do evento/produto *',
+          'ticketCreate.eventName.placeholder': 'ex.: ingresso, entrada, buffet...',
+          'ticketCreate.eventDesc.label': 'Descrição detalhada',
+          'ticketCreate.eventDesc.placeholder': 'Mais detalhes (horário, local, condições...)',
+          'ticketCreate.price.label': 'Preço por ingresso (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Máx. por compra',
+          'ticketCreate.bank.label': 'Banco recebedor *',
+          'ticketCreate.accountNumber.label': 'Número da conta *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Nome do titular',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Método de confirmação *',
+          'ticketCreate.paymentMethod.bankApi': 'API do banco (recomendado)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Verificação manual',
+          'ticketCreate.paymentMethod.hintPrefix': 'Escolha como o sistema confirma transações.',
+          'ticketCreate.paymentMethod.hintStrong': 'Recomendado: API do banco',
+          'ticketCreate.paymentMethod.hintSuffix': 'para confirmação automática rápida.',
+
+          'ticketCreate.bankApiKey.label': 'Chave API do banco *',
+          'ticketCreate.bankApiKey.placeholder': 'Digite a chave API do seu banco',
+          'ticketCreate.bankApiKey.hint': 'Obtenha a chave no portal do banco ou solicite acesso.',
+
+          'ticketCreate.sepayApiKey.label': 'Chave SePay API *',
+          'ticketCreate.sepayApiKey.placeholder': 'Digite a chave SePay API',
+          'ticketCreate.sepayApiKey.hintPrefix': 'Veja',
+          'ticketCreate.sepayApiKey.hintLink': 'o guia de webhook do SePay',
+
+          'ticketCreate.manualWarn.title': 'Verificação manual:',
+          'ticketCreate.manualWarn.body': 'Clientes enviarão comprovante. Vá para',
+          'ticketCreate.manualWarn.link': 'Gerenciar pedidos',
+          'ticketCreate.manualWarn.suffix': 'para aprovar manualmente.',
+
+          'ticketCreate.ownerPassword.label': 'Senha de gestão *',
+          'ticketCreate.ownerPassword.placeholder': 'ex.: qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Usada para acessar',
+          'ticketCreate.ownerPassword.hintStrong': 'Gerenciar pedidos',
+          'ticketCreate.ownerPassword.hintSuffix': '. Salve (sem recuperação).',
+
+          'ticketCreate.startDate.label': 'Início das vendas',
+          'ticketCreate.endDate.label': 'Fim das vendas',
+          'ticketCreate.generateBtn': 'Criar QR do ticket',
+          'ticketCreate.generating': 'Criando...',
+
+          'ticketCreate.preview.title': 'QR do ticket',
+          'ticketCreate.preview.placeholder': 'Preencha e clique em "Create QR"',
+          'ticketCreate.summary.event': 'Evento:',
+          'ticketCreate.summary.eventId': 'ID do evento:',
+          'ticketCreate.summary.price': 'Preço:',
+          'ticketCreate.summary.bank': 'Banco:',
+          'ticketCreate.summary.account': 'Conta:',
+          'ticketCreate.buyLink.title': 'Link de compra',
+          'ticketCreate.buyLink.hint': 'Clientes escaneiam o QR ou abrem este link para comprar',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Cole esta URL em SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'Link do organizador',
+          'ticketCreate.ownerLink.openBtn': 'Abrir página do organizador',
+          'ticketCreate.ownerLink.format': 'Formato',
+          'ticketCreate.actions.download': 'Baixar QR',
+          'ticketCreate.actions.new': 'Criar novo',
+
+          'ticketCreate.guide.title': 'Como usar',
+          'ticketCreate.guide.step1': 'Preencha detalhes e banco recebedor.',
+          'ticketCreate.guide.step2': 'Clique em "Create QR" para gerar o QR.',
+          'ticketCreate.guide.step3': 'Baixe o QR e imprima/mostre.',
+          'ticketCreate.guide.step4': 'Cliente escaneia → info → paga.',
+          'ticketCreate.guide.step5': 'O sistema emite e-tickets automaticamente.',
+          'ticketCreate.guide.step6': 'Vá em "Scan" para verificar tickets.',
+        },
+        ru: {
+          'doc.title': 'Qrio — Создать e‑билеты',
+          'meta.description': 'Создавайте QR e‑билеты для продажи и управления оплатами.',
+          'aria.language': 'Язык',
+          'nav.scan': 'Сканировать',
+          'nav.home': 'Главная',
+          'ticketCreate.badge': 'Для организаторов',
+          'ticketCreate.title': 'Создать e‑билеты',
+          'ticketCreate.subtitle': 'Создайте QR для покупки билетов. Скачайте QR и распечатайте или покажите на стойке.',
+
+          'ticketCreate.section.ticketInfo': 'Детали билета',
+          'ticketCreate.eventName.label': 'Название события/продукта *',
+          'ticketCreate.eventName.placeholder': 'например: билет в кино, вход, шведский стол...',
+          'ticketCreate.eventDesc.label': 'Подробное описание',
+          'ticketCreate.eventDesc.placeholder': 'Добавьте детали (время, место, условия...)',
+          'ticketCreate.price.label': 'Цена за билет (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Макс. билетов за покупку',
+          'ticketCreate.bank.label': 'Банк получателя *',
+          'ticketCreate.accountNumber.label': 'Номер счёта *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Имя владельца счёта',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Способ подтверждения оплаты *',
+          'ticketCreate.paymentMethod.bankApi': 'Bank API (рекомендуется)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Ручная проверка',
+          'ticketCreate.paymentMethod.hintPrefix': 'Выберите, как система подтверждает транзакции.',
+          'ticketCreate.paymentMethod.hintStrong': 'Рекомендуется: Bank API',
+          'ticketCreate.paymentMethod.hintSuffix': 'для быстрого авто‑подтверждения.',
+
+          'ticketCreate.bankApiKey.label': 'Bank API Key *',
+          'ticketCreate.bankApiKey.placeholder': 'Введите API key вашего банка',
+          'ticketCreate.bankApiKey.hint': 'Получите API key в кабинете банка или запросите доступ в банке.',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': 'Введите SePay API key',
+          'ticketCreate.sepayApiKey.hintPrefix': 'См.',
+          'ticketCreate.sepayApiKey.hintLink': 'руководство по webhook SePay',
+
+          'ticketCreate.manualWarn.title': 'Ручная проверка:',
+          'ticketCreate.manualWarn.body': 'Клиенты загрузят подтверждение оплаты. Перейдите в',
+          'ticketCreate.manualWarn.link': 'Управление заказами',
+          'ticketCreate.manualWarn.suffix': 'для ручного одобрения.',
+
+          'ticketCreate.ownerPassword.label': 'Пароль управления заказами *',
+          'ticketCreate.ownerPassword.placeholder': 'например qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Используется для доступа к',
+          'ticketCreate.ownerPassword.hintStrong': 'Управлению заказами',
+          'ticketCreate.ownerPassword.hintSuffix': '. Сохраните (восстановления нет).',
+
+          'ticketCreate.startDate.label': 'Дата начала продаж',
+          'ticketCreate.endDate.label': 'Дата окончания продаж',
+          'ticketCreate.generateBtn': 'Создать QR билета',
+          'ticketCreate.generating': 'Создание...',
+
+          'ticketCreate.preview.title': 'QR билета',
+          'ticketCreate.preview.placeholder': 'Заполните и нажмите "Create QR"',
+          'ticketCreate.summary.event': 'Событие:',
+          'ticketCreate.summary.eventId': 'ID события:',
+          'ticketCreate.summary.price': 'Цена:',
+          'ticketCreate.summary.bank': 'Банк:',
+          'ticketCreate.summary.account': 'Счёт:',
+          'ticketCreate.buyLink.title': 'Ссылка на покупку',
+          'ticketCreate.buyLink.hint': 'Клиенты сканируют QR или открывают ссылку для покупки',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Вставьте URL в SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'Ссылка организатора',
+          'ticketCreate.ownerLink.openBtn': 'Открыть страницу организатора',
+          'ticketCreate.ownerLink.format': 'Формат',
+          'ticketCreate.actions.download': 'Скачать QR',
+          'ticketCreate.actions.new': 'Создать новый',
+
+          'ticketCreate.guide.title': 'Как пользоваться',
+          'ticketCreate.guide.step1': 'Заполните детали и банк получателя.',
+          'ticketCreate.guide.step2': 'Нажмите "Create QR" для генерации QR.',
+          'ticketCreate.guide.step3': 'Скачайте QR и распечатайте/покажите.',
+          'ticketCreate.guide.step4': 'Клиент сканирует → вводит данные → оплачивает.',
+          'ticketCreate.guide.step5': 'Система автоматически выдаёт e‑билеты.',
+          'ticketCreate.guide.step6': 'Перейдите в "Scan" для проверки билетов.',
+        },
+        id: {
+          'doc.title': 'Qrio - Buat E-Tiket',
+          'meta.description': 'Buat e-tiket QR untuk menjual tiket dan mengelola pembayaran.',
+          'aria.language': 'Bahasa',
+          'nav.scan': 'Pindai',
+          'nav.home': 'Beranda',
+          'ticketCreate.badge': 'Untuk pemilik',
+          'ticketCreate.title': 'Buat E-Tiket',
+          'ticketCreate.subtitle': 'Buat QR agar pelanggan bisa memindai dan membeli. Unduh QR lalu cetak/tampilkan di konter.',
+
+          'ticketCreate.section.ticketInfo': 'Detail tiket',
+          'ticketCreate.eventName.label': 'Nama acara/produk *',
+          'ticketCreate.eventName.placeholder': 'mis. tiket bioskop, tiket masuk, buffet...',
+          'ticketCreate.eventDesc.label': 'Deskripsi detail',
+          'ticketCreate.eventDesc.placeholder': 'Tambahkan detail (waktu, lokasi, syarat...)',
+          'ticketCreate.price.label': 'Harga per tiket (VND) *',
+          'ticketCreate.price.placeholder': '100000',
+          'ticketCreate.maxTickets.label': 'Maks tiket per pembelian',
+          'ticketCreate.bank.label': 'Bank penerima *',
+          'ticketCreate.accountNumber.label': 'Nomor rekening *',
+          'ticketCreate.accountNumber.placeholder': '0123456789',
+          'ticketCreate.accountName.label': 'Nama pemilik rekening',
+          'ticketCreate.accountName.placeholder': 'NGUYEN VAN A',
+
+          'ticketCreate.paymentMethod.label': 'Metode konfirmasi pembayaran *',
+          'ticketCreate.paymentMethod.bankApi': 'Bank API (disarankan)',
+          'ticketCreate.paymentMethod.sepay': 'Webhooks (SePay)',
+          'ticketCreate.paymentMethod.manual': 'Cek manual',
+          'ticketCreate.paymentMethod.hintPrefix': 'Pilih cara sistem mengonfirmasi transaksi.',
+          'ticketCreate.paymentMethod.hintStrong': 'Disarankan: Bank API',
+          'ticketCreate.paymentMethod.hintSuffix': 'untuk konfirmasi otomatis cepat.',
+
+          'ticketCreate.bankApiKey.label': 'Bank API Key *',
+          'ticketCreate.bankApiKey.placeholder': 'Masukkan API key dari bank',
+          'ticketCreate.bankApiKey.hint': 'Dapatkan API key dari portal bank atau hubungi bank untuk akses.',
+
+          'ticketCreate.sepayApiKey.label': 'SePay API Key *',
+          'ticketCreate.sepayApiKey.placeholder': 'Masukkan SePay API key',
+          'ticketCreate.sepayApiKey.hintPrefix': 'Lihat',
+          'ticketCreate.sepayApiKey.hintLink': 'panduan webhook SePay',
+
+          'ticketCreate.manualWarn.title': 'Cek manual:',
+          'ticketCreate.manualWarn.body': 'Pelanggan akan mengunggah bukti pembayaran. Buka',
+          'ticketCreate.manualWarn.link': 'Kelola pesanan',
+          'ticketCreate.manualWarn.suffix': 'untuk menyetujui manual.',
+
+          'ticketCreate.ownerPassword.label': 'Kata sandi kelola pesanan *',
+          'ticketCreate.ownerPassword.placeholder': 'mis. qrio@2026',
+          'ticketCreate.ownerPassword.hintPrefix': 'Digunakan untuk akses',
+          'ticketCreate.ownerPassword.hintStrong': 'Kelola pesanan',
+          'ticketCreate.ownerPassword.hintSuffix': '. Simpan baik-baik (tidak bisa dipulihkan).',
+
+          'ticketCreate.startDate.label': 'Tanggal mulai penjualan',
+          'ticketCreate.endDate.label': 'Tanggal akhir penjualan',
+          'ticketCreate.generateBtn': 'Buat QR tiket',
+          'ticketCreate.generating': 'Membuat...',
+
+          'ticketCreate.preview.title': 'QR Tiket',
+          'ticketCreate.preview.placeholder': 'Isi detail lalu klik "Create QR"',
+          'ticketCreate.summary.event': 'Acara:',
+          'ticketCreate.summary.eventId': 'ID Acara:',
+          'ticketCreate.summary.price': 'Harga:',
+          'ticketCreate.summary.bank': 'Bank:',
+          'ticketCreate.summary.account': 'Rekening:',
+          'ticketCreate.buyLink.title': 'Tautan pembelian',
+          'ticketCreate.buyLink.hint': 'Pelanggan memindai QR atau membuka tautan ini untuk membeli',
+          'ticketCreate.webhook.title': 'Webhook URL (SePay)',
+          'ticketCreate.webhook.hint': 'Tempel URL ini di SePay → WebHooks → Call URL',
+          'ticketCreate.ownerLink.title': 'Tautan pemilik',
+          'ticketCreate.ownerLink.openBtn': 'Buka halaman pemilik',
+          'ticketCreate.ownerLink.format': 'Format',
+          'ticketCreate.actions.download': 'Unduh QR',
+          'ticketCreate.actions.new': 'Buat baru',
+
+          'ticketCreate.guide.title': 'Cara pakai',
+          'ticketCreate.guide.step1': 'Isi detail tiket dan bank penerima.',
+          'ticketCreate.guide.step2': 'Klik "Create QR" untuk membuat QR.',
+          'ticketCreate.guide.step3': 'Unduh QR dan cetak/tampilkan.',
+          'ticketCreate.guide.step4': 'Pelanggan pindai → isi info → bayar.',
+          'ticketCreate.guide.step5': 'Sistem menerbitkan e-tiket otomatis.',
+          'ticketCreate.guide.step6': 'Buka "Scan" untuk memeriksa tiket.',
+        },
+      };
+
+      function normalizeLang(raw) {
+        const v = String(raw || '').toLowerCase();
+        return SUPPORTED_LANGS.includes(v) ? v : 'en';
+      }
+
+      function getLang() {
+        return normalizeLang(localStorage.getItem(LANG_KEY) || 'en');
+      }
+
+      function t(key, langOverride) {
+        const lang = normalizeLang(langOverride || getLang());
+        const dict = I18N[lang] || I18N.en;
+        const fallback = I18N.en || {};
+        const viFallback = I18N.vi || {};
+        return String(dict[key] ?? fallback[key] ?? viFallback[key] ?? key);
+      }
+
+      function applyI18n(lang) {
+        const normalized = normalizeLang(lang);
+        document.documentElement.lang = normalized;
+        document.title = t('doc.title', normalized);
+
+        document.querySelectorAll('[data-i18n-content]').forEach(el => {
+          const key = el.getAttribute('data-i18n-content');
+          el.setAttribute('content', t(key, normalized));
+        });
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          el.textContent = t(key, normalized);
+        });
+
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+          const key = el.getAttribute('data-i18n-placeholder');
+          el.setAttribute('placeholder', t(key, normalized));
+        });
+
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+          const key = el.getAttribute('data-i18n-title');
+          el.setAttribute('title', t(key, normalized));
+        });
+
+        document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+          const key = el.getAttribute('data-i18n-aria');
+          el.setAttribute('aria-label', t(key, normalized));
+        });
+      }
+
+      function setLang(lang) {
+        const normalized = normalizeLang(lang);
+        localStorage.setItem(LANG_KEY, normalized);
+        applyI18n(normalized);
+      }
+
+      applyI18n(getLang());
+    })();
+  </script>
+
   <script>
     let currentEventData = null;
 
     const HOME_PROJECTS_KEY = 'qr_studio_projects';
+
+    const generateBtnEl = document.getElementById('generate-btn');
+    const generateBtnInitialHTML = generateBtnEl ? generateBtnEl.innerHTML : '';
 
     function loadHomeProjects() {
       try { return JSON.parse(localStorage.getItem(HOME_PROJECTS_KEY) || '[]'); } catch { return []; }
@@ -944,8 +1859,9 @@
       formData.append('module_style', 'rounded-square');
 
       try {
+        const generatingText = document.getElementById('i18n-generating')?.textContent || 'Creating...';
         document.getElementById('generate-btn').disabled = true;
-        document.getElementById('generate-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo...';
+        document.getElementById('generate-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + generatingText;
 
         // Create event server-side (stores bank + price + SePay API key)
         const createResp = await fetch('/api/ticket/events', {
@@ -1053,7 +1969,9 @@
         alert('Lỗi tạo mã QR: ' + error.message);
       } finally {
         document.getElementById('generate-btn').disabled = false;
-        document.getElementById('generate-btn').innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Tạo mã QR bán vé';
+        if (generateBtnInitialHTML) {
+          document.getElementById('generate-btn').innerHTML = generateBtnInitialHTML;
+        }
       }
     }
 
@@ -1118,10 +2036,11 @@
       document.getElementById('bank-api-key').value = '';
       document.getElementById('sepay-api-key').value = '';
       
+      const previewPlaceholder = document.getElementById('i18n-preview-placeholder')?.textContent || 'Fill in details to create a QR';
       document.getElementById('qr-preview').innerHTML = `
         <div class="placeholder">
           <i class="fa-solid fa-qrcode"></i>
-          <p>Điền thông tin và nhấn "Tạo mã QR" để tạo mã bán vé</p>
+          <p>${previewPlaceholder}</p>
         </div>
       `;
       

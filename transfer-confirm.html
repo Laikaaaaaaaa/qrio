@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Xác Nhận Chuyển Khoản</title>
+  <title data-i18n="doc.title">Qrio - Xác Nhận Chuyển Khoản</title>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -202,8 +202,8 @@
       <h1>Qrio</h1>
     </div>
     <div class="header-right">
-      <a id="back-link" href="transfer.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i><span>Quay lại</span></a>
-      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+      <a id="back-link" href="transfer.html" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i><span data-i18n="nav.back">Quay lại</span></a>
+      <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span data-i18n="nav.home">Trang chủ</span></a>
     </div>
   </header>
 
@@ -211,59 +211,498 @@
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
         <div>
-          <div class="title"><i class="fa-solid fa-circle-check" style="color:#a78bfa;"></i> Xác nhận chuyển khoản</div>
-          <div class="subtitle">Hệ thống sẽ kiểm tra thanh toán và cập nhật trạng thái vé ngay khi có xác nhận.</div>
+          <div class="title"><i class="fa-solid fa-circle-check" style="color:#a78bfa;"></i> <span data-i18n="transferConfirm.title">Xác nhận chuyển khoản</span></div>
+          <div class="subtitle" data-i18n="transferConfirm.subtitle">Hệ thống sẽ kiểm tra thanh toán và cập nhật trạng thái vé ngay khi có xác nhận.</div>
         </div>
-        <div id="status" class="status status-wait"><i class="fa-solid fa-clock"></i> Đang kiểm tra</div>
+        <div id="status" class="status status-wait"><i class="fa-solid fa-clock"></i> <span data-i18n="transferConfirm.status.checking">Đang kiểm tra</span></div>
       </div>
 
       <div class="kv">
-        <div class="kv-row"><div class="k">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
-        <div class="kv-row"><div class="k">Sự kiện</div><div class="v" id="event-name">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="transferConfirm.kv.orderId">Mã đơn</div><div class="v mono" id="order-id">-</div></div>
+        <div class="kv-row"><div class="k" data-i18n="transferConfirm.kv.event">Sự kiện</div><div class="v" id="event-name">-</div></div>
       </div>
     </div>
 
     <div id="loading" class="card">
-      <div class="loading"><span class="spinner"></span> Đang kiểm tra thanh toán...</div>
+      <div class="loading"><span class="spinner"></span> <span data-i18n="transferConfirm.loading">Đang kiểm tra thanh toán...</span></div>
     </div>
 
     <div id="not-paid" class="card hidden">
       <div class="warning-box">
-        <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-clock"></i> Chưa nhận được xác nhận</div>
-        <div id="not-paid-msg">Vui lòng đợi 10-60 giây và thử lại.</div>
+        <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-clock"></i> <span data-i18n="transferConfirm.notPaid.title">Chưa nhận được xác nhận</span></div>
+        <div id="not-paid-msg" data-i18n="transferConfirm.notPaid.msg">Vui lòng đợi 10-60 giây và thử lại.</div>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px;">
-        <button class="btn btn-primary" onclick="checkNow()"><i class="fa-solid fa-rotate"></i> Kiểm tra lại</button>
-        <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> Xem lịch sử</a>
+        <button class="btn btn-primary" onclick="checkNow()"><i class="fa-solid fa-rotate"></i> <span data-i18n="transferConfirm.actions.checkAgain">Kiểm tra lại</span></button>
+        <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> <span data-i18n="transferConfirm.actions.history">Xem lịch sử</span></a>
       </div>
     </div>
 
     <div id="pending" class="card hidden">
       <div class="warning-box">
-        <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-hourglass-half"></i> Đang chờ duyệt</div>
-        Ảnh xác nhận đã được gửi. Chủ sự kiện sẽ duyệt trong thời gian sớm nhất.
+        <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-hourglass-half"></i> <span data-i18n="transferConfirm.pending.title">Đang chờ duyệt</span></div>
+        <span data-i18n="transferConfirm.pending.body">Ảnh xác nhận đã được gửi. Chủ sự kiện sẽ duyệt trong thời gian sớm nhất.</span>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px;">
-        <a id="view-ticket-pending" class="btn btn-primary" href="#"><i class="fa-solid fa-ticket"></i> Xem vé</a>
-        <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-history"></i> Xem lịch sử</a>
+        <a id="view-ticket-pending" class="btn btn-primary" href="#"><i class="fa-solid fa-ticket"></i> <span data-i18n="transferConfirm.actions.viewTicket">Xem vé</span></a>
+        <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-history"></i> <span data-i18n="transferConfirm.actions.history">Xem lịch sử</span></a>
       </div>
     </div>
 
     <div id="success" class="card hidden">
       <div class="success-box">
         <div class="success-icon"><i class="fa-solid fa-check"></i></div>
-        <div style="font-weight: 900; font-size: 20px; margin-bottom: 6px;">Thanh toán thành công!</div>
-        <div style="color:#bbf7d0; margin-bottom: 14px;">Vé đã được kích hoạt. Bạn có thể xem vé ngay.</div>
+        <div style="font-weight: 900; font-size: 20px; margin-bottom: 6px;" data-i18n="transferConfirm.success.title">Thanh toán thành công!</div>
+        <div style="color:#bbf7d0; margin-bottom: 14px;" data-i18n="transferConfirm.success.subtitle">Vé đã được kích hoạt. Bạn có thể xem vé ngay.</div>
         <div class="kv" style="max-width: 520px; margin: 0 auto;">
-          <div class="kv-row"><div class="k">Mã vé</div><div class="v mono" id="ticket-id">-</div></div>
+          <div class="kv-row"><div class="k" data-i18n="transferConfirm.kv.ticketId">Mã vé</div><div class="v mono" id="ticket-id">-</div></div>
         </div>
         <div style="margin-top: 14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-          <a id="view-ticket" class="btn btn-primary" href="#"><i class="fa-solid fa-ticket"></i> Xem vé</a>
-          <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> Lịch sử</a>
+          <a id="view-ticket" class="btn btn-primary" href="#"><i class="fa-solid fa-ticket"></i> <span data-i18n="transferConfirm.actions.viewTicket">Xem vé</span></a>
+          <a class="btn btn-secondary" href="order-history.html"><i class="fa-solid fa-list"></i> <span data-i18n="transferConfirm.actions.historyShort">Lịch sử</span></a>
         </div>
       </div>
     </div>
   </div>
+
+  <span id="i18n-tc-status-checking" class="hidden" data-i18n="transferConfirm.status.checking">Đang kiểm tra</span>
+  <span id="i18n-tc-status-ok" class="hidden" data-i18n="transferConfirm.status.ok">Đã xác nhận</span>
+  <span id="i18n-tc-status-not" class="hidden" data-i18n="transferConfirm.status.notConfirmed">Chưa xác nhận</span>
+  <span id="i18n-tc-status-error" class="hidden" data-i18n="transferConfirm.status.error">Lỗi kiểm tra</span>
+  <span id="i18n-tc-status-uploading" class="hidden" data-i18n="transferConfirm.status.uploading">Đang tải ảnh</span>
+  <span id="i18n-tc-status-upload-error" class="hidden" data-i18n="transferConfirm.status.uploadError">Lỗi tải ảnh</span>
+  <span id="i18n-tc-missing-order" class="hidden" data-i18n="transferConfirm.err.missingOrder">Thiếu mã đơn hàng</span>
+  <span id="i18n-tc-load-order" class="hidden" data-i18n="transferConfirm.err.loadOrder">Không thể tải đơn hàng</span>
+  <span id="i18n-tc-load-event" class="hidden" data-i18n="transferConfirm.err.loadEvent">Không thể tải sự kiện</span>
+  <span id="i18n-tc-check-fail" class="hidden" data-i18n="transferConfirm.err.checkFail">Không thể kiểm tra thanh toán</span>
+  <span id="i18n-tc-upload-fail" class="hidden" data-i18n="transferConfirm.err.uploadFail">Không thể tải ảnh</span>
+  <span id="i18n-tc-wait-msg" class="hidden" data-i18n="transferConfirm.notPaid.msg">Vui lòng đợi 10-60 giây và thử lại.</span>
+  <span id="i18n-tc-proof-required" class="hidden" data-i18n="transferConfirm.notPaid.proofRequired">Vui lòng quay lại và tải lên ảnh xác nhận trước khi gửi duyệt.</span>
+  <span id="i18n-tc-created-pending" class="hidden" data-i18n="transferConfirm.pending.createdPending">Vé đã được tạo và đang ở trạng thái Chờ thanh toán. Bạn có thể mở vé để xem mã vé.</span>
+
+  <script>
+    (function initI18n() {
+      const LANG_KEY = 'qr_lang';
+      const SUPPORTED_LANGS = ['en','zh','hi','es','fr','ar','pt','ru','id','vi'];
+      const I18N = {
+        vi: {
+          'doc.title': 'Qrio - Xác Nhận Chuyển Khoản',
+          'nav.back': 'Quay lại',
+          'nav.home': 'Trang chủ',
+          'transferConfirm.title': 'Xác nhận chuyển khoản',
+          'transferConfirm.subtitle': 'Hệ thống sẽ kiểm tra thanh toán và cập nhật trạng thái vé ngay khi có xác nhận.',
+          'transferConfirm.status.checking': 'Đang kiểm tra',
+          'transferConfirm.status.ok': 'Đã xác nhận',
+          'transferConfirm.status.notConfirmed': 'Chưa xác nhận',
+          'transferConfirm.status.error': 'Lỗi kiểm tra',
+          'transferConfirm.status.uploading': 'Đang tải ảnh',
+          'transferConfirm.status.uploadError': 'Lỗi tải ảnh',
+          'transferConfirm.kv.orderId': 'Mã đơn',
+          'transferConfirm.kv.event': 'Sự kiện',
+          'transferConfirm.kv.ticketId': 'Mã vé',
+          'transferConfirm.loading': 'Đang kiểm tra thanh toán...',
+          'transferConfirm.notPaid.title': 'Chưa nhận được xác nhận',
+          'transferConfirm.notPaid.msg': 'Vui lòng đợi 10-60 giây và thử lại.',
+          'transferConfirm.notPaid.proofRequired': 'Vui lòng quay lại và tải lên ảnh xác nhận trước khi gửi duyệt.',
+          'transferConfirm.pending.title': 'Đang chờ duyệt',
+          'transferConfirm.pending.body': 'Ảnh xác nhận đã được gửi. Chủ sự kiện sẽ duyệt trong thời gian sớm nhất.',
+          'transferConfirm.pending.createdPending': 'Vé đã được tạo và đang ở trạng thái Chờ thanh toán. Bạn có thể mở vé để xem mã vé.',
+          'transferConfirm.success.title': 'Thanh toán thành công!',
+          'transferConfirm.success.subtitle': 'Vé đã được kích hoạt. Bạn có thể xem vé ngay.',
+          'transferConfirm.actions.checkAgain': 'Kiểm tra lại',
+          'transferConfirm.actions.history': 'Xem lịch sử',
+          'transferConfirm.actions.historyShort': 'Lịch sử',
+          'transferConfirm.actions.viewTicket': 'Xem vé',
+          'transferConfirm.err.missingOrder': 'Thiếu mã đơn hàng',
+          'transferConfirm.err.loadOrder': 'Không thể tải đơn hàng',
+          'transferConfirm.err.loadEvent': 'Không thể tải sự kiện',
+          'transferConfirm.err.checkFail': 'Không thể kiểm tra thanh toán',
+          'transferConfirm.err.uploadFail': 'Không thể tải ảnh',
+          'transferConfirm.status.paid': 'Đã thanh toán',
+          'transferConfirm.cash.title': 'Chờ thanh toán tiền mặt',
+          'transferConfirm.cash.bodyHtml': 'Vé đã được tạo và đang ở trạng thái <b>Chờ thanh toán</b>. Bạn có thể mở vé để xem mã vé.',
+          'transferConfirm.manual.needProofStatus': 'Cần ảnh xác nhận',
+          'transferConfirm.manual.uploadedPendingStatus': 'Đã gửi ảnh - chờ duyệt',
+        },
+        en: {
+          'doc.title': 'Qrio - Transfer Confirmation',
+          'nav.back': 'Back',
+          'nav.home': 'Home',
+          'transferConfirm.title': 'Transfer confirmation',
+          'transferConfirm.subtitle': 'The system will verify the payment and update ticket status when confirmed.',
+          'transferConfirm.status.checking': 'Checking',
+          'transferConfirm.status.ok': 'Confirmed',
+          'transferConfirm.status.notConfirmed': 'Not confirmed',
+          'transferConfirm.status.error': 'Check error',
+          'transferConfirm.status.uploading': 'Uploading image',
+          'transferConfirm.status.uploadError': 'Upload error',
+          'transferConfirm.kv.orderId': 'Order',
+          'transferConfirm.kv.event': 'Event',
+          'transferConfirm.kv.ticketId': 'Ticket ID',
+          'transferConfirm.loading': 'Checking payment...',
+          'transferConfirm.notPaid.title': 'No confirmation yet',
+          'transferConfirm.notPaid.msg': 'Please wait 10–60 seconds and try again.',
+          'transferConfirm.notPaid.proofRequired': 'Go back and upload the payment proof before requesting manual approval.',
+          'transferConfirm.pending.title': 'Pending approval',
+          'transferConfirm.pending.body': 'Payment proof was submitted. The organizer will review it soon.',
+          'transferConfirm.pending.createdPending': 'A ticket was created and is currently Pending payment. You can open the ticket to view the ticket code.',
+          'transferConfirm.success.title': 'Payment successful!',
+          'transferConfirm.success.subtitle': 'Your ticket is active. You can view it now.',
+          'transferConfirm.actions.checkAgain': 'Check again',
+          'transferConfirm.actions.history': 'View history',
+          'transferConfirm.actions.historyShort': 'History',
+          'transferConfirm.actions.viewTicket': 'View ticket',
+          'transferConfirm.err.missingOrder': 'Missing order id',
+          'transferConfirm.err.loadOrder': 'Unable to load order',
+          'transferConfirm.err.loadEvent': 'Unable to load event',
+          'transferConfirm.err.checkFail': 'Unable to check payment',
+          'transferConfirm.err.uploadFail': 'Unable to upload image',
+          'transferConfirm.status.paid': 'Paid',
+          'transferConfirm.cash.title': 'Awaiting cash payment',
+          'transferConfirm.cash.bodyHtml': 'A ticket was created and is currently <b>Pending payment</b>. You can open the ticket to view the ticket code.',
+          'transferConfirm.manual.needProofStatus': 'Payment proof required',
+          'transferConfirm.manual.uploadedPendingStatus': 'Proof submitted - pending',
+        }
+        ,zh: {
+          'doc.title': 'Qrio - 转账确认',
+          'nav.back': '返回',
+          'nav.home': '主页',
+          'transferConfirm.title': '转账确认',
+          'transferConfirm.subtitle': '系统将在确认后核验付款并更新票券状态。',
+          'transferConfirm.status.checking': '检查中',
+          'transferConfirm.status.ok': '已确认',
+          'transferConfirm.status.notConfirmed': '未确认',
+          'transferConfirm.status.error': '检查错误',
+          'transferConfirm.status.uploading': '正在上传图片',
+          'transferConfirm.status.uploadError': '上传错误',
+          'transferConfirm.kv.orderId': '订单号',
+          'transferConfirm.kv.event': '活动',
+          'transferConfirm.kv.ticketId': '票号',
+          'transferConfirm.loading': '正在检查付款...',
+          'transferConfirm.notPaid.title': '尚未收到确认',
+          'transferConfirm.notPaid.msg': '请等待 10–60 秒后重试。',
+          'transferConfirm.notPaid.proofRequired': '请返回并先上传付款凭证，再请求人工审核。',
+          'transferConfirm.pending.title': '等待审核',
+          'transferConfirm.pending.body': '付款凭证已提交，主办方将尽快审核。',
+          'transferConfirm.pending.createdPending': '票已创建，当前为“待付款”。你可以打开票券查看票码。',
+          'transferConfirm.success.title': '付款成功！',
+          'transferConfirm.success.subtitle': '票券已激活，你可以立即查看。',
+          'transferConfirm.actions.checkAgain': '重新检查',
+          'transferConfirm.actions.history': '查看历史',
+          'transferConfirm.actions.historyShort': '历史',
+          'transferConfirm.actions.viewTicket': '查看票券',
+          'transferConfirm.err.missingOrder': '缺少订单号',
+          'transferConfirm.err.loadOrder': '无法加载订单',
+          'transferConfirm.err.loadEvent': '无法加载活动',
+          'transferConfirm.err.checkFail': '无法检查付款',
+          'transferConfirm.err.uploadFail': '无法上传图片',
+          'transferConfirm.status.paid': '已付款',
+          'transferConfirm.cash.title': '等待现金付款',
+          'transferConfirm.cash.bodyHtml': '票已创建，当前为 <b>待付款</b>。你可以打开票券查看票码。',
+          'transferConfirm.manual.needProofStatus': '需要付款凭证',
+          'transferConfirm.manual.uploadedPendingStatus': '凭证已提交 - 待审核',
+        },
+        hi: {
+          'doc.title': 'Qrio - ट्रांसफर पुष्टि',
+          'nav.back': 'वापस',
+          'nav.home': 'होम',
+          'transferConfirm.title': 'ट्रांसफर पुष्टि',
+          'transferConfirm.subtitle': 'पुष्टि होने पर सिस्टम भुगतान जाँचकर टिकट की स्थिति अपडेट करेगा।',
+          'transferConfirm.status.checking': 'जाँच हो रही है',
+          'transferConfirm.status.ok': 'पुष्टि हो गई',
+          'transferConfirm.status.notConfirmed': 'पुष्टि नहीं हुई',
+          'transferConfirm.status.error': 'जाँच त्रुटि',
+          'transferConfirm.status.uploading': 'छवि अपलोड हो रही है',
+          'transferConfirm.status.uploadError': 'अपलोड त्रुटि',
+          'transferConfirm.kv.orderId': 'ऑर्डर',
+          'transferConfirm.kv.event': 'इवेंट',
+          'transferConfirm.kv.ticketId': 'टिकट आईडी',
+          'transferConfirm.loading': 'भुगतान जाँचा जा रहा है...',
+          'transferConfirm.notPaid.title': 'अभी पुष्टि नहीं मिली',
+          'transferConfirm.notPaid.msg': 'कृपया 10–60 सेकंड प्रतीक्षा करें और फिर प्रयास करें।',
+          'transferConfirm.notPaid.proofRequired': 'कृपया वापस जाकर भुगतान प्रमाण अपलोड करें, फिर मैनुअल अनुमोदन अनुरोध करें।',
+          'transferConfirm.pending.title': 'अनुमोदन लंबित',
+          'transferConfirm.pending.body': 'भुगतान प्रमाण भेज दिया गया है। आयोजक जल्द समीक्षा करेगा।',
+          'transferConfirm.pending.createdPending': 'टिकट बन गया है और अभी “Pending payment” है। टिकट कोड देखने के लिए टिकट खोलें।',
+          'transferConfirm.success.title': 'भुगतान सफल!',
+          'transferConfirm.success.subtitle': 'आपका टिकट सक्रिय है। आप इसे अभी देख सकते हैं।',
+          'transferConfirm.actions.checkAgain': 'फिर से जाँचें',
+          'transferConfirm.actions.history': 'इतिहास देखें',
+          'transferConfirm.actions.historyShort': 'इतिहास',
+          'transferConfirm.actions.viewTicket': 'टिकट देखें',
+          'transferConfirm.err.missingOrder': 'ऑर्डर आईडी नहीं मिली',
+          'transferConfirm.err.loadOrder': 'ऑर्डर लोड नहीं हो सका',
+          'transferConfirm.err.loadEvent': 'इवेंट लोड नहीं हो सका',
+          'transferConfirm.err.checkFail': 'भुगतान जाँच नहीं हो सकी',
+          'transferConfirm.err.uploadFail': 'छवि अपलोड नहीं हो सकी',
+          'transferConfirm.status.paid': 'भुगतान हो गया',
+          'transferConfirm.cash.title': 'नकद भुगतान की प्रतीक्षा',
+          'transferConfirm.cash.bodyHtml': 'टिकट बन गया है और अभी <b>Pending payment</b> है। टिकट कोड देखने के लिए टिकट खोलें।',
+          'transferConfirm.manual.needProofStatus': 'भुगतान प्रमाण आवश्यक',
+          'transferConfirm.manual.uploadedPendingStatus': 'प्रमाण भेजा गया - लंबित',
+        },
+        es: {
+          'doc.title': 'Qrio - Confirmación de transferencia',
+          'nav.back': 'Volver',
+          'nav.home': 'Inicio',
+          'transferConfirm.title': 'Confirmación de transferencia',
+          'transferConfirm.subtitle': 'El sistema verificará el pago y actualizará el estado del ticket cuando se confirme.',
+          'transferConfirm.status.checking': 'Verificando',
+          'transferConfirm.status.ok': 'Confirmado',
+          'transferConfirm.status.notConfirmed': 'No confirmado',
+          'transferConfirm.status.error': 'Error de verificación',
+          'transferConfirm.status.uploading': 'Subiendo imagen',
+          'transferConfirm.status.uploadError': 'Error de subida',
+          'transferConfirm.kv.orderId': 'Pedido',
+          'transferConfirm.kv.event': 'Evento',
+          'transferConfirm.kv.ticketId': 'ID de ticket',
+          'transferConfirm.loading': 'Verificando el pago...',
+          'transferConfirm.notPaid.title': 'Aún sin confirmación',
+          'transferConfirm.notPaid.msg': 'Espera 10–60 segundos y vuelve a intentar.',
+          'transferConfirm.notPaid.proofRequired': 'Vuelve atrás y sube el comprobante antes de pedir revisión manual.',
+          'transferConfirm.pending.title': 'Pendiente de aprobación',
+          'transferConfirm.pending.body': 'El comprobante fue enviado. El organizador lo revisará pronto.',
+          'transferConfirm.pending.createdPending': 'Se creó un ticket y está en “Pendiente de pago”. Puedes abrirlo para ver el código.',
+          'transferConfirm.success.title': '¡Pago exitoso!',
+          'transferConfirm.success.subtitle': 'Tu ticket está activo. Puedes verlo ahora.',
+          'transferConfirm.actions.checkAgain': 'Revisar de nuevo',
+          'transferConfirm.actions.history': 'Ver historial',
+          'transferConfirm.actions.historyShort': 'Historial',
+          'transferConfirm.actions.viewTicket': 'Ver ticket',
+          'transferConfirm.err.missingOrder': 'Falta el ID de pedido',
+          'transferConfirm.err.loadOrder': 'No se pudo cargar el pedido',
+          'transferConfirm.err.loadEvent': 'No se pudo cargar el evento',
+          'transferConfirm.err.checkFail': 'No se pudo verificar el pago',
+          'transferConfirm.err.uploadFail': 'No se pudo subir la imagen',
+          'transferConfirm.status.paid': 'Pagado',
+          'transferConfirm.cash.title': 'Esperando pago en efectivo',
+          'transferConfirm.cash.bodyHtml': 'Se creó un ticket y está <b>Pendiente de pago</b>. Puedes abrirlo para ver el código.',
+          'transferConfirm.manual.needProofStatus': 'Se requiere comprobante',
+          'transferConfirm.manual.uploadedPendingStatus': 'Comprobante enviado - pendiente',
+        },
+        fr: {
+          'doc.title': 'Qrio - Confirmation de virement',
+          'nav.back': 'Retour',
+          'nav.home': 'Accueil',
+          'transferConfirm.title': 'Confirmation de virement',
+          'transferConfirm.subtitle': 'Le système vérifiera le paiement et mettra à jour le statut du billet dès confirmation.',
+          'transferConfirm.status.checking': 'Vérification',
+          'transferConfirm.status.ok': 'Confirmé',
+          'transferConfirm.status.notConfirmed': 'Non confirmé',
+          'transferConfirm.status.error': 'Erreur de vérification',
+          'transferConfirm.status.uploading': 'Téléversement de l’image',
+          'transferConfirm.status.uploadError': 'Erreur de téléversement',
+          'transferConfirm.kv.orderId': 'Commande',
+          'transferConfirm.kv.event': 'Événement',
+          'transferConfirm.kv.ticketId': 'ID billet',
+          'transferConfirm.loading': 'Vérification du paiement...',
+          'transferConfirm.notPaid.title': 'Pas encore de confirmation',
+          'transferConfirm.notPaid.msg': 'Veuillez attendre 10–60 secondes puis réessayer.',
+          'transferConfirm.notPaid.proofRequired': 'Revenez en arrière et téléversez le justificatif avant la demande de validation manuelle.',
+          'transferConfirm.pending.title': 'En attente de validation',
+          'transferConfirm.pending.body': 'Le justificatif a été envoyé. L’organisateur va le valider bientôt.',
+          'transferConfirm.pending.createdPending': 'Un billet a été créé et est en “Paiement en attente”. Vous pouvez l’ouvrir pour voir le code.',
+          'transferConfirm.success.title': 'Paiement réussi !',
+          'transferConfirm.success.subtitle': 'Votre billet est actif. Vous pouvez le voir maintenant.',
+          'transferConfirm.actions.checkAgain': 'Vérifier à nouveau',
+          'transferConfirm.actions.history': 'Voir l’historique',
+          'transferConfirm.actions.historyShort': 'Historique',
+          'transferConfirm.actions.viewTicket': 'Voir le billet',
+          'transferConfirm.err.missingOrder': 'ID de commande manquant',
+          'transferConfirm.err.loadOrder': 'Impossible de charger la commande',
+          'transferConfirm.err.loadEvent': 'Impossible de charger l’événement',
+          'transferConfirm.err.checkFail': 'Impossible de vérifier le paiement',
+          'transferConfirm.err.uploadFail': 'Impossible de téléverser l’image',
+          'transferConfirm.status.paid': 'Payé',
+          'transferConfirm.cash.title': 'En attente de paiement en espèces',
+          'transferConfirm.cash.bodyHtml': 'Un billet a été créé et est <b>en attente de paiement</b>. Vous pouvez l’ouvrir pour voir le code.',
+          'transferConfirm.manual.needProofStatus': 'Justificatif requis',
+          'transferConfirm.manual.uploadedPendingStatus': 'Justificatif envoyé - en attente',
+        },
+        ar: {
+          'doc.title': 'Qrio - تأكيد التحويل',
+          'nav.back': 'رجوع',
+          'nav.home': 'الرئيسية',
+          'transferConfirm.title': 'تأكيد التحويل',
+          'transferConfirm.subtitle': 'سيقوم النظام بالتحقق من الدفع وتحديث حالة التذكرة عند التأكيد.',
+          'transferConfirm.status.checking': 'جارٍ التحقق',
+          'transferConfirm.status.ok': 'تم التأكيد',
+          'transferConfirm.status.notConfirmed': 'غير مؤكد',
+          'transferConfirm.status.error': 'خطأ في التحقق',
+          'transferConfirm.status.uploading': 'جارٍ رفع الصورة',
+          'transferConfirm.status.uploadError': 'خطأ في الرفع',
+          'transferConfirm.kv.orderId': 'الطلب',
+          'transferConfirm.kv.event': 'الفعالية',
+          'transferConfirm.kv.ticketId': 'معرّف التذكرة',
+          'transferConfirm.loading': 'جارٍ التحقق من الدفع...',
+          'transferConfirm.notPaid.title': 'لم يتم التأكيد بعد',
+          'transferConfirm.notPaid.msg': 'يرجى الانتظار 10–60 ثانية ثم المحاولة مرة أخرى.',
+          'transferConfirm.notPaid.proofRequired': 'ارجع للخلف وارفع إثبات الدفع قبل طلب المراجعة اليدوية.',
+          'transferConfirm.pending.title': 'بانتظار المراجعة',
+          'transferConfirm.pending.body': 'تم إرسال إثبات الدفع. سيقوم المنظم بالمراجعة قريباً.',
+          'transferConfirm.pending.createdPending': 'تم إنشاء تذكرة وحالتها حالياً “بانتظار الدفع”. يمكنك فتح التذكرة لرؤية الكود.',
+          'transferConfirm.success.title': 'تم الدفع بنجاح!',
+          'transferConfirm.success.subtitle': 'تذكرتك مفعّلة. يمكنك عرضها الآن.',
+          'transferConfirm.actions.checkAgain': 'تحقق مرة أخرى',
+          'transferConfirm.actions.history': 'عرض السجل',
+          'transferConfirm.actions.historyShort': 'السجل',
+          'transferConfirm.actions.viewTicket': 'عرض التذكرة',
+          'transferConfirm.err.missingOrder': 'معرّف الطلب مفقود',
+          'transferConfirm.err.loadOrder': 'تعذر تحميل الطلب',
+          'transferConfirm.err.loadEvent': 'تعذر تحميل الفعالية',
+          'transferConfirm.err.checkFail': 'تعذر التحقق من الدفع',
+          'transferConfirm.err.uploadFail': 'تعذر رفع الصورة',
+          'transferConfirm.status.paid': 'تم الدفع',
+          'transferConfirm.cash.title': 'بانتظار الدفع نقداً',
+          'transferConfirm.cash.bodyHtml': 'تم إنشاء تذكرة وحالتها <b>بانتظار الدفع</b>. يمكنك فتح التذكرة لرؤية الكود.',
+          'transferConfirm.manual.needProofStatus': 'إثبات الدفع مطلوب',
+          'transferConfirm.manual.uploadedPendingStatus': 'تم إرسال الإثبات - قيد الانتظار',
+        },
+        pt: {
+          'doc.title': 'Qrio - Confirmação de transferência',
+          'nav.back': 'Voltar',
+          'nav.home': 'Início',
+          'transferConfirm.title': 'Confirmação da transferência',
+          'transferConfirm.subtitle': 'O sistema verificará o pagamento e atualizará o status do ingresso quando confirmado.',
+          'transferConfirm.status.checking': 'Verificando',
+          'transferConfirm.status.ok': 'Confirmado',
+          'transferConfirm.status.notConfirmed': 'Não confirmado',
+          'transferConfirm.status.error': 'Erro na verificação',
+          'transferConfirm.status.uploading': 'Enviando imagem',
+          'transferConfirm.status.uploadError': 'Erro no envio',
+          'transferConfirm.kv.orderId': 'Pedido',
+          'transferConfirm.kv.event': 'Evento',
+          'transferConfirm.kv.ticketId': 'ID do ingresso',
+          'transferConfirm.loading': 'Verificando pagamento...',
+          'transferConfirm.notPaid.title': 'Ainda sem confirmação',
+          'transferConfirm.notPaid.msg': 'Aguarde 10–60 segundos e tente novamente.',
+          'transferConfirm.notPaid.proofRequired': 'Volte e envie o comprovante antes de solicitar revisão manual.',
+          'transferConfirm.pending.title': 'Pendente de aprovação',
+          'transferConfirm.pending.body': 'O comprovante foi enviado. O organizador vai analisar em breve.',
+          'transferConfirm.pending.createdPending': 'Um ingresso foi criado e está em “Pagamento pendente”. Você pode abri-lo para ver o código.',
+          'transferConfirm.success.title': 'Pagamento confirmado!',
+          'transferConfirm.success.subtitle': 'Seu ingresso está ativo. Você pode vê-lo agora.',
+          'transferConfirm.actions.checkAgain': 'Verificar novamente',
+          'transferConfirm.actions.history': 'Ver histórico',
+          'transferConfirm.actions.historyShort': 'Histórico',
+          'transferConfirm.actions.viewTicket': 'Ver ingresso',
+          'transferConfirm.err.missingOrder': 'ID do pedido ausente',
+          'transferConfirm.err.loadOrder': 'Não foi possível carregar o pedido',
+          'transferConfirm.err.loadEvent': 'Não foi possível carregar o evento',
+          'transferConfirm.err.checkFail': 'Não foi possível verificar o pagamento',
+          'transferConfirm.err.uploadFail': 'Não foi possível enviar a imagem',
+          'transferConfirm.status.paid': 'Pago',
+          'transferConfirm.cash.title': 'Aguardando pagamento em dinheiro',
+          'transferConfirm.cash.bodyHtml': 'Um ingresso foi criado e está <b>pendente de pagamento</b>. Você pode abri-lo para ver o código.',
+          'transferConfirm.manual.needProofStatus': 'Comprovante necessário',
+          'transferConfirm.manual.uploadedPendingStatus': 'Comprovante enviado - pendente',
+        },
+        ru: {
+          'doc.title': 'Qrio — Подтверждение перевода',
+          'nav.back': 'Назад',
+          'nav.home': 'Главная',
+          'transferConfirm.title': 'Подтверждение перевода',
+          'transferConfirm.subtitle': 'Система проверит оплату и обновит статус билета после подтверждения.',
+          'transferConfirm.status.checking': 'Проверка',
+          'transferConfirm.status.ok': 'Подтверждено',
+          'transferConfirm.status.notConfirmed': 'Не подтверждено',
+          'transferConfirm.status.error': 'Ошибка проверки',
+          'transferConfirm.status.uploading': 'Загрузка изображения',
+          'transferConfirm.status.uploadError': 'Ошибка загрузки',
+          'transferConfirm.kv.orderId': 'Заказ',
+          'transferConfirm.kv.event': 'Событие',
+          'transferConfirm.kv.ticketId': 'ID билета',
+          'transferConfirm.loading': 'Проверяем оплату...',
+          'transferConfirm.notPaid.title': 'Подтверждения пока нет',
+          'transferConfirm.notPaid.msg': 'Подождите 10–60 секунд и попробуйте снова.',
+          'transferConfirm.notPaid.proofRequired': 'Вернитесь назад и загрузите подтверждение оплаты перед запросом ручной проверки.',
+          'transferConfirm.pending.title': 'Ожидает подтверждения',
+          'transferConfirm.pending.body': 'Подтверждение отправлено. Организатор скоро проверит.',
+          'transferConfirm.pending.createdPending': 'Билет создан и сейчас “Ожидает оплаты”. Откройте билет, чтобы увидеть код.',
+          'transferConfirm.success.title': 'Оплата успешна!',
+          'transferConfirm.success.subtitle': 'Билет активирован. Можно посмотреть сейчас.',
+          'transferConfirm.actions.checkAgain': 'Проверить снова',
+          'transferConfirm.actions.history': 'История',
+          'transferConfirm.actions.historyShort': 'История',
+          'transferConfirm.actions.viewTicket': 'Открыть билет',
+          'transferConfirm.err.missingOrder': 'Не указан ID заказа',
+          'transferConfirm.err.loadOrder': 'Не удалось загрузить заказ',
+          'transferConfirm.err.loadEvent': 'Не удалось загрузить событие',
+          'transferConfirm.err.checkFail': 'Не удалось проверить оплату',
+          'transferConfirm.err.uploadFail': 'Не удалось загрузить изображение',
+          'transferConfirm.status.paid': 'Оплачено',
+          'transferConfirm.cash.title': 'Ожидание оплаты наличными',
+          'transferConfirm.cash.bodyHtml': 'Билет создан и сейчас <b>ожидает оплаты</b>. Откройте билет, чтобы увидеть код.',
+          'transferConfirm.manual.needProofStatus': 'Требуется подтверждение',
+          'transferConfirm.manual.uploadedPendingStatus': 'Подтверждение отправлено — ожидает',
+        },
+        id: {
+          'doc.title': 'Qrio - Konfirmasi Transfer',
+          'nav.back': 'Kembali',
+          'nav.home': 'Beranda',
+          'transferConfirm.title': 'Konfirmasi transfer',
+          'transferConfirm.subtitle': 'Sistem akan memverifikasi pembayaran dan memperbarui status tiket saat dikonfirmasi.',
+          'transferConfirm.status.checking': 'Memeriksa',
+          'transferConfirm.status.ok': 'Terkonfirmasi',
+          'transferConfirm.status.notConfirmed': 'Belum terkonfirmasi',
+          'transferConfirm.status.error': 'Kesalahan pemeriksaan',
+          'transferConfirm.status.uploading': 'Mengunggah gambar',
+          'transferConfirm.status.uploadError': 'Kesalahan unggah',
+          'transferConfirm.kv.orderId': 'Pesanan',
+          'transferConfirm.kv.event': 'Acara',
+          'transferConfirm.kv.ticketId': 'ID tiket',
+          'transferConfirm.loading': 'Memeriksa pembayaran...',
+          'transferConfirm.notPaid.title': 'Belum ada konfirmasi',
+          'transferConfirm.notPaid.msg': 'Tunggu 10–60 detik lalu coba lagi.',
+          'transferConfirm.notPaid.proofRequired': 'Kembali dan unggah bukti pembayaran sebelum meminta verifikasi manual.',
+          'transferConfirm.pending.title': 'Menunggu persetujuan',
+          'transferConfirm.pending.body': 'Bukti pembayaran sudah dikirim. Penyelenggara akan meninjau segera.',
+          'transferConfirm.pending.createdPending': 'Tiket dibuat dan saat ini “Menunggu pembayaran”. Anda bisa membuka tiket untuk melihat kode.',
+          'transferConfirm.success.title': 'Pembayaran berhasil!',
+          'transferConfirm.success.subtitle': 'Tiket Anda aktif. Anda bisa melihatnya sekarang.',
+          'transferConfirm.actions.checkAgain': 'Periksa lagi',
+          'transferConfirm.actions.history': 'Lihat riwayat',
+          'transferConfirm.actions.historyShort': 'Riwayat',
+          'transferConfirm.actions.viewTicket': 'Lihat tiket',
+          'transferConfirm.err.missingOrder': 'ID pesanan tidak ada',
+          'transferConfirm.err.loadOrder': 'Tidak dapat memuat pesanan',
+          'transferConfirm.err.loadEvent': 'Tidak dapat memuat acara',
+          'transferConfirm.err.checkFail': 'Tidak dapat memeriksa pembayaran',
+          'transferConfirm.err.uploadFail': 'Tidak dapat mengunggah gambar',
+          'transferConfirm.status.paid': 'Sudah dibayar',
+          'transferConfirm.cash.title': 'Menunggu pembayaran tunai',
+          'transferConfirm.cash.bodyHtml': 'Tiket dibuat dan <b>menunggu pembayaran</b>. Anda bisa membukanya untuk melihat kode.',
+          'transferConfirm.manual.needProofStatus': 'Bukti pembayaran diperlukan',
+          'transferConfirm.manual.uploadedPendingStatus': 'Bukti terkirim - menunggu',
+        }
+      };
+
+      function normalizeLang(raw) {
+        const v = String(raw || '').toLowerCase();
+        return SUPPORTED_LANGS.includes(v) ? v : 'en';
+      }
+      function getLang() {
+        return normalizeLang(localStorage.getItem(LANG_KEY) || 'en');
+      }
+      function t(key, langOverride) {
+        const lang = normalizeLang(langOverride || getLang());
+        const dict = I18N[lang] || I18N.en;
+        return String((dict && dict[key]) ?? (I18N.en && I18N.en[key]) ?? (I18N.vi && I18N.vi[key]) ?? key);
+      }
+      function applyI18n(lang) {
+        const l = normalizeLang(lang);
+        document.documentElement.lang = l;
+        document.title = t('doc.title', l);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          el.textContent = t(key, l);
+        });
+      }
+
+      window.__i18n = { getLang, t, applyI18n };
+      applyI18n(getLang());
+    })();
+  </script>
 
   <script>
     let orderId = '';
@@ -337,7 +776,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       orderId = urlParams.get('order') || '';
       if (!orderId) {
-        alert('Thiếu mã đơn hàng');
+        alert(document.getElementById('i18n-tc-missing-order').textContent);
         window.location.href = 'home.html';
         return;
       }
@@ -349,13 +788,13 @@
       try {
         const orderResp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}`);
         const orderJson = await orderResp.json().catch(() => ({}));
-        if (!orderResp.ok || orderJson.error) throw new Error(orderJson.error || 'Không thể tải đơn hàng');
+        if (!orderResp.ok || orderJson.error) throw new Error(orderJson.error || document.getElementById('i18n-tc-load-order').textContent);
         orderData = orderJson;
         document.getElementById('event-name').textContent = orderJson.eventName || '-';
 
         const eventResp = await fetch(`/api/ticket/events/${encodeURIComponent(orderJson.eventId)}`);
         const eventJson = await eventResp.json().catch(() => ({}));
-        if (!eventResp.ok || eventJson.error) throw new Error(eventJson.error || 'Không thể tải sự kiện');
+        if (!eventResp.ok || eventJson.error) throw new Error(eventJson.error || document.getElementById('i18n-tc-load-event').textContent);
         eventData = eventJson;
 
         await checkNow(true);
@@ -368,7 +807,7 @@
 
     async function checkNow(firstRun) {
       if (firstRun) {
-        setStatus('Đang kiểm tra', false);
+        setStatus(document.getElementById('i18n-tc-status-checking').textContent, false);
         showOnly('loading');
       }
 
@@ -378,13 +817,15 @@
         const ticketIds = getServerTicketIds();
         persistOrderStatus('pending_payment', ticketIds);
 
-        setStatus('Chờ thanh toán tiền mặt', false);
+        setStatus(window.__i18n.t('transferConfirm.cash.title'), false);
         showOnly('pending');
         const box = document.querySelector('#pending .warning-box');
         if (box) {
+          const title = window.__i18n.t('transferConfirm.cash.title');
+          const bodyHtml = window.__i18n.t('transferConfirm.cash.bodyHtml');
           box.innerHTML = `
-            <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-money-bill"></i> Chờ thanh toán tiền mặt</div>
-            Vé đã được tạo và đang ở trạng thái <b>Chờ thanh toán</b>. Bạn có thể mở vé để xem mã vé.
+            <div style="font-weight:800; margin-bottom: 6px;"><i class="fa-solid fa-money-bill"></i> ${title}</div>
+            ${bodyHtml}
           `;
         }
         document.getElementById('view-ticket-pending').href = `ticket.html?order=${encodeURIComponent(orderId)}`;
@@ -398,9 +839,9 @@
       if (method === 'manual') {
         const proof = localStorage.getItem('proof_' + orderId) || '';
         if (!proof) {
-          setStatus('Cần ảnh xác nhận', false);
+          setStatus(window.__i18n.t('transferConfirm.manual.needProofStatus'), false);
           showOnly('not-paid');
-          document.getElementById('not-paid-msg').textContent = 'Vui lòng quay lại và tải lên ảnh xác nhận trước khi gửi duyệt.';
+          document.getElementById('not-paid-msg').textContent = document.getElementById('i18n-tc-proof-required').textContent;
           return;
         }
 
@@ -411,19 +852,19 @@
             body: JSON.stringify({ image: proof })
           });
           const uploadJson = await uploadResp.json().catch(() => ({}));
-          if (!uploadResp.ok || uploadJson.error) throw new Error(uploadJson.error || 'Không thể tải ảnh');
+          if (!uploadResp.ok || uploadJson.error) throw new Error(uploadJson.error || document.getElementById('i18n-tc-upload-fail').textContent);
 
           // Create local pending tickets immediately
           const ticketIds = getServerTicketIds();
           persistOrderStatus('pending_verification', ticketIds);
 
-          setStatus('Đã gửi ảnh - chờ duyệt', false);
+          setStatus(window.__i18n.t('transferConfirm.manual.uploadedPendingStatus'), false);
           showOnly('pending');
 
           scheduleRedirectToTicket();
           return;
         } catch (e) {
-          setStatus('Lỗi tải ảnh', false);
+          setStatus(document.getElementById('i18n-tc-status-upload-error').textContent, false);
           showOnly('not-paid');
           document.getElementById('not-paid-msg').textContent = String(e.message || e);
           return;
@@ -438,13 +879,13 @@
           body: JSON.stringify({ orderId })
         });
         const json = await resp.json().catch(() => ({}));
-        if (!resp.ok) throw new Error(json.error || json.message || 'Không thể kiểm tra thanh toán');
+        if (!resp.ok) throw new Error(json.error || json.message || document.getElementById('i18n-tc-check-fail').textContent);
 
         if (json && json.verified === true) {
           const ticketIds = getServerTicketIds();
           persistOrderStatus('paid', ticketIds, new Date().toISOString());
 
-          setStatus('Đã thanh toán', true);
+          setStatus(window.__i18n.t('transferConfirm.status.paid'), true);
           showOnly('success');
 
           document.getElementById('ticket-id').textContent = ticketIds[0] || '-';
@@ -457,13 +898,13 @@
           return;
         }
 
-        setStatus('Chưa xác nhận', false);
+        setStatus(document.getElementById('i18n-tc-status-not').textContent, false);
         showOnly('not-paid');
         document.getElementById('not-paid-msg').textContent = (json && (json.message || json.error))
           ? String(json.message || json.error)
-          : 'Vui lòng đợi 10-60 giây và thử lại.';
+          : document.getElementById('i18n-tc-wait-msg').textContent;
       } catch (e) {
-        setStatus('Lỗi kiểm tra', false);
+        setStatus(document.getElementById('i18n-tc-status-error').textContent, false);
         showOnly('not-paid');
         document.getElementById('not-paid-msg').textContent = String(e.message || e);
       }

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="doc.title">Terms of Service - Qrio</title>
-  <meta name="description" content="Điều khoản sử dụng dịch vụ tạo mã QR (QR code generator) của Qrio." />
+  <meta name="description" data-i18n-content="meta.description" content="Terms of service for Qrio's QR code generator website." />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#7c3aed" />
 
@@ -598,9 +598,6 @@
         <span class="logo-box"><img src="/static/logo/logo.png" alt="Qrio"></span>
         <span>Qrio</span>
       </a>
-      <div class="sticky-actions">
-        <a href="home.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
-      </div>
     </div>
   </div>
   <div class="bg-effects">
@@ -614,14 +611,6 @@
     <div class="topbar">
       <a class="home-btn" href="home.html" aria-label="Trang chủ" title="Trang chủ"><i class="fa-solid fa-house"></i></a>
       <div class="topbar-right">
-        <button type="button" class="lang-picker" id="lang-btn" data-i18n-aria="aria.language" aria-haspopup="dialog" aria-expanded="false">
-          <i class="fa-solid fa-globe"></i>
-          <span id="lang-label" class="lang-label">English</span>
-        </button>
-        <select id="lang-select" class="lang-native" aria-hidden="true" tabindex="-1">
-          <option value="vi">Tiếng Việt</option>
-          <option value="en">English</option>
-        </select>
       </div>
     </div>
 
@@ -728,9 +717,12 @@
   <script>
     const LANG_KEY = 'qr_lang';
 
+    const SUPPORTED_LANGS = ['en', 'vi'];
+
     const I18N = {
       vi: {
         'doc.title': 'Điều khoản sử dụng - Qrio',
+        'meta.description': 'Điều khoản sử dụng dịch vụ tạo mã QR (QR code generator) của Qrio.',
         'aria.language': 'Ngôn ngữ',
         'aria.legalNav': 'Điều hướng pháp lý',
         'nav.home': 'Trang chủ',
@@ -800,6 +792,7 @@
       },
       en: {
         'doc.title': 'Terms of Service - Qrio',
+        'meta.description': "Terms of service for Qrio's QR code generator website.",
         'aria.language': 'Language',
         'aria.legalNav': 'Legal navigation',
         'nav.home': 'Home',
@@ -870,8 +863,8 @@
     };
 
     function normalizeLang(raw) {
-      if (!raw) return 'en';
-      return raw.toLowerCase() === 'vi' ? 'vi' : 'en';
+      const v = String(raw || '').toLowerCase();
+      return SUPPORTED_LANGS.includes(v) ? v : 'en';
     }
 
     function detectDefaultLang() {
@@ -902,6 +895,11 @@
       document.documentElement.lang = normalized;
       document.title = String(t('doc.title', undefined, normalized));
 
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', String(t(key, undefined, normalized)));
+      });
+
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         const value = t(key, undefined, normalized);
@@ -924,7 +922,7 @@
       const label = document.getElementById('lang-label');
       if (label && select) {
         const opt = select.options[select.selectedIndex];
-        label.textContent = opt ? opt.textContent : (normalized === 'vi' ? 'Tiếng Việt' : 'English');
+        label.textContent = opt ? opt.textContent : 'English';
       }
     }
 

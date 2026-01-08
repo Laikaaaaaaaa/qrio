@@ -4,15 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Mua Vé Điện Tử</title>
-  <meta name="description" content="Mua vé điện tử nhanh chóng với thanh toán QR." />
+  <title data-i18n="doc.title">Qrio - Mua Vé Điện Tử</title>
+  <meta name="description" data-i18n-content="doc.desc" content="Mua vé điện tử nhanh chóng với thanh toán QR." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://qrio.site/buy-ticket.html" />
   
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://qrio.site/buy-ticket.html" />
-  <meta property="og:title" content="Qrio - Mua Vé Điện Tử" />
-  <meta property="og:description" content="Mua vé điện tử nhanh chóng với thanh toán QR." />
+  <meta property="og:title" data-i18n-content="doc.title" content="Qrio - Mua Vé Điện Tử" />
+  <meta property="og:description" data-i18n-content="doc.desc" content="Mua vé điện tử nhanh chóng với thanh toán QR." />
   <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
   
   <meta name="theme-color" content="#7c3aed" />
@@ -957,7 +957,7 @@
     <div class="header-right">
       <a href="home.html" class="btn btn-primary btn-sm">
         <i class="fa-solid fa-house"></i>
-        <span>Trang chủ</span>
+        <span data-i18n="nav.home">Trang chủ</span>
       </a>
     </div>
   </header>
@@ -966,7 +966,7 @@
   <div class="loading-overlay" id="loading">
     <div class="loading-content">
       <div class="loading-spinner"></div>
-      <p>Đang tải thông tin vé...</p>
+      <p data-i18n="buy.loading">Đang tải thông tin vé...</p>
     </div>
   </div>
 
@@ -975,11 +975,11 @@
     <div class="card">
       <div class="error-box">
         <div class="error-icon"><i class="fa-solid fa-exclamation"></i></div>
-        <h2>Không tìm thấy vé</h2>
-        <p id="error-message">Link không hợp lệ hoặc sự kiện đã kết thúc.</p>
+        <h2 data-i18n="buy.error.title">Không tìm thấy vé</h2>
+        <p id="error-message" data-i18n="buy.error.msgGeneric">Link không hợp lệ hoặc sự kiện đã kết thúc.</p>
         <a href="home.html" class="btn btn-primary">
           <i class="fa-solid fa-house"></i>
-          Về trang chủ
+          <span data-i18n="buy.error.home">Về trang chủ</span>
         </a>
       </div>
     </div>
@@ -990,36 +990,36 @@
     <!-- STEP 1: Customer Info -->
     <div id="section-info" class="card">
       <div class="event-header">
-        <div class="event-badge"><i class="fa-solid fa-ticket"></i> Vé điện tử</div>
+        <div class="event-badge"><i class="fa-solid fa-ticket"></i> <span data-i18n="buy.badge">Vé điện tử</span></div>
         <h1 class="event-title" id="event-name">-</h1>
         <p class="event-desc" id="event-desc">-</p>
         <div class="event-price"><span id="price-per-ticket">-</span></div>
       </div>
 
-      <div class="card-title"><i class="fa-solid fa-user"></i> Thông tin đặt vé</div>
+      <div class="card-title"><i class="fa-solid fa-user"></i> <span data-i18n="buy.info.title">Thông tin đặt vé</span></div>
 
       <div class="form-group">
-        <label>Họ và tên người mua *</label>
-        <input type="text" id="buyer-name" placeholder="Nhập họ tên của bạn" />
+        <label data-i18n="buy.form.name">Họ và tên người mua *</label>
+        <input type="text" id="buyer-name" data-i18n-placeholder="buy.form.namePh" placeholder="Nhập họ tên của bạn" />
       </div>
 
       <div class="form-group">
-        <label>Email (để nhận vé)</label>
-        <input type="email" id="buyer-email" placeholder="email@example.com" />
+        <label data-i18n="buy.form.email">Email (để nhận vé)</label>
+        <input type="email" id="buyer-email" data-i18n-placeholder="buy.form.emailPh" placeholder="email@example.com" />
       </div>
 
       <div class="form-group">
-        <label>Số điện thoại</label>
-        <input type="tel" id="buyer-phone" placeholder="0912345678" />
+        <label data-i18n="buy.form.phone">Số điện thoại</label>
+        <input type="tel" id="buyer-phone" data-i18n-placeholder="buy.form.phonePh" placeholder="0912345678" />
       </div>
 
       <div class="form-group">
-        <label>Ghi chú</label>
-        <input type="text" id="buyer-note" placeholder="Ví dụ: Check-in lúc 18:00, ghi nhận tên nhóm..." />
+        <label data-i18n="buy.form.note">Ghi chú</label>
+        <input type="text" id="buyer-note" data-i18n-placeholder="buy.form.notePh" placeholder="Ví dụ: Check-in lúc 18:00, ghi nhận tên nhóm..." />
       </div>
 
       <div class="form-group">
-        <label>Số lượng vé</label>
+        <label data-i18n="buy.form.qty">Số lượng vé</label>
         <div class="quantity-selector">
           <button class="qty-btn" onclick="changeQty(-1)" id="qty-minus">−</button>
           <div class="qty-value" id="qty-value">1</div>
@@ -1029,20 +1029,20 @@
 
       <!-- Payment Type Selection -->
       <div class="form-group">
-        <label>Hình thức thanh toán *</label>
+        <label data-i18n="buy.form.payType">Hình thức thanh toán *</label>
         <div class="payment-type-selector">
           <label class="payment-type-option selected" id="payment-type-transfer">
             <input type="radio" name="payment-type" value="transfer" checked onchange="selectPaymentType('transfer')">
             <div class="payment-type-content">
               <i class="fa-solid fa-building-columns"></i>
-              <span>Chuyển khoản</span>
+              <span data-i18n="buy.pay.transfer">Chuyển khoản</span>
             </div>
           </label>
           <label class="payment-type-option" id="payment-type-cash">
             <input type="radio" name="payment-type" value="cash" onchange="selectPaymentType('cash')">
             <div class="payment-type-content">
               <i class="fa-solid fa-money-bill"></i>
-              <span>Tiền mặt</span>
+              <span data-i18n="buy.pay.cash">Tiền mặt</span>
             </div>
           </label>
         </div>
@@ -1051,34 +1051,34 @@
       <!-- Cash Payment Info -->
       <div class="cash-payment-info hidden" id="cash-payment-info">
         <div class="form-group">
-          <label>Người thanh toán (nếu khác người mua)</label>
-          <input type="text" id="cash-payer-name" placeholder="Để trống nếu cùng người mua" />
+          <label data-i18n="buy.cash.payer">Người thanh toán (nếu khác người mua)</label>
+          <input type="text" id="cash-payer-name" data-i18n-placeholder="buy.cash.payerPh" placeholder="Để trống nếu cùng người mua" />
         </div>
         <div class="form-group">
-          <label>Thời gian thanh toán *</label>
+          <label data-i18n="buy.cash.time">Thời gian thanh toán *</label>
           <select id="cash-payment-time">
-            <option value="at_counter">Thanh toán tại quầy</option>
-            <option value="later">Thanh toán sau</option>
-            <option value="paid">Đã thanh toán</option>
+            <option value="at_counter" data-i18n="buy.cash.time.atCounter">Thanh toán tại quầy</option>
+            <option value="later" data-i18n="buy.cash.time.later">Thanh toán sau</option>
+            <option value="paid" data-i18n="buy.cash.time.paid">Đã thanh toán</option>
           </select>
         </div>
         <div class="info-note">
           <i class="fa-solid fa-info-circle"></i>
-          Vé sẽ được tạo ngay và có trạng thái "Chờ thanh toán" cho đến khi được xác nhận.
+          <span data-i18n="buy.cash.note">Vé sẽ được tạo ngay và có trạng thái "Chờ thanh toán" cho đến khi được xác nhận.</span>
         </div>
       </div>
 
       <div class="order-summary">
         <div class="summary-row">
-          <span class="label">Đơn giá:</span>
+          <span class="label" data-i18n="buy.summary.unitPrice">Đơn giá:</span>
           <span class="value" id="summary-price">-</span>
         </div>
         <div class="summary-row">
-          <span class="label">Số lượng:</span>
+          <span class="label" data-i18n="buy.summary.quantity">Số lượng:</span>
           <span class="value" id="summary-qty">1 vé</span>
         </div>
         <div class="summary-row total">
-          <span class="label">Tổng tiền:</span>
+          <span class="label" data-i18n="buy.summary.total">Tổng tiền:</span>
           <span class="value" id="summary-total">-</span>
         </div>
       </div>
@@ -1086,7 +1086,7 @@
       <div class="action-buttons">
         <button class="btn btn-success" onclick="proceedToPayment()">
           <i class="fa-solid fa-credit-card"></i>
-          Tiếp tục đặt vé
+          <span data-i18n="buy.actions.continue">Tiếp tục đặt vé</span>
         </button>
       </div>
     </div>
@@ -1095,11 +1095,11 @@
   <!-- CANCEL MODAL -->
   <div class="modal-overlay hidden" id="cancel-modal">
     <div class="modal">
-      <h3><i class="fa-solid fa-times-circle" style="color: #ef4444;"></i> Hủy đơn hàng?</h3>
-      <p>Bạn có chắc muốn hủy đơn đặt vé này? Thao tác này không thể hoàn tác.</p>
+      <h3><i class="fa-solid fa-times-circle" style="color: #ef4444;"></i> <span data-i18n="buy.cancel.title">Hủy đơn hàng?</span></h3>
+      <p data-i18n="buy.cancel.body">Bạn có chắc muốn hủy đơn đặt vé này? Thao tác này không thể hoàn tác.</p>
       <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="hideModal('cancel-modal')">Quay lại</button>
-        <button class="btn btn-danger" onclick="cancelOrder()">Xác nhận hủy</button>
+        <button class="btn btn-secondary" onclick="hideModal('cancel-modal')"><span data-i18n="buy.cancel.back">Quay lại</span></button>
+        <button class="btn btn-danger" onclick="cancelOrder()"><span data-i18n="buy.cancel.confirm">Xác nhận hủy</span></button>
       </div>
     </div>
   </div>
@@ -1107,16 +1107,16 @@
   <!-- COMPLAINT MODAL -->
   <div class="modal-overlay hidden" id="complaint-modal">
     <div class="modal">
-      <h3><i class="fa-solid fa-headset" style="color: #f59e0b;"></i> Khiếu nại</h3>
-      <p>Nếu bạn đã thanh toán nhưng chưa nhận được vé, vui lòng liên hệ hỗ trợ qua:</p>
+      <h3><i class="fa-solid fa-headset" style="color: #f59e0b;"></i> <span data-i18n="buy.complaint.title">Khiếu nại</span></h3>
+      <p data-i18n="buy.complaint.body">Nếu bạn đã thanh toán nhưng chưa nhận được vé, vui lòng liên hệ hỗ trợ qua:</p>
       <div style="text-align: left; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
         <p style="margin-bottom: 8px;"><i class="fa-solid fa-envelope" style="width: 20px; color: #a78bfa;"></i> support@qrio.site</p>
         <p style="margin-bottom: 8px;"><i class="fa-brands fa-facebook" style="width: 20px; color: #a78bfa;"></i> fb.com/qrio.support</p>
-        <p><i class="fa-solid fa-phone" style="width: 20px; color: #a78bfa;"></i> Hotline: 1900xxxx</p>
+        <p><i class="fa-solid fa-phone" style="width: 20px; color: #a78bfa;"></i> <span data-i18n="buy.complaint.hotline">Hotline</span>: 1900xxxx</p>
       </div>
-      <p style="font-size: 12px;">Mã đơn: <span id="complaint-order-id" style="font-family: monospace; color: #f59e0b;"></span></p>
+      <p style="font-size: 12px;"><span data-i18n="buy.complaint.orderLabel">Mã đơn</span>: <span id="complaint-order-id" style="font-family: monospace; color: #f59e0b;"></span></p>
       <div class="modal-actions">
-        <button class="btn btn-primary" onclick="hideModal('complaint-modal')" style="width: 100%;">Đã hiểu</button>
+        <button class="btn btn-primary" onclick="hideModal('complaint-modal')" style="width: 100%;"><span data-i18n="buy.complaint.understood">Đã hiểu</span></button>
       </div>
     </div>
   </div>
@@ -1125,10 +1125,772 @@
   <div class="modal-overlay hidden" id="verifying-modal">
     <div class="modal">
       <div class="loading-spinner"></div>
-      <h3>Đang kiểm tra thanh toán...</h3>
-      <p>Vui lòng đợi trong giây lát. Hệ thống đang xác minh giao dịch của bạn.</p>
+      <h3 data-i18n="buy.verifying.title">Đang kiểm tra thanh toán...</h3>
+      <p data-i18n="buy.verifying.body">Vui lòng đợi trong giây lát. Hệ thống đang xác minh giao dịch của bạn.</p>
     </div>
   </div>
+
+  <script>
+    (function initI18n() {
+      const LANG_KEY = 'qr_lang';
+      const SUPPORTED_LANGS = ['en','zh','hi','es','fr','ar','pt','ru','id','vi'];
+
+      const I18N = {
+        vi: {
+          'doc.title': 'Qrio - Mua Vé Điện Tử',
+          'doc.desc': 'Mua vé điện tử nhanh chóng với thanh toán QR.',
+          'nav.home': 'Trang chủ',
+
+          'buy.loading': 'Đang tải thông tin vé...',
+          'buy.error.title': 'Không tìm thấy vé',
+          'buy.error.msgGeneric': 'Link không hợp lệ hoặc sự kiện đã kết thúc.',
+          'buy.error.home': 'Về trang chủ',
+
+          'buy.badge': 'Vé điện tử',
+          'buy.info.title': 'Thông tin đặt vé',
+          'buy.form.name': 'Họ và tên người mua *',
+          'buy.form.namePh': 'Nhập họ tên của bạn',
+          'buy.form.email': 'Email (để nhận vé)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Số điện thoại',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Ghi chú',
+          'buy.form.notePh': 'Ví dụ: Check-in lúc 18:00, ghi nhận tên nhóm...',
+          'buy.form.qty': 'Số lượng vé',
+          'buy.form.payType': 'Hình thức thanh toán *',
+          'buy.pay.transfer': 'Chuyển khoản',
+          'buy.pay.cash': 'Tiền mặt',
+
+          'buy.cash.payer': 'Người thanh toán (nếu khác người mua)',
+          'buy.cash.payerPh': 'Để trống nếu cùng người mua',
+          'buy.cash.time': 'Thời gian thanh toán *',
+          'buy.cash.time.atCounter': 'Thanh toán tại quầy',
+          'buy.cash.time.later': 'Thanh toán sau',
+          'buy.cash.time.paid': 'Đã thanh toán',
+          'buy.cash.note': 'Vé sẽ được tạo ngay và có trạng thái "Chờ thanh toán" cho đến khi được xác nhận.',
+
+          'buy.summary.unitPrice': 'Đơn giá:',
+          'buy.summary.quantity': 'Số lượng:',
+          'buy.summary.total': 'Tổng tiền:',
+          'buy.actions.continue': 'Tiếp tục đặt vé',
+
+          'buy.cancel.title': 'Hủy đơn hàng?',
+          'buy.cancel.body': 'Bạn có chắc muốn hủy đơn đặt vé này? Thao tác này không thể hoàn tác.',
+          'buy.cancel.back': 'Quay lại',
+          'buy.cancel.confirm': 'Xác nhận hủy',
+
+          'buy.complaint.title': 'Khiếu nại',
+          'buy.complaint.body': 'Nếu bạn đã thanh toán nhưng chưa nhận được vé, vui lòng liên hệ hỗ trợ qua:',
+          'buy.complaint.hotline': 'Hotline',
+          'buy.complaint.orderLabel': 'Mã đơn',
+          'buy.complaint.understood': 'Đã hiểu',
+
+          'buy.verifying.title': 'Đang kiểm tra thanh toán...',
+          'buy.verifying.body': 'Vui lòng đợi trong giây lát. Hệ thống đang xác minh giao dịch của bạn.',
+
+          'buy.event.descFallback': 'Vé điện tử',
+          'buy.price.perTicketSuffix': '/ vé',
+          'buy.unit.ticket.one': 'vé',
+          'buy.unit.ticket.many': 'vé',
+
+          'buy.alert.fileTooLarge': 'File ảnh quá lớn (tối đa 5MB)',
+          'buy.err.invalidLink': 'Link không hợp lệ. Vui lòng quét lại mã QR.',
+          'buy.err.eventNotFound': 'Không tìm thấy thông tin sự kiện. Có thể sự kiện đã hết hạn hoặc link không hợp lệ.',
+          'buy.err.eventEnded': 'Sự kiện đã kết thúc bán vé.',
+          'buy.err.eventNotStarted': 'Sự kiện chưa bắt đầu bán vé.',
+          'buy.alert.enterName': 'Vui lòng nhập họ tên',
+          'buy.err.createOrder': 'Không thể tạo đơn hàng',
+          'buy.err.createOrderWithDetail': 'Không thể tạo đơn hàng: {detail}',
+          'buy.err.invalidAccount': 'Số tài khoản không hợp lệ. Vui lòng nhập đúng số tài khoản (chỉ gồm chữ số).',
+          'buy.err.createQr': 'Không thể tạo QR thanh toán',
+          'buy.err.noQrImage': 'Không nhận được ảnh QR từ server',
+          'buy.err.qrFallback': 'Không tạo được QR thanh toán: {detail}',
+          'buy.actions.openQrNewTab': 'Mở QR ở tab mới',
+          'buy.alert.timeout': 'Đã hết thời gian thanh toán. Vui lòng thử lại.',
+          'buy.err.missingOrderInfo': 'Không tìm thấy thông tin đơn hàng. Vui lòng tải lại trang và thử lại.',
+          'buy.alert.proofRequired': 'Vui lòng tải lên ảnh xác nhận thanh toán để chủ sự kiện có thể xác minh.',
+          'buy.err.uploadProof': 'Không thể tải lên ảnh xác nhận',
+          'buy.err.verifyPayment': 'Không thể kiểm tra thanh toán',
+          'buy.err.verifyPaymentWithDetail': 'Lỗi kiểm tra thanh toán: {detail}',
+          'buy.alert.notVerifiedWait': 'Chưa xác nhận được thanh toán. Vui lòng đợi 1-3 phút và nhấn kiểm tra lại.',
+        },
+        en: {
+          'doc.title': 'Qrio - Buy E-Tickets',
+          'doc.desc': 'Buy e-tickets quickly with QR payment.',
+          'nav.home': 'Home',
+
+          'buy.loading': 'Loading ticket information...',
+          'buy.error.title': 'Ticket not found',
+          'buy.error.msgGeneric': 'Invalid link or the event has ended.',
+          'buy.error.home': 'Back to home',
+
+          'buy.badge': 'E-ticket',
+          'buy.info.title': 'Booking details',
+          'buy.form.name': 'Buyer name *',
+          'buy.form.namePh': 'Enter your full name',
+          'buy.form.email': 'Email (to receive tickets)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Phone number',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Note',
+          'buy.form.notePh': 'Example: Check-in at 18:00, group name...',
+          'buy.form.qty': 'Quantity',
+          'buy.form.payType': 'Payment method *',
+          'buy.pay.transfer': 'Bank transfer',
+          'buy.pay.cash': 'Cash',
+
+          'buy.cash.payer': 'Payer (if different from buyer)',
+          'buy.cash.payerPh': 'Leave blank if same as buyer',
+          'buy.cash.time': 'Payment time *',
+          'buy.cash.time.atCounter': 'Pay at counter',
+          'buy.cash.time.later': 'Pay later',
+          'buy.cash.time.paid': 'Already paid',
+          'buy.cash.note': 'A ticket will be created immediately and remain "Pending payment" until confirmed.',
+
+          'buy.summary.unitPrice': 'Unit price:',
+          'buy.summary.quantity': 'Quantity:',
+          'buy.summary.total': 'Total:',
+          'buy.actions.continue': 'Continue',
+
+          'buy.cancel.title': 'Cancel order?',
+          'buy.cancel.body': 'Are you sure you want to cancel this order? This action cannot be undone.',
+          'buy.cancel.back': 'Back',
+          'buy.cancel.confirm': 'Confirm cancellation',
+
+          'buy.complaint.title': 'Support request',
+          'buy.complaint.body': "If you've paid but haven't received your tickets, please contact support:",
+          'buy.complaint.hotline': 'Hotline',
+          'buy.complaint.orderLabel': 'Order',
+          'buy.complaint.understood': 'Got it',
+
+          'buy.verifying.title': 'Verifying payment...',
+          'buy.verifying.body': 'Please wait a moment while we verify your transaction.',
+
+          'buy.event.descFallback': 'E-ticket',
+          'buy.price.perTicketSuffix': '/ ticket',
+          'buy.unit.ticket.one': 'ticket',
+          'buy.unit.ticket.many': 'tickets',
+
+          'buy.alert.fileTooLarge': 'Image file is too large (max 5MB)',
+          'buy.err.invalidLink': 'Invalid link. Please scan the QR code again.',
+          'buy.err.eventNotFound': 'Unable to load event information. The event may have expired or the link is invalid.',
+          'buy.err.eventEnded': 'Ticket sales have ended for this event.',
+          'buy.err.eventNotStarted': 'Ticket sales have not started yet for this event.',
+          'buy.alert.enterName': 'Please enter your name',
+          'buy.err.createOrder': 'Unable to create order',
+          'buy.err.createOrderWithDetail': 'Unable to create order: {detail}',
+          'buy.err.invalidAccount': 'Invalid bank account number. Please enter digits only.',
+          'buy.err.createQr': 'Unable to generate payment QR',
+          'buy.err.noQrImage': 'No QR image returned from the server',
+          'buy.err.qrFallback': 'Unable to generate payment QR: {detail}',
+          'buy.actions.openQrNewTab': 'Open QR in new tab',
+          'buy.alert.timeout': 'Payment timed out. Please try again.',
+          'buy.err.missingOrderInfo': 'Order information not found. Please reload the page and try again.',
+          'buy.alert.proofRequired': 'Please upload a payment proof image so the organizer can verify it.',
+          'buy.err.uploadProof': 'Unable to upload proof image',
+          'buy.err.verifyPayment': 'Unable to verify payment',
+          'buy.err.verifyPaymentWithDetail': 'Payment verification error: {detail}',
+          'buy.alert.notVerifiedWait': 'Payment not confirmed yet. Please wait 1–3 minutes and check again.',
+        }
+        ,zh: {
+          'doc.title': 'Qrio - 购买电子票',
+          'doc.desc': '通过二维码支付快速购买电子票。',
+          'nav.home': '主页',
+          'buy.loading': '正在加载票务信息...',
+          'buy.error.title': '未找到票务',
+          'buy.error.msgGeneric': '链接无效或活动已结束。',
+          'buy.error.home': '返回主页',
+          'buy.badge': '电子票',
+          'buy.info.title': '订票信息',
+          'buy.form.name': '购票人姓名 *',
+          'buy.form.namePh': '请输入你的姓名',
+          'buy.form.email': '邮箱（用于接收票）',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': '电话号码',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': '备注',
+          'buy.form.notePh': '例如：18:00 入场、团队名称...',
+          'buy.form.qty': '数量',
+          'buy.form.payType': '支付方式 *',
+          'buy.pay.transfer': '银行转账',
+          'buy.pay.cash': '现金',
+          'buy.cash.payer': '付款人（如不同于购票人）',
+          'buy.cash.payerPh': '如同购票人可留空',
+          'buy.cash.time': '付款时间 *',
+          'buy.cash.time.atCounter': '柜台付款',
+          'buy.cash.time.later': '稍后付款',
+          'buy.cash.time.paid': '已付款',
+          'buy.cash.note': '系统会立即创建票，状态为“待付款”，直到被确认。',
+          'buy.summary.unitPrice': '单价：',
+          'buy.summary.quantity': '数量：',
+          'buy.summary.total': '总计：',
+          'buy.actions.continue': '继续',
+          'buy.cancel.title': '取消订单？',
+          'buy.cancel.body': '确定要取消该订单吗？此操作不可撤销。',
+          'buy.cancel.back': '返回',
+          'buy.cancel.confirm': '确认取消',
+          'buy.complaint.title': '申诉/支持',
+          'buy.complaint.body': '如果你已付款但未收到票，请通过以下方式联系支持：',
+          'buy.complaint.hotline': '热线',
+          'buy.complaint.orderLabel': '订单号',
+          'buy.complaint.understood': '知道了',
+          'buy.verifying.title': '正在验证付款...',
+          'buy.verifying.body': '请稍候，系统正在核验你的交易。',
+          'buy.event.descFallback': '电子票',
+          'buy.price.perTicketSuffix': '/ 张',
+          'buy.unit.ticket.one': '张',
+          'buy.unit.ticket.many': '张',
+          'buy.alert.fileTooLarge': '图片过大（最大 5MB）',
+          'buy.err.invalidLink': '链接无效。请重新扫描二维码。',
+          'buy.err.eventNotFound': '无法加载活动信息。活动可能已过期或链接无效。',
+          'buy.err.eventEnded': '该活动已结束售票。',
+          'buy.err.eventNotStarted': '该活动尚未开始售票。',
+          'buy.alert.enterName': '请输入姓名',
+          'buy.err.createOrder': '无法创建订单',
+          'buy.err.createOrderWithDetail': '无法创建订单：{detail}',
+          'buy.err.invalidAccount': '银行卡号无效，请只输入数字。',
+          'buy.err.createQr': '无法生成付款二维码',
+          'buy.err.noQrImage': '服务器未返回二维码图片',
+          'buy.err.qrFallback': '无法生成付款二维码：{detail}',
+          'buy.actions.openQrNewTab': '在新标签页打开二维码',
+          'buy.alert.timeout': '支付超时，请重试。',
+          'buy.err.missingOrderInfo': '未找到订单信息，请刷新页面后重试。',
+          'buy.alert.proofRequired': '请上传付款凭证图片，以便主办方核验。',
+          'buy.err.uploadProof': '无法上传付款凭证',
+          'buy.err.verifyPayment': '无法验证付款',
+          'buy.err.verifyPaymentWithDetail': '付款验证错误：{detail}',
+          'buy.alert.notVerifiedWait': '付款尚未确认。请等待 1–3 分钟后再检查。',
+        },
+        hi: {
+          'doc.title': 'Qrio - ई-टिकट खरीदें',
+          'doc.desc': 'QR भुगतान के साथ जल्दी ई-टिकट खरीदें।',
+          'nav.home': 'होम',
+          'buy.loading': 'टिकट जानकारी लोड हो रही है...',
+          'buy.error.title': 'टिकट नहीं मिला',
+          'buy.error.msgGeneric': 'लिंक अमान्य है या इवेंट समाप्त हो गया है।',
+          'buy.error.home': 'होम पर जाएँ',
+          'buy.badge': 'ई-टिकट',
+          'buy.info.title': 'बुकिंग विवरण',
+          'buy.form.name': 'खरीदार का नाम *',
+          'buy.form.namePh': 'अपना पूरा नाम लिखें',
+          'buy.form.email': 'ईमेल (टिकट पाने के लिए)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'फोन नंबर',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'नोट',
+          'buy.form.notePh': 'उदाहरण: 18:00 पर चेक-इन, समूह नाम...',
+          'buy.form.qty': 'मात्रा',
+          'buy.form.payType': 'भुगतान तरीका *',
+          'buy.pay.transfer': 'बैंक ट्रांसफर',
+          'buy.pay.cash': 'नकद',
+          'buy.cash.payer': 'भुगतानकर्ता (यदि खरीदार से अलग)',
+          'buy.cash.payerPh': 'यदि वही है तो खाली छोड़ें',
+          'buy.cash.time': 'भुगतान समय *',
+          'buy.cash.time.atCounter': 'काउंटर पर भुगतान',
+          'buy.cash.time.later': 'बाद में भुगतान',
+          'buy.cash.time.paid': 'पहले से भुगतान',
+          'buy.cash.note': 'टिकट तुरंत बन जाएगा और पुष्टि तक "Pending payment" रहेगा।',
+          'buy.summary.unitPrice': 'यूनिट कीमत:',
+          'buy.summary.quantity': 'मात्रा:',
+          'buy.summary.total': 'कुल:',
+          'buy.actions.continue': 'जारी रखें',
+          'buy.cancel.title': 'ऑर्डर रद्द करें?',
+          'buy.cancel.body': 'क्या आप वाकई इस ऑर्डर को रद्द करना चाहते हैं? यह वापस नहीं होगा।',
+          'buy.cancel.back': 'वापस',
+          'buy.cancel.confirm': 'रद्द करने की पुष्टि',
+          'buy.complaint.title': 'सहायता',
+          'buy.complaint.body': 'यदि आपने भुगतान कर दिया है लेकिन टिकट नहीं मिला, तो सहायता से संपर्क करें:',
+          'buy.complaint.hotline': 'हॉटलाइन',
+          'buy.complaint.orderLabel': 'ऑर्डर',
+          'buy.complaint.understood': 'समझ गया',
+          'buy.verifying.title': 'भुगतान सत्यापित हो रहा है...',
+          'buy.verifying.body': 'कृपया प्रतीक्षा करें, सिस्टम आपकी लेन-देन जाँच रहा है।',
+          'buy.event.descFallback': 'ई-टिकट',
+          'buy.price.perTicketSuffix': '/ टिकट',
+          'buy.unit.ticket.one': 'टिकट',
+          'buy.unit.ticket.many': 'टिकट',
+          'buy.alert.fileTooLarge': 'छवि बहुत बड़ी है (अधिकतम 5MB)',
+          'buy.err.invalidLink': 'लिंक अमान्य है। कृपया QR दोबारा स्कैन करें।',
+          'buy.err.eventNotFound': 'इवेंट जानकारी लोड नहीं हो सकी। लिंक अमान्य हो सकता है।',
+          'buy.err.eventEnded': 'इस इवेंट की टिकट बिक्री समाप्त हो गई है।',
+          'buy.err.eventNotStarted': 'इस इवेंट की टिकट बिक्री अभी शुरू नहीं हुई है।',
+          'buy.alert.enterName': 'कृपया अपना नाम दर्ज करें',
+          'buy.err.createOrder': 'ऑर्डर नहीं बन पाया',
+          'buy.err.createOrderWithDetail': 'ऑर्डर नहीं बन पाया: {detail}',
+          'buy.err.invalidAccount': 'खाता नंबर अमान्य है, केवल अंक दर्ज करें।',
+          'buy.err.createQr': 'पेमेंट QR नहीं बन पाया',
+          'buy.err.noQrImage': 'सर्वर से QR छवि नहीं मिली',
+          'buy.err.qrFallback': 'पेमेंट QR नहीं बन पाया: {detail}',
+          'buy.actions.openQrNewTab': 'नए टैब में QR खोलें',
+          'buy.alert.timeout': 'भुगतान समय समाप्त। कृपया फिर से प्रयास करें।',
+          'buy.err.missingOrderInfo': 'ऑर्डर जानकारी नहीं मिली। कृपया पेज रीलोड करें।',
+          'buy.alert.proofRequired': 'कृपया भुगतान प्रमाण छवि अपलोड करें ताकि आयोजक सत्यापित कर सके।',
+          'buy.err.uploadProof': 'प्रमाण छवि अपलोड नहीं हो सकी',
+          'buy.err.verifyPayment': 'भुगतान सत्यापित नहीं हो सका',
+          'buy.err.verifyPaymentWithDetail': 'भुगतान सत्यापन त्रुटि: {detail}',
+          'buy.alert.notVerifiedWait': 'भुगतान अभी पुष्टि नहीं हुआ। 1–3 मिनट बाद फिर जाँचें।',
+        },
+        es: {
+          'doc.title': 'Qrio - Comprar e-tickets',
+          'doc.desc': 'Compra e-tickets rápido con pago por QR.',
+          'nav.home': 'Inicio',
+          'buy.loading': 'Cargando información del ticket...',
+          'buy.error.title': 'Ticket no encontrado',
+          'buy.error.msgGeneric': 'Enlace inválido o el evento ha terminado.',
+          'buy.error.home': 'Volver al inicio',
+          'buy.badge': 'E-ticket',
+          'buy.info.title': 'Detalles de la reserva',
+          'buy.form.name': 'Nombre del comprador *',
+          'buy.form.namePh': 'Escribe tu nombre completo',
+          'buy.form.email': 'Email (para recibir el ticket)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Teléfono',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Nota',
+          'buy.form.notePh': 'Ej.: Check-in 18:00, nombre del grupo...',
+          'buy.form.qty': 'Cantidad',
+          'buy.form.payType': 'Método de pago *',
+          'buy.pay.transfer': 'Transferencia bancaria',
+          'buy.pay.cash': 'Efectivo',
+          'buy.cash.payer': 'Pagador (si es distinto)',
+          'buy.cash.payerPh': 'Dejar vacío si es el mismo',
+          'buy.cash.time': 'Momento de pago *',
+          'buy.cash.time.atCounter': 'Pagar en mostrador',
+          'buy.cash.time.later': 'Pagar después',
+          'buy.cash.time.paid': 'Ya pagado',
+          'buy.cash.note': 'El ticket se creará al instante y quedará “Pendiente de pago” hasta confirmación.',
+          'buy.summary.unitPrice': 'Precio unitario:',
+          'buy.summary.quantity': 'Cantidad:',
+          'buy.summary.total': 'Total:',
+          'buy.actions.continue': 'Continuar',
+          'buy.cancel.title': '¿Cancelar pedido?',
+          'buy.cancel.body': '¿Seguro que deseas cancelar este pedido? No se puede deshacer.',
+          'buy.cancel.back': 'Volver',
+          'buy.cancel.confirm': 'Confirmar cancelación',
+          'buy.complaint.title': 'Soporte',
+          'buy.complaint.body': 'Si ya pagaste pero no recibiste el ticket, contacta soporte:',
+          'buy.complaint.hotline': 'Línea',
+          'buy.complaint.orderLabel': 'Pedido',
+          'buy.complaint.understood': 'Entendido',
+          'buy.verifying.title': 'Verificando pago...',
+          'buy.verifying.body': 'Espera un momento mientras verificamos tu transacción.',
+          'buy.event.descFallback': 'E-ticket',
+          'buy.price.perTicketSuffix': '/ ticket',
+          'buy.unit.ticket.one': 'ticket',
+          'buy.unit.ticket.many': 'tickets',
+          'buy.alert.fileTooLarge': 'La imagen es demasiado grande (máx. 5MB)',
+          'buy.err.invalidLink': 'Enlace inválido. Vuelve a escanear el QR.',
+          'buy.err.eventNotFound': 'No se pudo cargar el evento. Puede haber expirado o el enlace es inválido.',
+          'buy.err.eventEnded': 'La venta de tickets terminó para este evento.',
+          'buy.err.eventNotStarted': 'La venta de tickets aún no ha comenzado.',
+          'buy.alert.enterName': 'Ingresa tu nombre',
+          'buy.err.createOrder': 'No se pudo crear el pedido',
+          'buy.err.createOrderWithDetail': 'No se pudo crear el pedido: {detail}',
+          'buy.err.invalidAccount': 'Número de cuenta inválido. Ingresa solo dígitos.',
+          'buy.err.createQr': 'No se pudo generar el QR de pago',
+          'buy.err.noQrImage': 'El servidor no devolvió imagen QR',
+          'buy.err.qrFallback': 'No se pudo generar el QR: {detail}',
+          'buy.actions.openQrNewTab': 'Abrir QR en nueva pestaña',
+          'buy.alert.timeout': 'Tiempo de pago agotado. Intenta de nuevo.',
+          'buy.err.missingOrderInfo': 'No se encontró la información del pedido. Recarga e inténtalo de nuevo.',
+          'buy.alert.proofRequired': 'Sube un comprobante para que el organizador pueda verificar.',
+          'buy.err.uploadProof': 'No se pudo subir el comprobante',
+          'buy.err.verifyPayment': 'No se pudo verificar el pago',
+          'buy.err.verifyPaymentWithDetail': 'Error de verificación: {detail}',
+          'buy.alert.notVerifiedWait': 'Pago aún no confirmado. Espera 1–3 minutos y vuelve a comprobar.',
+        },
+        fr: {
+          'doc.title': 'Qrio - Acheter des e-billets',
+          'doc.desc': 'Achetez des e-billets rapidement avec paiement par QR.',
+          'nav.home': 'Accueil',
+          'buy.loading': 'Chargement des informations...',
+          'buy.error.title': 'Billet introuvable',
+          'buy.error.msgGeneric': 'Lien invalide ou événement terminé.',
+          'buy.error.home': 'Retour à l’accueil',
+          'buy.badge': 'E-billet',
+          'buy.info.title': 'Infos de réservation',
+          'buy.form.name': 'Nom de l’acheteur *',
+          'buy.form.namePh': 'Saisissez votre nom complet',
+          'buy.form.email': 'Email (pour recevoir le billet)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Téléphone',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Note',
+          'buy.form.notePh': 'Ex.: Check-in 18:00, nom du groupe...',
+          'buy.form.qty': 'Quantité',
+          'buy.form.payType': 'Mode de paiement *',
+          'buy.pay.transfer': 'Virement bancaire',
+          'buy.pay.cash': 'Espèces',
+          'buy.cash.payer': 'Payeur (si différent)',
+          'buy.cash.payerPh': 'Laisser vide si identique',
+          'buy.cash.time': 'Moment du paiement *',
+          'buy.cash.time.atCounter': 'Payer au guichet',
+          'buy.cash.time.later': 'Payer plus tard',
+          'buy.cash.time.paid': 'Déjà payé',
+          'buy.cash.note': 'Le billet est créé immédiatement et reste “Paiement en attente” jusqu’à confirmation.',
+          'buy.summary.unitPrice': 'Prix unitaire :',
+          'buy.summary.quantity': 'Quantité :',
+          'buy.summary.total': 'Total :',
+          'buy.actions.continue': 'Continuer',
+          'buy.cancel.title': 'Annuler la commande ?',
+          'buy.cancel.body': 'Voulez-vous vraiment annuler cette commande ? Action irréversible.',
+          'buy.cancel.back': 'Retour',
+          'buy.cancel.confirm': 'Confirmer l’annulation',
+          'buy.complaint.title': 'Support',
+          'buy.complaint.body': 'Si vous avez payé mais n’avez pas reçu le billet, contactez le support :',
+          'buy.complaint.hotline': 'Hotline',
+          'buy.complaint.orderLabel': 'Commande',
+          'buy.complaint.understood': 'Compris',
+          'buy.verifying.title': 'Vérification du paiement...',
+          'buy.verifying.body': 'Veuillez patienter pendant la vérification de votre transaction.',
+          'buy.event.descFallback': 'E-billet',
+          'buy.price.perTicketSuffix': '/ billet',
+          'buy.unit.ticket.one': 'billet',
+          'buy.unit.ticket.many': 'billets',
+          'buy.alert.fileTooLarge': 'Image trop volumineuse (max 5 Mo)',
+          'buy.err.invalidLink': 'Lien invalide. Veuillez rescanner le QR.',
+          'buy.err.eventNotFound': 'Impossible de charger l’événement. Il a peut-être expiré ou le lien est invalide.',
+          'buy.err.eventEnded': 'La vente est terminée pour cet événement.',
+          'buy.err.eventNotStarted': 'La vente n’a pas encore commencé.',
+          'buy.alert.enterName': 'Veuillez saisir votre nom',
+          'buy.err.createOrder': 'Impossible de créer la commande',
+          'buy.err.createOrderWithDetail': 'Impossible de créer la commande : {detail}',
+          'buy.err.invalidAccount': 'Numéro de compte invalide. Saisissez uniquement des chiffres.',
+          'buy.err.createQr': 'Impossible de générer le QR de paiement',
+          'buy.err.noQrImage': 'Aucune image QR renvoyée par le serveur',
+          'buy.err.qrFallback': 'Impossible de générer le QR : {detail}',
+          'buy.actions.openQrNewTab': 'Ouvrir le QR dans un nouvel onglet',
+          'buy.alert.timeout': 'Délai de paiement dépassé. Réessayez.',
+          'buy.err.missingOrderInfo': 'Infos de commande introuvables. Rechargez la page et réessayez.',
+          'buy.alert.proofRequired': 'Veuillez téléverser un justificatif pour que l’organisateur puisse vérifier.',
+          'buy.err.uploadProof': 'Impossible de téléverser le justificatif',
+          'buy.err.verifyPayment': 'Impossible de vérifier le paiement',
+          'buy.err.verifyPaymentWithDetail': 'Erreur de vérification : {detail}',
+          'buy.alert.notVerifiedWait': 'Paiement non confirmé. Attendez 1–3 minutes puis vérifiez à nouveau.',
+        },
+        ar: {
+          'doc.title': 'Qrio - شراء تذاكر إلكترونية',
+          'doc.desc': 'اشترِ تذاكر إلكترونية بسرعة عبر الدفع برمز QR.',
+          'nav.home': 'الرئيسية',
+          'buy.loading': 'جارٍ تحميل معلومات التذكرة...',
+          'buy.error.title': 'لم يتم العثور على التذكرة',
+          'buy.error.msgGeneric': 'الرابط غير صالح أو انتهى الحدث.',
+          'buy.error.home': 'العودة للرئيسية',
+          'buy.badge': 'تذكرة إلكترونية',
+          'buy.info.title': 'تفاصيل الحجز',
+          'buy.form.name': 'اسم المشتري *',
+          'buy.form.namePh': 'أدخل اسمك الكامل',
+          'buy.form.email': 'البريد الإلكتروني (لاستلام التذكرة)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'رقم الهاتف',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'ملاحظة',
+          'buy.form.notePh': 'مثال: تسجيل الدخول 18:00، اسم المجموعة...',
+          'buy.form.qty': 'الكمية',
+          'buy.form.payType': 'طريقة الدفع *',
+          'buy.pay.transfer': 'تحويل بنكي',
+          'buy.pay.cash': 'نقداً',
+          'buy.cash.payer': 'الدافع (إن كان مختلفاً)',
+          'buy.cash.payerPh': 'اتركه فارغاً إن كان نفسه',
+          'buy.cash.time': 'وقت الدفع *',
+          'buy.cash.time.atCounter': 'الدفع عند الشباك',
+          'buy.cash.time.later': 'الدفع لاحقاً',
+          'buy.cash.time.paid': 'تم الدفع',
+          'buy.cash.note': 'سيتم إنشاء التذكرة فوراً وستبقى “بانتظار الدفع” حتى يتم التأكيد.',
+          'buy.summary.unitPrice': 'سعر الوحدة:',
+          'buy.summary.quantity': 'الكمية:',
+          'buy.summary.total': 'الإجمالي:',
+          'buy.actions.continue': 'متابعة',
+          'buy.cancel.title': 'إلغاء الطلب؟',
+          'buy.cancel.body': 'هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع.',
+          'buy.cancel.back': 'رجوع',
+          'buy.cancel.confirm': 'تأكيد الإلغاء',
+          'buy.complaint.title': 'الدعم',
+          'buy.complaint.body': 'إذا كنت قد دفعت ولم تستلم التذكرة، تواصل مع الدعم:',
+          'buy.complaint.hotline': 'الخط الساخن',
+          'buy.complaint.orderLabel': 'الطلب',
+          'buy.complaint.understood': 'حسناً',
+          'buy.verifying.title': 'جارٍ التحقق من الدفع...',
+          'buy.verifying.body': 'يرجى الانتظار بينما نتحقق من معاملتك.',
+          'buy.event.descFallback': 'تذكرة إلكترونية',
+          'buy.price.perTicketSuffix': '/ تذكرة',
+          'buy.unit.ticket.one': 'تذكرة',
+          'buy.unit.ticket.many': 'تذاكر',
+          'buy.alert.fileTooLarge': 'ملف الصورة كبير جداً (الحد الأقصى 5MB)',
+          'buy.err.invalidLink': 'الرابط غير صالح. أعد مسح رمز QR.',
+          'buy.err.eventNotFound': 'تعذر تحميل معلومات الحدث. قد يكون منتهيًا أو الرابط غير صالح.',
+          'buy.err.eventEnded': 'انتهى بيع التذاكر لهذا الحدث.',
+          'buy.err.eventNotStarted': 'لم يبدأ بيع التذاكر بعد.',
+          'buy.alert.enterName': 'يرجى إدخال الاسم',
+          'buy.err.createOrder': 'تعذر إنشاء الطلب',
+          'buy.err.createOrderWithDetail': 'تعذر إنشاء الطلب: {detail}',
+          'buy.err.invalidAccount': 'رقم الحساب غير صالح. أدخل أرقاماً فقط.',
+          'buy.err.createQr': 'تعذر إنشاء رمز QR للدفع',
+          'buy.err.noQrImage': 'لم يتم إرجاع صورة QR من الخادم',
+          'buy.err.qrFallback': 'تعذر إنشاء QR: {detail}',
+          'buy.actions.openQrNewTab': 'فتح QR في تبويب جديد',
+          'buy.alert.timeout': 'انتهت مهلة الدفع. حاول مرة أخرى.',
+          'buy.err.missingOrderInfo': 'معلومات الطلب غير موجودة. أعد تحميل الصفحة وحاول مرة أخرى.',
+          'buy.alert.proofRequired': 'يرجى رفع إثبات الدفع ليتمكن المنظم من التحقق.',
+          'buy.err.uploadProof': 'تعذر رفع الإثبات',
+          'buy.err.verifyPayment': 'تعذر التحقق من الدفع',
+          'buy.err.verifyPaymentWithDetail': 'خطأ في التحقق: {detail}',
+          'buy.alert.notVerifiedWait': 'لم يتم تأكيد الدفع بعد. انتظر 1–3 دقائق ثم تحقق مرة أخرى.',
+        },
+        pt: {
+          'doc.title': 'Qrio - Comprar e-ingressos',
+          'doc.desc': 'Compre e-ingressos rapidamente com pagamento via QR.',
+          'nav.home': 'Início',
+          'buy.loading': 'Carregando informações do ingresso...',
+          'buy.error.title': 'Ingresso não encontrado',
+          'buy.error.msgGeneric': 'Link inválido ou o evento terminou.',
+          'buy.error.home': 'Voltar ao início',
+          'buy.badge': 'E-ingresso',
+          'buy.info.title': 'Dados da reserva',
+          'buy.form.name': 'Nome do comprador *',
+          'buy.form.namePh': 'Digite seu nome completo',
+          'buy.form.email': 'Email (para receber ingressos)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Telefone',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Observação',
+          'buy.form.notePh': 'Ex.: Check-in 18:00, nome do grupo...',
+          'buy.form.qty': 'Quantidade',
+          'buy.form.payType': 'Forma de pagamento *',
+          'buy.pay.transfer': 'Transferência bancária',
+          'buy.pay.cash': 'Dinheiro',
+          'buy.cash.payer': 'Pagador (se diferente)',
+          'buy.cash.payerPh': 'Deixe em branco se for o mesmo',
+          'buy.cash.time': 'Momento do pagamento *',
+          'buy.cash.time.atCounter': 'Pagar no balcão',
+          'buy.cash.time.later': 'Pagar depois',
+          'buy.cash.time.paid': 'Já pago',
+          'buy.cash.note': 'O ingresso será criado imediatamente e ficará “Pendente de pagamento” até a confirmação.',
+          'buy.summary.unitPrice': 'Preço unitário:',
+          'buy.summary.quantity': 'Quantidade:',
+          'buy.summary.total': 'Total:',
+          'buy.actions.continue': 'Continuar',
+          'buy.cancel.title': 'Cancelar pedido?',
+          'buy.cancel.body': 'Tem certeza que deseja cancelar este pedido? Não é possível desfazer.',
+          'buy.cancel.back': 'Voltar',
+          'buy.cancel.confirm': 'Confirmar cancelamento',
+          'buy.complaint.title': 'Suporte',
+          'buy.complaint.body': 'Se você pagou e não recebeu o ingresso, entre em contato com o suporte:',
+          'buy.complaint.hotline': 'Hotline',
+          'buy.complaint.orderLabel': 'Pedido',
+          'buy.complaint.understood': 'Entendi',
+          'buy.verifying.title': 'Verificando pagamento...',
+          'buy.verifying.body': 'Aguarde enquanto verificamos sua transação.',
+          'buy.event.descFallback': 'E-ingresso',
+          'buy.price.perTicketSuffix': '/ ingresso',
+          'buy.unit.ticket.one': 'ingresso',
+          'buy.unit.ticket.many': 'ingressos',
+          'buy.alert.fileTooLarge': 'Imagem muito grande (máx. 5MB)',
+          'buy.err.invalidLink': 'Link inválido. Escaneie o QR novamente.',
+          'buy.err.eventNotFound': 'Não foi possível carregar o evento. Pode ter expirado ou o link é inválido.',
+          'buy.err.eventEnded': 'A venda de ingressos terminou para este evento.',
+          'buy.err.eventNotStarted': 'A venda de ingressos ainda não começou.',
+          'buy.alert.enterName': 'Digite seu nome',
+          'buy.err.createOrder': 'Não foi possível criar o pedido',
+          'buy.err.createOrderWithDetail': 'Não foi possível criar o pedido: {detail}',
+          'buy.err.invalidAccount': 'Número de conta inválido. Digite apenas números.',
+          'buy.err.createQr': 'Não foi possível gerar o QR de pagamento',
+          'buy.err.noQrImage': 'O servidor não retornou imagem do QR',
+          'buy.err.qrFallback': 'Não foi possível gerar o QR: {detail}',
+          'buy.actions.openQrNewTab': 'Abrir QR em nova aba',
+          'buy.alert.timeout': 'Tempo de pagamento esgotado. Tente novamente.',
+          'buy.err.missingOrderInfo': 'Informações do pedido não encontradas. Recarregue e tente novamente.',
+          'buy.alert.proofRequired': 'Envie um comprovante para que o organizador possa verificar.',
+          'buy.err.uploadProof': 'Não foi possível enviar o comprovante',
+          'buy.err.verifyPayment': 'Não foi possível verificar o pagamento',
+          'buy.err.verifyPaymentWithDetail': 'Erro de verificação: {detail}',
+          'buy.alert.notVerifiedWait': 'Pagamento ainda não confirmado. Aguarde 1–3 minutos e verifique novamente.',
+        },
+        ru: {
+          'doc.title': 'Qrio — Купить электронные билеты',
+          'doc.desc': 'Быстрая покупка электронных билетов с оплатой по QR.',
+          'nav.home': 'Главная',
+          'buy.loading': 'Загрузка информации о билете...',
+          'buy.error.title': 'Билет не найден',
+          'buy.error.msgGeneric': 'Неверная ссылка или событие завершено.',
+          'buy.error.home': 'На главную',
+          'buy.badge': 'Электронный билет',
+          'buy.info.title': 'Данные заказа',
+          'buy.form.name': 'Имя покупателя *',
+          'buy.form.namePh': 'Введите ваше имя',
+          'buy.form.email': 'Email (для получения билета)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Телефон',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Примечание',
+          'buy.form.notePh': 'Напр.: вход 18:00, название группы...',
+          'buy.form.qty': 'Количество',
+          'buy.form.payType': 'Способ оплаты *',
+          'buy.pay.transfer': 'Банковский перевод',
+          'buy.pay.cash': 'Наличные',
+          'buy.cash.payer': 'Плательщик (если другой)',
+          'buy.cash.payerPh': 'Оставьте пустым, если тот же',
+          'buy.cash.time': 'Время оплаты *',
+          'buy.cash.time.atCounter': 'Оплата на месте',
+          'buy.cash.time.later': 'Оплатить позже',
+          'buy.cash.time.paid': 'Уже оплачено',
+          'buy.cash.note': 'Билет будет создан сразу и останется “Ожидает оплаты” до подтверждения.',
+          'buy.summary.unitPrice': 'Цена за шт.:',
+          'buy.summary.quantity': 'Количество:',
+          'buy.summary.total': 'Итого:',
+          'buy.actions.continue': 'Продолжить',
+          'buy.cancel.title': 'Отменить заказ?',
+          'buy.cancel.body': 'Вы уверены, что хотите отменить заказ? Действие необратимо.',
+          'buy.cancel.back': 'Назад',
+          'buy.cancel.confirm': 'Подтвердить отмену',
+          'buy.complaint.title': 'Поддержка',
+          'buy.complaint.body': 'Если вы оплатили, но не получили билет, свяжитесь с поддержкой:',
+          'buy.complaint.hotline': 'Горячая линия',
+          'buy.complaint.orderLabel': 'Заказ',
+          'buy.complaint.understood': 'Понятно',
+          'buy.verifying.title': 'Проверяем оплату...',
+          'buy.verifying.body': 'Пожалуйста, подождите — мы проверяем транзакцию.',
+          'buy.event.descFallback': 'Электронный билет',
+          'buy.price.perTicketSuffix': '/ билет',
+          'buy.unit.ticket.one': 'билет',
+          'buy.unit.ticket.many': 'билетов',
+          'buy.alert.fileTooLarge': 'Файл изображения слишком большой (макс. 5 МБ)',
+          'buy.err.invalidLink': 'Неверная ссылка. Пожалуйста, отсканируйте QR снова.',
+          'buy.err.eventNotFound': 'Не удалось загрузить событие. Возможно, оно истекло или ссылка неверна.',
+          'buy.err.eventEnded': 'Продажа билетов на это событие завершена.',
+          'buy.err.eventNotStarted': 'Продажа билетов ещё не началась.',
+          'buy.alert.enterName': 'Введите имя',
+          'buy.err.createOrder': 'Не удалось создать заказ',
+          'buy.err.createOrderWithDetail': 'Не удалось создать заказ: {detail}',
+          'buy.err.invalidAccount': 'Неверный номер счёта. Введите только цифры.',
+          'buy.err.createQr': 'Не удалось создать QR для оплаты',
+          'buy.err.noQrImage': 'Сервер не вернул изображение QR',
+          'buy.err.qrFallback': 'Не удалось создать QR: {detail}',
+          'buy.actions.openQrNewTab': 'Открыть QR в новой вкладке',
+          'buy.alert.timeout': 'Время оплаты истекло. Попробуйте снова.',
+          'buy.err.missingOrderInfo': 'Информация о заказе не найдена. Перезагрузите страницу и попробуйте снова.',
+          'buy.alert.proofRequired': 'Загрузите подтверждение оплаты, чтобы организатор мог проверить.',
+          'buy.err.uploadProof': 'Не удалось загрузить подтверждение',
+          'buy.err.verifyPayment': 'Не удалось проверить оплату',
+          'buy.err.verifyPaymentWithDetail': 'Ошибка проверки оплаты: {detail}',
+          'buy.alert.notVerifiedWait': 'Оплата ещё не подтверждена. Подождите 1–3 минуты и проверьте снова.',
+        },
+        id: {
+          'doc.title': 'Qrio - Beli E-Tiket',
+          'doc.desc': 'Beli e-tiket cepat dengan pembayaran QR.',
+          'nav.home': 'Beranda',
+          'buy.loading': 'Memuat informasi tiket...',
+          'buy.error.title': 'Tiket tidak ditemukan',
+          'buy.error.msgGeneric': 'Tautan tidak valid atau acara sudah berakhir.',
+          'buy.error.home': 'Kembali ke beranda',
+          'buy.badge': 'E-tiket',
+          'buy.info.title': 'Detail pemesanan',
+          'buy.form.name': 'Nama pembeli *',
+          'buy.form.namePh': 'Masukkan nama lengkap Anda',
+          'buy.form.email': 'Email (untuk menerima tiket)',
+          'buy.form.emailPh': 'email@example.com',
+          'buy.form.phone': 'Nomor telepon',
+          'buy.form.phonePh': '0912345678',
+          'buy.form.note': 'Catatan',
+          'buy.form.notePh': 'Contoh: Check-in 18:00, nama grup...',
+          'buy.form.qty': 'Jumlah',
+          'buy.form.payType': 'Metode pembayaran *',
+          'buy.pay.transfer': 'Transfer bank',
+          'buy.pay.cash': 'Tunai',
+          'buy.cash.payer': 'Pembayar (jika berbeda)',
+          'buy.cash.payerPh': 'Kosongkan jika sama',
+          'buy.cash.time': 'Waktu pembayaran *',
+          'buy.cash.time.atCounter': 'Bayar di konter',
+          'buy.cash.time.later': 'Bayar nanti',
+          'buy.cash.time.paid': 'Sudah dibayar',
+          'buy.cash.note': 'Tiket akan dibuat segera dan berstatus “Menunggu pembayaran” hingga dikonfirmasi.',
+          'buy.summary.unitPrice': 'Harga satuan:',
+          'buy.summary.quantity': 'Jumlah:',
+          'buy.summary.total': 'Total:',
+          'buy.actions.continue': 'Lanjut',
+          'buy.cancel.title': 'Batalkan pesanan?',
+          'buy.cancel.body': 'Yakin ingin membatalkan pesanan ini? Tindakan ini tidak bisa dibatalkan.',
+          'buy.cancel.back': 'Kembali',
+          'buy.cancel.confirm': 'Konfirmasi batal',
+          'buy.complaint.title': 'Dukungan',
+          'buy.complaint.body': 'Jika Anda sudah membayar tapi belum menerima tiket, hubungi dukungan:',
+          'buy.complaint.hotline': 'Hotline',
+          'buy.complaint.orderLabel': 'Pesanan',
+          'buy.complaint.understood': 'Mengerti',
+          'buy.verifying.title': 'Memverifikasi pembayaran...',
+          'buy.verifying.body': 'Mohon tunggu sebentar saat kami memverifikasi transaksi Anda.',
+          'buy.event.descFallback': 'E-tiket',
+          'buy.price.perTicketSuffix': '/ tiket',
+          'buy.unit.ticket.one': 'tiket',
+          'buy.unit.ticket.many': 'tiket',
+          'buy.alert.fileTooLarge': 'File gambar terlalu besar (maks 5MB)',
+          'buy.err.invalidLink': 'Tautan tidak valid. Silakan pindai QR lagi.',
+          'buy.err.eventNotFound': 'Tidak dapat memuat acara. Mungkin sudah kedaluwarsa atau tautan tidak valid.',
+          'buy.err.eventEnded': 'Penjualan tiket untuk acara ini sudah berakhir.',
+          'buy.err.eventNotStarted': 'Penjualan tiket untuk acara ini belum dimulai.',
+          'buy.alert.enterName': 'Masukkan nama Anda',
+          'buy.err.createOrder': 'Tidak dapat membuat pesanan',
+          'buy.err.createOrderWithDetail': 'Tidak dapat membuat pesanan: {detail}',
+          'buy.err.invalidAccount': 'Nomor rekening tidak valid. Masukkan angka saja.',
+          'buy.err.createQr': 'Tidak dapat membuat QR pembayaran',
+          'buy.err.noQrImage': 'Server tidak mengembalikan gambar QR',
+          'buy.err.qrFallback': 'Tidak dapat membuat QR: {detail}',
+          'buy.actions.openQrNewTab': 'Buka QR di tab baru',
+          'buy.alert.timeout': 'Waktu pembayaran habis. Silakan coba lagi.',
+          'buy.err.missingOrderInfo': 'Info pesanan tidak ditemukan. Muat ulang halaman dan coba lagi.',
+          'buy.alert.proofRequired': 'Unggah bukti pembayaran agar penyelenggara dapat memverifikasi.',
+          'buy.err.uploadProof': 'Tidak dapat mengunggah bukti',
+          'buy.err.verifyPayment': 'Tidak dapat memverifikasi pembayaran',
+          'buy.err.verifyPaymentWithDetail': 'Kesalahan verifikasi pembayaran: {detail}',
+          'buy.alert.notVerifiedWait': 'Pembayaran belum dikonfirmasi. Tunggu 1–3 menit lalu cek lagi.',
+        }
+      };
+
+
+      function normalizeLang(raw) {
+        const v = String(raw || '').toLowerCase();
+        return SUPPORTED_LANGS.includes(v) ? v : 'en';
+      }
+      function getLang() {
+        return normalizeLang(localStorage.getItem(LANG_KEY) || 'en');
+      }
+      function t(key, langOverride) {
+        const lang = normalizeLang(langOverride || getLang());
+        const dict = I18N[lang] || I18N.en;
+        return String((dict && dict[key]) ?? (I18N.en && I18N.en[key]) ?? (I18N.vi && I18N.vi[key]) ?? key);
+      }
+      function tFmt(key, params, langOverride) {
+        let out = t(key, langOverride);
+        if (params && typeof params === 'object') {
+          Object.keys(params).forEach(k => {
+            out = out.replaceAll('{' + k + '}', String(params[k]));
+          });
+        }
+        return out;
+      }
+      function applyI18n(lang) {
+        const l = normalizeLang(lang);
+        document.documentElement.lang = l;
+
+        document.title = t('doc.title', l);
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          el.textContent = t(key, l);
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+          const key = el.getAttribute('data-i18n-placeholder');
+          el.setAttribute('placeholder', t(key, l));
+        });
+        document.querySelectorAll('[data-i18n-content]').forEach(el => {
+          const key = el.getAttribute('data-i18n-content');
+          el.setAttribute('content', t(key, l));
+        });
+      }
+
+      window.__i18n = { getLang, t, tFmt, applyI18n };
+      applyI18n(getLang());
+    })();
+  </script>
 
   <script>
     // ===== GLOBAL STATE =====
@@ -1142,7 +1904,21 @@
 
     // ===== UTILITIES =====
     function formatCurrency(amount) {
-      return new Intl.NumberFormat('vi-VN').format(amount) + ' VND';
+      const lang = (window.__i18n && window.__i18n.getLang) ? window.__i18n.getLang() : 'en';
+      const localeMap = {
+        vi: 'vi-VN',
+        en: 'en-US',
+        zh: 'zh-CN',
+        hi: 'hi-IN',
+        es: 'es-ES',
+        fr: 'fr-FR',
+        ar: 'ar',
+        pt: 'pt-PT',
+        ru: 'ru-RU',
+        id: 'id-ID'
+      };
+      const locale = localeMap[lang] || 'en-US';
+      return new Intl.NumberFormat(locale).format(amount) + ' VND';
     }
 
     function generateOrderId() {
@@ -1172,7 +1948,7 @@
       if (!file) return;
 
       if (file.size > 5 * 1024 * 1024) {
-        alert('File ảnh quá lớn (tối đa 5MB)');
+        alert(window.__i18n.t('buy.alert.fileTooLarge'));
         return;
       }
 
@@ -1199,7 +1975,7 @@
       const eventId = urlParams.get('event');
 
       if (!eventId) {
-        showError('Link không hợp lệ. Vui lòng quét lại mã QR.');
+        showError(window.__i18n.t('buy.err.invalidLink'));
         return;
       }
 
@@ -1208,11 +1984,11 @@
         const resp = await fetch(`/api/ticket/events/${encodeURIComponent(eventId)}`);
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok || data.error) {
-          throw new Error(data.error || 'Không tìm thấy thông tin sự kiện');
+          throw new Error(data.error || window.__i18n.t('buy.err.eventNotFound'));
         }
         eventData = data;
       } catch (e) {
-        showError('Không tìm thấy thông tin sự kiện. Có thể sự kiện đã hết hạn hoặc link không hợp lệ.');
+        showError(window.__i18n.t('buy.err.eventNotFound'));
         return;
       }
 
@@ -1221,14 +1997,14 @@
       if (eventData.endDate) {
         const endDate = new Date(eventData.endDate + 'T23:59:59');
         if (now > endDate) {
-          showError('Sự kiện đã kết thúc bán vé.');
+          showError(window.__i18n.t('buy.err.eventEnded'));
           return;
         }
       }
       if (eventData.startDate) {
         const startDate = new Date(eventData.startDate + 'T00:00:00');
         if (now < startDate) {
-          showError('Sự kiện chưa bắt đầu bán vé.');
+          showError(window.__i18n.t('buy.err.eventNotStarted'));
           return;
         }
       }
@@ -1249,8 +2025,8 @@
 
     function displayEventInfo() {
       document.getElementById('event-name').textContent = eventData.eventName;
-      document.getElementById('event-desc').textContent = eventData.description || 'Vé điện tử';
-      document.getElementById('price-per-ticket').textContent = formatCurrency(eventData.pricePerTicket) + ' / vé';
+      document.getElementById('event-desc').textContent = eventData.description || window.__i18n.t('buy.event.descFallback');
+      document.getElementById('price-per-ticket').textContent = formatCurrency(eventData.pricePerTicket) + ' ' + window.__i18n.t('buy.price.perTicketSuffix');
       document.getElementById('summary-price').textContent = formatCurrency(eventData.pricePerTicket);
       updateTotal();
     }
@@ -1271,7 +2047,8 @@
 
     function updateTotal() {
       const total = eventData.pricePerTicket * quantity;
-      document.getElementById('summary-qty').textContent = quantity + ' vé';
+      const unit = quantity === 1 ? window.__i18n.t('buy.unit.ticket.one') : window.__i18n.t('buy.unit.ticket.many');
+      document.getElementById('summary-qty').textContent = quantity + ' ' + unit;
       document.getElementById('summary-total').textContent = formatCurrency(total);
     }
 
@@ -1285,7 +2062,7 @@
       const cashPaymentTime = document.getElementById('cash-payment-time').value;
 
       if (!name) {
-        alert('Vui lòng nhập họ tên');
+        alert(window.__i18n.t('buy.alert.enterName'));
         return;
       }
 
@@ -1315,10 +2092,10 @@
         });
         createJson = await resp.json().catch(() => ({}));
         if (!resp.ok || createJson.error) {
-          throw new Error(createJson.error || 'Không thể tạo đơn hàng');
+          throw new Error(createJson.error || window.__i18n.t('buy.err.createOrder'));
         }
       } catch (e) {
-        alert('Không thể tạo đơn hàng: ' + String(e.message || e));
+        alert(window.__i18n.tFmt('buy.err.createOrderWithDetail', { detail: String(e.message || e) }));
         return;
       }
 
@@ -1365,7 +2142,7 @@
       qrBox.innerHTML = '<div class="loading-spinner"></div>';
 
       if (!accountNumber) {
-        throw new Error('Số tài khoản không hợp lệ. Vui lòng nhập đúng số tài khoản (chỉ gồm chữ số).');
+        throw new Error(window.__i18n.t('buy.err.invalidAccount'));
       }
 
       try {
@@ -1389,10 +2166,10 @@
         });
         const result = await response.json();
         if (!response.ok || result.error) {
-          throw new Error(result.error || 'Không thể tạo QR thanh toán');
+          throw new Error(result.error || window.__i18n.t('buy.err.createQr'));
         }
         if (!result.image) {
-          throw new Error('Không nhận được ảnh QR từ server');
+          throw new Error(window.__i18n.t('buy.err.noQrImage'));
         }
         qrBox.innerHTML = `<img src="${result.image}" alt="Payment QR" />`;
       } catch (error) {
@@ -1400,10 +2177,10 @@
         const fallbackUrl = `https://img.vietqr.io/image/${encodeURIComponent(String(bankCode || ''))}-${encodeURIComponent(accountNumber)}-compact2.jpg?amount=${encodeURIComponent(String(amount))}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(accountName)}`;
         qrBox.innerHTML = `
           <div style="padding: 14px; text-align: center;">
-            <p style="color:#ef4444; font-size: 13px; margin-bottom: 10px;">Không tạo được QR thanh toán: ${String(error.message || error)}</p>
+            <p style="color:#ef4444; font-size: 13px; margin-bottom: 10px;">${window.__i18n.tFmt('buy.err.qrFallback', { detail: String(error.message || error) })}</p>
             <a class="btn btn-secondary btn-sm" href="${fallbackUrl}" target="_blank" rel="noopener">
               <i class="fa-solid fa-up-right-from-square"></i>
-              Mở QR ở tab mới
+              ${window.__i18n.t('buy.actions.openQrNewTab')}
             </a>
           </div>
         `;
@@ -1437,7 +2214,7 @@
         });
         const createJson = await resp.json().catch(() => ({}));
         if (!resp.ok || createJson.error) {
-          throw new Error(createJson.error || 'Không thể tạo đơn hàng');
+          throw new Error(createJson.error || window.__i18n.t('buy.err.createOrder'));
         }
 
         orderData = {
@@ -1470,7 +2247,7 @@
         return;
 
       } catch (e) {
-        alert('Không thể tạo đơn hàng: ' + String(e.message || e));
+        alert(window.__i18n.tFmt('buy.err.createOrderWithDetail', { detail: String(e.message || e) }));
       }
     }
 
@@ -1560,7 +2337,7 @@
     function handleTimeout() {
       orderData.status = 'expired';
       localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
-      alert('Đã hết thời gian thanh toán. Vui lòng thử lại.');
+      alert(window.__i18n.t('buy.alert.timeout'));
       window.location.reload();
     }
 
@@ -1570,7 +2347,7 @@
       const btn = document.getElementById('confirm-btn');
 
       if (!orderData || !eventData) {
-        alert('Không tìm thấy thông tin đơn hàng. Vui lòng tải lại trang và thử lại.');
+        alert(window.__i18n.t('buy.err.missingOrderInfo'));
         return;
       }
 
@@ -1583,7 +2360,7 @@
         // Manual verification requires a proof image
         if (effectivePaymentMethod === 'manual' && !proofImageData) {
           modal.classList.add('hidden');
-          alert('Vui lòng tải lên ảnh xác nhận thanh toán để chủ sự kiện có thể xác minh.');
+          alert(window.__i18n.t('buy.alert.proofRequired'));
           return;
         }
 
@@ -1596,7 +2373,7 @@
           });
           const uploadResult = await uploadResp.json().catch(() => ({}));
           if (!uploadResp.ok) {
-            throw new Error(uploadResult.error || 'Không thể tải lên ảnh xác nhận');
+            throw new Error(uploadResult.error || window.__i18n.t('buy.err.uploadProof'));
           }
         }
 
@@ -1611,7 +2388,7 @@
         const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(result.error || result.message || 'Không thể kiểm tra thanh toán');
+          throw new Error(result.error || result.message || window.__i18n.t('buy.err.verifyPayment'));
         }
 
         if (result && result.verified === true) {
@@ -1625,7 +2402,7 @@
           if (proofImageData) {
             handleManualPending();
           } else {
-            alert('Vui lòng tải lên ảnh xác nhận thanh toán để chủ sự kiện có thể xác minh.');
+            alert(window.__i18n.t('buy.alert.proofRequired'));
           }
           return;
         }
@@ -1633,11 +2410,11 @@
         modal.classList.add('hidden');
         const msg = (result && (result.message || result.error))
           ? String(result.message || result.error)
-          : 'Chưa xác nhận được thanh toán. Vui lòng đợi 1-3 phút và nhấn kiểm tra lại.';
+          : window.__i18n.t('buy.alert.notVerifiedWait');
         alert(msg);
       } catch (err) {
         modal.classList.add('hidden');
-        alert('Lỗi kiểm tra thanh toán: ' + String(err.message || err));
+        alert(window.__i18n.tFmt('buy.err.verifyPaymentWithDetail', { detail: String(err.message || err) }));
       } finally {
         btn.disabled = false;
       }

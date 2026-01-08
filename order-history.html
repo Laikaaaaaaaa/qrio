@@ -4,15 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qrio - Lịch sử mua vé</title>
-  <meta name="description" content="Xem lịch sử mua vé điện tử của bạn." />
+  <title data-i18n="doc.title">Qrio - Lịch sử mua vé</title>
+  <meta name="description" data-i18n-content="meta.description" content="Xem lịch sử mua vé điện tử của bạn." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://qrio.site/order-history.html" />
   
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://qrio.site/order-history.html" />
-  <meta property="og:title" content="Qrio - Lịch sử mua vé" />
-  <meta property="og:description" content="Xem lịch sử mua vé điện tử của bạn." />
+  <meta property="og:title" data-i18n-content="og.title" content="Qrio - Lịch sử mua vé" />
+  <meta property="og:description" data-i18n-content="og.description" content="Xem lịch sử mua vé điện tử của bạn." />
   <meta property="og:image" content="https://qrio.site/static/logo/logo.png" />
   
   <meta name="theme-color" content="#7c3aed" />
@@ -185,6 +185,96 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(124, 58, 237, 0.3);
+    }
+
+    /* Language picker */
+    .lang-btn {
+      width: 40px;
+      padding: 8px 0;
+    }
+
+    .lang-select {
+      display: none;
+    }
+
+    .lang-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+
+    .lang-modal {
+      width: min(560px, 92vw);
+      background: rgba(15, 15, 26, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(14px);
+    }
+
+    .lang-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .lang-modal-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .lang-close {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .lang-modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .lang-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .lang-item:hover {
+      border-color: rgba(124, 58, 237, 0.35);
+      background: rgba(124, 58, 237, 0.12);
+    }
+
+    .lang-item.active {
+      border-color: rgba(124, 58, 237, 0.55);
+      background: rgba(124, 58, 237, 0.18);
+    }
+
+    @media (max-width: 520px) {
+      .lang-modal-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .btn-success {
@@ -587,29 +677,29 @@
     <div class="header-right">
       <a href="ticket-create.html" class="btn btn-secondary btn-sm">
         <i class="fa-solid fa-plus"></i>
-        <span>Tạo vé</span>
+        <span data-i18n="nav.createTicket">Tạo vé</span>
       </a>
       <a href="home.html" class="btn btn-primary btn-sm">
         <i class="fa-solid fa-house"></i>
-        <span>Trang chủ</span>
+        <span data-i18n="nav.home">Trang chủ</span>
       </a>
     </div>
   </header>
 
   <div class="container">
     <div class="page-header">
-      <div class="page-badge"><i class="fa-solid fa-history"></i> Lịch sử giao dịch</div>
-      <h1 class="page-title">Lịch Sử Mua Vé</h1>
-      <p class="page-subtitle">Xem lại tất cả các đơn hàng và vé bạn đã mua</p>
+      <div class="page-badge"><i class="fa-solid fa-history"></i> <span data-i18n="page.badge">Lịch sử giao dịch</span></div>
+      <h1 class="page-title" data-i18n="page.title">Lịch Sử Mua Vé</h1>
+      <p class="page-subtitle" data-i18n="page.subtitle">Xem lại tất cả các đơn hàng và vé bạn đã mua</p>
     </div>
 
     <!-- Search -->
     <div class="search-box">
       <div class="search-input-wrapper">
-        <input type="text" id="search-input" placeholder="Tìm kiếm theo tên sự kiện, mã đơn, email..." oninput="filterOrders()" />
+        <input type="text" id="search-input" data-i18n-placeholder="search.placeholder" placeholder="Tìm kiếm theo tên sự kiện, mã đơn, email..." oninput="filterOrders()" />
         <button class="btn btn-primary" onclick="filterOrders()">
           <i class="fa-solid fa-search"></i>
-          Tìm kiếm
+          <span data-i18n="search.btn">Tìm kiếm</span>
         </button>
       </div>
     </div>
@@ -619,22 +709,22 @@
       <div class="stat-card total">
         <i class="fa-solid fa-receipt"></i>
         <div class="stat-value" id="stat-total">0</div>
-        <div class="stat-label">Tổng đơn hàng</div>
+        <div class="stat-label" data-i18n="stats.total">Tổng đơn hàng</div>
       </div>
       <div class="stat-card paid">
         <i class="fa-solid fa-check-circle"></i>
         <div class="stat-value" id="stat-paid">0</div>
-        <div class="stat-label">Đã thanh toán</div>
+        <div class="stat-label" data-i18n="stats.paid">Đã thanh toán</div>
       </div>
       <div class="stat-card pending">
         <i class="fa-solid fa-clock"></i>
         <div class="stat-value" id="stat-pending">0</div>
-        <div class="stat-label">Đang chờ</div>
+        <div class="stat-label" data-i18n="stats.pending">Đang chờ</div>
       </div>
       <div class="stat-card cancelled">
         <i class="fa-solid fa-times-circle"></i>
         <div class="stat-value" id="stat-cancelled">0</div>
-        <div class="stat-label">Đã hủy</div>
+        <div class="stat-label" data-i18n="stats.cancelled">Đã hủy</div>
       </div>
     </div>
 
@@ -646,17 +736,447 @@
     <!-- Empty State -->
     <div class="empty-state hidden" id="empty-state">
       <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
-      <h3>Chưa có đơn hàng nào</h3>
-      <p>Bạn chưa mua vé nào. Hãy khám phá các sự kiện thú vị!</p>
+      <h3 data-i18n="empty.title">Chưa có đơn hàng nào</h3>
+      <p data-i18n="empty.desc">Bạn chưa mua vé nào. Hãy khám phá các sự kiện thú vị!</p>
       <a href="home.html" class="btn btn-primary">
         <i class="fa-solid fa-search"></i>
-        Khám phá sự kiện
+        <span data-i18n="empty.cta">Khám phá sự kiện</span>
       </a>
     </div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
+    const LANG_KEY = 'qr_lang';
+    const SUPPORTED_LANGS = ['en', 'zh', 'hi', 'es', 'fr', 'ar', 'pt', 'ru', 'id', 'vi'];
+    const I18N = {
+      en: {
+        'doc.title': 'Qrio - Order history',
+        'meta.description': 'View your electronic ticket purchase history.',
+        'og.title': 'Qrio - Order history',
+        'og.description': 'View your electronic ticket purchase history.',
+        'lang.title': 'Language',
+        'lang.aria': 'Choose language',
+        'lang.choose': 'Choose language',
+        'lang.close': 'Close',
+        'nav.createTicket': 'Create ticket',
+        'nav.home': 'Home',
+        'page.badge': 'Transaction history',
+        'page.title': 'Order history',
+        'page.subtitle': 'Review all orders and tickets you purchased',
+        'search.placeholder': 'Search by event name, order ID, email...',
+        'search.btn': 'Search',
+        'stats.total': 'Total orders',
+        'stats.paid': 'Paid',
+        'stats.pending': 'Pending',
+        'stats.cancelled': 'Cancelled',
+        'empty.title': 'No orders yet',
+        'empty.desc': 'You have not bought any tickets yet. Explore exciting events!',
+        'empty.cta': 'Explore events',
+        'status.paid': 'Paid',
+        'status.pending': 'Pending',
+        'status.pending_verification': 'Awaiting verification',
+        'status.pending_payment': 'Awaiting payment',
+        'status.cancelled': 'Cancelled',
+        'status.unknown': 'Unknown',
+        'ticket.valid': 'Valid',
+        'ticket.used': 'Used',
+        'ticket.pending': 'Pending',
+        'ticket.cancelled': 'Cancelled',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Ticket list',
+        'order.noTickets': 'No tickets found',
+        'order.ticketNo': 'Ticket'
+      },
+      vi: {
+        'doc.title': 'Qrio - Lịch sử mua vé',
+        'meta.description': 'Xem lịch sử mua vé điện tử của bạn.',
+        'og.title': 'Qrio - Lịch sử mua vé',
+        'og.description': 'Xem lịch sử mua vé điện tử của bạn.',
+        'lang.title': 'Ngôn ngữ',
+        'lang.aria': 'Chọn ngôn ngữ',
+        'lang.choose': 'Chọn ngôn ngữ',
+        'lang.close': 'Đóng',
+        'nav.createTicket': 'Tạo vé',
+        'nav.home': 'Trang chủ',
+        'page.badge': 'Lịch sử giao dịch',
+        'page.title': 'Lịch Sử Mua Vé',
+        'page.subtitle': 'Xem lại tất cả các đơn hàng và vé bạn đã mua',
+        'search.placeholder': 'Tìm kiếm theo tên sự kiện, mã đơn, email...',
+        'search.btn': 'Tìm kiếm',
+        'stats.total': 'Tổng đơn hàng',
+        'stats.paid': 'Đã thanh toán',
+        'stats.pending': 'Đang chờ',
+        'stats.cancelled': 'Đã hủy',
+        'empty.title': 'Chưa có đơn hàng nào',
+        'empty.desc': 'Bạn chưa mua vé nào. Hãy khám phá các sự kiện thú vị!',
+        'empty.cta': 'Khám phá sự kiện',
+        'status.paid': 'Đã thanh toán',
+        'status.pending': 'Đang chờ',
+        'status.pending_verification': 'Chờ xác nhận',
+        'status.pending_payment': 'Chờ thanh toán',
+        'status.cancelled': 'Đã hủy',
+        'status.unknown': 'Không xác định',
+        'ticket.valid': 'Hợp lệ',
+        'ticket.used': 'Đã sử dụng',
+        'ticket.pending': 'Đang chờ',
+        'ticket.cancelled': 'Đã hủy',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Danh sách vé',
+        'order.noTickets': 'Không tìm thấy vé',
+        'order.ticketNo': 'Vé'
+      },
+      zh: {
+        'doc.title': 'Qrio - 订单历史',
+        'meta.description': '查看你购买的电子票历史。',
+        'og.title': 'Qrio - 订单历史',
+        'og.description': '查看你购买的电子票历史。',
+        'lang.title': '语言',
+        'lang.aria': '选择语言',
+        'lang.choose': '选择语言',
+        'lang.close': '关闭',
+        'nav.createTicket': '创建门票',
+        'nav.home': '首页',
+        'page.badge': '交易历史',
+        'page.title': '订单历史',
+        'page.subtitle': '查看你购买的所有订单与门票',
+        'search.placeholder': '按活动名称、订单号、邮箱搜索...',
+        'search.btn': '搜索',
+        'stats.total': '订单总数',
+        'stats.paid': '已付款',
+        'stats.pending': '待处理',
+        'stats.cancelled': '已取消',
+        'empty.title': '暂无订单',
+        'empty.desc': '你还没有购买任何门票。去探索精彩活动吧！',
+        'empty.cta': '探索活动',
+        'status.paid': '已付款',
+        'status.pending': '待处理',
+        'status.pending_verification': '等待验证',
+        'status.pending_payment': '等待付款',
+        'status.cancelled': '已取消',
+        'status.unknown': '未知',
+        'ticket.valid': '有效',
+        'ticket.used': '已使用',
+        'ticket.pending': '待处理',
+        'ticket.cancelled': '已取消',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': '门票列表',
+        'order.noTickets': '未找到门票',
+        'order.ticketNo': '门票'
+      },
+      hi: {
+        'doc.title': 'Qrio - ऑर्डर इतिहास',
+        'meta.description': 'अपने ई-टिकट खरीद इतिहास देखें।',
+        'og.title': 'Qrio - ऑर्डर इतिहास',
+        'og.description': 'अपने ई-टिकट खरीद इतिहास देखें।',
+        'lang.title': 'भाषा',
+        'lang.aria': 'भाषा चुनें',
+        'lang.choose': 'भाषा चुनें',
+        'lang.close': 'बंद करें',
+        'nav.createTicket': 'टिकट बनाएं',
+        'nav.home': 'होम',
+        'page.badge': 'लेन-देन इतिहास',
+        'page.title': 'ऑर्डर इतिहास',
+        'page.subtitle': 'आपके द्वारा खरीदे गए सभी ऑर्डर और टिकट देखें',
+        'search.placeholder': 'इवेंट नाम, ऑर्डर ID, ईमेल से खोजें...',
+        'search.btn': 'खोजें',
+        'stats.total': 'कुल ऑर्डर',
+        'stats.paid': 'भुगतान हुआ',
+        'stats.pending': 'लंबित',
+        'stats.cancelled': 'रद्द',
+        'empty.title': 'अभी कोई ऑर्डर नहीं',
+        'empty.desc': 'आपने अभी तक कोई टिकट नहीं खरीदा है। इवेंट देखें!',
+        'empty.cta': 'इवेंट देखें',
+        'status.paid': 'भुगतान हुआ',
+        'status.pending': 'लंबित',
+        'status.pending_verification': 'सत्यापन प्रतीक्षा',
+        'status.pending_payment': 'भुगतान प्रतीक्षा',
+        'status.cancelled': 'रद्द',
+        'status.unknown': 'अज्ञात',
+        'ticket.valid': 'मान्य',
+        'ticket.used': 'उपयोग किया गया',
+        'ticket.pending': 'लंबित',
+        'ticket.cancelled': 'रद्द',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'टिकट सूची',
+        'order.noTickets': 'कोई टिकट नहीं मिला',
+        'order.ticketNo': 'टिकट'
+      },
+      es: {
+        'doc.title': 'Qrio - Historial de pedidos',
+        'meta.description': 'Ver tu historial de compras de entradas electrónicas.',
+        'og.title': 'Qrio - Historial de pedidos',
+        'og.description': 'Ver tu historial de compras de entradas electrónicas.',
+        'lang.title': 'Idioma',
+        'lang.aria': 'Elegir idioma',
+        'lang.choose': 'Elegir idioma',
+        'lang.close': 'Cerrar',
+        'nav.createTicket': 'Crear entrada',
+        'nav.home': 'Inicio',
+        'page.badge': 'Historial de transacciones',
+        'page.title': 'Historial de pedidos',
+        'page.subtitle': 'Revisa todos los pedidos y entradas que compraste',
+        'search.placeholder': 'Buscar por evento, ID de pedido, email...',
+        'search.btn': 'Buscar',
+        'stats.total': 'Total de pedidos',
+        'stats.paid': 'Pagados',
+        'stats.pending': 'Pendientes',
+        'stats.cancelled': 'Cancelados',
+        'empty.title': 'Aún no hay pedidos',
+        'empty.desc': 'Todavía no has comprado entradas. ¡Explora eventos!',
+        'empty.cta': 'Explorar eventos',
+        'status.paid': 'Pagado',
+        'status.pending': 'Pendiente',
+        'status.pending_verification': 'En verificación',
+        'status.pending_payment': 'Pendiente de pago',
+        'status.cancelled': 'Cancelado',
+        'status.unknown': 'Desconocido',
+        'ticket.valid': 'Válido',
+        'ticket.used': 'Usado',
+        'ticket.pending': 'Pendiente',
+        'ticket.cancelled': 'Cancelado',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Lista de entradas',
+        'order.noTickets': 'No se encontraron entradas',
+        'order.ticketNo': 'Entrada'
+      },
+      fr: {
+        'doc.title': 'Qrio - Historique des commandes',
+        'meta.description': 'Consultez votre historique d’achats de billets électroniques.',
+        'og.title': 'Qrio - Historique des commandes',
+        'og.description': 'Consultez votre historique d’achats de billets électroniques.',
+        'lang.title': 'Langue',
+        'lang.aria': 'Choisir la langue',
+        'lang.choose': 'Choisir la langue',
+        'lang.close': 'Fermer',
+        'nav.createTicket': 'Créer un billet',
+        'nav.home': 'Accueil',
+        'page.badge': 'Historique des transactions',
+        'page.title': 'Historique des commandes',
+        'page.subtitle': 'Consultez toutes les commandes et billets achetés',
+        'search.placeholder': 'Rechercher par événement, ID, email...',
+        'search.btn': 'Rechercher',
+        'stats.total': 'Total des commandes',
+        'stats.paid': 'Payées',
+        'stats.pending': 'En attente',
+        'stats.cancelled': 'Annulées',
+        'empty.title': 'Aucune commande',
+        'empty.desc': 'Vous n’avez encore acheté aucun billet. Explorez des événements !',
+        'empty.cta': 'Explorer',
+        'status.paid': 'Payé',
+        'status.pending': 'En attente',
+        'status.pending_verification': 'En attente de vérification',
+        'status.pending_payment': 'En attente de paiement',
+        'status.cancelled': 'Annulé',
+        'status.unknown': 'Inconnu',
+        'ticket.valid': 'Valide',
+        'ticket.used': 'Utilisé',
+        'ticket.pending': 'En attente',
+        'ticket.cancelled': 'Annulé',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Liste des billets',
+        'order.noTickets': 'Aucun billet trouvé',
+        'order.ticketNo': 'Billet'
+      },
+      ar: {
+        'doc.title': 'Qrio - سجل الطلبات',
+        'meta.description': 'اعرض سجل شراء التذاكر الإلكترونية.',
+        'og.title': 'Qrio - سجل الطلبات',
+        'og.description': 'اعرض سجل شراء التذاكر الإلكترونية.',
+        'lang.title': 'اللغة',
+        'lang.aria': 'اختر اللغة',
+        'lang.choose': 'اختر اللغة',
+        'lang.close': 'إغلاق',
+        'nav.createTicket': 'إنشاء تذكرة',
+        'nav.home': 'الرئيسية',
+        'page.badge': 'سجل المعاملات',
+        'page.title': 'سجل الطلبات',
+        'page.subtitle': 'راجع جميع الطلبات والتذاكر التي اشتريتها',
+        'search.placeholder': 'ابحث باسم الفعالية أو رقم الطلب أو البريد...',
+        'search.btn': 'بحث',
+        'stats.total': 'إجمالي الطلبات',
+        'stats.paid': 'مدفوعة',
+        'stats.pending': 'قيد الانتظار',
+        'stats.cancelled': 'ملغاة',
+        'empty.title': 'لا توجد طلبات بعد',
+        'empty.desc': 'لم تقم بشراء أي تذاكر بعد. استكشف الفعاليات!',
+        'empty.cta': 'استكشاف الفعاليات',
+        'status.paid': 'مدفوع',
+        'status.pending': 'قيد الانتظار',
+        'status.pending_verification': 'بانتظار التحقق',
+        'status.pending_payment': 'بانتظار الدفع',
+        'status.cancelled': 'ملغي',
+        'status.unknown': 'غير معروف',
+        'ticket.valid': 'صالحة',
+        'ticket.used': 'مستخدمة',
+        'ticket.pending': 'قيد الانتظار',
+        'ticket.cancelled': 'ملغاة',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'قائمة التذاكر',
+        'order.noTickets': 'لم يتم العثور على تذاكر',
+        'order.ticketNo': 'تذكرة'
+      },
+      pt: {
+        'doc.title': 'Qrio - Histórico de pedidos',
+        'meta.description': 'Veja seu histórico de compras de ingressos eletrônicos.',
+        'og.title': 'Qrio - Histórico de pedidos',
+        'og.description': 'Veja seu histórico de compras de ingressos eletrônicos.',
+        'lang.title': 'Idioma',
+        'lang.aria': 'Escolher idioma',
+        'lang.choose': 'Escolher idioma',
+        'lang.close': 'Fechar',
+        'nav.createTicket': 'Criar ingresso',
+        'nav.home': 'Início',
+        'page.badge': 'Histórico de transações',
+        'page.title': 'Histórico de pedidos',
+        'page.subtitle': 'Revise todos os pedidos e ingressos comprados',
+        'search.placeholder': 'Buscar por evento, ID do pedido, email...',
+        'search.btn': 'Buscar',
+        'stats.total': 'Total de pedidos',
+        'stats.paid': 'Pagos',
+        'stats.pending': 'Pendentes',
+        'stats.cancelled': 'Cancelados',
+        'empty.title': 'Nenhum pedido ainda',
+        'empty.desc': 'Você ainda não comprou ingressos. Explore eventos!',
+        'empty.cta': 'Explorar eventos',
+        'status.paid': 'Pago',
+        'status.pending': 'Pendente',
+        'status.pending_verification': 'Aguardando verificação',
+        'status.pending_payment': 'Aguardando pagamento',
+        'status.cancelled': 'Cancelado',
+        'status.unknown': 'Desconhecido',
+        'ticket.valid': 'Válido',
+        'ticket.used': 'Usado',
+        'ticket.pending': 'Pendente',
+        'ticket.cancelled': 'Cancelado',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Lista de ingressos',
+        'order.noTickets': 'Nenhum ingresso encontrado',
+        'order.ticketNo': 'Ingresso'
+      },
+      ru: {
+        'doc.title': 'Qrio — История заказов',
+        'meta.description': 'Просмотр истории покупок электронных билетов.',
+        'og.title': 'Qrio — История заказов',
+        'og.description': 'Просмотр истории покупок электронных билетов.',
+        'lang.title': 'Язык',
+        'lang.aria': 'Выберите язык',
+        'lang.choose': 'Выберите язык',
+        'lang.close': 'Закрыть',
+        'nav.createTicket': 'Создать билет',
+        'nav.home': 'Главная',
+        'page.badge': 'История транзакций',
+        'page.title': 'История заказов',
+        'page.subtitle': 'Просмотрите все купленные заказы и билеты',
+        'search.placeholder': 'Поиск по событию, ID заказа, email...',
+        'search.btn': 'Поиск',
+        'stats.total': 'Всего заказов',
+        'stats.paid': 'Оплачено',
+        'stats.pending': 'В ожидании',
+        'stats.cancelled': 'Отменено',
+        'empty.title': 'Пока нет заказов',
+        'empty.desc': 'Вы ещё не покупали билеты. Посмотрите события!',
+        'empty.cta': 'Посмотреть события',
+        'status.paid': 'Оплачено',
+        'status.pending': 'В ожидании',
+        'status.pending_verification': 'Ожидает проверки',
+        'status.pending_payment': 'Ожидает оплаты',
+        'status.cancelled': 'Отменено',
+        'status.unknown': 'Неизвестно',
+        'ticket.valid': 'Действителен',
+        'ticket.used': 'Использован',
+        'ticket.pending': 'В ожидании',
+        'ticket.cancelled': 'Отменён',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Список билетов',
+        'order.noTickets': 'Билеты не найдены',
+        'order.ticketNo': 'Билет'
+      },
+      id: {
+        'doc.title': 'Qrio - Riwayat pesanan',
+        'meta.description': 'Lihat riwayat pembelian tiket elektronik Anda.',
+        'og.title': 'Qrio - Riwayat pesanan',
+        'og.description': 'Lihat riwayat pembelian tiket elektronik Anda.',
+        'lang.title': 'Bahasa',
+        'lang.aria': 'Pilih bahasa',
+        'lang.choose': 'Pilih bahasa',
+        'lang.close': 'Tutup',
+        'nav.createTicket': 'Buat tiket',
+        'nav.home': 'Beranda',
+        'page.badge': 'Riwayat transaksi',
+        'page.title': 'Riwayat pesanan',
+        'page.subtitle': 'Tinjau semua pesanan dan tiket yang Anda beli',
+        'search.placeholder': 'Cari berdasarkan acara, ID pesanan, email...',
+        'search.btn': 'Cari',
+        'stats.total': 'Total pesanan',
+        'stats.paid': 'Lunas',
+        'stats.pending': 'Menunggu',
+        'stats.cancelled': 'Dibatalkan',
+        'empty.title': 'Belum ada pesanan',
+        'empty.desc': 'Anda belum membeli tiket. Jelajahi acara seru!',
+        'empty.cta': 'Jelajahi acara',
+        'status.paid': 'Lunas',
+        'status.pending': 'Menunggu',
+        'status.pending_verification': 'Menunggu verifikasi',
+        'status.pending_payment': 'Menunggu pembayaran',
+        'status.cancelled': 'Dibatalkan',
+        'status.unknown': 'Tidak diketahui',
+        'ticket.valid': 'Valid',
+        'ticket.used': 'Terpakai',
+        'ticket.pending': 'Menunggu',
+        'ticket.cancelled': 'Dibatalkan',
+        'ticket.unknown': 'N/A',
+        'order.ticketList': 'Daftar tiket',
+        'order.noTickets': 'Tiket tidak ditemukan',
+        'order.ticketNo': 'Tiket'
+      }
+    };
+    function normalizeLang(input) {
+      const raw = String(input || '').trim().toLowerCase();
+      if (SUPPORTED_LANGS.includes(raw)) return raw;
+      const prefix = raw.split('-')[0];
+      if (SUPPORTED_LANGS.includes(prefix)) return prefix;
+      return 'vi';
+    }
+    function getLang() {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved) return normalizeLang(saved);
+      return normalizeLang(navigator.language || 'vi');
+    }
+    function t(key, lang) {
+      const l = normalizeLang(lang);
+      return (I18N[l] && I18N[l][key]) || (I18N.en && I18N.en[key]) || key;
+    }
+    function tr(key) { return t(key, getLang()); }
+
+    function applyI18n(lang) {
+      const l = normalizeLang(lang);
+      document.documentElement.lang = l;
+
+      document.querySelectorAll('[data-i18n-content]').forEach(el => {
+        const key = el.getAttribute('data-i18n-content');
+        el.setAttribute('content', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key, l);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.setAttribute('placeholder', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.setAttribute('title', t(key, l));
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+        const key = el.getAttribute('data-i18n-aria');
+        el.setAttribute('aria-label', t(key, l));
+      });
+    }
+    const initialLang = getLang();
+    applyI18n(initialLang);
+
     let allOrders = [];
     let allTickets = [];
 
@@ -938,7 +1458,7 @@
                 </div>
                 ` : ''}
                 <div style="margin-bottom: 8px;">
-                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Danh sách vé (${orderTickets.length})</p>
+                  <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">${tr('order.ticketList')} (${orderTickets.length})</p>
                 </div>
                 <div class="ticket-list">
                   ${orderTickets.length > 0 ? orderTickets.map(ticket => {
@@ -951,13 +1471,13 @@
                           </div>
                           <div class="ticket-item-text">
                             <h5>${ticket.ticketId}</h5>
-                            <p>Vé #${ticket.ticketNumber || 1}</p>
+                            <p>${tr('order.ticketNo')} #${ticket.ticketNumber || 1}</p>
                           </div>
                         </div>
                         <span class="ticket-item-status ${ticketStatus.class}">${ticketStatus.label}</span>
                       </div>
                     `;
-                  }).join('') : '<p style="font-size: 13px; color: #64748b; text-align: center; padding: 12px;">Không tìm thấy vé</p>'}
+                  }).join('') : `<p style="font-size: 13px; color: #64748b; text-align: center; padding: 12px;">${tr('order.noTickets')}</p>`}
                 </div>
               </div>
             </div>
@@ -988,25 +1508,25 @@
 
     function getStatusInfo(status) {
       const statusMap = {
-        'paid': { label: 'Đã thanh toán', icon: 'fa-check-circle', class: 'paid' },
-        'pending': { label: 'Đang chờ', icon: 'fa-clock', class: 'pending' },
-        'pending_verification': { label: 'Chờ xác nhận', icon: 'fa-clock', class: 'pending_verification' },
-        'pending_payment': { label: 'Chờ thanh toán', icon: 'fa-money-bill', class: 'pending' },
-        'cancelled': { label: 'Đã hủy', icon: 'fa-times-circle', class: 'cancelled' }
+        'paid': { label: tr('status.paid'), icon: 'fa-check-circle', class: 'paid' },
+        'pending': { label: tr('status.pending'), icon: 'fa-clock', class: 'pending' },
+        'pending_verification': { label: tr('status.pending_verification'), icon: 'fa-clock', class: 'pending_verification' },
+        'pending_payment': { label: tr('status.pending_payment'), icon: 'fa-money-bill', class: 'pending' },
+        'cancelled': { label: tr('status.cancelled'), icon: 'fa-times-circle', class: 'cancelled' }
       };
-      return statusMap[status] || { label: 'Không xác định', icon: 'fa-question-circle', class: 'pending' };
+      return statusMap[status] || { label: tr('status.unknown'), icon: 'fa-question-circle', class: 'pending' };
     }
 
     function getTicketStatusInfo(status) {
       const statusMap = {
-        'valid': { label: 'Hợp lệ', class: 'valid' },
-        'used': { label: 'Đã sử dụng', class: 'used' },
-        'pending': { label: 'Đang chờ', class: 'pending' },
-        'pending_verification': { label: 'Chờ xác nhận', class: 'pending' },
-        'pending_payment': { label: 'Chờ thanh toán', class: 'pending' },
-        'cancelled': { label: 'Đã hủy', class: 'used' }
+        'valid': { label: tr('ticket.valid'), class: 'valid' },
+        'used': { label: tr('ticket.used'), class: 'used' },
+        'pending': { label: tr('ticket.pending'), class: 'pending' },
+        'pending_verification': { label: tr('ticket.pending'), class: 'pending' },
+        'pending_payment': { label: tr('ticket.pending'), class: 'pending' },
+        'cancelled': { label: tr('ticket.cancelled'), class: 'used' }
       };
-      return statusMap[status] || { label: 'N/A', class: 'pending' };
+      return statusMap[status] || { label: tr('ticket.unknown'), class: 'pending' };
     }
 
     function escapeHtml(value) {
