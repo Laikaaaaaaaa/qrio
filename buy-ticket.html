@@ -2242,8 +2242,8 @@
           localStorage.setItem('order_' + orderData.orderId, JSON.stringify(orderData));
         }
 
-        // Go to order status page (cash doesn't require proof upload)
-        window.location.href = `transfer-confirm.html?order=${encodeURIComponent(orderData.orderId)}`;
+        // Go to ticket page (cash doesn't require proof upload)
+        window.location.href = `ticket.html?order=${encodeURIComponent(orderData.orderId)}`;
         return;
 
       } catch (e) {

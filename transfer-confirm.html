@@ -8,6 +8,27 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#7c3aed" />
 
+  <script>
+    (function redirectToTicket() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const orderId = (params.get('order') || '').trim();
+        const ticketId = (params.get('id') || '').trim();
+        if (ticketId) {
+          window.location.replace(`ticket.html?id=${encodeURIComponent(ticketId)}`);
+          return;
+        }
+        if (orderId) {
+          window.location.replace(`ticket.html?order=${encodeURIComponent(orderId)}`);
+          return;
+        }
+      } catch {
+        // ignore
+      }
+      window.location.replace('home.html');
+    })();
+  </script>
+
   <link rel="icon" type="image/x-icon" href="/static/logo/favicon_io%20(3)/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/static/logo/favicon_io%20(3)/favicon-32x32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/logo/favicon_io%20(3)/apple-touch-icon.png">

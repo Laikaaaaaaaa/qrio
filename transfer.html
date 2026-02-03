@@ -746,7 +746,7 @@
 
       document.getElementById('order-id').textContent = orderId;
       document.getElementById('memo').textContent = orderId;
-      document.getElementById('confirm-link').href = `transfer-confirm.html?order=${encodeURIComponent(orderId)}`;
+      document.getElementById('confirm-link').href = `ticket.html?order=${encodeURIComponent(orderId)}`;
 
       try {
         const orderResp = await fetch(`/api/ticket/orders/${encodeURIComponent(orderId)}`);

@@ -518,6 +518,12 @@
       color: #ef4444;
     }
 
+    .order-actions {
+      margin-top: 8px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
     .order-body {
       padding: 0 20px 20px;
       display: none;
@@ -786,7 +792,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Ticket list',
         'order.noTickets': 'No tickets found',
-        'order.ticketNo': 'Ticket'
+        'order.ticketNo': 'Ticket',
+        'order.viewTicket': 'View ticket'
       },
       vi: {
         'doc.title': 'Qrio - Lịch sử mua vé',
@@ -824,7 +831,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Danh sách vé',
         'order.noTickets': 'Không tìm thấy vé',
-        'order.ticketNo': 'Vé'
+        'order.ticketNo': 'Vé',
+        'order.viewTicket': 'Xem vé'
       },
       zh: {
         'doc.title': 'Qrio - 订单历史',
@@ -862,7 +870,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': '门票列表',
         'order.noTickets': '未找到门票',
-        'order.ticketNo': '门票'
+        'order.ticketNo': '门票',
+        'order.viewTicket': '查看门票'
       },
       hi: {
         'doc.title': 'Qrio - ऑर्डर इतिहास',
@@ -900,7 +909,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'टिकट सूची',
         'order.noTickets': 'कोई टिकट नहीं मिला',
-        'order.ticketNo': 'टिकट'
+        'order.ticketNo': 'टिकट',
+        'order.viewTicket': 'टिकट देखें'
       },
       es: {
         'doc.title': 'Qrio - Historial de pedidos',
@@ -938,7 +948,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Lista de entradas',
         'order.noTickets': 'No se encontraron entradas',
-        'order.ticketNo': 'Entrada'
+        'order.ticketNo': 'Entrada',
+        'order.viewTicket': 'Ver entrada'
       },
       fr: {
         'doc.title': 'Qrio - Historique des commandes',
@@ -976,7 +987,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Liste des billets',
         'order.noTickets': 'Aucun billet trouvé',
-        'order.ticketNo': 'Billet'
+        'order.ticketNo': 'Billet',
+        'order.viewTicket': 'Voir le billet'
       },
       ar: {
         'doc.title': 'Qrio - سجل الطلبات',
@@ -1014,7 +1026,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'قائمة التذاكر',
         'order.noTickets': 'لم يتم العثور على تذاكر',
-        'order.ticketNo': 'تذكرة'
+        'order.ticketNo': 'تذكرة',
+        'order.viewTicket': 'عرض التذكرة'
       },
       pt: {
         'doc.title': 'Qrio - Histórico de pedidos',
@@ -1052,7 +1065,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Lista de ingressos',
         'order.noTickets': 'Nenhum ingresso encontrado',
-        'order.ticketNo': 'Ingresso'
+        'order.ticketNo': 'Ingresso',
+        'order.viewTicket': 'Ver ingresso'
       },
       ru: {
         'doc.title': 'Qrio — История заказов',
@@ -1090,7 +1104,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Список билетов',
         'order.noTickets': 'Билеты не найдены',
-        'order.ticketNo': 'Билет'
+        'order.ticketNo': 'Билет',
+        'order.viewTicket': 'Посмотреть билет'
       },
       id: {
         'doc.title': 'Qrio - Riwayat pesanan',
@@ -1128,7 +1143,8 @@
         'ticket.unknown': 'N/A',
         'order.ticketList': 'Daftar tiket',
         'order.noTickets': 'Tiket tidak ditemukan',
-        'order.ticketNo': 'Tiket'
+        'order.ticketNo': 'Tiket',
+        'order.viewTicket': 'Lihat tiket'
       }
     };
     function normalizeLang(input) {
@@ -1433,6 +1449,12 @@
                   <i class="fa-solid ${statusInfo.icon}"></i>
                   ${statusInfo.label}
                 </div>
+                <div class="order-actions">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="viewOrderTicket('${order.orderId}', event)">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>${tr('order.viewTicket')}</span>
+                  </button>
+                </div>
               </div>
             </div>
             <div class="order-body" id="order-body-${order.orderId}">
@@ -1464,7 +1486,7 @@
                   ${orderTickets.length > 0 ? orderTickets.map(ticket => {
                     const ticketStatus = getTicketStatusInfo(ticket.status);
                     return `
-                      <div class="ticket-item" onclick="viewTicket('${ticket.ticketId}')">
+                      <div class="ticket-item" onclick="viewTicket('${ticket.ticketId || ''}', '${order.orderId}', event)">
                         <div class="ticket-item-info">
                           <div class="ticket-item-icon">
                             <i class="fa-solid fa-ticket"></i>
@@ -1488,6 +1510,7 @@
 
     function toggleOrderBody(orderId) {
       const body = document.getElementById('order-body-' + orderId);
+      if (!body) return;
       body.classList.toggle('open');
     }
 
@@ -1554,8 +1577,24 @@
       });
     }
 
-    function viewTicket(ticketId) {
-      window.location.href = `ticket.html?id=${ticketId}`;
+    function viewTicket(ticketId, orderId, ev) {
+      if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+      const tid = String(ticketId || '').trim();
+      const oid = String(orderId || '').trim();
+      if (tid) {
+        window.location.href = `ticket.html?id=${encodeURIComponent(tid)}`;
+        return;
+      }
+      if (oid) {
+        window.location.href = `ticket.html?order=${encodeURIComponent(oid)}`;
+      }
+    }
+
+    function viewOrderTicket(orderId, ev) {
+      if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+      const oid = String(orderId || '').trim();
+      if (!oid) return;
+      window.location.href = `ticket.html?order=${encodeURIComponent(oid)}`;
     }
   </script>
 </body>
