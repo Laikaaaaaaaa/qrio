@@ -235,7 +235,11 @@
     .ticket-header {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       padding: 24px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      gap: 6px;
     }
 
     .ticket-badge {
@@ -247,18 +251,21 @@
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
     }
 
     .ticket-event-name {
       font-size: 22px;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 2px;
+      line-height: 1.25;
+      text-wrap: balance;
     }
 
     .ticket-subtitle {
       font-size: 13px;
       opacity: 0.85;
+      line-height: 1.5;
     }
 
     /* Cutout effect */
