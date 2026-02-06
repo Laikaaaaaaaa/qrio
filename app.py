@@ -24,6 +24,7 @@ from typing import Optional
 import json
 import requests
 import time
+from datetime import datetime
 from urllib.parse import urlparse
 import logging
 import sys
@@ -111,7 +112,6 @@ def validate_int(value, default: int, min_val: int = None, max_val: int = None) 
         return result
     except (TypeError, ValueError):
         return default
-
 
 def validate_float(value, default: float, min_val: float = None, max_val: float = None) -> float:
     """Safely parse and clamp a float."""
@@ -343,12 +343,11 @@ if socketio:
 
 
 # ========================
-# TICKET SYSTEM (SePay)
+# TICKET SYSTEM (JSON FILE STORAGE)
 # ========================
 
-TICKETS_DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'tickets.db')
-
-_TICKETS_DB_INITIALIZED = False
+EVENTS_DIR = os.path.join(os.path.dirname(__file__), 'data', 'events')
+ORDERS_DIR = os.path.join(os.path.dirname(__file__), 'data', 'orders')
 
 
 def _hash_owner_password(event_id: str, password: str) -> str:
@@ -363,162 +362,239 @@ def _hash_owner_password(event_id: str, password: str) -> str:
     return hashlib.sha256(blob).hexdigest()
 
 
-def _ensure_data_dir(path: str):
+def _ensure_ticket_dirs() -> None:
     try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        os.makedirs(EVENTS_DIR, exist_ok=True)
+        os.makedirs(ORDERS_DIR, exist_ok=True)
     except Exception:
         pass
 
 
-def init_tickets_db():
-    _ensure_data_dir(TICKETS_DB_PATH)
-    conn = sqlite3.connect(TICKETS_DB_PATH, timeout=5)
+def _event_file_path(event_id: str) -> str:
+    return os.path.join(EVENTS_DIR, f"{event_id}.json")
+
+
+def _orders_file_path(event_id: str) -> str:
+    return os.path.join(ORDERS_DIR, f"{event_id}_orders.json")
+
+
+def _read_json_file(path: str, default):
     try:
-        cur = conn.cursor()
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS ticket_events (
-                event_id TEXT PRIMARY KEY,
-                event_name TEXT NOT NULL,
-                description TEXT,
-                price_per_ticket INTEGER NOT NULL,
-                max_tickets INTEGER NOT NULL,
-                bank_code TEXT NOT NULL,
-                bank_name TEXT NOT NULL,
-                account_number TEXT NOT NULL,
-                account_name TEXT NOT NULL,
-                start_date TEXT,
-                end_date TEXT,
-                payment_method TEXT DEFAULT 'bank_api',
-                bank_api_key TEXT,
-                sepay_api_key TEXT,
-                owner_password_hash TEXT,
-                created_at REAL NOT NULL
-            )
-        ''')
-        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_events_created_at ON ticket_events(created_at)')
-
-        # Add new columns to existing table if missing
-        try:
-            cur.execute('ALTER TABLE ticket_events ADD COLUMN payment_method TEXT DEFAULT "bank_api"')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_events ADD COLUMN bank_api_key TEXT')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_events ADD COLUMN sepay_api_key TEXT')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_events ADD COLUMN owner_password_hash TEXT')
-        except sqlite3.OperationalError:
-            pass
-
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS ticket_orders (
-                order_id TEXT PRIMARY KEY,
-                event_id TEXT NOT NULL,
-                buyer_name TEXT NOT NULL,
-                buyer_email TEXT,
-                buyer_phone TEXT,
-                buyer_note TEXT,
-                quantity INTEGER NOT NULL,
-                total_amount INTEGER NOT NULL,
-                status TEXT NOT NULL,
-                payment_type TEXT DEFAULT 'transfer',
-                payment_proof_image TEXT,
-                cash_payer_name TEXT,
-                cash_payment_time TEXT,
-                created_at REAL NOT NULL,
-                paid_at REAL,
-                sepay_transaction_id INTEGER,
-                sepay_reference_code TEXT,
-                FOREIGN KEY(event_id) REFERENCES ticket_events(event_id)
-            )
-        ''')
-        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_event_id ON ticket_orders(event_id)')
-        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_status ON ticket_orders(status)')
-        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_orders_created_at ON ticket_orders(created_at)')
-
-        # Add new columns to existing table if missing
-        try:
-            cur.execute('ALTER TABLE ticket_orders ADD COLUMN payment_type TEXT DEFAULT "transfer"')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_orders ADD COLUMN payment_proof_image TEXT')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_orders ADD COLUMN cash_payer_name TEXT')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_orders ADD COLUMN cash_payment_time TEXT')
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cur.execute('ALTER TABLE ticket_orders ADD COLUMN buyer_note TEXT')
-        except sqlite3.OperationalError:
-            pass
-
-        # Ticket items (server-side registry for scanning across devices)
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS ticket_items (
-                ticket_id TEXT PRIMARY KEY,
-                order_id TEXT NOT NULL,
-                ticket_number INTEGER,
-                total_tickets INTEGER,
-                status TEXT NOT NULL,
-                created_at REAL NOT NULL,
-                used_at REAL,
-                cancelled_at REAL,
-                FOREIGN KEY(order_id) REFERENCES ticket_orders(order_id)
-            )
-        ''')
-        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_items_order_id ON ticket_items(order_id)')
-        cur.execute('CREATE INDEX IF NOT EXISTS idx_ticket_items_status ON ticket_items(status)')
-
-        # Add new columns to existing table if missing
-        try:
-            cur.execute('ALTER TABLE ticket_items ADD COLUMN ticket_number INTEGER')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_items ADD COLUMN total_tickets INTEGER')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_items ADD COLUMN used_at REAL')
-        except sqlite3.OperationalError:
-            pass
-        try:
-            cur.execute('ALTER TABLE ticket_items ADD COLUMN cancelled_at REAL')
-        except sqlite3.OperationalError:
-            pass
-
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS sepay_webhook_dedupe (
-                sepay_id INTEGER PRIMARY KEY,
-                received_at REAL NOT NULL
-            )
-        ''')
-        conn.commit()
-    finally:
-        conn.close()
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return default
+    except Exception as e:
+        logger.warning(f"Failed to read JSON: {path} ({e})")
+        return default
 
 
-def get_tickets_db():
-    global _TICKETS_DB_INITIALIZED
-    # Always run migrations once per process even if the DB file already exists.
-    if not _TICKETS_DB_INITIALIZED:
-        init_tickets_db()
-        _TICKETS_DB_INITIALIZED = True
-    conn = sqlite3.connect(TICKETS_DB_PATH, timeout=5)
-    conn.row_factory = sqlite3.Row
-    return conn
+def _write_json_file(path: str, payload: dict) -> None:
+    _ensure_ticket_dirs()
+    tmp = f"{path}.{uuid.uuid4().hex}.tmp"
+    try:
+        with open(tmp, 'w', encoding='utf-8') as f:
+            json.dump(payload, f, ensure_ascii=False)
+        os.replace(tmp, path)
+    except Exception as e:
+        logger.warning(f"Failed to write JSON: {path} ({e})")
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except Exception:
+            pass
+
+
+def _parse_date_ts(date_str: str, end_of_day: bool = False):
+    if not date_str:
+        return None
+    try:
+        dt = datetime.strptime(date_str, '%Y-%m-%d')
+        if end_of_day:
+            dt = dt.replace(hour=23, minute=59, second=59)
+        else:
+            dt = dt.replace(hour=0, minute=0, second=0)
+        return dt.timestamp()
+    except Exception:
+        return None
+
+
+def _compute_event_status(event: dict, now_ts: float) -> str:
+    start_ts = _parse_date_ts(event.get('start_date') or event.get('startDate') or '', end_of_day=False)
+    end_ts = _parse_date_ts(event.get('end_date') or event.get('endDate') or '', end_of_day=True)
+
+    if end_ts and now_ts > end_ts:
+        return 'expired'
+    if start_ts and now_ts < start_ts:
+        return 'closed'
+
+    status = (event.get('status') or event.get('event_status') or 'open').strip().lower()
+    if status not in ('open', 'closed', 'expired'):
+        status = 'open'
+    return status
+
+
+def _normalize_event_payload(event: dict) -> dict:
+    now = time.time()
+    event_id = sanitize_input(event.get('event_id') or event.get('eventId') or '', max_length=40)
+    price = validate_int(event.get('price_per_ticket') or event.get('pricePerTicket'), default=0, min_val=0)
+    max_tickets = validate_int(event.get('max_tickets') or event.get('maxTickets'), default=0, min_val=0)
+
+    ticket_types = event.get('ticket_types') or event.get('ticketTypes')
+    if not isinstance(ticket_types, list) or not ticket_types:
+        ticket_types = [{
+            'name': 'Standard',
+            'price': int(price),
+            'quantity': int(max_tickets),
+        }]
+
+    payload = {
+        'event_id': event_id,
+        'event_name': event.get('event_name') or event.get('eventName') or '',
+        'description': event.get('description') or '',
+        'start_date': event.get('start_date') or event.get('startDate') or '',
+        'end_date': event.get('end_date') or event.get('endDate') or '',
+        'location': event.get('location') or '',
+        'ticket_types': ticket_types,
+        'status': event.get('status') or 'open',
+        'created_at': float(event.get('created_at') or event.get('createdAt') or now),
+        'updated_at': float(event.get('updated_at') or event.get('updatedAt') or now),
+
+        # Existing fields for compatibility
+        'price_per_ticket': int(price),
+        'max_tickets': int(max_tickets),
+        'bank_code': event.get('bank_code') or event.get('bankCode') or '',
+        'bank_name': event.get('bank_name') or event.get('bankName') or '',
+        'account_number': event.get('account_number') or event.get('accountNumber') or '',
+        'account_name': event.get('account_name') or event.get('accountName') or '',
+        'payment_method': event.get('payment_method') or event.get('paymentMethod') or 'bank_api',
+        'bank_api_key': event.get('bank_api_key') or event.get('bankApiKey') or '',
+        'sepay_api_key': event.get('sepay_api_key') or event.get('sepayApiKey') or '',
+        'owner_password_hash': event.get('owner_password_hash') or event.get('ownerPasswordHash') or '',
+    }
+
+    payload['status'] = _compute_event_status(payload, now)
+    return payload
+
+
+def _load_event(event_id: str) -> Optional[dict]:
+    event_id = sanitize_input(event_id or '', max_length=40)
+    if not event_id:
+        return None
+    path = _event_file_path(event_id)
+    data = _read_json_file(path, None)
+    if not isinstance(data, dict):
+        return None
+
+    payload = _normalize_event_payload(data)
+    new_status = _compute_event_status(payload, time.time())
+    if new_status != payload.get('status'):
+        payload['status'] = new_status
+        payload['updated_at'] = time.time()
+        _write_json_file(path, payload)
+    return payload
+
+
+def _load_orders(event_id: str, event: Optional[dict] = None) -> dict:
+    event_id = sanitize_input(event_id or '', max_length=40)
+    path = _orders_file_path(event_id)
+    payload = _read_json_file(path, None)
+    if not isinstance(payload, dict):
+        payload = {
+            'event_id': event_id,
+            'orders': [],
+            'tickets': [],
+            'updated_at': time.time(),
+        }
+
+    if payload.get('event_id') != event_id:
+        payload['event_id'] = event_id
+
+    if not isinstance(payload.get('orders'), list):
+        payload['orders'] = []
+    if not isinstance(payload.get('tickets'), list):
+        payload['tickets'] = []
+
+    changed = False
+    if event:
+        end_ts = _parse_date_ts(event.get('end_date') or '', end_of_day=True)
+        if end_ts and time.time() > end_ts:
+            for t in payload['tickets']:
+                if isinstance(t, dict) and not t.get('expired'):
+                    t['expired'] = True
+                    t['expired_at'] = time.time()
+                    changed = True
+    if changed:
+        payload['updated_at'] = time.time()
+        _write_json_file(path, payload)
+
+    return payload
+
+
+def _save_orders(event_id: str, payload: dict) -> None:
+    payload['updated_at'] = time.time()
+    _write_json_file(_orders_file_path(event_id), payload)
+
+
+def _save_event(event_id: str, payload: dict) -> None:
+    payload['updated_at'] = time.time()
+    _write_json_file(_event_file_path(event_id), payload)
+
+
+def _iter_order_files():
+    _ensure_ticket_dirs()
+    try:
+        for name in os.listdir(ORDERS_DIR):
+            if name.endswith('_orders.json'):
+                yield os.path.join(ORDERS_DIR, name)
+    except Exception:
+        return
+
+
+def _find_order(order_id: str):
+    order_id = sanitize_input(order_id or '', max_length=80)
+    if not order_id:
+        return None, None, None
+    for path in _iter_order_files():
+        payload = _read_json_file(path, None)
+        if not isinstance(payload, dict):
+            continue
+        orders = payload.get('orders') if isinstance(payload.get('orders'), list) else []
+        for o in orders:
+            if isinstance(o, dict) and o.get('order_id') == order_id:
+                event_id = payload.get('event_id') or os.path.basename(path).replace('_orders.json', '')
+                event = _load_event(event_id)
+                payload = _load_orders(event_id, event)
+                for o2 in payload.get('orders', []):
+                    if isinstance(o2, dict) and o2.get('order_id') == order_id:
+                        return event_id, payload, o2
+    return None, None, None
+
+
+def _find_ticket(ticket_id: str):
+    ticket_id = sanitize_input(ticket_id or '', max_length=80).upper()
+    if not ticket_id:
+        return None, None, None, None
+    for path in _iter_order_files():
+        payload = _read_json_file(path, None)
+        if not isinstance(payload, dict):
+            continue
+        tickets = payload.get('tickets') if isinstance(payload.get('tickets'), list) else []
+        for t in tickets:
+            if isinstance(t, dict) and str(t.get('ticket_id') or '').upper() == ticket_id:
+                event_id = payload.get('event_id') or os.path.basename(path).replace('_orders.json', '')
+                event = _load_event(event_id)
+                payload = _load_orders(event_id, event)
+                for t2 in payload.get('tickets', []):
+                    if isinstance(t2, dict) and str(t2.get('ticket_id') or '').upper() == ticket_id:
+                        order_id = t2.get('order_id')
+                        order_obj = None
+                        for o in payload.get('orders', []):
+                            if isinstance(o, dict) and o.get('order_id') == order_id:
+                                order_obj = o
+                                break
+                        return event_id, payload, t2, order_obj
+    return None, None, None, None
 
 
 def _new_event_id() -> str:
@@ -1207,7 +1283,6 @@ def ticket_create_html():
     track_event('/ticket-create', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'ticket-create.html')
 
-
 @app.route('/ticket-create/c/<event_id>')
 @app.route('/ticket-create.html/c/<event_id>')
 def ticket_create_owner_link(event_id):
@@ -1228,7 +1303,7 @@ def buy_ticket_html():
 @app.route('/transfer')
 @app.route('/transfer.html')
 def transfer_html():
-    """Page for customers to pay via bank transfer."""
+    """Page for customers to transfer/bank payment."""
     track_event('/transfer', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'transfer.html')
 
@@ -1300,83 +1375,15 @@ def information_html():
 @app.route('/sepay-webhook-guide')
 @app.route('/sepay-webhook-guide.html')
 def sepay_webhook_guide_html():
-    """Guide for shop owners to set up SePay WebHooks."""
     track_event('/sepay-webhook-guide', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'sepay-webhook-guide.html')
 
 
 @app.route('/edit')
-def edit_redirect():
-    """Canonicalize old /edit to /edit.html (avoid duplicate indexing)."""
-    return redirect('/edit.html', code=301)
-
-
 @app.route('/edit.html')
 def edit_html():
-    """Trang chỉnh sửa (tên cũ: index)."""
     track_event('/edit', 'page_view', get_country_from_request(), get_device_type(), source=get_source_from_request())
     return send_from_directory('.', 'edit.html')
-
-
-@app.route('/generate')
-def generate_root():
-    """SEO-friendly entrypoint for generator deep links."""
-    return redirect('/edit.html', code=302)
-
-
-@app.route('/generate/<slug>')
-def generate_landing(slug: str):
-    """Landing pages that map common search intents to specific QR types in the editor.
-
-    Example:
-      - /generate/vcard -> vCard tab
-      - /generate/appointment -> Event tab
-    """
-    slug_norm = (slug or '').strip().lower()
-
-    # Map slugs (English URLs) to existing editor types.
-    type_map = {
-        'vcard': 'vcard',
-        'vcf': 'vcard',
-        'appointment': 'event',
-        'schedule': 'event',
-        'calendar': 'event',
-        'event': 'event',
-    }
-
-    qr_type = type_map.get(slug_norm)
-    if not qr_type:
-        return redirect('/edit.html', code=302)
-
-    canonical_url = f'https://qrio.site/generate/{slug_norm}'
-    if slug_norm == 'vcard':
-        title = 'Qrio - Tạo mã QR vCard miễn phí'
-        description = 'Tạo mã QR vCard (danh thiếp) miễn phí: họ tên, số điện thoại, email, công ty. Tùy chỉnh màu sắc, thêm logo và tải ảnh HD.'
-    else:
-        title = 'Qrio - Tạo mã QR đặt lịch (Event) miễn phí'
-        description = 'Tạo mã QR đặt lịch/sự kiện miễn phí: tiêu đề, địa điểm, thời gian bắt đầu/kết thúc. Tùy chỉnh đẹp mắt, thêm logo và tải ảnh HD.'
-
-    html = _build_edit_landing_html(canonical_url=canonical_url, title=title, description=description)
-    # Ensure correct tab is selected even for direct visits without query params.
-    html = html.replace(
-        '</head>',
-        f'  <script>window.__QRIO_INITIAL_QR_TYPE = {json.dumps(qr_type)};</script>\n</head>',
-        1,
-    )
-    return Response(html, mimetype='text/html')
-
-
-@app.route('/index.html')
-def legacy_index_html():
-    """Giữ tương thích cũ: /index.html trỏ về edit.html"""
-    return send_from_directory('.', 'edit.html')
-
-
-@app.route('/terms')
-@app.route('/terms.html')
-def terms_html():
-    """Legal: Terms of Service."""
-    return send_from_directory('.', 'terms.html')
 
 
 @app.route('/privacy')
@@ -1384,6 +1391,13 @@ def terms_html():
 def privacy_html():
     """Legal: Privacy Policy."""
     return send_from_directory('.', 'privacy.html')
+
+
+@app.route('/terms')
+@app.route('/terms.html')
+def terms_html():
+    """Legal: Terms of Service."""
+    return send_from_directory('.', 'terms.html')
 
 
 @app.route('/disclaimer')
@@ -1624,21 +1638,11 @@ def api_verify_payment():
         if not order_id:
             return jsonify({'ok': False, 'verified': False, 'error': 'Thiếu orderId'}), 400
 
-        try:
-            conn = get_tickets_db()
-            cur = conn.cursor()
-            cur.execute('SELECT status, total_amount, paid_at FROM ticket_orders WHERE order_id = ?', (order_id,))
-            row = cur.fetchone()
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
-
-        if not row:
+        event_id, payload_orders, order = _find_order(order_id)
+        if not order:
             return jsonify({'ok': True, 'verified': False, 'reason': 'order_not_found', 'message': 'Không tìm thấy đơn hàng.'}), 200
 
-        status = (row['status'] or '').lower()
+        status = (order.get('status') or '').lower()
         if status == 'paid':
             return jsonify({'ok': True, 'verified': True, 'orderId': order_id}), 200
 
@@ -1662,6 +1666,7 @@ def api_ticket_create_event():
 
         event_name = sanitize_input(payload.get('eventName', ''), max_length=120)
         description = sanitize_input(payload.get('description', ''), max_length=400)
+        location = sanitize_input(payload.get('location', ''), max_length=200)
         price_per_ticket = validate_int(payload.get('pricePerTicket'), default=0, min_val=0, max_val=10**9)
         max_tickets = validate_int(payload.get('maxTickets'), default=10, min_val=1, max_val=10**4)
         bank_code = sanitize_input(payload.get('bankCode', ''), max_length=16)
@@ -1674,6 +1679,7 @@ def api_ticket_create_event():
         bank_api_key = sanitize_input(payload.get('bankApiKey', ''), max_length=200)
         sepay_api_key = sanitize_input(payload.get('sepayApiKey', ''), max_length=200)
         owner_password = sanitize_input(payload.get('ownerPassword', ''), max_length=200)
+        ticket_types = payload.get('ticketTypes')
 
         # Validate payment method
         if payment_method not in ('bank_api', 'sepay_webhook', 'manual'):
@@ -1704,23 +1710,45 @@ def api_ticket_create_event():
         now = time.time()
         owner_password_hash = _hash_owner_password(event_id, owner_password)
 
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('''
-                INSERT INTO ticket_events (
-                    event_id, event_name, description, price_per_ticket, max_tickets,
-                    bank_code, bank_name, account_number, account_name,
-                    start_date, end_date, payment_method, bank_api_key, sepay_api_key, owner_password_hash, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                event_id, event_name, description, int(price_per_ticket), int(max_tickets),
-                bank_code, bank_name, account_number, account_name,
-                start_date or None, end_date or None, payment_method, bank_api_key or None, sepay_api_key or None, owner_password_hash, now
-            ))
-            conn.commit()
-        finally:
-            conn.close()
+        if not isinstance(ticket_types, list) or not ticket_types:
+            ticket_types = [{
+                'name': 'Standard',
+                'price': int(price_per_ticket),
+                'quantity': int(max_tickets),
+            }]
+
+        event_payload = _normalize_event_payload({
+            'event_id': event_id,
+            'event_name': event_name,
+            'description': description,
+            'start_date': start_date,
+            'end_date': end_date,
+            'location': location,
+            'ticket_types': ticket_types,
+            'status': 'open',
+            'created_at': now,
+            'updated_at': now,
+            'price_per_ticket': int(price_per_ticket),
+            'max_tickets': int(max_tickets),
+            'bank_code': bank_code,
+            'bank_name': bank_name,
+            'account_number': account_number,
+            'account_name': account_name,
+            'payment_method': payment_method,
+            'bank_api_key': bank_api_key or '',
+            'sepay_api_key': sepay_api_key or '',
+            'owner_password_hash': owner_password_hash,
+        })
+
+        _write_json_file(_event_file_path(event_id), event_payload)
+
+        orders_payload = {
+            'event_id': event_id,
+            'orders': [],
+            'tickets': [],
+            'updated_at': now,
+        }
+        _write_json_file(_orders_file_path(event_id), orders_payload)
 
         buy_link = f"{_get_base_url()}/buy-ticket.html?event={event_id}"
         webhook_url = f"{_get_base_url()}/api/sepay/webhook/{event_id}" if payment_method == 'sepay_webhook' else ''
@@ -1743,34 +1771,23 @@ def api_ticket_create_event():
 def api_ticket_get_event(event_id):
     try:
         event_id = sanitize_input(event_id, max_length=40)
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('''
-                SELECT event_id, event_name, description, price_per_ticket, max_tickets,
-                       bank_code, bank_name, account_number, account_name, start_date, end_date, payment_method
-                FROM ticket_events WHERE event_id = ?
-            ''', (event_id,))
-            row = cur.fetchone()
-        finally:
-            conn.close()
-
+        row = _load_event(event_id)
         if not row:
             return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
 
         return jsonify({
-            'eventId': row['event_id'],
-            'eventName': row['event_name'],
-            'description': row['description'] or '',
-            'pricePerTicket': int(row['price_per_ticket']),
-            'maxTickets': int(row['max_tickets']),
-            'bankCode': row['bank_code'],
-            'bankName': row['bank_name'],
-            'accountNumber': row['account_number'],
-            'accountName': row['account_name'],
-            'startDate': row['start_date'] or '',
-            'endDate': row['end_date'] or '',
-            'paymentMethod': row['payment_method'] or 'bank_api',
+            'eventId': row.get('event_id'),
+            'eventName': row.get('event_name'),
+            'description': row.get('description') or '',
+            'pricePerTicket': int(row.get('price_per_ticket') or 0),
+            'maxTickets': int(row.get('max_tickets') or 0),
+            'bankCode': row.get('bank_code') or '',
+            'bankName': row.get('bank_name') or '',
+            'accountNumber': row.get('account_number') or '',
+            'accountName': row.get('account_name') or '',
+            'startDate': row.get('start_date') or '',
+            'endDate': row.get('end_date') or '',
+            'paymentMethod': row.get('payment_method') or 'bank_api',
         }), 200
     except Exception:
         return jsonify({'error': 'Không thể tải thông tin sự kiện'}), 500
@@ -1785,23 +1802,11 @@ def api_ticket_get_event_owner(event_id):
         owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
         strict = str(request.args.get('strict', '')).strip().lower() in ('1', 'true', 'yes')
 
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('''
-                SELECT event_id, event_name, description, price_per_ticket, max_tickets,
-                       bank_code, bank_name, account_number, account_name,
-                       start_date, end_date, payment_method, owner_password_hash
-                FROM ticket_events WHERE event_id = ?
-            ''', (event_id,))
-            row = cur.fetchone()
-        finally:
-            conn.close()
-
+        row = _load_event(event_id)
         if not row:
             return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
 
-        stored_hash = (row['owner_password_hash'] or '').strip()
+        stored_hash = (row.get('owner_password_hash') or '').strip()
         if strict and not stored_hash:
             return jsonify({'error': 'Sự kiện chưa thiết lập mật khẩu'}), 401
 
@@ -1817,18 +1822,18 @@ def api_ticket_get_event_owner(event_id):
         owner_link = f"{_get_base_url()}/ticket-create.html/c/{event_id}"
 
         return jsonify({
-            'eventId': row['event_id'],
-            'eventName': row['event_name'],
-            'description': row['description'] or '',
-            'pricePerTicket': int(row['price_per_ticket']),
-            'maxTickets': int(row['max_tickets']),
-            'bankCode': row['bank_code'],
-            'bankName': row['bank_name'],
-            'accountNumber': row['account_number'],
-            'accountName': row['account_name'],
-            'startDate': row['start_date'] or '',
-            'endDate': row['end_date'] or '',
-            'paymentMethod': row['payment_method'] or 'bank_api',
+            'eventId': row.get('event_id'),
+            'eventName': row.get('event_name'),
+            'description': row.get('description') or '',
+            'pricePerTicket': int(row.get('price_per_ticket') or 0),
+            'maxTickets': int(row.get('max_tickets') or 0),
+            'bankCode': row.get('bank_code') or '',
+            'bankName': row.get('bank_name') or '',
+            'accountNumber': row.get('account_number') or '',
+            'accountName': row.get('account_name') or '',
+            'startDate': row.get('start_date') or '',
+            'endDate': row.get('end_date') or '',
+            'paymentMethod': row.get('payment_method') or 'bank_api',
             'buyLink': buy_link,
             'ownerLink': owner_link,
         }), 200
@@ -1858,63 +1863,90 @@ def api_ticket_create_order():
         if payment_type not in ('transfer', 'cash'):
             payment_type = 'transfer'
 
-        if not event_id:
-            return jsonify({'error': 'Thiếu eventId'}), 400
-        if not buyer_name:
-            return jsonify({'error': 'Vui lòng nhập họ tên'}), 400
+        event_row = _load_event(event_id)
+        if not event_row:
+            return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
 
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT price_per_ticket, max_tickets, bank_code, bank_name, account_number, account_name, payment_method FROM ticket_events WHERE event_id = ?', (event_id,))
-            event_row = cur.fetchone()
-            if not event_row:
-                return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+        event_status = _compute_event_status(event_row, time.time())
+        if event_status == 'expired':
+            return jsonify({'error': 'Sự kiện đã kết thúc bán vé'}), 400
+        if event_status == 'closed':
+            return jsonify({'error': 'Sự kiện chưa mở bán'}), 400
 
-            max_tickets = int(event_row['max_tickets'])
-            if quantity < 1 or quantity > max_tickets:
-                return jsonify({'error': f'Số lượng vé tối đa là {max_tickets}'}), 400
+        max_tickets_event = int(event_row.get('max_tickets') or 0)
+        if quantity < 1 or (max_tickets_event and quantity > max_tickets_event):
+            return jsonify({'error': f'Số lượng vé tối đa là {max_tickets_event}'}), 400
 
-            price_per_ticket = int(event_row['price_per_ticket'])
-            total_amount = int(price_per_ticket * quantity)
-            order_id = _new_order_id()
-            now = time.time()
+        price_per_ticket = int(event_row.get('price_per_ticket') or 0)
+        total_amount = int(price_per_ticket * quantity)
+        order_id = _new_order_id()
+        now = time.time()
 
-            cur.execute('''
-                INSERT INTO ticket_orders (
-                    order_id, event_id, buyer_name, buyer_email, buyer_phone,
-                    buyer_note,
-                    quantity, total_amount, status, payment_type, cash_payer_name, cash_payment_time, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                order_id, event_id, buyer_name, buyer_email or None, buyer_phone or None,
-                buyer_note or None,
-                int(quantity), int(total_amount), 'pending', payment_type,
-                cash_payer_name or None, cash_payment_time or None, now
-            ))
+        order_status = 'pending'
+        if payment_type == 'cash':
+            order_status = 'pending_payment'
 
-            # Create ticket items on server so staff scanning works across devices.
-            ticket_status = 'pending'
-            if payment_type == 'cash':
-                ticket_status = 'pending_payment'
+        orders_payload = _load_orders(event_id, event_row)
+        order_obj = {
+            'order_id': order_id,
+            'event_id': event_id,
+            'buyer_name': buyer_name,
+            'buyer_email': buyer_email or '',
+            'buyer_phone': buyer_phone or '',
+            'buyer_note': buyer_note or '',
+            'quantity': int(quantity),
+            'total_amount': int(total_amount),
+            'status': order_status,
+            'payment_type': payment_type,
+            'payment_proof_image': None,
+            'cash_payer_name': cash_payer_name or '',
+            'cash_payment_time': cash_payment_time or '',
+            'created_at': now,
+            'paid_at': None,
+            'sepay_transaction_id': None,
+            'sepay_reference_code': None,
+        }
 
-            ticket_ids = []
-            items = []
-            for i in range(int(quantity)):
-                tid = _new_ticket_id()
-                ticket_ids.append(tid)
-                items.append((tid, order_id, i + 1, int(quantity), ticket_status, now))
+        ticket_ids = []
+        tickets = orders_payload.get('tickets', [])
+        ticket_type_name = ''
+        if isinstance(event_row.get('ticket_types'), list) and event_row.get('ticket_types'):
+            ticket_type_name = str(event_row['ticket_types'][0].get('name') or 'Standard')
+        else:
+            ticket_type_name = 'Standard'
 
-            cur.executemany('''
-                INSERT INTO ticket_items (ticket_id, order_id, ticket_number, total_tickets, status, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', items)
-            conn.commit()
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
+        payment_status = 'pending'
+        if order_status == 'pending_payment':
+            payment_status = 'pending_payment'
+
+        for i in range(int(quantity)):
+            tid = _new_ticket_id()
+            ticket_ids.append(tid)
+            tickets.append({
+                'ticket_id': tid,
+                'order_id': order_id,
+                'event_id': event_id,
+                'ticket_number': i + 1,
+                'total_tickets': int(quantity),
+                'buyer_name': buyer_name,
+                'buyer_email': buyer_email or '',
+                'buyer_phone': buyer_phone or '',
+                'buyer_note': buyer_note or '',
+                'ticket_type': ticket_type_name,
+                'price': int(price_per_ticket),
+                'created_at': now,
+                'payment_status': payment_status,
+                'usage_status': 'unused',
+                'used_at': None,
+                'cancelled_at': None,
+                'expired': False,
+                'expired_at': None,
+                'note': '',
+            })
+
+        orders_payload['orders'].append(order_obj)
+        orders_payload['tickets'] = tickets
+        _save_orders(event_id, orders_payload)
 
         return jsonify({
             'orderId': order_id,
@@ -1924,13 +1956,13 @@ def api_ticket_create_order():
             'totalAmount': int(total_amount),
             'ticketIds': ticket_ids,
             'memo': order_id,
-            'bankCode': event_row['bank_code'],
-            'bankName': event_row['bank_name'],
-            'accountNumber': event_row['account_number'],
-            'accountName': event_row['account_name'],
+            'bankCode': event_row.get('bank_code') or '',
+            'bankName': event_row.get('bank_name') or '',
+            'accountNumber': event_row.get('account_number') or '',
+            'accountName': event_row.get('account_name') or '',
             'paymentType': payment_type,
             'buyerNote': buyer_note,
-            'paymentMethod': event_row['payment_method'] or 'bank_api',
+            'paymentMethod': event_row.get('payment_method') or 'bank_api',
         }), 201
     except Exception as e:
         logger.error(f"Error in api_ticket_create_order: {e}")
@@ -1942,50 +1974,35 @@ def api_ticket_create_order():
 def api_ticket_get_order(order_id):
     try:
         order_id = sanitize_input(order_id, max_length=80)
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('''
-                SELECT o.order_id, o.event_id, o.buyer_name, o.buyer_email, o.buyer_phone,
-                       o.status, o.total_amount, o.quantity, o.created_at, o.paid_at,
-                       o.payment_type, o.payment_proof_image, o.cash_payer_name, o.cash_payment_time,
-                       o.buyer_note,
-                       e.event_name, e.payment_method
-                FROM ticket_orders o
-                JOIN ticket_events e ON o.event_id = e.event_id
-                WHERE o.order_id = ?
-            ''', (order_id,))
-            row = cur.fetchone()
-
-            ticket_ids = []
-            if row:
-                cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY COALESCE(ticket_number, 0) ASC, ticket_id ASC', (order_id,))
-                ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
-        finally:
-            conn.close()
-
+        event_id, orders_payload, row = _find_order(order_id)
         if not row:
             return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
 
+        event_row = _load_event(event_id) if event_id else None
+        ticket_ids = []
+        for t in orders_payload.get('tickets', []):
+            if isinstance(t, dict) and t.get('order_id') == order_id:
+                ticket_ids.append(t.get('ticket_id'))
+
         return jsonify({
-            'orderId': row['order_id'],
-            'eventId': row['event_id'],
-            'eventName': row['event_name'],
-            'buyerName': row['buyer_name'],
-            'buyerEmail': row['buyer_email'],
-            'buyerPhone': row['buyer_phone'],
-            'buyerNote': row['buyer_note'] or '',
-            'status': row['status'],
-            'totalAmount': int(row['total_amount']),
-            'quantity': int(row['quantity']),
+            'orderId': row.get('order_id'),
+            'eventId': row.get('event_id') or event_id,
+            'eventName': (event_row or {}).get('event_name') if event_row else '',
+            'buyerName': row.get('buyer_name'),
+            'buyerEmail': row.get('buyer_email'),
+            'buyerPhone': row.get('buyer_phone'),
+            'buyerNote': row.get('buyer_note') or '',
+            'status': row.get('status'),
+            'totalAmount': int(row.get('total_amount') or 0),
+            'quantity': int(row.get('quantity') or 0),
             'ticketIds': ticket_ids,
-            'createdAt': row['created_at'],
-            'paidAt': row['paid_at'],
-            'paymentType': row['payment_type'] or 'transfer',
-            'paymentProofImage': row['payment_proof_image'],
-            'cashPayerName': row['cash_payer_name'],
-            'cashPaymentTime': row['cash_payment_time'],
-            'paymentMethod': row['payment_method'] or 'bank_api',
+            'createdAt': row.get('created_at'),
+            'paidAt': row.get('paid_at'),
+            'paymentType': row.get('payment_type') or 'transfer',
+            'paymentProofImage': row.get('payment_proof_image'),
+            'cashPayerName': row.get('cash_payer_name'),
+            'cashPaymentTime': row.get('cash_payment_time'),
+            'paymentMethod': (event_row or {}).get('payment_method') or 'bank_api',
         }), 200
     except Exception:
         return jsonify({'error': 'Không thể tải đơn hàng'}), 500
@@ -1998,64 +2015,50 @@ def api_ticket_list_orders(event_id):
     try:
         event_id = sanitize_input(event_id, max_length=40)
         owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            # Check if event exists
-            cur.execute('SELECT event_id, event_name, payment_method, owner_password_hash FROM ticket_events WHERE event_id = ?', (event_id,))
-            event_row = cur.fetchone()
-            if not event_row:
-                return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+        event_row = _load_event(event_id)
+        if not event_row:
+            return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
 
-            stored_hash = (event_row['owner_password_hash'] or '').strip()
-            # Backward compatible: if no password was set, allow access.
-            if stored_hash:
-                if not owner_password:
-                    return jsonify({'error': 'Vui lòng nhập mật khẩu quản lý'}), 401
-                provided_hash = _hash_owner_password(event_id, owner_password)
-                if not hmac.compare_digest(stored_hash, provided_hash):
-                    return jsonify({'error': 'Mật khẩu không đúng'}), 401
+        stored_hash = (event_row.get('owner_password_hash') or '').strip()
+        # Backward compatible: if no password was set, allow access.
+        if stored_hash:
+            if not owner_password:
+                return jsonify({'error': 'Vui lòng nhập mật khẩu quản lý'}), 401
+            provided_hash = _hash_owner_password(event_id, owner_password)
+            if not hmac.compare_digest(stored_hash, provided_hash):
+                return jsonify({'error': 'Mật khẩu không đúng'}), 401
 
-            cur.execute('''
-                SELECT order_id, buyer_name, buyer_email, buyer_phone, quantity, total_amount, 
-                       status, payment_type, payment_proof_image, cash_payer_name, cash_payment_time, buyer_note,
-                       created_at, paid_at
-                FROM ticket_orders WHERE event_id = ?
-                ORDER BY created_at DESC
-            ''', (event_id,))
-            rows = cur.fetchall()
-        finally:
-            conn.close()
+        orders_payload = _load_orders(event_id, event_row)
+        rows = sorted(orders_payload.get('orders', []), key=lambda r: float(r.get('created_at') or 0), reverse=True)
 
         orders = []
         for row in rows:
             orders.append({
-                'orderId': row['order_id'],
-                'buyerName': row['buyer_name'],
-                'buyerEmail': row['buyer_email'],
-                'buyerPhone': row['buyer_phone'],
-                'buyerNote': row['buyer_note'] or '',
-                'quantity': int(row['quantity']),
-                'totalAmount': int(row['total_amount']),
-                'status': row['status'],
-                'paymentType': row['payment_type'] or 'transfer',
-                'paymentProofImage': row['payment_proof_image'],
-                'cashPayerName': row['cash_payer_name'],
-                'cashPaymentTime': row['cash_payment_time'],
-                'createdAt': row['created_at'],
-                'paidAt': row['paid_at'],
+                'orderId': row.get('order_id'),
+                'buyerName': row.get('buyer_name'),
+                'buyerEmail': row.get('buyer_email'),
+                'buyerPhone': row.get('buyer_phone'),
+                'buyerNote': row.get('buyer_note') or '',
+                'quantity': int(row.get('quantity') or 0),
+                'totalAmount': int(row.get('total_amount') or 0),
+                'status': row.get('status'),
+                'paymentType': row.get('payment_type') or 'transfer',
+                'paymentProofImage': row.get('payment_proof_image'),
+                'cashPayerName': row.get('cash_payer_name'),
+                'cashPaymentTime': row.get('cash_payment_time'),
+                'createdAt': row.get('created_at'),
+                'paidAt': row.get('paid_at'),
             })
 
         return jsonify({
-            'eventId': event_row['event_id'],
-            'eventName': event_row['event_name'],
-            'paymentMethod': event_row['payment_method'] or 'bank_api',
+            'eventId': event_row.get('event_id'),
+            'eventName': event_row.get('event_name'),
+            'paymentMethod': event_row.get('payment_method') or 'bank_api',
             'orders': orders,
         }), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_list_orders: {e}")
         return jsonify({'error': 'Không thể tải danh sách đơn hàng'}), 500
-
 
 @app.route('/api/ticket/tickets/register', methods=['POST'])
 @limiter.limit("10 per second; 120 per minute")
@@ -2075,7 +2078,6 @@ def api_ticket_register_tickets():
         if isinstance(items, list):
             tickets = items
         else:
-            # Allow single-ticket payload
             tickets = [payload]
 
         if not tickets or not isinstance(tickets, list):
@@ -2085,60 +2087,87 @@ def api_ticket_register_tickets():
             return jsonify({'error': 'Quá nhiều vé trong một lần đăng ký'}), 400
 
         now = time.time()
-        to_upsert = []
+        registered = 0
 
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
+        for t in tickets:
+            if not isinstance(t, dict):
+                continue
 
-            for t in tickets:
-                if not isinstance(t, dict):
+            ticket_id = sanitize_input(t.get('ticketId', ''), max_length=80).upper()
+            order_id = sanitize_input(t.get('orderId', ''), max_length=80).upper()
+            ticket_number = validate_int(t.get('ticketNumber'), default=0, min_val=0, max_val=10**6)
+            total_tickets = validate_int(t.get('totalTickets'), default=0, min_val=0, max_val=10**6)
+            status = sanitize_input(t.get('status', 'valid'), max_length=32).lower()
+
+            if not ticket_id or not order_id:
+                continue
+
+            if status not in ('valid', 'paid', 'pending', 'pending_verification', 'pending_payment', 'used', 'cancelled'):
+                status = 'valid'
+            if status == 'paid':
+                status = 'valid'
+
+            event_id, orders_payload, order_obj = _find_order(order_id)
+            if not order_obj:
+                continue
+
+            payment_status = 'pending'
+            if status in ('valid',):
+                payment_status = 'paid'
+            elif status in ('pending_verification', 'pending_payment'):
+                payment_status = status
+            elif status == 'cancelled':
+                payment_status = 'cancelled'
+
+            usage_status = 'unused'
+            if status == 'used':
+                usage_status = 'used'
+            if status == 'cancelled':
+                usage_status = 'cancelled'
+
+            tickets_list = orders_payload.get('tickets', [])
+            existing = None
+            for tk in tickets_list:
+                if isinstance(tk, dict) and str(tk.get('ticket_id') or '').upper() == ticket_id:
+                    existing = tk
+                    break
+
+            if existing:
+                if existing.get('usage_status') in ('used', 'cancelled'):
                     continue
+                existing['order_id'] = order_id
+                existing['ticket_number'] = ticket_number or existing.get('ticket_number')
+                existing['total_tickets'] = total_tickets or existing.get('total_tickets')
+                existing['payment_status'] = payment_status
+                existing['usage_status'] = usage_status
+            else:
+                tickets_list.append({
+                    'ticket_id': ticket_id,
+                    'order_id': order_id,
+                    'event_id': event_id,
+                    'ticket_number': ticket_number or None,
+                    'total_tickets': total_tickets or None,
+                    'buyer_name': order_obj.get('buyer_name') or '',
+                    'buyer_email': order_obj.get('buyer_email') or '',
+                    'buyer_phone': order_obj.get('buyer_phone') or '',
+                    'buyer_note': order_obj.get('buyer_note') or '',
+                    'ticket_type': 'Standard',
+                    'price': int(order_obj.get('total_amount') or 0),
+                    'created_at': now,
+                    'payment_status': payment_status,
+                    'usage_status': usage_status,
+                    'used_at': None,
+                    'cancelled_at': None,
+                    'expired': False,
+                    'expired_at': None,
+                    'note': '',
+                })
 
-                ticket_id = sanitize_input(t.get('ticketId', ''), max_length=80).upper()
-                order_id = sanitize_input(t.get('orderId', ''), max_length=80).upper()
-                ticket_number = validate_int(t.get('ticketNumber'), default=0, min_val=0, max_val=10**6)
-                total_tickets = validate_int(t.get('totalTickets'), default=0, min_val=0, max_val=10**6)
-                status = sanitize_input(t.get('status', 'valid'), max_length=32).lower()
+            orders_payload['tickets'] = tickets_list
+            _save_orders(event_id, orders_payload)
+            registered += 1
 
-                if not ticket_id or not order_id:
-                    continue
-
-                if status not in ('valid', 'paid', 'pending', 'pending_verification', 'pending_payment', 'used', 'cancelled'):
-                    status = 'valid'
-                if status == 'paid':
-                    status = 'valid'
-
-                # Ensure order exists
-                cur.execute('SELECT order_id FROM ticket_orders WHERE order_id = ?', (order_id,))
-                if not cur.fetchone():
-                    continue
-
-                to_upsert.append((ticket_id, order_id, int(ticket_number or 0), int(total_tickets or 0), status, now))
-
-            if not to_upsert:
-                return jsonify({'ok': True, 'registered': 0}), 200
-
-            cur.executemany('''
-                INSERT INTO ticket_items (ticket_id, order_id, ticket_number, total_tickets, status, created_at)
-                VALUES (?, ?, NULLIF(?, 0), NULLIF(?, 0), ?, ?)
-                ON CONFLICT(ticket_id) DO UPDATE SET
-                    order_id = excluded.order_id,
-                    ticket_number = COALESCE(excluded.ticket_number, ticket_items.ticket_number),
-                    total_tickets = COALESCE(excluded.total_tickets, ticket_items.total_tickets),
-                    status = CASE
-                        WHEN ticket_items.status IN ('used', 'cancelled') THEN ticket_items.status
-                        ELSE excluded.status
-                    END
-            ''', to_upsert)
-            conn.commit()
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
-
-        return jsonify({'ok': True, 'registered': len(to_upsert)}), 200
+        return jsonify({'ok': True, 'registered': registered}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_register_tickets: {e}")
         return jsonify({'error': 'Không thể đăng ký vé. Vui lòng thử lại.'}), 500
@@ -2153,56 +2182,52 @@ def api_ticket_get_ticket(ticket_id):
         if not ticket_id:
             return jsonify({'error': 'Thiếu ticketId'}), 400
 
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('''
-                SELECT
-                    t.ticket_id, t.order_id, t.ticket_number, t.total_tickets,
-                    t.status AS ticket_status, t.used_at, t.cancelled_at,
-                    o.status AS order_status, o.payment_type, o.cash_payer_name, o.cash_payment_time,
-                    o.buyer_name, o.buyer_email, o.buyer_phone, o.buyer_note,
-                    o.total_amount, o.quantity, o.created_at, o.paid_at,
-                    e.event_id, e.event_name, e.description, e.price_per_ticket
-                FROM ticket_items t
-                JOIN ticket_orders o ON o.order_id = t.order_id
-                JOIN ticket_events e ON e.event_id = o.event_id
-                WHERE t.ticket_id = ?
-            ''', (ticket_id,))
-            row = cur.fetchone()
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
-
-        if not row:
+        event_id, orders_payload, ticket_row, order_row = _find_ticket(ticket_id)
+        if not ticket_row:
             return jsonify({'error': 'Không tìm thấy vé'}), 404
 
+        event_row = _load_event(event_id) if event_id else None
+        payment_status = (ticket_row.get('payment_status') or '').lower()
+        usage_status = (ticket_row.get('usage_status') or '').lower()
+
+        ticket_status = 'valid'
+        if usage_status == 'used':
+            ticket_status = 'used'
+        elif usage_status == 'cancelled':
+            ticket_status = 'cancelled'
+        elif ticket_row.get('expired'):
+            ticket_status = 'expired'
+        elif payment_status in ('pending_verification', 'pending_payment', 'pending'):
+            ticket_status = payment_status
+        elif payment_status == 'cancelled':
+            ticket_status = 'cancelled'
+
+        order_status = (order_row or {}).get('status') if order_row else payment_status
+
         return jsonify({
-            'ticketId': row['ticket_id'],
-            'orderId': row['order_id'],
-            'ticketNumber': int(row['ticket_number'] or 0) if row['ticket_number'] is not None else None,
-            'totalTickets': int(row['total_tickets'] or 0) if row['total_tickets'] is not None else None,
-            'ticketStatus': (row['ticket_status'] or 'valid'),
-            'usedAt': row['used_at'],
-            'cancelledAt': row['cancelled_at'],
-            'orderStatus': row['order_status'],
-            'paymentType': row['payment_type'] or 'transfer',
-            'cashPayerName': row['cash_payer_name'],
-            'cashPaymentTime': row['cash_payment_time'],
-            'buyerName': row['buyer_name'],
-            'buyerEmail': row['buyer_email'],
-            'buyerPhone': row['buyer_phone'],
-            'buyerNote': row['buyer_note'] or '',
-            'totalAmount': int(row['total_amount'] or 0),
-            'quantity': int(row['quantity'] or 0),
-            'createdAt': row['created_at'],
-            'paidAt': row['paid_at'],
-            'eventId': row['event_id'],
-            'eventName': row['event_name'],
-            'description': row['description'] or '',
-            'pricePerTicket': int(row['price_per_ticket'] or 0),
+            'ticketId': ticket_row.get('ticket_id'),
+            'orderId': ticket_row.get('order_id'),
+            'ticketNumber': ticket_row.get('ticket_number'),
+            'totalTickets': ticket_row.get('total_tickets'),
+            'ticketStatus': ticket_status,
+            'usedAt': ticket_row.get('used_at'),
+            'cancelledAt': ticket_row.get('cancelled_at'),
+            'orderStatus': order_status,
+            'paymentType': (order_row or {}).get('payment_type') or 'transfer',
+            'cashPayerName': (order_row or {}).get('cash_payer_name'),
+            'cashPaymentTime': (order_row or {}).get('cash_payment_time'),
+            'buyerName': ticket_row.get('buyer_name') or (order_row or {}).get('buyer_name'),
+            'buyerEmail': ticket_row.get('buyer_email') or (order_row or {}).get('buyer_email'),
+            'buyerPhone': ticket_row.get('buyer_phone') or (order_row or {}).get('buyer_phone'),
+            'buyerNote': ticket_row.get('buyer_note') or (order_row or {}).get('buyer_note') or '',
+            'totalAmount': int((order_row or {}).get('total_amount') or 0),
+            'quantity': int((order_row or {}).get('quantity') or 0),
+            'createdAt': ticket_row.get('created_at'),
+            'paidAt': (order_row or {}).get('paid_at'),
+            'eventId': event_id,
+            'eventName': (event_row or {}).get('event_name') if event_row else '',
+            'description': (event_row or {}).get('description') if event_row else '',
+            'pricePerTicket': int((event_row or {}).get('price_per_ticket') or 0),
         }), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_get_ticket: {e}")
@@ -2218,38 +2243,21 @@ def api_ticket_mark_used(ticket_id):
         if not ticket_id:
             return jsonify({'error': 'Thiếu ticketId'}), 400
 
-        order_id = ''
-        event_id = ''
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT status, order_id FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
-            row = cur.fetchone()
-            if not row:
-                return jsonify({'error': 'Không tìm thấy vé'}), 404
+        event_id, orders_payload, ticket_row, order_row = _find_ticket(ticket_id)
+        if not ticket_row:
+            return jsonify({'error': 'Không tìm thấy vé'}), 404
 
-            order_id = (row['order_id'] or '').strip()
-            if order_id:
-                cur.execute('SELECT event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
-                r2 = cur.fetchone()
-                if r2:
-                    event_id = (r2['event_id'] or '').strip()
+        usage_status = (ticket_row.get('usage_status') or '').lower()
+        if usage_status == 'used':
+            return jsonify({'ok': True, 'status': 'used'}), 200
+        if usage_status == 'cancelled':
+            return jsonify({'error': 'Vé đã bị hủy'}), 400
 
-            status = (row['status'] or '').lower()
-            if status == 'used':
-                return jsonify({'ok': True, 'status': 'used'}), 200
-            if status == 'cancelled':
-                return jsonify({'error': 'Vé đã bị hủy'}), 400
+        ticket_row['usage_status'] = 'used'
+        ticket_row['used_at'] = time.time()
+        _save_orders(event_id, orders_payload)
 
-            cur.execute('UPDATE ticket_items SET status = ?, used_at = ? WHERE ticket_id = ?', ('used', time.time(), ticket_id))
-            conn.commit()
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
-
-        _ws_emit_ticket_updated(ticket_id, extra={'status': 'used', 'orderId': order_id, 'eventId': event_id})
+        _ws_emit_ticket_updated(ticket_id, extra={'status': 'used', 'orderId': ticket_row.get('order_id'), 'eventId': event_id})
         return jsonify({'ok': True, 'status': 'used'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_mark_used: {e}")
@@ -2265,42 +2273,120 @@ def api_ticket_cancel_ticket(ticket_id):
         if not ticket_id:
             return jsonify({'error': 'Thiếu ticketId'}), 400
 
-        order_id = ''
-        event_id = ''
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT status, order_id FROM ticket_items WHERE ticket_id = ?', (ticket_id,))
-            row = cur.fetchone()
-            if not row:
-                return jsonify({'error': 'Không tìm thấy vé'}), 404
+        event_id, orders_payload, ticket_row, order_row = _find_ticket(ticket_id)
+        if not ticket_row:
+            return jsonify({'error': 'Không tìm thấy vé'}), 404
 
-            order_id = (row['order_id'] or '').strip()
-            if order_id:
-                cur.execute('SELECT event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
-                r2 = cur.fetchone()
-                if r2:
-                    event_id = (r2['event_id'] or '').strip()
+        usage_status = (ticket_row.get('usage_status') or '').lower()
+        if usage_status == 'cancelled':
+            return jsonify({'ok': True, 'status': 'cancelled'}), 200
+        if usage_status == 'used':
+            return jsonify({'error': 'Vé đã sử dụng, không thể hủy'}), 400
 
-            status = (row['status'] or '').lower()
-            if status == 'cancelled':
-                return jsonify({'ok': True, 'status': 'cancelled'}), 200
-            if status == 'used':
-                return jsonify({'error': 'Vé đã sử dụng, không thể hủy'}), 400
+        ticket_row['usage_status'] = 'cancelled'
+        ticket_row['payment_status'] = 'cancelled'
+        ticket_row['cancelled_at'] = time.time()
+        _save_orders(event_id, orders_payload)
 
-            cur.execute('UPDATE ticket_items SET status = ?, cancelled_at = ? WHERE ticket_id = ?', ('cancelled', time.time(), ticket_id))
-            conn.commit()
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
-
-        _ws_emit_ticket_updated(ticket_id, extra={'status': 'cancelled', 'orderId': order_id, 'eventId': event_id})
+        _ws_emit_ticket_updated(ticket_id, extra={'status': 'cancelled', 'orderId': ticket_row.get('order_id'), 'eventId': event_id})
         return jsonify({'ok': True, 'status': 'cancelled'}), 200
     except Exception as e:
         logger.error(f"Error in api_ticket_cancel_ticket: {e}")
         return jsonify({'error': 'Không thể hủy vé'}), 500
+
+
+@app.route('/api/ticket/tickets/<ticket_id>/delete', methods=['POST'])
+@limiter.limit("6 per second; 60 per minute")
+def api_ticket_delete_ticket(ticket_id):
+    """Delete a ticket from JSON storage (owner password required)."""
+    try:
+        ticket_id = sanitize_input(ticket_id, max_length=80).upper()
+        if not ticket_id:
+            return jsonify({'error': 'Thiếu ticketId'}), 400
+
+        event_id, orders_payload, ticket_row, order_row = _find_ticket(ticket_id)
+        if not ticket_row:
+            return jsonify({'error': 'Không tìm thấy vé'}), 404
+
+        owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
+        event_row = _load_event(event_id)
+        if not event_row:
+            return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+
+        stored_hash = (event_row.get('owner_password_hash') or '').strip()
+        if stored_hash:
+            if not owner_password:
+                return jsonify({'error': 'Vui lòng nhập mật khẩu quản lý'}), 401
+            provided_hash = _hash_owner_password(event_id, owner_password)
+            if not hmac.compare_digest(stored_hash, provided_hash):
+                return jsonify({'error': 'Mật khẩu không đúng'}), 401
+
+        order_id = ticket_row.get('order_id')
+        tickets = [t for t in orders_payload.get('tickets', []) if not (isinstance(t, dict) and str(t.get('ticket_id') or '').upper() == ticket_id)]
+        orders_payload['tickets'] = tickets
+
+        if order_id:
+            remaining = [t for t in tickets if isinstance(t, dict) and t.get('order_id') == order_id]
+            orders = orders_payload.get('orders', [])
+            if remaining:
+                new_qty = len(remaining)
+                price_per_ticket = int(event_row.get('price_per_ticket') or 0)
+                for o in orders:
+                    if isinstance(o, dict) and o.get('order_id') == order_id:
+                        o['quantity'] = new_qty
+                        o['total_amount'] = int(price_per_ticket * new_qty)
+                        break
+            else:
+                orders = [o for o in orders if not (isinstance(o, dict) and o.get('order_id') == order_id)]
+            orders_payload['orders'] = orders
+
+        _save_orders(event_id, orders_payload)
+        _ws_emit_ticket_updated(ticket_id, extra={'status': 'deleted', 'orderId': order_id, 'eventId': event_id})
+        return jsonify({'ok': True, 'deleted': True}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_delete_ticket: {e}")
+        return jsonify({'error': 'Không thể xóa vé'}), 500
+
+
+@app.route('/api/ticket/events/<event_id>/delete', methods=['POST'])
+@limiter.limit("3 per second; 30 per minute")
+def api_ticket_delete_event(event_id):
+    """Delete an event and all related data (owner password required)."""
+    try:
+        event_id = sanitize_input(event_id, max_length=40)
+        if not event_id:
+            return jsonify({'error': 'Thiếu eventId'}), 400
+
+        owner_password = sanitize_input(request.headers.get('X-Owner-Password', ''), max_length=200)
+        event_row = _load_event(event_id)
+        if not event_row:
+            return jsonify({'error': 'Không tìm thấy sự kiện'}), 404
+
+        stored_hash = (event_row.get('owner_password_hash') or '').strip()
+        if stored_hash:
+            if not owner_password:
+                return jsonify({'error': 'Vui lòng nhập mật khẩu quản lý'}), 401
+            provided_hash = _hash_owner_password(event_id, owner_password)
+            if not hmac.compare_digest(stored_hash, provided_hash):
+                return jsonify({'error': 'Mật khẩu không đúng'}), 401
+
+        event_path = _event_file_path(event_id)
+        orders_path = _orders_file_path(event_id)
+
+        try:
+            if os.path.exists(event_path):
+                os.remove(event_path)
+            if os.path.exists(orders_path):
+                os.remove(orders_path)
+        except Exception as e:
+            logger.warning(f"Failed to delete event files: {e}")
+            return jsonify({'error': 'Không thể xóa sự kiện'}), 500
+
+        _ws_emit_order_updated(order_id='', event_id=event_id, status='deleted', ticket_ids=[])
+        return jsonify({'ok': True, 'deleted': True}), 200
+    except Exception as e:
+        logger.error(f"Error in api_ticket_delete_event: {e}")
+        return jsonify({'error': 'Không thể xóa sự kiện'}), 500
 
 
 @app.route('/api/ticket/orders/<order_id>/confirm', methods=['POST'])
@@ -2310,37 +2396,29 @@ def api_ticket_confirm_order(order_id):
     try:
         order_id = sanitize_input(order_id, max_length=80)
         ticket_ids = []
-        event_id = ''
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT status, event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
-            row = cur.fetchone()
-            if not row:
-                return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+        event_id, orders_payload, order_row = _find_order(order_id)
+        if not order_row:
+            return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
 
-            event_id = (row['event_id'] or '').strip()
+        event_id = event_id or order_row.get('event_id') or ''
+        if (order_row.get('status') or '').lower() == 'paid':
+            return jsonify({'ok': True, 'message': 'Đơn hàng đã được xác nhận trước đó'}), 200
 
-            if row['status'] == 'paid':
-                return jsonify({'ok': True, 'message': 'Đơn hàng đã được xác nhận trước đó'}), 200
+        now = time.time()
+        order_row['status'] = 'paid'
+        order_row['paid_at'] = now
 
-            now = time.time()
-            cur.execute('''
-                UPDATE ticket_orders SET status = 'paid', paid_at = ? WHERE order_id = ?
-            ''', (now, order_id))
+        for t in orders_payload.get('tickets', []):
+            if not isinstance(t, dict):
+                continue
+            if t.get('order_id') != order_id:
+                continue
+            if t.get('usage_status') in ('used', 'cancelled'):
+                continue
+            t['payment_status'] = 'paid'
+            ticket_ids.append(t.get('ticket_id'))
 
-            # Update tickets to valid (do not override used/cancelled)
-            cur.execute('''
-                UPDATE ticket_items
-                SET status = 'valid'
-                WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
-            ''', (order_id,))
-
-            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
-            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
-            conn.commit()
-        finally:
-            conn.close()
+        _save_orders(event_id, orders_payload)
 
         _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'paid'})
         _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='paid', ticket_ids=ticket_ids)
@@ -2357,33 +2435,26 @@ def api_ticket_cancel_order(order_id):
     try:
         order_id = sanitize_input(order_id, max_length=80)
         ticket_ids = []
-        event_id = ''
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT status, event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
-            row = cur.fetchone()
-            if not row:
-                return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+        event_id, orders_payload, order_row = _find_order(order_id)
+        if not order_row:
+            return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
 
-            event_id = (row['event_id'] or '').strip()
+        event_id = event_id or order_row.get('event_id') or ''
+        order_row['status'] = 'cancelled'
 
-            cur.execute('''
-                UPDATE ticket_orders SET status = 'cancelled' WHERE order_id = ?
-            ''', (order_id,))
+        for t in orders_payload.get('tickets', []):
+            if not isinstance(t, dict):
+                continue
+            if t.get('order_id') != order_id:
+                continue
+            if t.get('usage_status') == 'used':
+                continue
+            t['usage_status'] = 'cancelled'
+            t['payment_status'] = 'cancelled'
+            t['cancelled_at'] = t.get('cancelled_at') or time.time()
+            ticket_ids.append(t.get('ticket_id'))
 
-            # Cancel tickets (do not override used)
-            cur.execute('''
-                UPDATE ticket_items
-                SET status = 'cancelled', cancelled_at = COALESCE(cancelled_at, ?)
-                WHERE order_id = ? AND status != 'used'
-            ''', (time.time(), order_id))
-
-            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
-            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
-            conn.commit()
-        finally:
-            conn.close()
+        _save_orders(event_id, orders_payload)
 
         _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'cancelled'})
         _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='cancelled', ticket_ids=ticket_ids)
@@ -2425,40 +2496,29 @@ def api_ticket_upload_proof(order_id):
             return jsonify({'error': 'Vui lòng tải lên ảnh xác nhận'}), 400
 
         ticket_ids = []
-        event_id = ''
-        conn = get_tickets_db()
-        try:
-            cur = conn.cursor()
-            cur.execute('SELECT order_id, status, event_id FROM ticket_orders WHERE order_id = ?', (order_id,))
-            row = cur.fetchone()
-            if not row:
-                return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
+        event_id, orders_payload, row = _find_order(order_id)
+        if not row:
+            return jsonify({'error': 'Không tìm thấy đơn hàng'}), 404
 
-            event_id = (row['event_id'] or '').strip()
+        event_id = event_id or row.get('event_id') or ''
+        status = (row.get('status') or '').lower()
+        new_status = status
+        if status not in ('paid', 'cancelled'):
+            new_status = 'pending_verification'
 
-            status = (row['status'] or '').lower()
-            new_status = status
-            if status not in ('paid', 'cancelled'):
-                new_status = 'pending_verification'
+        row['payment_proof_image'] = image_data
+        row['status'] = new_status
 
-            cur.execute('''
-                UPDATE ticket_orders
-                SET payment_proof_image = ?, status = ?
-                WHERE order_id = ?
-            ''', (image_data, new_status, order_id))
+        for t in orders_payload.get('tickets', []):
+            if not isinstance(t, dict):
+                continue
+            if t.get('order_id') != order_id:
+                continue
+            if new_status == 'pending_verification' and t.get('usage_status') not in ('used', 'cancelled'):
+                t['payment_status'] = 'pending_verification'
+            ticket_ids.append(t.get('ticket_id'))
 
-            if new_status == 'pending_verification':
-                cur.execute('''
-                    UPDATE ticket_items
-                    SET status = 'pending_verification'
-                    WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
-                ''', (order_id,))
-
-            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
-            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
-            conn.commit()
-        finally:
-            conn.close()
+        _save_orders(event_id, orders_payload)
 
         _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': new_status})
         _ws_emit_order_updated(order_id=order_id, event_id=event_id, status=new_status, ticket_ids=ticket_ids)
@@ -2485,101 +2545,82 @@ def api_sepay_webhook(event_id):
             # Some setups may use form-encoded; try to parse basic fields.
             payload = {}
 
-        # Fetch expected key
-        conn = get_tickets_db()
+        event_row = _load_event(event_id)
+        if not event_row:
+            return jsonify({'success': True, 'matched': False, 'reason': 'event_not_found'}), 200
+
+        expected_key = (event_row.get('sepay_api_key') or '').strip()
+        if not expected_key:
+            return jsonify({'success': False, 'error': 'Event is not configured'}), 400
+        if auth_key != expected_key:
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+
+        transfer_type = sanitize_input(payload.get('transferType', ''), max_length=10).lower()
+        if transfer_type and transfer_type != 'in':
+            return jsonify({'success': True, 'matched': False, 'reason': 'not_incoming'}), 200
+
+        content = sanitize_input(payload.get('content', ''), max_length=300)
+        code = sanitize_input(payload.get('code', ''), max_length=120)
+        ref_code = sanitize_input(payload.get('referenceCode', ''), max_length=120)
+
+        # Try to resolve orderId
+        order_id = ''
+        if code:
+            order_id = code
+        if not order_id and content:
+            m = re.search(r'(TK[0-9A-Z]{6,})', content.upper())
+            if m:
+                order_id = m.group(1)
+
+        if not order_id:
+            return jsonify({'success': True, 'matched': False, 'reason': 'no_order_id'}), 200
+
         try:
-            cur = conn.cursor()
-            cur.execute('SELECT sepay_api_key FROM ticket_events WHERE event_id = ?', (event_id,))
-            ev = cur.fetchone()
-            if not ev:
-                return jsonify({'success': True, 'matched': False, 'reason': 'event_not_found'}), 200
+            amt = payload.get('transferAmount')
+            amount_int = int(float(amt)) if amt is not None else None
+        except (TypeError, ValueError):
+            amount_int = None
 
-            expected_key = (ev['sepay_api_key'] or '').strip()
-            if not expected_key:
-                return jsonify({'success': False, 'error': 'Event is not configured'}), 400
-            if auth_key != expected_key:
-                return jsonify({'success': False, 'error': 'Unauthorized'}), 401
+        _eid, orders_payload, order = _find_order(order_id)
+        if not order or (_eid and _eid != event_id):
+            return jsonify({'success': True, 'matched': False, 'reason': 'order_not_found'}), 200
 
-            # Dedupe by SePay transaction id
-            sepay_id = payload.get('id')
-            try:
-                sepay_id_int = int(sepay_id) if sepay_id is not None else None
-            except (TypeError, ValueError):
-                sepay_id_int = None
+        expected_amount = int(order.get('total_amount') or 0)
+        if amount_int is not None and amount_int != expected_amount:
+            return jsonify({'success': True, 'matched': False, 'reason': 'amount_mismatch'}), 200
 
-            if sepay_id_int is not None:
-                try:
-                    cur.execute('INSERT INTO sepay_webhook_dedupe (sepay_id, received_at) VALUES (?, ?)', (sepay_id_int, time.time()))
-                    conn.commit()
-                except sqlite3.IntegrityError:
-                    # Duplicate delivery
-                    return jsonify({'success': True, 'matched': True, 'duplicate': True}), 200
+        status = (order.get('status') or '').lower()
+        if status == 'paid':
+            return jsonify({'success': True, 'matched': True, 'already_paid': True}), 200
 
-            transfer_type = sanitize_input(payload.get('transferType', ''), max_length=10).lower()
-            if transfer_type and transfer_type != 'in':
-                return jsonify({'success': True, 'matched': False, 'reason': 'not_incoming'}), 200
+        sepay_id = payload.get('id')
+        try:
+            sepay_id_int = int(sepay_id) if sepay_id is not None else None
+        except (TypeError, ValueError):
+            sepay_id_int = None
 
-            content = sanitize_input(payload.get('content', ''), max_length=300)
-            code = sanitize_input(payload.get('code', ''), max_length=120)
-            ref_code = sanitize_input(payload.get('referenceCode', ''), max_length=120)
+        ticket_ids = []
+        order['status'] = 'paid'
+        order['paid_at'] = time.time()
+        order['sepay_transaction_id'] = sepay_id_int
+        order['sepay_reference_code'] = ref_code or ''
 
-            # Try to resolve orderId
-            order_id = ''
-            if code:
-                order_id = code
-            if not order_id and content:
-                m = re.search(r'(TK[0-9A-Z]{6,})', content.upper())
-                if m:
-                    order_id = m.group(1)
+        for t in orders_payload.get('tickets', []):
+            if not isinstance(t, dict):
+                continue
+            if t.get('order_id') != order_id:
+                continue
+            if t.get('usage_status') in ('used', 'cancelled'):
+                continue
+            t['payment_status'] = 'paid'
+            ticket_ids.append(t.get('ticket_id'))
 
-            if not order_id:
-                return jsonify({'success': True, 'matched': False, 'reason': 'no_order_id'}), 200
+        _save_orders(event_id, orders_payload)
 
-            try:
-                amt = payload.get('transferAmount')
-                amount_int = int(float(amt)) if amt is not None else None
-            except (TypeError, ValueError):
-                amount_int = None
+        _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'paid', 'eventId': event_id})
+        _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='paid', ticket_ids=ticket_ids)
 
-            cur.execute('SELECT status, total_amount FROM ticket_orders WHERE order_id = ? AND event_id = ?', (order_id, event_id))
-            order = cur.fetchone()
-            if not order:
-                return jsonify({'success': True, 'matched': False, 'reason': 'order_not_found'}), 200
-
-            expected_amount = int(order['total_amount'])
-            if amount_int is not None and amount_int != expected_amount:
-                return jsonify({'success': True, 'matched': False, 'reason': 'amount_mismatch'}), 200
-
-            status = (order['status'] or '').lower()
-            if status == 'paid':
-                return jsonify({'success': True, 'matched': True, 'already_paid': True}), 200
-
-            ticket_ids = []
-            cur.execute('''
-                UPDATE ticket_orders
-                SET status = 'paid', paid_at = ?, sepay_transaction_id = ?, sepay_reference_code = ?
-                WHERE order_id = ?
-            ''', (time.time(), sepay_id_int, ref_code or None, order_id))
-
-            cur.execute('''
-                UPDATE ticket_items
-                SET status = 'valid'
-                WHERE order_id = ? AND status NOT IN ('used', 'cancelled')
-            ''', (order_id,))
-
-            cur.execute('SELECT ticket_id FROM ticket_items WHERE order_id = ? ORDER BY ticket_id ASC', (order_id,))
-            ticket_ids = [r['ticket_id'] for r in cur.fetchall()]
-            conn.commit()
-
-            _ws_emit_tickets_updated(ticket_ids, extra={'orderId': order_id, 'orderStatus': 'paid', 'eventId': event_id})
-            _ws_emit_order_updated(order_id=order_id, event_id=event_id, status='paid', ticket_ids=ticket_ids)
-
-            return jsonify({'success': True, 'matched': True, 'orderId': order_id}), 200
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
+        return jsonify({'success': True, 'matched': True, 'orderId': order_id}), 200
     except Exception as e:
         logger.error(f"Error in api_sepay_webhook: {e}")
         # Return 200 with success=false to avoid SePay retry storm on server errors.
